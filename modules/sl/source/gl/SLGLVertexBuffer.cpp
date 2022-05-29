@@ -23,7 +23,6 @@ SLGLVertexBuffer::SLGLVertexBuffer()
     _sizeBytes         = 0;
     _outputInterleaved = false;
     _usage             = BU_stream;
-    _dataType          = BT_float;
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the OpenGL objects for the vertex array and the vertex buffer.
@@ -165,9 +164,10 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
     if (inputIsInterleaved)
     {
         _outputInterleaved = true;
+
         for (SLuint i = 0; i < _attribs.size(); ++i)
         {
-            SLuint elementSizeBytes     = (SLuint)_attribs[i].elementSize * sizeOfType(_dataType);
+            SLuint elementSizeBytes     = (SLuint)_attribs[i].elementSize * sizeOfType(_attribs[i].dataType);
             _attribs[i].offsetBytes     = _strideBytes;
             _attribs[i].bufferSizeBytes = elementSizeBytes * _numVertices;
             _sizeBytes += _attribs[i].bufferSizeBytes;
@@ -178,7 +178,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
     {
         for (SLuint i = 0; i < _attribs.size(); ++i)
         {
-            SLuint elementSizeBytes = (SLuint)_attribs[i].elementSize * sizeOfType(_dataType);
+            SLuint elementSizeBytes = (SLuint)_attribs[i].elementSize * sizeOfType(_attribs[i].dataType);
             if (_outputInterleaved)
                 _attribs[i].offsetBytes = _strideBytes;
             else
@@ -199,12 +199,23 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
         {
             if (a.location > -1)
             { // Sets the vertex attribute data pointer to its corresponding GLSL variable
-                glVertexAttribPointer((SLuint)a.location,
-                                      a.elementSize,
-                                      _dataType,
-                                      GL_FALSE,
-                                      (SLint)_strideBytes,
-                                      (void*)(size_t)a.offsetBytes);
+                if (a.dataType == BT_uint)
+                {
+                    glVertexAttribIPointer((SLuint)a.location,
+                                           a.elementSize,
+                                           a.dataType,
+                                           (SLint)_strideBytes,
+                                           (void*)(size_t)a.offsetBytes);                
+                }
+                else
+                {
+                    glVertexAttribPointer((SLuint)a.location,
+                                          a.elementSize,
+                                          a.dataType,
+                                          GL_FALSE,
+                                          (SLint)_strideBytes,
+                                          (void*)(size_t)a.offsetBytes);
+                }
 
                 // Tell the attribute to be an array attribute instead of a state variable
                 glEnableVertexAttribArray((SLuint)a.location);
@@ -223,7 +234,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
 
             for (auto a : _attribs)
             {
-                SLuint elementSizeBytes = (SLuint)a.elementSize * sizeOfType(_dataType);
+                SLuint elementSizeBytes = (SLuint)a.elementSize * sizeOfType(a.dataType);
 
                 // Copy attributes interleaved
                 for (SLuint v = 0; v < _numVertices; ++v)
@@ -236,12 +247,23 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
 
                 if (a.location > -1)
                 { // Sets the vertex attribute data pointer to its corresponding GLSL variable
-                    glVertexAttribPointer((SLuint)a.location,
-                                          a.elementSize,
-                                          _dataType,
-                                          GL_FALSE,
-                                          (SLint)_strideBytes,
-                                          (void*)(size_t)a.offsetBytes);
+                    if (a.dataType == BT_uint)
+                    {
+                        glVertexAttribIPointer((SLuint)a.location,
+                                               a.elementSize,
+                                               a.dataType,
+                                               (SLint)_strideBytes,
+                                               (void*)(size_t)a.offsetBytes);
+                    }
+                    else
+                    {
+                        glVertexAttribPointer((SLuint)a.location,
+                                              a.elementSize,
+                                              a.dataType,
+                                              GL_FALSE,
+                                              (SLint)_strideBytes,
+                                              (void*)(size_t)a.offsetBytes);
+                    }
 
                     // Tell the attribute to be an array attribute instead of a state variable
                     glEnableVertexAttribArray((SLuint)a.location);
@@ -267,12 +289,23 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
                                     a.dataPointer);
 
                     // Sets the vertex attribute data pointer to its corresponding GLSL variable
-                    glVertexAttribPointer((SLuint)a.location,
-                                          a.elementSize,
-                                          _dataType,
-                                          GL_FALSE,
-                                          0,
-                                          (void*)(size_t)a.offsetBytes);
+                    if (a.dataType == BT_uint)
+                    {
+                        glVertexAttribIPointer((SLuint)a.location,
+                                               a.elementSize,
+                                               a.dataType,
+                                               0,
+                                               (void*)(size_t)a.offsetBytes);
+                    }
+                    else
+                    {
+                        glVertexAttribPointer((SLuint)a.location,
+                                              a.elementSize,
+                                              a.dataType,
+                                              GL_FALSE,
+                                              0,
+                                              (void*)(size_t)a.offsetBytes);
+                    }
 
                     // Tell the attribute to be an array attribute instead of a state variable
                     glEnableVertexAttribArray((SLuint)a.location);
@@ -303,7 +336,7 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
                 // Sets the vertex attribute data pointer to its corresponding GLSL variable
                 glVertexAttribPointer((SLuint)a.location,
                                       a.elementSize,
-                                      _dataType,
+                                      a.dataType,
                                       GL_FALSE,
                                       (SLsizei)_strideBytes,
                                       (void*)(size_t)a.offsetBytes);

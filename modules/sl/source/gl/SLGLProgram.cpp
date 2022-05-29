@@ -143,6 +143,16 @@ void SLGLProgram::initRaw()
     GLint success = 0;
     glGetProgramiv(_progID, GL_LINK_STATUS, &success);
 
+    if (success)
+    {
+        _isLinked = true;
+
+        // if name is empty concatenate shader names
+        if (_name.empty())
+            for (auto* shader : _shaders)
+                _name += shader->name() + ", ";
+    }
+
     if (!success)
     {
         GLchar log[1024];
@@ -156,6 +166,104 @@ void SLGLProgram::initRaw()
     {
         glDeleteShader(shader->_shaderID);
         GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLProgram::initTF() initializes shader for transform feedback.
+ * Does not replace any code from the shader and assumes valid syntax for the
+ * shader used. Used for particle systems
+ */
+void SLGLProgram::initTF(const char* writeBackAttrib[], int size)
+{
+    // create program object if it doesn't exist
+    if (!_progID)
+        _progID = glCreateProgram();
+
+    // if already linked, detach, recreate and compile shaders
+    if (_isLinked)
+    {
+        for (auto* shader : _shaders)
+        {
+            if (_isLinked)
+            {
+                glDetachShader(_progID, shader->_shaderID);
+                GET_GL_ERROR;
+            }
+        }
+        _isLinked = false;
+    }
+
+    // compile all shader objects
+    SLbool allSuccuessfullyCompiled = true;
+    for (auto* shader : _shaders)
+    {
+        if (!shader->createAndCompile(nullptr))
+        {
+            allSuccuessfullyCompiled = false;
+            break;
+        }
+        GET_GL_ERROR;
+    }
+
+    // try to compile alternative per vertex lighting shaders
+    if (!allSuccuessfullyCompiled)
+    {
+        // delete all shaders and uniforms that where attached
+        for (auto* sh : _shaders)
+            delete sh;
+        for (auto* uf : _uniforms1f)
+            delete uf;
+        for (auto* ui : _uniforms1i)
+            delete ui;
+
+        _shaders.clear();
+        _uniforms1f.clear();
+        _uniforms1i.clear();
+    }
+
+    // attach all shader objects
+    if (allSuccuessfullyCompiled)
+    {
+        for (auto* shader : _shaders)
+        {
+            glAttachShader(_progID, shader->_shaderID);
+            GET_GL_ERROR;
+        }
+    }
+    else
+    {
+        SL_EXIT_MSG("No successfully compiled shaders attached!");
+    }
+
+    int linked = 0;
+    glTransformFeedbackVaryings(_progID,
+                                size,
+                                writeBackAttrib,
+                                GL_INTERLEAVED_ATTRIBS);
+    glLinkProgram(_progID);
+    GET_GL_ERROR;
+    glGetProgramiv(_progID, GL_LINK_STATUS, &linked);
+    GET_GL_ERROR;
+
+    if (linked)
+    {
+        _isLinked = true;
+
+        // if name is empty concatenate shader names
+        if (_name.empty())
+            for (auto* shader : _shaders)
+                _name += shader->name() + ", ";
+    }
+    else
+    {
+        SLchar log[256];
+        glGetProgramInfoLog(_progID, sizeof(log), nullptr, &log[0]);
+        SL_LOG("*** LINKER ERROR ***");
+        SL_LOG("Source files: ");
+        for (auto* shader : _shaders)
+            SL_LOG("%s", shader->name().c_str());
+        SL_LOG("ProgramInfoLog: %s", log);
+        SL_EXIT_MSG("GLSL linker error");
     }
 }
 //-----------------------------------------------------------------------------

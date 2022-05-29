@@ -192,6 +192,8 @@ file(GLOB sources
         source/mesh/SLLens.h
         source/mesh/SLMesh.cpp
         source/mesh/SLMesh.h
+	source/mesh/SLParticleSystem.cpp
+        source/mesh/SLParticleSystem.h
         source/mesh/SLPoints.cpp
         source/mesh/SLPoints.h
         source/mesh/SLPolygon.cpp

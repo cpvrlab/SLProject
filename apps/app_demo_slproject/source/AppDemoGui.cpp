@@ -27,6 +27,7 @@
 #include <SLShadowMap.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
+#include <SLParticleSystem.h>
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -36,6 +37,8 @@
 #include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
+#include <bezier.hpp>
+#include <imgui_color_gradient.h>
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
@@ -170,7 +173,7 @@ Help for mouse or finger control:
 
 SLstring AppDemoGui::infoCalibrate = R"(
 The calibration process requires a chessboard image to be printed and glued on a flat board. You can find the PDF with the chessboard image on:
-https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/
+https://github.com/cpvrlab/SLProject/doTree/master/data/calibrations/
 For a calibration you have to take 20 images with detected inner chessboard corners. To take an image you have to click with the mouse
 or tap with finger into the screen. View the chessboard from the side so that the inner corners cover the full image. Hold the camera or board really still
 before taking the picture.
@@ -430,6 +433,16 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
                         sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
+                    if (s->singleMeshFullSelected() != nullptr)
+                    {
+                        SLParticleSystem *ps = s->singleMeshFullSelected()->mat()->ps();
+                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
+                        {
+                            sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
+                            sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
+
+                        }
+                    }
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
@@ -438,8 +451,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_rt)
                 {
                     SLRaytracer* rt           = sv->raytracer();
-                    SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
-                    SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
+                    SLint        rtWidth      = (SLint)((float)sv->viewportW() * rt->resolutionFactor());
+                    SLint        rtHeight     = (SLint)((float)sv->viewportH() * rt->resolutionFactor());
                     SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
                     SLuint       rayTotal     = SLRay::totalNumRays();
                     SLfloat      renderSec    = rt->renderSec();
@@ -463,7 +476,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
                 }
 #if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
                 else if (rType == RT_optix_rt)
@@ -486,8 +499,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_pt)
                 {
                     SLPathtracer* pt           = sv->pathtracer();
-                    SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
-                    SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
+                    SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
+                    SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
                     SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
                     SLuint        rayTotal     = SLRay::totalNumRays();
 
@@ -560,7 +573,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
                 SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
                 SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
-                SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+                SLint        numVisibleNodes   = (int)(stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes);
                 SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
@@ -573,7 +586,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat cpuMBTexture = 0;
                 for (auto* t : am->textures())
                     for (auto* i : t->images())
-                        cpuMBTexture += i->bytesPerImage();
+                        cpuMBTexture += (float)i->bytesPerImage();
                 cpuMBTexture = cpuMBTexture / 1E6f;
 
                 SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
@@ -826,7 +839,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
-                ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
+                ImGui::SetNextWindowPos(ImVec2(0, (float)sv->scrH() - h));
                 ImGui::SetNextWindowSize(ImVec2(w, h));
                 ImGui::Begin("Scene Information", &showInfosScene, window_flags);
                 ImGui::SetCursorPosX((w - size.x) * 0.5f);
@@ -1956,7 +1969,28 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         ImGui::EndMenu();
                     }
                 }
-
+                if (ImGui::BeginMenu("Particle System"))
+                {
+                    if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_First);
+                    if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
+                    if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
+                    if (ImGui::MenuItem("Dust storm effect particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
+                    if (ImGui::MenuItem("Fountain effect particle system", nullptr, sid == SID_ParticleSystem_Fountain))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
+                    if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
+                    if (ImGui::MenuItem("FireComplex effect particle system", nullptr, sid == SID_ParticleSystem_FireComplex))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
+                    if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
+                    
+                    
+                    ImGui::EndMenu();
+                }
                 ImGui::EndMenu();
             }
 
@@ -3754,6 +3788,605 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::TreePop();
                         }
                     }
+                    else if (m->reflectionModel() == RM_Particle)
+                    {
+                        if (ImGui::TreeNode("Reflection Model: Particle"))
+                        {
+                            SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                            // Pause/Resume
+                            bool isPaused = ps->isPaused();
+                            if (isPaused)
+                            {
+                                if (ImGui::Button("Resume"))
+                                    ps->pauseOrResume();
+                            }
+                            else
+                            {
+                                if (ImGui::Button("Pause"))
+                                    ps->pauseOrResume();
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button("Reset"))
+                                ps->isGenerated(false);
+
+                            // Amount
+                            int amount = ps->amount();
+                            if(ImGui::InputInt("Amount of particles", &amount))
+                            {
+                                ps->amount(amount);
+                                ps->isGenerated(false);
+                            }
+                            // TTL (Time to live)
+                            if (ImGui::CollapsingHeader("Time to live"))
+                            {
+                                ImGui::Indent();
+                                float timeToLive = ps->timeToLive();
+                                if (ImGui::InputFloat("Time to live (s)", &timeToLive))
+                                {
+                                    ps->timeToLive(timeToLive);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Counter bug lag/gap
+                                bool doCounterGap = ps->doCounterGap();
+                                if (ImGui::Checkbox("Counter lag/gap", &doCounterGap))
+                                {
+                                    ps->doCounterGap(doCounterGap);
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                ImGui::TextWrapped("Need to be enable by default but can create flickering with few particles, recommend to disable if few particles with no velocity ");
+                                ImGui::Unindent();
+                            }
+                            // Radius
+                            float radiusW = ps->radiusW();
+                            if (ImGui::InputFloat("Radius width", &radiusW))
+                            {
+                                ps->radiusW(radiusW);
+                                singleNode->needAABBUpdate();
+                            }
+                            float radiusH = ps->radiusH();
+                            if (ImGui::InputFloat("Radius height", &radiusH))
+                            {
+                                ps->radiusH(radiusH);
+                                singleNode->needAABBUpdate();
+                            }
+                            // Scale
+                            float scale = ps->scale();
+                            if (ImGui::InputFloat("Scale", &scale))
+                            {
+                                ps->scale(scale);
+                                singleNode->needAABBUpdate();
+                            }
+                            // World space
+                            SLbool doWorldSpace = ps->doWorldSpace();
+                            if (ImGui::Checkbox("World space", &doWorldSpace))
+                                ps->doWorldSpace(doWorldSpace);
+                            // Gravity
+                            SLbool doGravity = ps->doGravity();
+                            if (ImGui::Checkbox("Gravity", &doGravity)) {
+                                ps->doGravity(doGravity);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Gravity", &doGravity))
+                            {
+                                ImGui::Indent();
+                                float vec3Gravity[3] = {ps->gravity().x, ps->gravity().y, ps->gravity().z};
+                                if (ImGui::InputFloat3("Gravity XYZ", vec3Gravity))
+                                {
+                                    ps->gravity(vec3Gravity[0], vec3Gravity[1], vec3Gravity[2]);
+                                    singleNode->needAABBUpdate();
+                                }
+                                ImGui::Unindent();
+                            }
+                                
+                            // Billboard
+                            int item_current = ps->billboardType();
+                            if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0Horizontal billboard\0")) {
+                                ps->billboardType(item_current);
+                                m->program(nullptr);
+                                if (item_current == 2)
+                                {
+                                    if (!sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
+                                else
+                                {
+                                    if (sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
+                            }
+                            // Velocity
+                            if (ps->doDirectionSpeed())
+                                ImGui::BeginDisabled();
+                            if (ImGui::CollapsingHeader("Velocity"))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->velocityType();
+                                if (ImGui::Combo("Velocity type", &item_current, "Random axes\0Constant axes\0"))
+                                {
+                                    ps->velocityType(item_current);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (item_current == 0)
+                                {
+                                    float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
+                                    if (ImGui::InputFloat3("Start range XYZ", vec3fVstart))
+                                    {
+                                        ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
+                                    if (ImGui::InputFloat3("End range XYZ", vec3fVend))
+                                    {
+                                        ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else if (item_current == 1)
+                                {
+                                    float vec3fVelocity[3] = {ps->velocityConst().x, ps->velocityConst().y, ps->velocityConst().z};
+                                    if (ImGui::InputFloat3("Constant XYZ", vec3fVelocity))
+                                    {
+                                        ps->velocityConst(vec3fVelocity[0], vec3fVelocity[1], vec3fVelocity[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+                            if (ps->doDirectionSpeed())
+                                ImGui::EndDisabled();
+
+                            // Direction and speed: Add maybe later mix with velocity
+                            SLbool directionSpeed_group = ps->doDirectionSpeed();
+                            if (ImGui::Checkbox("Direction and Speed", &directionSpeed_group))
+                            {
+                                ps->doDirectionSpeed(directionSpeed_group);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Direction and Speed", &directionSpeed_group))
+                            {
+                                ImGui::Indent();
+                                float vec3fDirection[3] = {ps->direction().x, ps->direction().y, ps->direction().z}; // Direction
+                                if (ImGui::InputFloat3("Constant XYZ", vec3fDirection))
+                                {
+                                    ps->direction(vec3fDirection[0], vec3fDirection[1], vec3fDirection[2]);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Speed
+                                item_current = ps->doSpeedRange() ? 1 : 0;
+                                if (ImGui::Combo("Speed value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current == 1)
+                                        ps->doSpeedRange(true);
+                                    else
+                                        ps->doSpeedRange(false);
+
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (!ps->doSpeedRange())
+                                {
+                                    float speed = ps->speed();
+                                    if (ImGui::InputFloat("Constant", &speed))
+                                    {
+                                        ps->speed(speed);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->speedRange().x, ps->speedRange().y};
+                                    if (ImGui::InputFloat2("Random range Speed", vec2fRange))
+                                    {
+                                        ps->speedRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+                            
+                            // Color checkbox
+                            SLbool color_group = ps->doColor();
+                            if (ImGui::Checkbox("Color", &color_group))
+                            {
+                                ps->doColor(color_group);
+                                m->program(nullptr);
+                            }
+                            if (ImGui::CollapsingHeader("Color", &color_group))
+                            {
+                                ImGui::Indent();
+                                //Color blending brightness/glow
+                                SLbool color_bright = ps->doBlendingBrigh();
+                                if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
+                                {
+                                    ps->doBlendingBrigh(color_bright);
+                                }
+                                // Color
+                                if (ps->doColorOverLF())
+                                    ImGui::BeginDisabled();
+                                ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                                SLCol4f             c   = ps->color();
+                                if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
+                                    ps->color(c);
+                                if (ps->doColorOverLF())
+                                    ImGui::EndDisabled();
+                                // Color over life
+                                SLbool doColorOverLF_group = ps->doColorOverLF();
+
+                                static ImGradient      gradient;
+                                static ImGradientMark* draggingMark = nullptr;
+                                static ImGradientMark* selectedMark = nullptr;
+
+                                static bool once = []()
+                                {
+                                    gradient.getMarks().clear();
+                                    gradient.addMark(0.0f, ImColor(255, 0, 0));
+                                    gradient.addMark(0.37f, ImColor(255, 193, 3));
+                                    gradient.addMark(1.0f, ImColor(255, 255, 255));
+                                    return true;
+                                }();
+
+                                if (ImGui::Checkbox("Color over lifetime", &doColorOverLF_group))
+                                {
+                                    ps->doColorOverLF(doColorOverLF_group);
+                                    ps->colorArr(gradient.cachedValues());
+                                    m->program(nullptr);
+                                }
+                                if (ImGui::CollapsingHeader("Color over lifetime", &doColorOverLF_group))
+                                {
+                                    if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
+                                    {
+                                        ps->colorArr(gradient.cachedValues());
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Tree (Fractal)
+                            SLbool doTree_group = ps->doTree();
+                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &doTree_group))
+                            {
+                                ps->doTree(doTree_group);
+                                m->programTF(nullptr);
+                            }
+                            if (ImGui::CollapsingHeader("Tree param", &doTree_group))
+                            {
+                                float angle = ps->angle();
+                                if (ImGui::InputFloat("Angle of branches", &angle))
+                                {
+                                    ps->angle(angle);
+                                }
+                                int numBranch = ps->numBranch();
+                                if (ImGui::InputInt("Number of branches", &numBranch))
+                                {
+                                    ps->numBranch((int)angle);
+                                }
+                            }
+
+                            // Rotation
+                            SLbool rot_group = ps->doRot();
+                            if (ImGui::Checkbox("Rotation", &rot_group))
+                            {
+                                ps->doRot(rot_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Rotation", &rot_group))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->doRotRange() ? 1 : 0;
+                                if (ImGui::Combo("Angular velocity value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current==1)
+                                        ps->doRotRange(true);
+                                    else
+                                        ps->doRotRange(false);
+                                    
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                if (!ps->doRotRange())
+                                {
+                                    float angularVelocityConst = ps->angularVelocityConst();
+                                    if (ImGui::InputFloat("Constant", &angularVelocityConst))
+                                    {
+                                        ps->angularVelocityConst(angularVelocityConst);
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->angularVelocityRange().x, ps->angularVelocityRange().y};
+                                    if (ImGui::InputFloat2("Random range A.V", vec2fRange))
+                                    {
+                                        ps->angularVelocityRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Shape
+                            SLbool shape_group = ps->doShape();
+                            if (ImGui::Checkbox("Shape", &shape_group))
+                            {
+                                ps->doShape(shape_group);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Shape", &shape_group))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->shapeType();
+                                if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
+                                {
+                                    ps->shapeType(item_current);
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (item_current == 0)
+                                {
+                                    float radiusSphere = ps->radiusSphere();
+                                    if (ImGui::InputFloat("Radius of the sphere", &radiusSphere))
+                                    {
+                                        ps->radiusSphere(radiusSphere);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == 1)
+                                {
+                                    float vec3fScaleBox[3] = {ps->scaleBox().x, ps->scaleBox().y, ps->scaleBox().z};
+                                    if (ImGui::InputFloat3("Scale box XYZ", vec3fScaleBox))
+                                    {
+                                        ps->scaleBox(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == 2)
+                                {
+                                    float radius = ps->radiusCone();
+                                    if (ImGui::InputFloat("Radius", &radius))
+                                    {
+                                        ps->radiusCone(radius);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float angle = ps->angleCone();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->angleCone(angle);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float height = ps->heightCone();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->heightCone(height);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == 3)
+                                {
+                                    float halfSide = ps->halfSidePyramid();
+                                    if (ImGui::InputFloat("Half side", &halfSide))
+                                    {
+                                        ps->halfSidePyramid(halfSide);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float angle = ps->anglePyramid();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->anglePyramid(angle);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float height = ps->heightPyramid();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->heightPyramid(height);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                //Add surface spawning check box
+                                SLbool shapeSurf = ps->doShapeSurface();
+                                if (ImGui::Checkbox("Spawn surface", &shapeSurf))
+                                {
+                                    ps->doShapeSurface(shapeSurf);
+                                    ps->isGenerated(false);
+                                }
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeSpawnBase = ps->doShapeSpawnBase();
+                                    if (ImGui::Checkbox("Spawn base volume", &shapeSpawnBase))
+                                    {
+                                        ps->doShapeSpawnBase(shapeSpawnBase);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::BeginDisabled();
+                                ImGui::LabelText("Condition", "Need to have direction and speed enabled");
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Follow shape direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    
+                                }
+                                else if (item_current == 0 || item_current == 1) {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Inverse center direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::EndDisabled();
+                                ImGui::Unindent();
+                            }
+
+                            // Acceleration
+                            SLbool acc_group = ps->doAcc();
+                            if (ImGui::Checkbox("Acceleration", &acc_group)) {
+                                ps->doAcc(acc_group);
+                                m->programTF(nullptr);
+                                singleNode->needAABBUpdate();
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Acceleration", &acc_group))
+                            {
+                                ImGui::Indent();
+                                if (ps->doAccDiffDir())
+                                    ImGui::BeginDisabled();
+                                float accConst = ps->accConst();
+                                if (ImGui::InputFloat("Accelaration constant", &accConst))
+                                {
+                                    ps->accConst(accConst);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (ps->doAccDiffDir())
+                                    ImGui::EndDisabled();
+                                SLbool accDiffDirection_group = ps->doAccDiffDir();
+                                if (ImGui::Checkbox("Direction vector", &accDiffDirection_group))
+                                {
+                                    ps->doAccDiffDir(accDiffDirection_group);
+                                    m->programTF(nullptr);
+                                    singleNode->needAABBUpdate();
+                                    
+                                }
+                                if (ImGui::CollapsingHeader("Direction vector", &accDiffDirection_group))
+                                {
+                                    float vec3fAcc[3] = {ps->acc().x, ps->acc().y, ps->acc().z};
+                                    ImGui::InputFloat3("input float3", vec3fAcc);
+                                    ps->acc(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                    singleNode->needAABBUpdate();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Alpha over lifetime
+                            SLbool doAlphaOverL_group = ps->doAlphaOverL();
+                            if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group)) {
+                                ps->doAlphaOverL(doAlphaOverL_group);
+                                m->program(nullptr);
+                            }
+                            if (ImGui::CollapsingHeader("Alpha over lifetime", &doAlphaOverL_group))
+                            {
+                                ImGui::Indent();
+                                SLbool       doAlphaOverLCurve_group = ps->doAlphaOverLCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &doAlphaOverLCurve_group))
+                                {
+                                    ps->doAlphaOverLCurve(doAlphaOverLCurve_group);
+                                    m->program(nullptr);
+                                }
+                                if (ImGui::CollapsingHeader("Bezier curve alpha", &doAlphaOverLCurve_group))
+                                {
+                                    ImGui::Indent();
+                                    float *vAlpha = ps->bezierControlPointAlpha();
+                                    float *staEndAlpha = ps->bezierStartEndPointAlpha();
+                                    ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
+                                    ps->generateBernsteinPAlpha();
+                                    ImGui::Unindent();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Size over lifetime
+                            SLbool doSizeOverLF_group = ps->doSizeOverLF();
+                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group)) {
+                                ps->doSizeOverLF(doSizeOverLF_group);
+                                m->program(nullptr);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Size over lifetime", &doSizeOverLF_group))
+                            {
+                                ImGui::Indent();
+                                SLbool doSizeOverLFCurve_group = ps->doSizeOverLFCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &doSizeOverLFCurve_group))
+                                {
+                                    ps->doSizeOverLFCurve(doSizeOverLFCurve_group);
+                                    m->program(nullptr);
+                                }
+                                if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLFCurve_group))
+                                {
+                                    ImGui::Indent();
+                                    float *vSize = ps->bezierControlPointSize();
+                                    float* staEndSize = ps->bezierStartEndPointSize();
+                                    ImGui::Bezier("easeInExpo", vSize, staEndSize);
+                                    ps->generateBernsteinPSize();
+                                    ImGui::Unindent();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Flipbook texture
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::BeginDisabled();
+                            SLbool flipbookTex_group = ps->doFlipBookTexture();
+                            if (ImGui::Checkbox("Flipbook texture", &flipbookTex_group))
+                            {
+                                ps->doFlipBookTexture(flipbookTex_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr);
+                                ps->changeTexture();     // Switch texture
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
+                            {
+                                ImGui::Indent();
+                                int fR = ps->frameRateFB();
+                                if (ImGui::InputInt("Frame rate (num update by s)", &fR))
+                                {
+                                    ps->frameRateFB(fR);
+                                }
+                                ImGui::Unindent();
+                            }
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::EndDisabled();
+
+                            // Size random (not done yet)
+                            SLbool doSizeRandom_group = ps->doSizeRandom();
+                            if (ImGui::Checkbox("Size random (NOT DONE)", &doSizeRandom_group))
+                                ps->doSizeRandom(doSizeRandom_group);
+                            if (ImGui::CollapsingHeader("Size random", &doSizeRandom_group))
+                            {
+                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+                                for (int i = 0; i < 5; i++)
+                                    ImGui::Text("More content %d", i);
+                            }
+
+                            ImGui::PopItemWidth();
+                            ImGui::TreePop();
+                        }
+                    }
                     else
                     {
                     }
@@ -3767,24 +4400,44 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         ImGui::TreePop();
                     }
-
-                    for (auto* shd : m->program()->shaders())
+                    if (m->program() != nullptr)
                     {
-                        SLfloat lineH = ImGui::GetTextLineHeight();
-
-                        if (ImGui::TreeNode(shd->name().c_str()))
+                        for (auto* shd : m->program()->shaders())
                         {
-                            SLchar* text = new char[shd->code().length() + 1];
-                            strcpy(text, shd->code().c_str());
-                            ImGui::InputTextMultiline(shd->name().c_str(),
-                                                      text,
-                                                      shd->code().length() + 1,
-                                                      ImVec2(-1.0f, -1.0f));
-                            ImGui::TreePop();
-                            delete[] text;
+                            SLfloat lineH = ImGui::GetTextLineHeight();
+
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
                         }
                     }
+                    if (m->programTF() != nullptr)
+                    {
+                        for (auto* shd : m->programTF()->shaders())
+                        {
+                            SLfloat lineH = ImGui::GetTextLineHeight();
 
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
+                        }
+                    }
                     ImGui::TreePop();
                 }
             }
@@ -3990,8 +4643,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
 
         // Scale for proportional and fixed size fonts
-        SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-        SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+        SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+        SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
         // Default settings for the first time
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
@@ -4088,8 +4741,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLGLImGui::fontFixedDots < 13.1)
         {
             // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-            SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+            SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+            SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
             // Default settings for the first time
             SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);

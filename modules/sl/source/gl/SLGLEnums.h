@@ -72,7 +72,15 @@ enum SLGLAttributeType
     AT_custom6, //!< Custom vertex attribute 6
     AT_custom7, //!< Custom vertex attribute 7
     AT_custom8, //!< Custom vertex attribute 8
-    AT_custom9  //!< Custom vertex attribute 9
+    AT_custom9,  //!< Custom vertex attribute 9
+
+    AT_velocity = 1,        //!< Vertex velocity 3 component vectors
+    AT_startTime = 2,       //!< Vertex start time float
+    AT_initialVelocity = 3, //!< Vertex initial velocity 3 component vectors
+    AT_rotation = 4,       //!< Vertex rotation float
+    AT_angularVelo = 5, //!< Vertex angulare velocity for rotation float
+    AT_texNum = 6,         //!< Vertex texture number int
+    AT_initialPosition = 7  //!< Vertex initial position 3 component vectors
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer usage types also supported by OpenGL ES

@@ -69,11 +69,30 @@ public:
         buildProgramCode(mat, lights);
     }
 
+    //! ctor for generated shader program PS
+    SLGLProgramGenerated(SLAssetManager* am,
+                         const string&   programName,
+                         SLMaterial*     mat,
+                         bool isDrawProg,
+                         SLstring        geomShader = "")
+      : SLGLProgram(am,
+                    "",
+                    "",
+                    geomShader,
+                    programName)
+    {
+        buildProgramCodePS(mat, isDrawProg);
+    }
+
     static bool lightsDoShadowMapping(SLVLight* lights);
     static void buildProgramName(SLMaterial* mat,
                                  SLVLight*   lights,
                                  string&     programName);
+    static void buildProgramNamePS(SLMaterial* mat,
+                                   string&     programName,
+                                   bool        isDrawProg);
 
+    void buildProgramCodePS(SLMaterial* mat, bool isDrawProg);
     void buildProgramCode(SLMaterial* mat,
                           SLVLight*   lights);
     void beginShader(SLCamera*   cam,
@@ -84,6 +103,8 @@ public:
 private:
     void buildPerPixCook(SLMaterial* mat, SLVLight* lights);
     void buildPerPixBlinn(SLMaterial* mat, SLVLight* lights);
+    void buildPerPixParticle(SLMaterial* mat);
+    void buildPerPixParticleUpdate(SLMaterial* mat);
 
     // Video background shader builder functions
     void buildPerPixVideoBkgdSm(SLVLight* lights);
@@ -93,6 +114,7 @@ private:
     static string fragInput_u_shadowMaps(SLVLight* lights);
     static string fragFunctionShadowTest(SLVLight* lights);
     static string shaderHeader(int numLights);
+    static string shaderHeader();
     static void   addCodeToShader(SLGLShader*   shader,
                                   const string& code,
                                   const string& name);

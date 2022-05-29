@@ -233,6 +233,42 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
+/*! Constructor for textured particle system materials (Draw=.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param texture Pointer to an SLGLTexture of a specific SLTextureType
+ @param ps Pointer to the particle system for the material.
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
+ */
+SLMaterial::SLMaterial(SLAssetManager*   am,
+                       const SLchar*     name,
+                       SLParticleSystem* ps,
+                       SLGLTexture*      texture,
+                       SLGLProgram*      program,
+                       SLGLProgram*      programTF) : SLObject(name)
+{
+    _assetManager    = am;
+    _reflectionModel = RM_Particle;
+    _getsShadows     = true; // Later for Particle System maybe
+    _skybox          = nullptr;
+    _ps              = ps;
+    _program         = program;
+    _programTF       = programTF;
+
+    _numTextures = 0;
+    addTexture(texture);
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
 /*! Constructor for materials used within the cone tracer (SLGLConetracer).
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
@@ -333,6 +369,106 @@ SLMaterial::~SLMaterial()
     {
         delete _errorTexture;
         _errorTexture = nullptr;
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+ If this material has not yet a shader program assigned (SLMaterial::_program)
+ a suitable program will be generated with an instance of SLGLProgramGenerated.
+ */
+void SLMaterial::generateProgramPS()
+{
+    // If no shader program is attached add a generated shader program
+    // A 3D object can be stored without material or shader program information.
+    if (!_program)
+    {
+        /////////////////////////////
+        // Draw program
+        /////////////////////////////
+        //
+        // Check first the asset manager if the requested program type already exists
+        string programNameDraw;
+        SLGLProgramGenerated::buildProgramNamePS(this, programNameDraw, true);
+        _program = _assetManager->getProgramByName(programNameDraw);
+
+        // If the program was not found by name generate a new one
+        if (!_program)
+        {
+            _program = new SLGLProgramGenerated(_assetManager,
+                                                programNameDraw,
+                                                this,
+                                                true,
+                                                "Geom");
+        }
+    }
+    if (!_programTF)
+    {
+        /////////////////////////////
+        // Update program
+        /////////////////////////////
+
+        // Check first the asset manager if the requested programTF type already exists
+        string programNameUpdate;
+        SLGLProgramGenerated::buildProgramNamePS(this, programNameUpdate, false);
+        _programTF = _assetManager->getProgramByName(programNameUpdate);
+        if (!_programTF)
+        {
+            _programTF = new SLGLProgramGenerated(_assetManager,
+                                                programNameUpdate,
+                                                this,
+                                                false);
+
+            int                 countString = 3;
+            vector<const char*> outputNames;
+            outputNames.push_back("tf_position");
+            outputNames.push_back("tf_velocity");
+            outputNames.push_back("tf_startTime");
+            if (_ps->doAcc() || _ps->doGravity())
+            {
+                outputNames.push_back("tf_initialVelocity");
+                countString++;
+            }
+            if (_ps->doRot())
+            {
+                outputNames.push_back("tf_rotation");
+                countString++;
+            }
+            if (_ps->doRot() && _ps->doRotRange())
+            {
+                outputNames.push_back("tf_angularVelo");
+                countString++;
+            }
+            if (_ps->doFlipBookTexture())
+            {
+                outputNames.push_back("tf_texNum");
+                countString++;
+            }
+            if (_ps->doShape())
+            {
+                outputNames.push_back("tf_initialPosition");
+                countString++;
+            }
+            _programTF->initTF(&outputNames[0], countString);
+        }
+    }
+
+    // Check if shader had a compile error and the error texture should be shown
+    if (_program && _program->name().find("ErrorTex") != string::npos)
+    {
+        for (int i = 0; i < TT_numTextureType; i++)
+            _textures[i].clear();
+        if (!_errorTexture && !_compileErrorTexFilePath.empty())
+            _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+        _textures[TT_diffuse].push_back(_errorTexture);
+    }
+
+    if (_programTF && _programTF->name().find("ErrorTex") != string::npos)
+    {
+        for (int i = 0; i < TT_numTextureType; i++)
+            _textures[i].clear();
+        if (!_errorTexture && !_compileErrorTexFilePath.empty())
+            _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+        _textures[TT_diffuse].push_back(_errorTexture);
     }
 }
 //-----------------------------------------------------------------------------

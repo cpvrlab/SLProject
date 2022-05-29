@@ -188,6 +188,15 @@ enum SLSceneID
     SID_Benchmark6_ColumnsLOD,
     SID_Benchmark7_JansUniverse,
 
+    SID_ParticleSystem_First,
+    SID_ParticleSystem_FireEffects,
+    SID_ParticleSystem_Demo,
+    SID_ParticleSystem_DustStorm,
+    SID_ParticleSystem_Fountain,
+    SID_ParticleSystem_Sun,
+    SID_ParticleSystem_FireComplex,
+    SID_ParticleSystem_RingOfFire,
+
     SID_Maximal
 };
 //-----------------------------------------------------------------------------
@@ -370,6 +379,7 @@ enum SLReflectionModel
 {
     RM_BlinnPhong = 0,
     RM_CookTorrance,
+    RM_Particle,
     RM_Custom
 };
 //-----------------------------------------------------------------------------

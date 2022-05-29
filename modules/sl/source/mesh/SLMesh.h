@@ -140,8 +140,8 @@ public:
     SLbool       hit(SLRay* ray, SLNode* node);
     virtual void preShade(SLRay* ray);
 
-    void         deleteData();
-    void         deleteDataGpu();
+    virtual void deleteData();
+    virtual void deleteDataGpu();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
     static void  calcTex3DMatrix(SLNode* node);
@@ -149,7 +149,7 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO(SLGLVertexArray& vao);
+    virtual void generateVAO(SLGLVertexArray& vao);
     void         computeHardEdgesIndices(float angleRAD, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();

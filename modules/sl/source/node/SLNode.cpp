@@ -354,6 +354,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
     {
         // Do frustum culling for all shapes except cameras & lights
         if (sv->doFrustumCulling() &&
+            _parent != nullptr && // hsm4: do not frustum check the root node
             !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
             typeid(*this) != typeid(SLLightRect) &&
             typeid(*this) != typeid(SLLightSpot) &&
@@ -363,6 +364,12 @@ void SLNode::cull3DRec(SLSceneView* sv)
         }
         else
             _aabb.isVisible(true);
+
+        // For particle system updating (Break, no update, setup to resume)
+        SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(this->mesh());
+        if (tempPS && !_aabb.isVisible())
+            tempPS->notVisibleFrustrumCulling();
+            
 
         // Cull the group nodes recursively
         if (_aabb.isVisible())

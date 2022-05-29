@@ -1,7 +1,7 @@
 Checks: '-*,bugprone-*,-bugprone-easily-swappable-parameters'
 CheckOptions:
-    - key: bugprone-argument-comment.StrictMode
-      value: 1
-    - key: bugprone-exception-escape.FunctionsThatShouldNotThrow
-      value: WinMain,SDL_main
+  - key: bugprone-argument-comment.StrictMode
+    value: 1
+  - key: bugprone-exception-escape.FunctionsThatShouldNotThrow
+    value: WinMain,SDL_main
 FormatStyle: 'file'

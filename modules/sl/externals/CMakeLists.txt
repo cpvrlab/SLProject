@@ -6,7 +6,6 @@ set(target lib-SLExternal)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
-#set(compile_definitions	GLEW_NO_GLU)
 set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
@@ -17,6 +16,8 @@ set(headers
         ${include_path}/imgui/imstb_rectpack.h
         ${include_path}/imgui/imstb_textedit.h
         ${include_path}/imgui/imstb_truetype.h
+        ${include_path}/imgui-addons/bezier.hpp
+        ${include_path}/imgui-addons/imgui_color_gradient.h
         ${include_path}/spa/spa.h
         )
 
@@ -26,6 +27,8 @@ set(sources
         ${include_path}/imgui/imgui_draw.cpp
 		${include_path}/imgui/imgui_tables.cpp
         ${include_path}/imgui/imgui_widgets.cpp
+        ${include_path}/imgui-addons/bezier.cpp
+        ${include_path}/imgui-addons/imgui_color_gradient.cpp
         ${include_path}/spa/spa.cpp
         )
 
@@ -188,6 +191,7 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/nvwa
         ${CMAKE_CURRENT_SOURCE_DIR}/zlib
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui-addons
         ${CMAKE_CURRENT_SOURCE_DIR}/spa
         ${CMAKE_CURRENT_SOURCE_DIR}/eigen
         ${CMAKE_CURRENT_SOURCE_DIR}
