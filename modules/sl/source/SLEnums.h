@@ -374,6 +374,14 @@ enum SLFogMode
     FM_exp2
 };
 //-----------------------------------------------------------------------------
+//! Billboard type for its orientation used in SLParticleSystem
+enum SLBillboardType
+{
+    BT_Camera= 0,
+    BT_Vertical,
+    BT_Horizontal
+};
+//-----------------------------------------------------------------------------
 //! Light Reflection Models for shader generation usd in SLMaterial
 enum SLReflectionModel
 {

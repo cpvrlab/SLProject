@@ -47,8 +47,7 @@
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
-
-#include <modules/sl/externals/imgui/imgui_color_gradient.h> // For color over life, need to create own color interpolator
+#include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -5995,12 +5994,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->changeTexture(); // Switch texture, need to be done, to have flipbook texture as active
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
-        ps->doRot(false);
+        ps->doRotation(false);
         ps->doColor(false);
         ps->frameRateFB(64);
         ps->radiusW(0.4f);
         ps->radiusH(1.0f);
-        ps->billboardType(1);
+        ps->billboardType(BT_Vertical);
 
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
@@ -6037,7 +6036,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                      "Particle System fire2",
                                                      texFlipbookSmoke);
         ps3->color(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
-        ps3->doBlendingBrigh(true);
+        ps3->doBlendBrightness(true);
         ps3->frameRateFB(16);
 
         SLMesh* pSMesh3 = ps3;
@@ -6081,7 +6080,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texFlipbook);
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
-        ps->doRot(false);
+        ps->doRotation(false);
         ps->doColor(false);
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
@@ -6134,7 +6133,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->generateBernsteinPAlpha();
         ps->doRotRange(true);
         ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
-        ps->doBlendingBrigh(false);
+        ps->doBlendBrightness(false);
         ps->frameRateFB(16);
 
         SLMesh* pSMesh = ps;
@@ -6231,7 +6230,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doShape(true);
         ps->shapeType(0);
         ps->radiusSphere(3.0f);
-        ps->doBlendingBrigh(true);
+        ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
         SLMesh* pSMesh = ps;
@@ -6285,10 +6284,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         
         
         fire->timeToLive(2.0f);
-        fire->billboardType(1);
+        fire->billboardType(BT_Vertical);
 
         //Rotation
-        fire->doRot(true);
+        fire->doRotation(true);
         fire->doRotRange(true);
 
         //Size
@@ -6309,7 +6308,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         //Color
         fire->doColorOverLF(true);
-        fire->doBlendingBrigh(true);
+        fire->doBlendBrightness(true);
         ImGradient gradient; // WILL not change UI
         gradient.getMarks().clear();
         gradient.addMark(0.0f, ImColor(103, 20, 20));
@@ -6318,9 +6317,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         fire->colorArr(gradient.cachedValues());
 
         //Acceleration
-        fire->doAcc(true);
+        fire->doAcceleration(true);
         fire->doAccDiffDir(true);
-        fire->acc(0.0f, 0.02f, 0.0f);
+        fire->acceleration(0.0f, 0.02f, 0.0f);
         
 
         fire->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
@@ -6347,18 +6346,18 @@ resolution shadows near the camera and lower resolution shadows further away.");
         flame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
         flame->doAlphaOverL(false);
         flame->doSizeOverLF(false);
-        flame->doRot(false);
+        flame->doRotation(false);
         
         flame->frameRateFB(32);
         flame->radiusW(0.4f);
         flame->radiusH(0.5f);
         flame->scale(1.2);
-        flame->billboardType(1);
+        flame->billboardType(BT_Vertical);
 
         //Color
         flame->doColor(true);
         flame->color(SLCol4f(0.52f, 0.47f, 0.32f, 1.0f));
-        flame->doBlendingBrigh(true);
+        flame->doBlendBrightness(true);
 
         //Size
         flame->doSizeOverLFCurve(true);
@@ -6442,9 +6441,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeB->generateBernsteinPAlpha();
 
         // Acceleration
-        smokeB->doAcc(true);
+        smokeB->doAcceleration(true);
         smokeB->doAccDiffDir(true);
-        smokeB->acc(0.0f, 0.25f, 0.3f);
+        smokeB->acceleration(0.0f, 0.25f, 0.3f);
 
         SLMesh* smokeBMesh = smokeB;
         SLNode* smokeBNode = new SLNode(smokeBMesh, "Particle system node smoke black");
@@ -6488,9 +6487,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeW->generateBernsteinPAlpha();
 
         // Acceleration
-        smokeW->doAcc(true);
+        smokeW->doAcceleration(true);
         smokeW->doAccDiffDir(true);
-        smokeW->acc(0.0f, 0.02f, 0.55f);
+        smokeW->acceleration(0.0f, 0.02f, 0.55f);
 
         SLMesh* smokeWMesh = smokeW;
         SLNode* smokeWNode = new SLNode(smokeWMesh, "Particle system node smoke white");
@@ -6516,7 +6515,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         //Color
         sparksF->doColor(true);
         sparksF->doColorOverLF(true);
-        sparksF->doBlendingBrigh(true);
+        sparksF->doBlendBrightness(true);
         ImGradient gradientSparks; // WILL not change UI
         gradientSparks.getMarks().clear();
         gradientSparks.addMark(0.0f, ImColor(255, 0, 0));
@@ -6626,7 +6625,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doShapeSpawnBase(true);
         ps->doShapeSurface(true);
         ps->radiusCone(1.0f);
-        ps->doBlendingBrigh(true);
+        ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
 
         SLMesh* pSMesh = ps;

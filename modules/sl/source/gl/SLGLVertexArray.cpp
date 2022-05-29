@@ -239,8 +239,8 @@ void SLGLVertexArray::generate(SLuint          numVertices,
 //-----------------------------------------------------------------------------
 /* Same as generate but with transform feedback */
 void SLGLVertexArray::generateTF(SLuint          numVertices,
-                               SLGLBufferUsage usage,
-                               SLbool          outputInterleaved)
+                                 SLGLBufferUsage usage,
+                                 SLbool          outputInterleaved)
 {
     assert(numVertices);
 
@@ -313,11 +313,11 @@ void SLGLVertexArray::generateTF(SLuint          numVertices,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/* Desactive the rendering because we just compute next position with the transformfeedback
-*  We need to bind a transformfeedback object but not the same from this vao, because we
-*  want to read from one vao and write on another
-*/
-void SLGLVertexArray::beginTF(SLuint  tfoID)
+/* Discard the rendering because we just compute next position with the
+ * transform feedback. We need to bind a transform feedback object but not the
+ * same from this vao, because we want to read from one vao and write on another.
+ */
+void SLGLVertexArray::beginTF(SLuint tfoID)
 {
     // Disable rendering
     glEnable(GL_RASTERIZER_DISCARD);
@@ -327,12 +327,11 @@ void SLGLVertexArray::beginTF(SLuint  tfoID)
 
     // Draw points from input buffer with transform feedback
     glBeginTransformFeedback(GL_POINTS);
-
 }
 
 //-----------------------------------------------------------------------------
-/* We active back the rendering and stop the transform feedback
-*/
+/* We activate back the rendering and stop the transform feedback.
+ */
 void SLGLVertexArray::endTF()
 {
     // End transform feedback
@@ -344,7 +343,7 @@ void SLGLVertexArray::endTF()
     // Un-bind the feedback object.
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
 }
-    //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 /*! Draws the vertex attributes as a specified primitive type by elements with
 the indices from the index buffer defined in setIndices.
 */
@@ -356,7 +355,6 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
     // Binding the VAO saves all the commands after the else (per draw call!)
-
     glBindVertexArray(_vaoID);
     GET_GL_ERROR;
 
@@ -445,7 +443,7 @@ void SLGLVertexArray::drawEdges(SLCol4f color,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLProgram* sp      = SLGLProgramManager::get(SP_colorUniform);
     SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
