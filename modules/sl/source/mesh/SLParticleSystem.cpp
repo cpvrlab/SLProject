@@ -88,7 +88,7 @@ SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
     return SLVec3f(x1 * c, x2 * c, x3 * c);
 }
 //-----------------------------------------------------------------------------
-SLVec3f SLParticleSystem::getDirectionSphere(float radius, SLVec3f position)
+SLVec3f SLParticleSystem::getDirectionSphere(SLVec3f position)
 {
     return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
@@ -147,7 +147,7 @@ SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
-SLVec3f SLParticleSystem::getDirectionBox(SLVec3f boxScale, SLVec3f position)
+SLVec3f SLParticleSystem::getDirectionBox(SLVec3f position)
 {
     return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
@@ -351,9 +351,9 @@ void SLParticleSystem::generate()
             if (_doShapeOverride)
             {
                 if (_doShape && _shapeType == 0)
-                    tempDirection = getDirectionSphere(_radiusSphere, tempP[i]);
+                    tempDirection = getDirectionSphere(tempP[i]);
                 else if (_doShape && _shapeType == 1)
-                    tempDirection = getDirectionBox(_scaleBox, tempP[i]);
+                    tempDirection = getDirectionBox(tempP[i]);
                 else if (_doShape && _shapeType == 2)
                     tempDirection = getDirectionCone(tempP[i]);
                 else if (_doShape && _shapeType == 3)
