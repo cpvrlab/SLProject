@@ -220,8 +220,8 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
     float radius = _halfSidePyramid;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        float y      = random(0.0f, _heightPyramid);
-        float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+        y      = random(0.0f, _heightPyramid);
+        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
     }
     
     //int   temp      = random(0, 5);
@@ -964,11 +964,11 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
 
         //ACCELERATION
-        if (_doAccDiffDir)
+        if (_doAcc && _doAccDiffDir)
         {
             maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
-        else // Need to be rework
+        else if (_doAcc && !_doAccDiffDir) // Need to be rework
         {
             // minP += 0.5f * _accConst * (_timeToLive * _timeToLive); //Apply constant acceleration
             maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good
