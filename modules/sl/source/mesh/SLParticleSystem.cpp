@@ -67,7 +67,6 @@ SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
     x2 /= mag;
     x3 /= mag;
 
-    // Math.cbrt is cube root // Without only surface
     float c = cbrt(u);
 
     return SLVec3f(x1 * c, x2 * c, x3 * c);
@@ -91,8 +90,7 @@ SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getDirectionSphere(float radius, SLVec3f position)
 {
-    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
-    return directionUnit * radius; //Multiply by radius to have all direction vector as same scale
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
   //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
@@ -151,8 +149,7 @@ SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getDirectionBox(SLVec3f boxScale, SLVec3f position)
 {
-    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
-    return SLVec3f(directionUnit.x * boxScale.x, directionUnit.y * boxScale.y, directionUnit.z * boxScale.z); //Multiply by box scale to have all direction vector as same scale
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInCone()
@@ -330,7 +327,6 @@ void SLParticleSystem::generate()
                 tempP[i] = getPointInPyramid();
             else
                 tempP[i] = getPointOnPyramid();
-
         else
             tempP[i] = SLVec3f(0,0,0);
 
