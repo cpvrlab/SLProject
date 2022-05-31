@@ -260,10 +260,10 @@ private:
     // Random point getter functions depending on the PS shape
     SLVec3f getPointInSphere(float radius, SLVec3f randomX);
     SLVec3f getPointOnSphere(float radius, SLVec3f randomX);
-    SLVec3f getDirectionSphere(float radius, SLVec3f position);
+    SLVec3f getDirectionSphere(SLVec3f position);
     SLVec3f getPointInBox(SLVec3f boxScale);
     SLVec3f getPointOnBox(SLVec3f boxScale);
-    SLVec3f getDirectionBox(SLVec3f boxScale, SLVec3f position);
+    SLVec3f getDirectionBox(SLVec3f position);
     SLVec3f getPointInCone();
     SLVec3f getPointOnCone();
     SLVec3f getDirectionCone(SLVec3f position);

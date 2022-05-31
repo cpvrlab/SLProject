@@ -68,7 +68,6 @@ SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
     x2 /= mag;
     x3 /= mag;
 
-    // Math.cbrt is cube root // Without only surface
     float c = cbrt(u);
 
     return SLVec3f(x1 * c, x2 * c, x3 * c);
@@ -91,14 +90,9 @@ SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
     return SLVec3f(x1 * c, x2 * c, x3 * c);
 }
 //-----------------------------------------------------------------------------
-//! ???
-SLVec3f SLParticleSystem::getDirectionSphere(float radius, SLVec3f position)
+SLVec3f SLParticleSystem::getDirectionSphere(SLVec3f position)
 {
-    // Get unit vector center to position
-    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized();
-
-    // Multiply by radius to have all direction vector as same scale
-    return directionUnit * radius;
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
 //! ???
@@ -158,11 +152,9 @@ SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
-//! ???
-SLVec3f SLParticleSystem::getDirectionBox(SLVec3f boxScale, SLVec3f position)
+SLVec3f SLParticleSystem::getDirectionBox(SLVec3f position)
 {
-    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized();                              // Get unit vector center to position
-    return SLVec3f(directionUnit.x * boxScale.x, directionUnit.y * boxScale.y, directionUnit.z * boxScale.z); // Multiply by box scale to have all direction vector as same scale
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
 //! ???
@@ -358,7 +350,6 @@ void SLParticleSystem::generate()
                 tempP[i] = getPointInPyramid();
             else
                 tempP[i] = getPointOnPyramid();
-
         else
             tempP[i] = SLVec3f(0, 0, 0);
 
@@ -383,9 +374,9 @@ void SLParticleSystem::generate()
             if (_doShapeOverride)
             {
                 if (_doShape && _shapeType == 0)
-                    tempDirection = getDirectionSphere(_radiusSphere, tempP[i]);
+                    tempDirection = getDirectionSphere(tempP[i]);
                 else if (_doShape && _shapeType == 1)
-                    tempDirection = getDirectionBox(_scaleBox, tempP[i]);
+                    tempDirection = getDirectionBox(tempP[i]);
                 else if (_doShape && _shapeType == 2)
                     tempDirection = getDirectionCone(tempP[i]);
                 else if (_doShape && _shapeType == 3)
@@ -1008,12 +999,12 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 minP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
         }
 
-        // ACCELERATION
-        if (_doAccDiffDir)
+        //ACCELERATION
+        if (_doAcc && _doAccDiffDir)
         {
             maxP += 0.5f * _acceleration * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
-        else // Need to be rework
+        else if (_doAcc && !_doAccDiffDir) // Need to be rework
         {
             // minP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); //Apply constant acceleration
             maxP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good
