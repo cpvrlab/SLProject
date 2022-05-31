@@ -856,12 +856,12 @@ void appDemoLoadScene(SLAssetManager* am,
     else if (sceneID == SID_TextureBlend) //.......................................................
     {
         s->name("Texture Blending Test");
-        s->info("Texture map blending with depth sorting. Transparent doTree rectangles in view "
+        s->info("Texture map blending with depth sorting. Transparent tree rectangles in view "
                 "frustum are rendered back to front. You can turn on/off alpha sorting in the "
                 "menu Preferences of press key J.");
 
         SLGLTexture* t1 = new SLGLTexture(am,
-                                          texPath + "doTree1_1024_C.png",
+                                          texPath + "tree1_1024_C.png",
                                           GL_LINEAR_MIPMAP_LINEAR,
                                           GL_LINEAR,
                                           TT_diffuse,
@@ -895,7 +895,7 @@ void appDemoLoadScene(SLAssetManager* am,
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
 
-        // Build arrays for polygon vertices and texcoords for doTree
+        // Build arrays for polygon vertices and texture coordinates for tree
         SLVVec3f pNW, pSE;
         SLVVec2f tNW, tSE;
         pNW.push_back(SLVec3f(0, 0, 0));
@@ -915,7 +915,7 @@ void appDemoLoadScene(SLAssetManager* am,
         pSE.push_back(SLVec3f(-1, 2, 0));
         tSE.push_back(SLVec2f(0.0f, 1.0f));
 
-        // Build doTree out of 4 polygons
+        // Build tree out of 4 polygons
         SLNode* p1 = new SLNode(new SLPolygon(am, pNW, tNW, "Tree+X", m1));
         SLNode* p2 = new SLNode(new SLPolygon(am, pNW, tNW, "Tree-Z", m1));
         p2->rotate(90, 0, 1, 0);
@@ -929,12 +929,12 @@ void appDemoLoadScene(SLAssetManager* am,
         p3->drawBits()->on(SL_DB_CULLOFF);
         p4->drawBits()->on(SL_DB_CULLOFF);
 
-        // Build doTree group
-        SLNode* doTree = new SLNode("grTree");
-        doTree->addChild(p1);
-        doTree->addChild(p2);
-        doTree->addChild(p3);
-        doTree->addChild(p4);
+        // Build tree group
+        SLNode* tree = new SLNode("grTree");
+        tree->addChild(p1);
+        tree->addChild(p2);
+        tree->addChild(p3);
+        tree->addChild(p4);
 
         // Build arrays for polygon vertices and texcoords for ground
         SLVVec3f pG;
@@ -951,10 +951,10 @@ void appDemoLoadScene(SLAssetManager* am,
 
         SLNode* scene = new SLNode("grScene");
         scene->addChild(light);
-        scene->addChild(doTree);
+        scene->addChild(tree);
         scene->addChild(new SLNode(new SLPolygon(am, pG, tG, "Ground", m2)));
 
-        // create 21*21*21-1 references around the center doTree
+        // create 21*21*21-1 references around the center tree
         SLint res = 10;
         for (SLint iZ = -res; iZ <= res; ++iZ)
         {
@@ -962,7 +962,7 @@ void appDemoLoadScene(SLAssetManager* am,
             {
                 if (iX != 0 || iZ != 0)
                 {
-                    SLNode* t = doTree->copyRec();
+                    SLNode* t = tree->copyRec();
                     t->translate(float(iX) * 2 + Utils::random(0.7f, 1.4f),
                                  0,
                                  float(iZ) * 2 + Utils::random(0.7f, 1.4f),
@@ -3285,7 +3285,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
             CVCapture::instance()->videoType(VT_FILE);
-            CVCapture::instance()->videoFilename = AppDemo::videoPath + "sdoTreet3.mp4";
+            CVCapture::instance()->videoFilename = AppDemo::videoPath + "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
         sv->viewportSameAsVideo(true);
@@ -4882,9 +4882,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         AppDemo::devLoc.useOriginAltitude(false);
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of theatre, Origin", 46, 52, 49.041, 7, 2, 55.543, 454.9));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("On the stage", 46, 52, 49.221, 7, 2, 55.206, 455.5 + 1.7));
-        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the doTree (N-E)", 46, 52, 50.791, 7, 2, 55.960, 455.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the tree (N-E)", 46, 52, 50.791, 7, 2, 55.960, 455.5 + 1.7));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Over the entrance (S)", 46, 52, 48.162, 7, 2, 56.097, 464.0 + 1.7));
-        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the 3rd doTree (S-W)", 46, 52, 48.140, 7, 2, 51.506, 455.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the 3rd tree (S-W)", 46, 52, 48.140, 7, 2, 51.506, 455.0 + 1.7));
         AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
         AppDemo::devLoc.activeNamedLocation(1);   // This sets the location 1 as defaultENU
         AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Nullpunkt
@@ -5004,7 +5004,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Go to https://map.geo.admin.ch and choose your origin and default point
         AppDemo::devLoc.useOriginAltitude(false);
         AppDemo::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);        // Corner Carport
-        AppDemo::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the sdoTreet
+        AppDemo::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the street
 
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Corner Carport, Origin", 47, 6, 21.609, 7, 13, 3.788, 434.4));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Einfahrt (Dolendeckel)", 47, 6, 21.639, 7, 13, 2.764, 433.6 + 1.7));

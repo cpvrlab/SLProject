@@ -812,7 +812,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     float rH = _radiusH * _scale;
 
     // Speed for direction if used
-    float tempSpeed = 0.0f;
+    float tempSpeed;
     if (_doSpeedRange)
         tempSpeed = max(_speedRange.x, _speedRange.y);
     else
@@ -1000,11 +1000,11 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
 
         //ACCELERATION
-        if (_doAcc && _doAccDiffDir)
+        if (_doAcceleration && _doAccDiffDir)
         {
             maxP += 0.5f * _acceleration * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
-        else if (_doAcc && !_doAccDiffDir) // Need to be rework
+        else if (_doAcceleration && !_doAccDiffDir) // Need to be rework
         {
             // minP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); //Apply constant acceleration
             maxP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good

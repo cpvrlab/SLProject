@@ -173,7 +173,7 @@ Help for mouse or finger control:
 
 SLstring AppDemoGui::infoCalibrate = R"(
 The calibration process requires a chessboard image to be printed and glued on a flat board. You can find the PDF with the chessboard image on:
-https://github.com/cpvrlab/SLProject/doTree/master/data/calibrations/
+https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/
 For a calibration you have to take 20 images with detected inner chessboard corners. To take an image you have to click with the mouse
 or tap with finger into the screen. View the chessboard from the side so that the inner corners cover the full image. Hold the camera or board really still
 before taking the picture.
@@ -4064,13 +4064,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
 
                             // Tree (Fractal)
-                            SLbool doTree_group = ps->doTree();
-                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &doTree_group))
+                            SLbool tree_group = ps->doTree();
+                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &tree_group))
                             {
-                                ps->doTree(doTree_group);
+                                ps->doTree(tree_group);
                                 m->programTF(nullptr);
                             }
-                            if (ImGui::CollapsingHeader("Tree param", &doTree_group))
+                            if (ImGui::CollapsingHeader("Tree param", &tree_group))
                             {
                                 float angle = ps->angle();
                                 if (ImGui::InputFloat("Angle of branches", &angle))
