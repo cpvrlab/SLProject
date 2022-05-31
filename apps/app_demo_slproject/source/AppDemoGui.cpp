@@ -226,12 +226,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
     else
     {
-
         ///////////////////////////////////
         // Show modeless fullscreen dialogs
         ///////////////////////////////////
 
-        // if parallel jobs are running show only the progress informations
+        // if parallel jobs are running show only the progress information
         if (AppDemo::jobIsRunning)
         {
             centerNextWindow(sv, 0.9f, 0.5f);
