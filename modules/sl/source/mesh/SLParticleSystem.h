@@ -309,8 +309,8 @@ private:
     SLfloat _colorArr[256 * 3];                         //!< Color values of color gradient widget
 
     // Tree
-    SLfloat _angle     = 30.0f; //!< Angle of branches (for doTree fractal)
-    SLint   _numBranch = 4;     //!< Number of branches (for doTree fractal)
+    SLfloat _angle     = 30.0f; //!< Angle of branches (for tree fractal)
+    SLint   _numBranch = 4;     //!< Number of branches (for tree fractal)
 
     // Int (but boolean) to switch buffer
     int _drawBuf = 0; //!< Boolean to switch buffer
@@ -373,7 +373,7 @@ private:
 
     // Boolean for features
     SLbool _doBlendingBrigh   = false; //!< Blending for glow/brightness on pixel with many particle
-    SLbool _doTree            = false; //!< Boolean for doTree fractal
+    SLbool _doTree            = false; //!< Boolean for tree fractal
     SLbool _doDirectionSpeed  = false; //!< Boolean for direction and speed (overrride velocity)
     SLbool _doSpeedRange      = false; //!< Boolean for speed range
     SLbool _doCounterGap      = true;  //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
