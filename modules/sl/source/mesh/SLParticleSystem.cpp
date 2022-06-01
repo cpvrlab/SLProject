@@ -704,10 +704,6 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                                   1,
                                   (SLfloat*)&mvMat); // TO change for custom shader generation
         }
-        else if (_billboardType == BT_Horizontal)
-        {
-            // ???
-        }
         else
         {
             spD->uniformMatrix4fv("u_vOmvMatrix",
