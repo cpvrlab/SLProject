@@ -142,14 +142,13 @@ class SLNode
 public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
-    explicit SLNode(SLMesh* mesh, SLVec3f translation, const SLstring& name);
+    explicit SLNode(SLMesh* mesh, const SLVec3f& translation, const SLstring& name);
     ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)
     virtual void      cull3DRec(SLSceneView* sv);
     virtual void      cullChildren3D(SLSceneView* sv);
     virtual void      cull2DRec(SLSceneView* sv);
-    virtual void      drawRec(SLSceneView* sv);
     virtual bool      hitRec(SLRay* ray);
     virtual void      statsRec(SLNodeStats& stats);
     virtual SLNode*   copyRec();
@@ -280,7 +279,6 @@ public:
     const SLMat4f&        initialOM() { return _initialOM; }
     const SLMat4f&        updateAndGetWM() const;
     const SLMat4f&        updateAndGetWMI() const;
-    const SLMat3f&        updateAndGetWMN() const;
     SLDrawBits*           drawBits() { return &_drawBits; }
     SLbool                drawBit(SLuint bit) { return _drawBits.get(bit); }
     SLAABBox*             aabb() { return &_aabb; }
@@ -334,8 +332,8 @@ protected:
     SLMat4f         _initialOM;      //!< the initial om state
     mutable SLMat4f _wm;             //!< world matrix for world transform
     mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLMat3f _wmN;            //!< normal world matrix
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
+    mutable SLbool  _isWMIUpToDate;  //!< is the inverse WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
     bool            _castsShadows;   //!< flag if meshes of node should cast shadows
     bool            _isSelected;     //!< flag if node and one or more of its meshes are selected

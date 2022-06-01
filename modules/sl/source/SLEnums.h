@@ -186,6 +186,7 @@ enum SLSceneID
     SID_Benchmark4_SkinnedAnimations,
     SID_Benchmark5_ColumnsNoLOD,
     SID_Benchmark6_ColumnsLOD,
+    SID_Benchmark7_JansUniverse,
 
     SID_ParticleSystem_First,
     SID_ParticleSystem_FireEffects,
@@ -371,6 +372,14 @@ enum SLFogMode
     FM_linear = 0,
     FM_exp,
     FM_exp2
+};
+//-----------------------------------------------------------------------------
+//! Billboard type for its orientation used in SLParticleSystem
+enum SLBillboardType
+{
+    BT_Camera= 0,
+    BT_Vertical,
+    BT_Horizontal
 };
 //-----------------------------------------------------------------------------
 //! Light Reflection Models for shader generation usd in SLMaterial

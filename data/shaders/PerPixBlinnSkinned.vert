@@ -18,9 +18,9 @@ layout (location = 5) in vec3  a_tangent;       // Vertex tangent attribute
 layout (location = 6) in vec4  a_jointIds;      // Vertex joint indices attributes
 layout (location = 7) in vec4  a_jointWeights;  // Vertex joint weights attributes
 
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 uniform mat4  u_jointMatrices[100]; // joint matrices for skinning
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
@@ -47,12 +47,15 @@ void main(void)
     jnm[0][1] = jm[0][1]; jnm[1][1] = jm[1][1]; jnm[2][1] = jm[2][1];
     jnm[0][2] = jm[0][2]; jnm[1][2] = jm[1][2]; jnm[2][2] = jm[2][2];
 
-    v_P_VS = vec3(u_mvMatrix * jm * a_position);
-    v_N_VS = vec3(u_nMatrix * jnm * a_normal);
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix * jm * a_position);
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    v_N_VS = vec3(nMatrix * jnm * a_normal);
     v_N_VS = normalize(v_N_VS);
     v_uv0 = a_uv0;
 
     // Transform the vertex with the modelview and joint matrix
-    gl_Position = u_mvpMatrix * jm * a_position;
+    gl_Position = u_pMatrix * mvMatrix * jm * a_position;
 }
 //-----------------------------------------------------------------------------

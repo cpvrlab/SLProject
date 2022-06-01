@@ -428,12 +428,12 @@ void SLMaterial::generateProgramPS()
                 outputNames.push_back("tf_initialVelocity");
                 countString++;
             }
-            if (_ps->doRot())
+            if (_ps->doRotation())
             {
                 outputNames.push_back("tf_rotation");
                 countString++;
             }
-            if (_ps->doRot() && _ps->doRotRange())
+            if (_ps->doRotation() && _ps->doRotRange())
             {
                 outputNames.push_back("tf_angularVelo");
                 countString++;

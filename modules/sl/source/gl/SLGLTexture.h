@@ -233,15 +233,15 @@ public:
     void   build2DMipmaps(SLint target, SLuint index);
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,
-                          CVPixFormat glFormat,
+                          CVPixelFormatGL glFormat,
                           SLuchar*    data,
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,
-                          CVPixFormat srcFormat,
-                          CVPixFormat dstFormat,
+                          CVPixelFormatGL srcFormat,
+                          CVPixelFormatGL dstFormat,
                           SLuchar*    data,
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
@@ -263,7 +263,7 @@ protected:
               SLbool          loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    CVVImage          _images;         //!< vector of CVImage pointers
+    CVVImage          _images;         //!< Vector of CVImage pointers
     SLuint            _texID;          //!< OpenGL texture ID
     SLTextureType     _texType;        //!< See SLTextureType
     SLint             _width;          //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
@@ -289,6 +289,7 @@ protected:
 
     SLbool _deleteImageAfterBuild;     //!< Flag if images should be deleted after build on GPU
     SLbool _compressedTexture = false; //!< True for compressed texture format on GPU
+
 #ifdef SL_BUILD_WITH_KTX
     ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
     ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU

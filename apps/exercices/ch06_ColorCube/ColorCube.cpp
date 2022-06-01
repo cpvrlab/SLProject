@@ -71,7 +71,9 @@ static GLuint _shaderProgID = 0; //! shader program id
 static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
 static GLint _gLoc;   //!< uniform location for gamma value
-static GLint _mvpLoc; //!< uniform location for modelview-projection matrix
+static GLint _pmLoc;  //!< uniform location for projection matrix
+static GLint _vmLoc;  //!< uniform location for view matrix
+static GLint _mmLoc;  //!< uniform location for model matrix
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -176,7 +178,9 @@ void onInit()
     _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
     _cLoc   = glGetAttribLocation(_shaderProgID, "a_color");
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
-    _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _pmLoc  = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc  = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc  = glGetUniformLocation(_shaderProgID, "u_mMatrix");
 
     buildBox();
 
@@ -190,7 +194,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -219,19 +223,15 @@ bool onPaint()
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    // 3) Model transform: move the cube so that it rotates around its center
+    // 2c) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Build the combined modelview-projection matrix
-    SLMat4f mvp(_projectionMatrix);
-    SLMat4f mv(_viewMatrix);
-    mv.multiply(_modelMatrix);
-    mvp.multiply(mv);
-
-    // 6) Activate the shader program and pass the uniform variables to the shader
+    // 3) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
+    glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform1f(_gLoc, 1.0f);
 
     // 7a) Activate the vertex array
@@ -256,7 +256,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     float w = (float)width;
     float h = (float)height;
@@ -275,7 +275,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -306,7 +306,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -322,7 +322,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera forward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -334,7 +334,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {

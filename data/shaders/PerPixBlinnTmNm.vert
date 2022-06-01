@@ -18,9 +18,9 @@ layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
 layout (location = 2) in vec2  a_uv0;       // Vertex texture coordinate attribute
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
 uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
@@ -34,19 +34,23 @@ out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
 out     float v_lightDist[NUM_LIGHTS];  // Light distance
 //-----------------------------------------------------------------------------
 void main()
-{  
+{
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+
     // Pass the texture coord. for interpolation
     v_uv0 = a_uv0;
    
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
-    vec3 n = normalize(u_nMatrix * a_normal);
-    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 n = normalize(nMatrix * a_normal);
+    vec3 t = normalize(nMatrix * a_tangent.xyz);
     vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
     mat3 TBN = mat3(t,b,n);
    
     // Transform vertex into view space
-    v_P_VS = vec3(u_mvMatrix *  a_position);
+    v_P_VS = vec3(mvMatrix *  a_position);
 
     // Transform vector to the eye into tangent space
     v_eyeDirTS = -v_P_VS;  // eye vector in view space
@@ -66,6 +70,6 @@ void main()
     }
 
     // pass the vertex w. the fix-function transform
-    gl_Position = u_mvpMatrix * a_position;
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

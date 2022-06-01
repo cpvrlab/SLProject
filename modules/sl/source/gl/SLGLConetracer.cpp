@@ -301,21 +301,16 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     assert(node);
 
     SLGLState* stateGL = SLGLState::instance();
-    GLint      progID  = program->progID();
 
-    // set view transform:
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-
-    // add updated model transform:
-    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+    stateGL->modelMatrix = node->updateAndGetWM();
 
     // pass the modelview projection matrix to the shader
-    GLint loc = glGetUniformLocation(progID, "u_mvpMatrix");
-    glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)stateGL->mvpMatrix());
-
-    // pass the model matrix:
+    GLint locp = glGetUniformLocation(program->progID(), "u_pMatrix");
+    GLint locv = glGetUniformLocation(program->progID(), "u_vMatrix");
     GLint locm = glGetUniformLocation(program->progID(), "u_mMatrix");
-    glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
+    glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&stateGL->modelMatrix);
+    glUniformMatrix4fv(locv, 1, GL_FALSE, (SLfloat*)&stateGL->viewMatrix);
+    glUniformMatrix4fv(locp, 1, GL_FALSE, (SLfloat*)&stateGL->projectionMatrix);
 
     // draw meshes of the node
     if (node->mesh())

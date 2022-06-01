@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      AppDemoSceneLoad.cpp
-//  Date:      Februar 2018
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoSceneLoad.cpp
+//   Date:      February 2018
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <GlobalTimer.h>
 
@@ -47,8 +47,7 @@
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
-
-#include <modules/sl/externals/imgui/imgui_color_gradient.h> // For color over life, need to create own color interpolator
+#include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -143,8 +142,8 @@ SLNode* RotatingSphereGroup(SLAssetManager* am,
     // Generate unique names for meshes, nodes and animations
     static int sphereNum = 0;
     string     meshName  = "Mesh" + std::to_string(sphereNum);
-    string     nodeName  = "Node" + std::to_string(sphereNum);
     string     animName  = "Anim" + std::to_string(sphereNum);
+    string     nodeName  = "Node" + std::to_string(sphereNum);
     sphereNum++;
 
     SLAnimation* nodeAnim = s->animManager().createNodeAnimation(animName,
@@ -330,6 +329,117 @@ SLNode* BuildFigureGroup(SLAssetManager* am,
     return figure;
 }
 //-----------------------------------------------------------------------------
+//! Adds another level to Jan's Universe scene
+void addUniverseLevel(SLAssetManager* am,
+                      SLScene*        s,
+                      SLNode*         parent,
+                      SLuint          currentLevel,
+                      SLuint          levels,
+                      SLuint          childCount,
+                      SLVMaterial&    materials,
+                      SLVMesh&        meshes,
+                      SLuint&         numNodes)
+{
+    if (currentLevel >= levels) return;
+
+    const float degPerChild = 360.0f / childCount;
+    SLuint      mod         = currentLevel % 3;
+
+    /*
+    SLVec3f trans;
+    if (mod == 0)
+        trans.set(1.0f, 0.0f, 0.0f);
+    else if (mod == 1)
+        trans.set(0.0f, 1.0f, 0.0f);
+    else if (mod == 2)
+        trans.set(0.0f, 0.0f, 1.0f);
+    */
+    float scaleFactor = 0.25f;
+
+    for (SLuint i = 0; i < childCount; i++)
+    {
+        numNodes++;
+        string childName = "Node" + std::to_string(numNodes) +
+                           "-L" + std::to_string(currentLevel) +
+                           "-C" + std::to_string(i);
+        SLNode* child = new SLNode(meshes[numNodes % meshes.size()], childName);
+
+        /*
+        SLQuat4f quat;
+        float    angleRAD = Utils::DEG2RAD * i * degPerChild;
+        if (mod == 0)
+            quat.fromEulerAngles(0.0f, angleRAD, 0.0f);
+        else if (mod == 1)
+            quat.fromEulerAngles(angleRAD, 0.0f, 0.0f);
+        else if (mod == 2)
+            quat.fromEulerAngles(0.0f, 0.0f, angleRAD);
+        */
+
+        child->rotate(i * degPerChild, 0, 0, 1);
+        child->translate(2, 0, 0);
+        child->scale(scaleFactor);
+
+        // Node animation on child node
+        string       animName  = "Anim" + std::to_string(numNodes);
+        SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
+                                                                      60,
+                                                                      true,
+                                                                      EC_linear,
+                                                                      AL_loop);
+        childAnim->createNodeAnimTrackForRotation360(child, {0, 0, 1});
+
+        parent->addChild(child);
+
+        addUniverseLevel(am,
+                         s,
+                         child,
+                         currentLevel + 1,
+                         levels,
+                         childCount,
+                         materials,
+                         meshes,
+                         numNodes);
+    }
+}
+//-----------------------------------------------------------------------------
+//! Generates the Jan's Universe scene
+void generateUniverse(SLAssetManager* am,
+                      SLScene*        s,
+                      SLNode*         parent,
+                      SLuint          levels,
+                      SLuint          childCount,
+                      SLVMaterial&    materials,
+                      SLVMesh&        meshes)
+{
+    // Point light without mesh
+    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1000, 1000, true);
+    light->attenuation(1, 0, 0);
+    light->scale(10, 10, 10);
+    light->diffuseColor({1.0f, 1.0f, 0.5f});
+
+    // Node animation on light node
+    SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
+                                                                  60,
+                                                                  true,
+                                                                  EC_linear,
+                                                                  AL_loop);
+    lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+    parent->addChild(light);
+
+    SLuint numNodes = 1;
+
+    addUniverseLevel(am,
+                     s,
+                     light,
+                     1,
+                     levels,
+                     childCount,
+                     materials,
+                     meshes,
+                     numNodes);
+}
+
+//-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
  passed as a void*-pointer to slCreateScene. It will be called from within
@@ -371,6 +481,9 @@ void appDemoLoadScene(SLAssetManager* am,
     // reset existing sceneviews
     for (auto* sceneview : AppDemo::sceneViews)
         sceneview->unInit();
+
+    // Clear all data in the asset manager
+    am->clear();
 
     // Initialize all preloaded stuff from SLScene
     s->init(am);
@@ -782,7 +895,7 @@ void appDemoLoadScene(SLAssetManager* am,
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
 
-        // Build arrays for polygon vertices and texcoords for tree
+        // Build arrays for polygon vertices and texture coordinates for tree
         SLVVec3f pNW, pSE;
         SLVVec2f tNW, tSE;
         pNW.push_back(SLVec3f(0, 0, 0));
@@ -2558,7 +2671,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(true);
     }
 
-    else if ( // sceneID == SID_glTF_ClearCoatTest ||
+    else if (
       sceneID == SID_glTF_DamagedHelmet ||
       sceneID == SID_glTF_FlightHelmet ||
       sceneID == SID_glTF_Sponza ||
@@ -2582,14 +2695,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             switch (sceneID)
             {
-                /*case SID_glTF_ClearCoatTest: {
-                    s->name("glTF-Sample-Model: Clear Coat Test");
-                    modelFile = clearCoatTest;
-                    camPos.set(0, 0, 18);
-                    lookAt.set(0, camPos.y, 0);
-                    camClipFar = 100;
-                    break;
-                }*/
                 case SID_glTF_DamagedHelmet:
                 {
                     s->name("glTF-Sample-Model: Damaged Helmet");
@@ -2635,7 +2740,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                             configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
-
             // Create a scene group node
             SLNode* scene = new SLNode("scene node");
 
@@ -2644,7 +2748,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->translation(camPos);
             cam1->lookAt(lookAt);
             cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(camPos.z);
+            cam1->focalDist(camPos.length());
             cam1->clipFar(camClipFar);
             cam1->setInitialState();
             scene->addChild(cam1);
@@ -5166,7 +5270,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 4;
+        SLuint    numSamples = 4;
 #endif
 
         stringstream ss;
@@ -5257,7 +5361,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 6;
+        SLuint    numSamples = 6;
 #endif
 
         // Scene
@@ -5743,6 +5847,71 @@ resolution shadows near the camera and lower resolution shadows further away.");
             s->root3D(scene);
         }
     }
+    else if (sceneID == SID_Benchmark7_JansUniverse) //............................................
+    {
+        s->name("Jan's Universe Test Scene");
+        s->info(s->name());
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(1000);
+        cam1->translation(0, 0, 100);
+        cam1->focalDist(100);
+        cam1->lookAt(0, 0, 0);
+        cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
+        cam1->setInitialState();
+
+        // Root scene node
+        SLNode* root = new SLNode;
+        root->addChild(cam1);
+
+        // Generate NUM_MAT cook-torrance materials
+#ifndef SL_GLES
+        const int NUM_MAT  = 100;
+        const int NUM_MESH = 100;
+#else
+        const int NUM_MAT    = 20;
+        const int NUM_MESH   = 20;
+#endif
+        SLVMaterial materials(NUM_MAT);
+        for (int i = 0; i < NUM_MAT; ++i)
+        {
+            /*
+            SLGLProgram* spTex   = new SLGLProgramGeneric(am,
+                                                        shaderPath + "PerPixCookTm.vert",
+                                                        shaderPath + "PerPixCookTm.frag");*/
+            SLstring matName = "mat-" + std::to_string(i);
+            materials[i]     = new SLMaterial(am,
+                                          matName.c_str(),
+                                          nullptr,
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_C.jpg"),
+                                          nullptr, // new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_M.jpg"),
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_R.jpg"),
+                                          nullptr,
+                                          nullptr);
+            SLCol4f color;
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            materials[i]->diffuse(color);
+        }
+
+        // Generate NUM_MESH sphere meshes
+        SLVMesh meshes(NUM_MESH);
+        for (int i = 0; i < NUM_MESH; ++i)
+        {
+            SLstring meshName = "mesh-" + std::to_string(i);
+            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
+        }
+
+        // Create universe
+        SLuint const levels     = 6;
+        SLuint const childCount = 8;
+        generateUniverse(am, s, root, levels, childCount, materials, meshes);
+
+        sv->camera(cam1);
+        sv->doWaitOnIdle(false);
+        s->root3D(root);
+    }
 
     else if (sceneID == SID_ParticleSystem_First) //...............................................
     {
@@ -5825,12 +5994,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->changeTexture(); // Switch texture, need to be done, to have flipbook texture as active
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
-        ps->doRot(false);
+        ps->doRotation(false);
         ps->doColor(false);
         ps->frameRateFB(64);
         ps->radiusW(0.4f);
         ps->radiusH(1.0f);
-        ps->billboardType(1);
+        ps->billboardType(BT_Vertical);
 
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
@@ -5867,7 +6036,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                      "Particle System fire2",
                                                      texFlipbookSmoke);
         ps3->color(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
-        ps3->doBlendingBrigh(true);
+        ps3->doBlendBrightness(true);
         ps3->frameRateFB(16);
 
         SLMesh* pSMesh3 = ps3;
@@ -5911,7 +6080,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texFlipbook);
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
-        ps->doRot(false);
+        ps->doRotation(false);
         ps->doColor(false);
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
@@ -5964,7 +6133,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->generateBernsteinPAlpha();
         ps->doRotRange(true);
         ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
-        ps->doBlendingBrigh(false);
+        ps->doBlendBrightness(false);
         ps->frameRateFB(16);
 
         SLMesh* pSMesh = ps;
@@ -6061,7 +6230,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doShape(true);
         ps->shapeType(0);
         ps->radiusSphere(3.0f);
-        ps->doBlendingBrigh(true);
+        ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
         SLMesh* pSMesh = ps;
@@ -6115,10 +6284,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         
         
         fire->timeToLive(2.0f);
-        fire->billboardType(1);
+        fire->billboardType(BT_Vertical);
 
         //Rotation
-        fire->doRot(true);
+        fire->doRotation(true);
         fire->doRotRange(true);
 
         //Size
@@ -6139,7 +6308,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         //Color
         fire->doColorOverLF(true);
-        fire->doBlendingBrigh(true);
+        fire->doBlendBrightness(true);
         ImGradient gradient; // WILL not change UI
         gradient.getMarks().clear();
         gradient.addMark(0.0f, ImColor(103, 20, 20));
@@ -6148,9 +6317,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         fire->colorArr(gradient.cachedValues());
 
         //Acceleration
-        fire->doAcc(true);
+        fire->doAcceleration(true);
         fire->doAccDiffDir(true);
-        fire->acc(0.0f, 0.02f, 0.0f);
+        fire->acceleration(0.0f, 0.02f, 0.0f);
         
 
         fire->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
@@ -6177,18 +6346,18 @@ resolution shadows near the camera and lower resolution shadows further away.");
         flame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
         flame->doAlphaOverL(false);
         flame->doSizeOverLF(false);
-        flame->doRot(false);
+        flame->doRotation(false);
         
         flame->frameRateFB(32);
         flame->radiusW(0.4f);
         flame->radiusH(0.5f);
         flame->scale(1.2);
-        flame->billboardType(1);
+        flame->billboardType(BT_Vertical);
 
         //Color
         flame->doColor(true);
         flame->color(SLCol4f(0.52f, 0.47f, 0.32f, 1.0f));
-        flame->doBlendingBrigh(true);
+        flame->doBlendBrightness(true);
 
         //Size
         flame->doSizeOverLFCurve(true);
@@ -6272,9 +6441,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeB->generateBernsteinPAlpha();
 
         // Acceleration
-        smokeB->doAcc(true);
+        smokeB->doAcceleration(true);
         smokeB->doAccDiffDir(true);
-        smokeB->acc(0.0f, 0.25f, 0.3f);
+        smokeB->acceleration(0.0f, 0.25f, 0.3f);
 
         SLMesh* smokeBMesh = smokeB;
         SLNode* smokeBNode = new SLNode(smokeBMesh, "Particle system node smoke black");
@@ -6318,9 +6487,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeW->generateBernsteinPAlpha();
 
         // Acceleration
-        smokeW->doAcc(true);
+        smokeW->doAcceleration(true);
         smokeW->doAccDiffDir(true);
-        smokeW->acc(0.0f, 0.02f, 0.55f);
+        smokeW->acceleration(0.0f, 0.02f, 0.55f);
 
         SLMesh* smokeWMesh = smokeW;
         SLNode* smokeWNode = new SLNode(smokeWMesh, "Particle system node smoke white");
@@ -6346,7 +6515,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         //Color
         sparksF->doColor(true);
         sparksF->doColorOverLF(true);
-        sparksF->doBlendingBrigh(true);
+        sparksF->doBlendBrightness(true);
         ImGradient gradientSparks; // WILL not change UI
         gradientSparks.getMarks().clear();
         gradientSparks.addMark(0.0f, ImColor(255, 0, 0));
@@ -6456,7 +6625,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doShapeSpawnBase(true);
         ps->doShapeSurface(true);
         ps->radiusCone(1.0f);
-        ps->doBlendingBrigh(true);
+        ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
 
         SLMesh* pSMesh = ps;

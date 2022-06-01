@@ -51,7 +51,9 @@ void SLText::drawText(SLSceneView* sv)
     SLGLProgram* sp    = _font->fontTexProgram();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (const SLfloat*)&updateAndGetWM());
+    sp->uniformMatrix4fv("u_vMatrix", 1, (const SLfloat*)&state->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (const SLfloat*)&state->projectionMatrix);
     sp->uniform4fv("u_textColor", 1, (float*)&_color);
     sp->uniform1i("u_matTexture0", 0);
 

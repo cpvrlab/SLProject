@@ -7,7 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdio.h>
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
@@ -37,11 +36,11 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _om.identity();
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _mesh           = nullptr;
@@ -61,15 +60,16 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _om.identity();
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
     _levelForSM     = 0;
+    _mesh           = nullptr;
 
     addMesh(mesh);
 }
@@ -78,7 +78,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 Constructor with a mesh pointer, translation vector and name.
 */
 SLNode::SLNode(SLMesh*         mesh,
-               SLVec3f         translation,
+               const SLVec3f&  translation,
                const SLstring& name) : SLObject(name)
 {
     assert(mesh && "No mesh passed");
@@ -89,15 +89,16 @@ SLNode::SLNode(SLMesh*         mesh,
     _om.translate(translation);
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
     _levelForSM     = 0;
+    _mesh           = nullptr;
 
     addMesh(mesh);
 }
@@ -367,7 +368,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
         // For particle system updating (Break, no update, setup to resume)
         SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(this->mesh());
         if (tempPS && !_aabb.isVisible())
-            tempPS->notVisibleFrustrumCulling();
+            tempPS->notVisibleFrustumCulling();
             
 
         // Cull the group nodes recursively
@@ -424,67 +425,6 @@ void SLNode::cull2DRec(SLSceneView* sv)
     }
     else if (typeid(*this) == typeid(SLText))
         sv->nodesBlended2D().push_back(this);
-}
-//-----------------------------------------------------------------------------
-/*!
-Draws the the nodes meshes with SLNode::drawMeshes and calls
-recursively the drawRec method of the nodes children.
-The nodes object matrix (SLNode::_om) is multiplied before the meshes are drawn.
-This recursive drawing is more expensive than the flat drawing with the
-opaqueNodes vector because of the additional matrix multiplications.
-The order of drawing doesn't matter in flat drawing because the world
-matrix (SLNode::_wm) is used for transform. See also SLNode::drawMeshes.
-The drawRec method is <b>still used</b> for the rendering of the 2D menu!
-*/
-void SLNode::drawRec(SLSceneView* sv)
-{
-    // PROFILE_FUNCTION();
-
-    // Do frustum culling for all shapes except cameras & lights
-    if (sv->doFrustumCulling() && !_aabb.isVisible()) return;
-
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->pushModelViewMatrix();
-    stateGL->modelViewMatrix.multiply(_om.m());
-    stateGL->buildInverseAndNormalMatrix();
-
-    /////////////
-    drawMesh(sv);
-    /////////////
-
-    for (auto* child : _children)
-        child->drawRec(sv);
-
-    stateGL->popModelViewMatrix();
-
-    // Draw axis aligned bounding box
-    bool showBBOX   = sv->drawBit(SL_DB_BBOX) || drawBit(SL_DB_BBOX);
-    bool showAXIS   = sv->drawBit(SL_DB_AXIS) || drawBit(SL_DB_AXIS);
-    bool showSELECT = _isSelected;
-
-    if (showBBOX || showAXIS || showSELECT)
-    {
-        stateGL->pushModelViewMatrix();
-        stateGL->modelViewMatrix.setMatrix(sv->camera()->updateAndGetVM().m());
-
-        // Draw AABB of all other shapes only
-        if (showBBOX && !showSELECT)
-        {
-            if (_mesh)
-                _aabb.drawWS(SLCol4f::RED);
-            else
-                _aabb.drawWS(SLCol4f::CYAN);
-        }
-
-        if (showAXIS)
-            _aabb.drawAxisWS();
-
-        // Draw AABB if shapes is selected
-        if (showSELECT)
-            _aabb.drawWS(SLCol4f::YELLOW);
-
-        stateGL->popModelViewMatrix();
-    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -629,13 +569,12 @@ the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
-    // PROFILE_FUNCTION();
-
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
         return;
 
-    _isWMUpToDate = false;
+    _isWMUpToDate  = false;
+    _isWMIUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
     for (auto* child : _children)
@@ -658,7 +597,8 @@ void SLNode::needWMUpdate()
     if (!_isWMUpToDate)
         return;
 
-    _isWMUpToDate = false;
+    _isWMUpToDate  = false;
+    _isWMIUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
     for (auto* child : _children)
@@ -695,25 +635,21 @@ class it is ok.
 */
 void SLNode::updateWM() const
 {
+    // PROFILE_FUNCTION();
+
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
     else
         _wm.setMatrix(_om);
 
-    _wmI.setMatrix(_wm);
-    _wmI.invert();
-    _wmN.setMatrix(_wm.mat3());
-
     _isWMUpToDate = true;
     numWMUpdates++;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat4f&
-SLNode::updateAndGetWM() const
+/*! Returns the current world matrix for this node. If the world matrix is out
+ * of date it will updateRec it and return a current result.
+ */
+const SLMat4f& SLNode::updateAndGetWM() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -721,37 +657,27 @@ SLNode::updateAndGetWM() const
     return _wm;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world inverse matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat4f&
-SLNode::updateAndGetWMI() const
+/*! Returns the current world inverse matrix for this node. If the world matrix
+ * is out of date it will updateRec it and return a current result.
+ */
+const SLMat4f& SLNode::updateAndGetWMI() const
 {
     if (!_isWMUpToDate)
         updateWM();
+
+    if (!_isWMIUpToDate)
+    {
+        _wmI.setMatrix(_wm);
+        _wmI.invert();
+        _isWMIUpToDate = true;
+    }
 
     return _wmI;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world normal matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat3f&
-SLNode::updateAndGetWMN() const
-{
-    if (!_isWMUpToDate)
-        updateWM();
-
-    return _wmN;
-}
-//-----------------------------------------------------------------------------
-/*!
-Updates the axis aligned bounding box in world space.
-*/
-SLAABBox&
-SLNode::updateAABBRec()
+/*! Updates the axis aligned bounding box in world space recursively.
+ */
+SLAABBox& SLNode::updateAABBRec()
 {
     if (_isAABBUpToDate)
         return _aabb;
@@ -776,32 +702,22 @@ SLNode::updateAABBRec()
         _aabb.mergeWS(aabbMesh);
     }
 
-    // Merge children in WS except for cameras except if cameras have children
+    // Merge children in WS
     for (auto* child : _children)
-    { /*
-        bool childIsCamera = typeid(*child)==typeid(SLCamera);
-        bool cameraHasChildren = false;
-        if (childIsCamera)
-            cameraHasChildren = !child->children().empty();
-
-        if (!childIsCamera || cameraHasChildren)
-        */
         _aabb.mergeWS(child->updateAABBRec());
-    }
 
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
 
-    // For visualizing the nodes orientation we finally updateRec the axis in WS
+    // For visualizing the nodes' orientation we finally updateRec the axis in WS
     _aabb.updateAxisWS(updateAndGetWM());
 
     _isAABBUpToDate = true;
     return _aabb;
 }
 //-----------------------------------------------------------------------------
-/*!
-prints the node name with the names of the meshes recursively
-*/
+/*! Prints the node name with the names of the meshes recursively
+ */
 void SLNode::dumpRec()
 {
     // dump node
@@ -823,9 +739,8 @@ void SLNode::dumpRec()
         child->dumpRec();
 }
 //-----------------------------------------------------------------------------
-/*!
-Recursively sets the specified drawbit on or off. See also SLDrawBits.
-*/
+/*! Recursively sets the specified drawbit on or off. See also SLDrawBits.
+ */
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
     _drawBits.set(bit, state);
@@ -833,9 +748,8 @@ void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
         child->setDrawBitsRec(bit, state);
 }
 //-----------------------------------------------------------------------------
-/*!
-Recursively sets the specified OpenGL primitive type.
-*/
+/*! Recursively sets the specified OpenGL primitive type.
+ */
 void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
 {
     for (auto* child : _children)
@@ -1135,7 +1049,7 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
-    // PROFILE_FUNCTION();
+    // if (_parent == nullptr) PROFILE_FUNCTION();
 
     doUpdate();
     for (auto* child : _children)
@@ -1214,17 +1128,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
             const SLMat4f mat4x4        = om();
             float         transform[12] = {mat4x4.m(0),
-                                   mat4x4.m(4),
-                                   mat4x4.m(8),
-                                   mat4x4.m(12),
-                                   mat4x4.m(1),
-                                   mat4x4.m(5),
-                                   mat4x4.m(9),
-                                   mat4x4.m(13),
-                                   mat4x4.m(2),
-                                   mat4x4.m(6),
-                                   mat4x4.m(10),
-                                   mat4x4.m(14)};
+                                           mat4x4.m(4),
+                                           mat4x4.m(8),
+                                           mat4x4.m(12),
+                                           mat4x4.m(1),
+                                           mat4x4.m(5),
+                                           mat4x4.m(9),
+                                           mat4x4.m(13),
+                                           mat4x4.m(2),
+                                           mat4x4.m(6),
+                                           mat4x4.m(10),
+                                           mat4x4.m(14)};
             memcpy(instance.transform, transform, sizeof(float) * 12);
 
             instance.instanceId        = instanceIndex++;
@@ -1244,17 +1158,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
         const SLMat4f& mat4x4        = om();
         float          transform[12] = {mat4x4.m(0),
-                               mat4x4.m(4),
-                               mat4x4.m(8),
-                               mat4x4.m(12),
-                               mat4x4.m(1),
-                               mat4x4.m(5),
-                               mat4x4.m(9),
-                               mat4x4.m(13),
-                               mat4x4.m(2),
-                               mat4x4.m(6),
-                               mat4x4.m(10),
-                               mat4x4.m(14)};
+                                        mat4x4.m(4),
+                                        mat4x4.m(8),
+                                        mat4x4.m(12),
+                                        mat4x4.m(1),
+                                        mat4x4.m(5),
+                                        mat4x4.m(9),
+                                        mat4x4.m(13),
+                                        mat4x4.m(2),
+                                        mat4x4.m(6),
+                                        mat4x4.m(10),
+                                        mat4x4.m(14)};
 
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
@@ -1324,17 +1238,17 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
 
         const SLMat4f& mat4x4        = updateAndGetWM();
         float          transform[12] = {mat4x4.m(0),
-                               mat4x4.m(4),
-                               mat4x4.m(8),
-                               mat4x4.m(12),
-                               mat4x4.m(1),
-                               mat4x4.m(5),
-                               mat4x4.m(9),
-                               mat4x4.m(13),
-                               mat4x4.m(2),
-                               mat4x4.m(6),
-                               mat4x4.m(10),
-                               mat4x4.m(14)};
+                                        mat4x4.m(4),
+                                        mat4x4.m(8),
+                                        mat4x4.m(12),
+                                        mat4x4.m(1),
+                                        mat4x4.m(5),
+                                        mat4x4.m(9),
+                                        mat4x4.m(13),
+                                        mat4x4.m(2),
+                                        mat4x4.m(6),
+                                        mat4x4.m(10),
+                                        mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
         instance.instanceId = instanceIndex++;

@@ -35,14 +35,14 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     if (amount > UINT_MAX) // Need to change for number of floats
         SL_EXIT_MSG("SLParticleSystem supports max. 2^32 vertices.");
 
-    _timeToLive    = timeToLive;
-    _amount = amount;
-    _vRandS = velocityRandomStart;
-    _vRandE = velocityRandomEnd;
+    _timeToLive = timeToLive;
+    _amount     = amount;
+    _vRandS     = velocityRandomStart;
+    _vRandE     = velocityRandomEnd;
 
     P.resize(1); // To trick parent class
 
-    //emitterPos(particleEmiPos);
+    // emitterPos(particleEmiPos);
 
     _textureFirst    = texC;
     _textureFlipbook = texFlipbook;
@@ -55,6 +55,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _drawTime.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
 {
     float u  = random(0.0f, radius);
@@ -72,6 +73,7 @@ SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
     return SLVec3f(x1 * c, x2 * c, x3 * c);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
 {
     float x1 = randomXs.x;
@@ -92,7 +94,8 @@ SLVec3f SLParticleSystem::getDirectionSphere(SLVec3f position)
 {
     return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
-  //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
 {
     float x = random(-boxScale.x, boxScale.x);
@@ -102,13 +105,15 @@ SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
 {
-    int temp    = random(0,5);
+    int   temp = random(0, 5);
     float x    = 0.0f;
-    float y       = 0.0f;
-    float z       = 0.0f;
-    if (temp == 0) { // LEFT side
+    float y    = 0.0f;
+    float z    = 0.0f;
+    if (temp == 0)
+    { // LEFT side
         x = -boxScale.x;
         y = random(-boxScale.y, boxScale.y);
         z = random(-boxScale.z, boxScale.z);
@@ -152,50 +157,54 @@ SLVec3f SLParticleSystem::getDirectionBox(SLVec3f position)
     return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointInCone()
 {
-    float y = 0.0f;
+    float y      = 0.0f;
     float radius = _radiusCone;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+        y      = random(0.0f, _heightCone); // NEED TO HAVE MORE value near 1 when we have smaller base that top
         radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
     }
-    float r      = radius * sqrt(random(0.0f, 1.0f));
-    float theta        = random(0.0f, 1.0f) * 2 * PI;
-    float x            = r * cos(theta);
-    float z            = r * sin(theta);
+    float r     = radius * sqrt(random(0.0f, 1.0f));
+    float theta = random(0.0f, 1.0f) * 2 * PI;
+    float x     = r * cos(theta);
+    float z     = r * sin(theta);
 
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointOnCone()
 {
     float y      = 0.0f;
     float radius = _radiusCone;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y      = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+        y      = random(0.0f, _heightCone); // NEED TO HAVE MORE value near 1 when we have smaller base that top
         radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
     }
-    float r      = radius;
-    float theta  = random(0.0f, 1.0f) * 2 * PI;
-    float x      = r * cos(theta);
-    float z      = r * sin(theta);
+    float r     = radius;
+    float theta = random(0.0f, 1.0f) * 2 * PI;
+    float x     = r * cos(theta);
+    float z     = r * sin(theta);
 
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getDirectionCone(SLVec3f position)
 {
-    float maxRadius     = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone; // Calculate max radius
-    float   percentX         = position.x / maxRadius; // Calculate at which pourcent our x is, to know how much we need to adapt our angle
-    float   percentZ         = position.z / maxRadius; // Calculate at which pourcent our z is, to know how much we need to adapt our angle
-    float   newX             = position.x + tan(_angleCone * percentX * DEG2RAD) * _heightCone;
-    float   newZ             = position.z + tan(_angleCone * percentZ * DEG2RAD) * _heightCone;
+    float maxRadius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone; // Calculate max radius
+    float percentX  = position.x / maxRadius;                                // Calculate at which pourcent our x is, to know how much we need to adapt our angle
+    float percentZ  = position.z / maxRadius;                                // Calculate at which pourcent our z is, to know how much we need to adapt our angle
+    float newX      = position.x + tan(_angleCone * percentX * DEG2RAD) * _heightCone;
+    float newZ      = position.z + tan(_angleCone * percentZ * DEG2RAD) * _heightCone;
     return SLVec3f(newX, _heightCone, newZ);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointInPyramid()
 {
     float y      = 0.0f;
@@ -205,12 +214,13 @@ SLVec3f SLParticleSystem::getPointInPyramid()
         y      = random(0.0f, _heightPyramid);
         radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
     }
-    float x      = random(-radius, radius);
-    float z      = random(-radius, radius);
+    float x = random(-radius, radius);
+    float z = random(-radius, radius);
 
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getPointOnPyramid()
 {
     float y      = 0.0f;
@@ -220,12 +230,13 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
         y      = random(0.0f, _heightPyramid);
         radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
     }
-    
-    //int   temp      = random(0, 5);
-    int   temp      = random(0, 3);
-    float x         = 0.0f;
-    float z         = 0.0f;
-    if (temp == 0) { //LEFT
+
+    // int   temp      = random(0, 5);
+    int   temp = random(0, 3);
+    float x    = 0.0f;
+    float z    = 0.0f;
+    if (temp == 0)
+    { // LEFT
         x = -radius;
         z = random(-radius, radius);
     }
@@ -234,8 +245,8 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
         x = radius;
         z = random(-radius, radius);
     }
-    else if (temp == 2) //FRONT
-    { 
+    else if (temp == 2) // FRONT
+    {
         x = random(-radius, radius);
         z = radius;
     }
@@ -244,7 +255,7 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
         x = random(-radius, radius);
         z = -radius;
     }
-    //Comments to have top and bottom not filled
+    // Comments to have top and bottom not filled
     /* else if (temp == 4) //TOP
     {
         y = _heightPyramid;
@@ -263,17 +274,22 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
 
     return SLVec3f(x, y, z);
 }
-// -----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//! ???
 SLVec3f SLParticleSystem::getDirectionPyramid(SLVec3f position)
 {
-    float maxRadius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid; // Calculate max radius
-    float percentX  = position.x / maxRadius;                                // Calculate at which pourcent our x is to know how much we need to adapt our angle
-    float percentZ  = position.z / maxRadius;                                // Calculate at which pourcent our z is to know how much we need to adapt our angle
-    float newX      = position.x + tan(_anglePyramid * percentX * DEG2RAD) * _heightPyramid;
-    float newZ      = position.z + tan(_anglePyramid * percentZ * DEG2RAD) * _heightPyramid;
+    float maxRadius = _halfSidePyramid +
+                      tan(_anglePyramid * DEG2RAD) * _heightPyramid;
+
+    // Calculate at which percent our x & z is to know how much we need to adapt our angle
+    float percentX = position.x / maxRadius;
+    float percentZ = position.z / maxRadius;
+    float newX     = position.x + tan(_anglePyramid * percentX * DEG2RAD) * _heightPyramid;
+    float newZ     = position.z + tan(_anglePyramid * percentZ * DEG2RAD) * _heightPyramid;
     return SLVec3f(newX, _heightPyramid, newZ);
 }
 //-----------------------------------------------------------------------------
+//! ???
 void SLParticleSystem::generate()
 {
     unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
@@ -292,26 +308,33 @@ void SLParticleSystem::generate()
     tempP.resize(_amount);
     tempV.resize(_amount);
     tempST.resize(_amount);
-    if (_doAcc || _doGravity)
+    if (_doAcceleration || _doGravity)
         tempInitV.resize(_amount);
-    if (_doRot)
+    if (_doRotation)
         tempR.resize(_amount);
-    if (_doRot && _doRotRange)
+    if (_doRotation && _doRotRange)
         tempAngulareVelo.resize(_amount);
     if (_doFlipBookTexture)
         tempTexNum.resize(_amount);
     if (_doShape)
         tempInitP.resize(_amount);
 
-
-    //Normal generation
-    for (unsigned int i = 0; i < _amount; i++)
+    // Normal generation
+    for (SLint i = 0; i < _amount; i++)
     {
         if (_doShape && _shapeType == 0)
+        {
             if (!_doShapeSurface) // In volume
-                tempP[i] = getPointInSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
+                tempP[i] = getPointInSphere(_radiusSphere,
+                                            SLVec3f(distribution(generator),
+                                                    distribution(generator),
+                                                    distribution(generator)));
             else // On surface
-                tempP[i] = getPointOnSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
+                tempP[i] = getPointOnSphere(_radiusSphere,
+                                            SLVec3f(distribution(generator),
+                                                    distribution(generator),
+                                                    distribution(generator)));
+        }
         else if (_doShape && _shapeType == 1)
             if (!_doShapeSurface)
                 tempP[i] = getPointInBox(_scaleBox);
@@ -328,7 +351,7 @@ void SLParticleSystem::generate()
             else
                 tempP[i] = getPointOnPyramid();
         else
-            tempP[i] = SLVec3f(0,0,0);
+            tempP[i] = SLVec3f(0, 0, 0);
 
         if (!_doDirectionSpeed)
         {
@@ -361,21 +384,23 @@ void SLParticleSystem::generate()
             }
             else
                 tempDirection = _direction;
-                
+
             if (_doSpeedRange)
                 tempV[i] = tempDirection * random(_speedRange.x, _speedRange.y);
             else
                 tempV[i] = tempDirection * _speed;
         }
 
+        // When the first particle dies the last one begin to live
+        tempST[i] = GlobalTimer::timeS() + ((float)i * (_timeToLive / (float)_amount));
 
-        tempST[i]  = GlobalTimer::timeS() + (i * (_timeToLive / _amount)); // When the first particle dies the last one begin to live
-        if (_doAcc || _doGravity)
+        if (_doAcceleration || _doGravity)
             tempInitV[i] = tempV[i];
-        if (_doRot)
+        if (_doRotation)
             tempR[i] = random(0.0f * DEG2RAD, 360.0f * DEG2RAD); // Start rotation of the particle
-        if (_doRot && _doRotRange)
-            tempAngulareVelo[i] = random(_angularVelocityRange.x * DEG2RAD, _angularVelocityRange.y * DEG2RAD); // Start rotation of the particle
+        if (_doRotation && _doRotRange)
+            tempAngulareVelo[i] = random(_angularVelocityRange.x * DEG2RAD,
+                                         _angularVelocityRange.y * DEG2RAD); // Start rotation of the particle
         if (_doFlipBookTexture)
             tempTexNum[i] = random(0, _row * _col - 1);
         if (_doShape)
@@ -389,11 +414,11 @@ void SLParticleSystem::generate()
     _vao1.setAttrib(AT_position, AT_position, &tempP);
     _vao1.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao1.setAttrib(AT_startTime, AT_startTime, &tempST);
-    if (_doAcc || _doGravity)
+    if (_doAcceleration || _doGravity)
         _vao1.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
-    if (_doRot)
+    if (_doRotation)
         _vao1.setAttrib(AT_rotation, AT_rotation, &tempR);
-    if (_doRot && _doRotRange)
+    if (_doRotation && _doRotRange)
         _vao1.setAttrib(AT_angularVelo, AT_angularVelo, &tempAngulareVelo);
     if (_doFlipBookTexture)
         _vao1.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
@@ -404,18 +429,17 @@ void SLParticleSystem::generate()
     _vao2.setAttrib(AT_position, AT_position, &tempP);
     _vao2.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao2.setAttrib(AT_startTime, AT_startTime, &tempST);
-    if (_doAcc || _doGravity)
+    if (_doAcceleration || _doGravity)
         _vao2.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
-    if (_doRot)
+    if (_doRotation)
         _vao2.setAttrib(AT_rotation, AT_rotation, &tempR);
-    if (_doRot && _doRotRange)
+    if (_doRotation && _doRotRange)
         _vao2.setAttrib(AT_angularVelo, AT_angularVelo, &tempAngulareVelo);
     if (_doFlipBookTexture)
         _vao2.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
     if (_doShape)
         _vao2.setAttrib(AT_initialPosition, AT_initialPosition, &tempInitP);
     _vao2.generateTF((SLuint)tempP.size());
-
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -427,7 +451,7 @@ void SLParticleSystem::generateBernsteinPAlpha()
 {
     // For Y bezier curve
     // T^3
-    float *ContP         = _bezierControlPointAlpha;
+    float* ContP        = _bezierControlPointAlpha;
     float* StaEnd       = _bezierStartEndPointAlpha;
     _bernsteinPYAlpha.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
     // T^2
@@ -472,12 +496,12 @@ void SLParticleSystem::changeTexture()
     }
 }
 //-----------------------------------------------------------------------------
-void SLParticleSystem::notVisibleFrustrumCulling()
+void SLParticleSystem::notVisibleFrustumCulling()
 {
-    if (_isViFrustrumCulling)
+    if (_isViFrustumCulling)
     {
-        _isViFrustrumCulling = false;
-        _notVisibleTimeS     = GlobalTimer::timeS();
+        _isViFrustumCulling = false;
+        _notVisibleTimeS    = GlobalTimer::timeS();
     }
 }
 //-----------------------------------------------------------------------------
@@ -485,7 +509,7 @@ void SLParticleSystem::pauseOrResume()
 {
     if (!_isPaused)
     {
-        _isPaused            = true;
+        _isPaused             = true;
         _lastTimeBeforePauseS = GlobalTimer::timeS();
     }
     else
@@ -498,8 +522,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Init particles vector and init VAO
     /////////////////////////////////////
 
-    if (!_isGenerated) {
-        //emitterPos(node->translationWS()); //To init first position
+    if (!_isGenerated)
+    {
+        // emitterPos(node->translationWS()); //To init first position
         generate();
         _isGenerated = true;
     }
@@ -516,43 +541,42 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // Now use the updating program
-    SLGLProgram* sp = _mat->programTF();
-    sp->useProgram();
+    SLGLProgram* spTF = _mat->programTF();
+    spTF->useProgram();
 
-    
     /////////////////////////////
     // UPDATING -> Calculate time
     /////////////////////////////
 
-    float difTime = 0.0f;
+    float difTime   = 0.0f;
     float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual delta time
 
     // Calculate time difference for frustum culling and paused
-    if (!_isViFrustrumCulling && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
+    if (!_isViFrustumCulling && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
     {
-        _isViFrustrumCulling = true;
-        difTime = GlobalTimer::timeS() - min(_lastTimeBeforePauseS,_notVisibleTimeS); // Paused was set before not visible (will take _lastTimeBeforePauseS), if set after (will take _notVisibleTimeS)
-        //maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
-        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
-        _notVisibleTimeS = 0.0f; // No more culling, the difference time has been applied, no further need
-        _lastTimeBeforePauseS = 0.0f; // No more paused, the difference time has been applied, no further need
+        _isViFrustumCulling = true;
+        difTime             = GlobalTimer::timeS() - min(_lastTimeBeforePauseS, _notVisibleTimeS); // Paused was set before not visible (will take _lastTimeBeforePauseS), if set after (will take _notVisibleTimeS)
+        // maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
+        deltaTime             = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
+        _notVisibleTimeS      = 0.0f;              // No more culling, the difference time has been applied, no further need
+        _lastTimeBeforePauseS = 0.0f;              // No more paused, the difference time has been applied, no further need
     }
-    else if (!_isViFrustrumCulling) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
+    else if (!_isViFrustumCulling) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
     {
-        _isViFrustrumCulling = true;
-        difTime = GlobalTimer::timeS() - _notVisibleTimeS; //Use time since the particle system was not visible
-        //maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
-        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
+        _isViFrustumCulling = true;
+        difTime             = GlobalTimer::timeS() - _notVisibleTimeS; // Use time since the particle system was not visible
+        // maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
+        deltaTime = _deltaTimeUpdateS;                // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
         if (_lastTimeBeforePauseS > _notVisibleTimeS) // If was paused when not visible. Need to take _notVisibleTimeS because it's since this value that the particle system is not drew.
-            _lastTimeBeforePauseS =  _notVisibleTimeS; // Get the value of since the particle system is not drew
-        _notVisibleTimeS = 0.0f; // No more culling, the difference time has been applied, no further need
+            _lastTimeBeforePauseS = _notVisibleTimeS; // Get the value of since the particle system is not drew
+        _notVisibleTimeS = 0.0f;                      // No more culling, the difference time has been applied, no further need
     }
     else if (!_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was resumed
     {
-        difTime = GlobalTimer::timeS() - _lastTimeBeforePauseS; //Use time since the particle system was paused
-        _lastTimeBeforePauseS = 0.0f; // No more paused, the difference time has been applied, no further need
+        difTime               = GlobalTimer::timeS() - _lastTimeBeforePauseS; // Use time since the particle system was paused
+        _lastTimeBeforePauseS = 0.0f;                                         // No more paused, the difference time has been applied, no further need
 
-        //Take default delta time, because when just paused no need to take last delta time, the draw call continue to be called
+        // Take default delta time, because when just paused no need to take last delta time, the draw call continue to be called
     }
 
     // Calculate the elapsed time for the updating
@@ -568,52 +592,62 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     if (!_isPaused) // The updating is paused, therefore no need to send uniforms
     {
-        sp->uniform1f("u_difTime", difTime);     // Time difference, between when the particle system was culled or paused or both
-        sp->uniform1f("u_deltaTime", deltaTime); // Time between each draw call, take delta time from last draw called after frstrum culling
+        // Time difference, between when the particle system was culled or paused or both
+        spTF->uniform1f("u_difTime", difTime);
 
-        sp->uniform1f("u_time", _startUpdateTimeS);
+        // Time between each draw call, take delta time from last draw called after frustum culling
+        spTF->uniform1f("u_deltaTime", deltaTime);
 
-        if (_doAcc)
+        // Time since process start
+        spTF->uniform1f("u_time", _startUpdateTimeS);
+
+        if (_doAcceleration)
         {
             if (_doAccDiffDir)
-                sp->uniform3f("u_acceleration", _acc.x, _acc.y, _acc.z);
+                spTF->uniform3f("u_acceleration", _acceleration.x, _acceleration.y, _acceleration.z);
             else
-                sp->uniform1f("u_accConst", _accConst);
+                spTF->uniform1f("u_accConst", _accelerationConst);
         }
 
         if (_doGravity)
-            sp->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
+            spTF->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
 
-        sp->uniform1f("u_tTL", _timeToLive);
+        spTF->uniform1f("u_tTL", _timeToLive);
 
         emitterPos(node->translationWS());
 
         // Worldspace
         if (_doWorldSpace)
-            sp->uniform3f("u_pGPosition", _emitterPos.x, _emitterPos.y, _emitterPos.z);
+            spTF->uniform3f("u_pGPosition",
+                            _emitterPos.x,
+                            _emitterPos.y,
+                            _emitterPos.z);
         else
-            sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
+            spTF->uniform3f("u_pGPosition",
+                            0.0f,
+                            0.0f,
+                            0.0f);
 
         // Flipbook
         if (_doFlipBookTexture)
         {
-            sp->uniform1i("u_col", _col);
-            sp->uniform1i("u_row", _row);
+            spTF->uniform1i("u_col", _col);
+            spTF->uniform1i("u_row", _row);
             _lastUpdateFB += _deltaTimeUpdateS;
 
             if (_lastUpdateFB > (1.0f / (float)_frameRateFB))
             {
                 // Last time FB was updated is bigger than the time needed for each update
-                sp->uniform1i("u_condFB", 1);
+                spTF->uniform1i("u_condFB", 1);
                 _lastUpdateFB = 0.0f;
             }
             else
-                sp->uniform1i("u_condFB", 0);
+                spTF->uniform1i("u_condFB", 0);
         }
 
         // Rotation
-        if (_doRot && !_doRotRange)
-            sp->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
+        if (_doRotation && !_doRotRange)
+            spTF->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
 
         /////////////////////////////
         // Draw call to update
@@ -654,10 +688,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     else
     {
-        if (_billboardType == 1)
-        {
-            SLMat4f mvMat = stateGL->modelViewMatrix;
+        SLMat4f mvMat = stateGL->viewMatrix * stateGL->modelMatrix;
 
+        if (_billboardType == BT_Vertical)
+        {
             mvMat.m(0, 1.0f);
             mvMat.m(1, 0.0f);
             mvMat.m(2, 0.0f);
@@ -670,13 +704,18 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                                   1,
                                   (SLfloat*)&mvMat); // TO change for custom shader generation
         }
+        else if (_billboardType == BT_Horizontal)
+        {
+            // ???
+        }
         else
         {
             spD->uniformMatrix4fv("u_vOmvMatrix",
                                   1,
-                                  (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader generation
+                                  (SLfloat*)&mvMat); // TO change for custom shader generation
         }
     }
+
     // Alpha over life Bézier curve
     if (_doAlphaOverLCurve)
     {
@@ -732,30 +771,26 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
-    if (_doColor && _doBlendingBrigh)
+    if (_doColor && _doBlendBrightness)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
 
     ///////////////////////
     SLMesh::draw(sv, node);
     ///////////////////////
 
-    if (_doColor && _doBlendingBrigh)
+    if (_doColor && _doBlendBrightness)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // End calculation of the elapsed time for the drawing
     _drawTime.set(GlobalTimer::timeMS() - _startDrawTimeMS);
 
-    //Swap buffer
+    // Swap buffer
     _drawBuf = 1 - _drawBuf;
 }
 //-----------------------------------------------------------------------------
 //! deleteData deletes all mesh data and vbo's
 void SLParticleSystem::deleteData()
 {
-    //Delete texture
-    //delete _textureFirst;
-    //delete _textureFlipbook;
-
     _vao1.deleteGL();
     _vao2.deleteGL();
     SLMesh::deleteData();
@@ -769,36 +804,39 @@ void SLParticleSystem::deleteDataGpu()
     SLMesh::deleteDataGpu();
 }
 //-----------------------------------------------------------------------------
-//NEEEEED TO BE ENHANCE AND CLEAN
+//! Todo: NEED TO BE ENHANCED AND CLEANED
 void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     // Radius of particle
     float rW = _radiusW * _scale;
     float rH = _radiusH * _scale;
 
-    //Speed for direction if used
-    float tempSpeed = 0.0f;
+    // Speed for direction if used
+    float tempSpeed;
     if (_doSpeedRange)
         tempSpeed = max(_speedRange.x, _speedRange.y);
     else
         tempSpeed = _speed;
 
-    //Empty point
+    // Empty point
     minP = SLVec3f();
     maxP = SLVec3f();
 
-    //Empty velocity
+    // Empty velocity
     SLVec3f minV = SLVec3f();
     SLVec3f maxV = SLVec3f();
 
-    //Shape
-    if (_doShape) {
-        if (_shapeType == 0) {
+    // Shape
+    if (_doShape)
+    {
+        if (_shapeType == 0)
+        {
             float radius = cbrt(_radiusSphere);
             minP         = SLVec3f(-radius, -radius, -radius);
             maxP         = SLVec3f(radius, radius, radius);
             // Override direction
-            if (_doDirectionSpeed && _doShapeOverride) {
+            if (_doDirectionSpeed && _doShapeOverride)
+            {
                 minV += SLVec3f(-radius, -radius, -radius) * tempSpeed;
                 maxV += SLVec3f(radius, radius, radius) * tempSpeed;
             }
@@ -809,7 +847,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             maxP = _scaleBox;
             if (_doDirectionSpeed && _doShapeOverride)
             {
-                minV += SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z) *tempSpeed;
+                minV += SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z) * tempSpeed;
                 maxV += _scaleBox * tempSpeed;
             }
         }
@@ -818,7 +856,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             float radius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone;
             minP         = SLVec3f(-radius, -0.0, -radius);
             if (!_doShapeSpawnBase) // Spawn inside volume
-               maxP         = SLVec3f(radius, _heightCone, radius);
+                maxP = SLVec3f(radius, _heightCone, radius);
             else // Spawn base volume
                 maxP = SLVec3f(radius, 0.0f, radius);
             if (_doDirectionSpeed && _doShapeOverride)
@@ -829,9 +867,9 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
         if (_shapeType == 3)
         {
-           
+
             float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid;
-            minP  = SLVec3f(-radius, -0.0, -radius);
+            minP         = SLVec3f(-radius, -0.0, -radius);
             if (!_doShapeSpawnBase) // Spawn inside volume
                 maxP = SLVec3f(radius, _heightPyramid, radius);
             else // Spawn base volume
@@ -844,7 +882,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
     }
 
-    if (_doAcc || _doGravity) // If acceleration or gravity is enable
+    if (_doAcceleration || _doGravity) // If acceleration or gravity is enable
     {
         if (!_doDirectionSpeed) // If direction is not enable
         {
@@ -883,19 +921,19 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 }
 
                 // Inverse if acceleration is negative
-                if (_acc.x < 0.0)
+                if (_acceleration.x < 0.0)
                 {
                     float temp = minV.x;
                     minV.x     = maxV.x;
                     maxV.x     = temp;
                 }
-                if (_acc.y < 0.0)
+                if (_acceleration.y < 0.0)
                 {
                     float temp = minV.y;
                     minV.y     = maxV.y;
                     maxV.y     = temp;
                 }
-                if (_acc.z < 0.0)
+                if (_acceleration.z < 0.0)
                 {
                     float temp = minV.z;
                     minV.z     = maxV.z;
@@ -910,32 +948,34 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
         else if (_doDirectionSpeed && !_doShapeOverride) // Direction and speed, but no shape override, because we want a constant direction in one way we don't want the direction to be overrided
         {
-            float tempSpeed = 0.0f;
-            if (_doSpeedRange)tempSpeed = max(_speedRange.x, _speedRange.y);
-            else tempSpeed = _speed;
+            tempSpeed = 0.0f;
+            if (_doSpeedRange)
+                tempSpeed = max(_speedRange.x, _speedRange.y);
+            else
+                tempSpeed = _speed;
 
             minV = SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed;
             maxV = SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed;
         }
-        //Apply time to velocity
+
+        // Apply time to velocity
         minP += minV * _timeToLive;
         maxP += maxV * _timeToLive;
 
-
-        //GRAVITY
+        // GRAVITY
         if (_doGravity)
         {
             float timeForXGrav = 0.0f;
             float timeForYGrav = 0.0f;
             float timeForZGrav = 0.0f;
-            //Time to have a velocity of 0
+            // Time to have a velocity of 0
             if (_gravity.x != 0.0f) timeForXGrav = maxV.x / _gravity.x;
             if (_gravity.y != 0.0f) timeForYGrav = maxV.y / _gravity.y;
             if (_gravity.z != 0.0f) timeForZGrav = maxV.z / _gravity.z;
 
-            if (timeForXGrav < 0.0f) // If the gravity go against the velocity
+            if (timeForXGrav < 0.0f)                             // If the gravity go against the velocity
                 maxP.x -= maxV.x * (_timeToLive + timeForXGrav); // We remove the position the velocity that we will not make because we go against it (becareful! here timeForXGrav is negative)
-            else if (timeForXGrav > 0.0f) // If the gravity go with the velocity
+            else if (timeForXGrav > 0.0f)                        // If the gravity go with the velocity
                 maxP.x += 0.5f * _gravity.x * (_timeToLive * _timeToLive);
             if (timeForYGrav < 0.0f) // If the gravity go against the velocity
                 maxP.y -= maxV.y * (_timeToLive + timeForYGrav);
@@ -946,12 +986,12 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             else if (timeForZGrav > 0.0f) // If the gravity go with the velocity
                 maxP.z += 0.5f * _gravity.z * (_timeToLive * _timeToLive);
 
-            //Time remaining after the gravity has nullified the velocity for the particle to die (for each axes)
+            // Time remaining after the gravity has nullified the velocity for the particle to die (for each axes)
             float xTimeRemaining = _timeToLive - abs(timeForXGrav);
             float yTimeRemaining = _timeToLive - abs(timeForYGrav);
             float zTimeRemaining = _timeToLive - abs(timeForZGrav);
 
-            if (timeForXGrav < 0.0f) // If the gravity go against the velocity
+            if (timeForXGrav < 0.0f)                                             // If the gravity go against the velocity
                 minP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining); // We move down pour min point (becareful! here gravity is negative)
             if (timeForYGrav < 0.0f)
                 minP.y += 0.5f * _gravity.y * (yTimeRemaining * yTimeRemaining);
@@ -960,16 +1000,15 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
 
         //ACCELERATION
-        if (_doAcc && _doAccDiffDir)
+        if (_doAcceleration && _doAccDiffDir)
         {
-            maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
+            maxP += 0.5f * _acceleration * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
-        else if (_doAcc && !_doAccDiffDir) // Need to be rework
+        else if (_doAcceleration && !_doAccDiffDir) // Need to be rework
         {
-            // minP += 0.5f * _accConst * (_timeToLive * _timeToLive); //Apply constant acceleration
-            maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good
+            // minP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); //Apply constant acceleration
+            maxP += 0.5f * _accelerationConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good
         }
-        
     }
     else // If acceleration and gravity is not enable
     {
@@ -989,7 +1028,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
         else if (_doDirectionSpeed && !_doShapeOverride)
         {
-            float tempSpeed = 0.0f;
+            tempSpeed = 0.0f;
             if (_doSpeedRange)
                 tempSpeed = random(_speedRange.x, _speedRange.y);
             else
@@ -998,16 +1037,16 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             minV += SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed;
             maxV += SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed;
         }
-        //Apply time to velocity
+        // Apply time to velocity
         minP += minV * _timeToLive;
         maxP += maxV * _timeToLive;
     }
 
     // Add size particle
-    minP.x += minP.x < maxP.x ? -rW : rW;                   // Add size of particle
-    //if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    minP.x += minP.x < maxP.x ? -rW : rW; // Add size of particle
+    // if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
-    minP.z += minP.z < maxP.z ? -rW : rW;                   // Add size of particle
+    minP.z += minP.z < maxP.z ? -rW : rW; // Add size of particle
 
     maxP.x += maxP.x > minP.x ? rW : -rW; // Add size of particle
     maxP.y += maxP.y > minP.y ? rH : -rH; // Add size of particle

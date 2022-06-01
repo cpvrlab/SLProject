@@ -31,7 +31,7 @@ public:
         //  for relocalization and loop closing
         float minCommonWordFactor = 0.8f;
 
-        // Min acc score filter in detectRelocalizationCandidates
+        // Min acceleration score filter in detectRelocalizationCandidates
         bool minAccScoreFilter = false;
     };
 

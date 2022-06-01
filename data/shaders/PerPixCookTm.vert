@@ -16,19 +16,24 @@ layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
 layout (location = 2) in vec2  a_uv0;       // Vertex texture coordinate attribute
 
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelVie
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_N_VS;       // Normal at P_VS in view space
 out     vec2  v_uv0;        // Texture coordinate output
 //-----------------------------------------------------------------------------
 void main(void)
-{  
-    v_P_VS = vec3(u_mvMatrix * a_position);
-    v_N_VS = vec3(u_nMatrix * a_normal);  
+{
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix * a_position);
+
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    v_N_VS = vec3(nMatrix * a_normal);
     v_uv0 = a_uv0;
-    gl_Position = u_mvpMatrix * a_position;
+
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

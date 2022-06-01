@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      AppDemoGui.cpp
-//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
-//  Date:      Summer 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoGui.cpp
+//   Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
+//   Date:      Summer 2017
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <AppDemoGui.h>
 #include <AppDemo.h>
@@ -54,7 +54,7 @@ extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
 extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
 extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
-//#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
+// #define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
@@ -226,12 +226,11 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     }
     else
     {
-
         ///////////////////////////////////
         // Show modeless fullscreen dialogs
         ///////////////////////////////////
 
-        // if parallel jobs are running show only the progress informations
+        // if parallel jobs are running show only the progress information
         if (AppDemo::jobIsRunning)
         {
             centerNextWindow(sv, 0.9f, 0.5f);
@@ -369,6 +368,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             {
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
+                CVVideoType  vt    = CVCapture::instance()->videoType();
                 SLchar       m[2550]; // message character array
                 m[0] = 0;             // set zero length
 
@@ -385,7 +385,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                    SLfloat updateAABBTime = s->updateAABBTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -417,22 +417,28 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                    sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                    sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                    sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                    sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                    sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
-                    sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
-                    sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                    sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                    sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                    if (s->singleMeshFullSelected() != nullptr) {
-                        SLParticleSystem *ps = s->singleMeshFullSelected()->mat()->ps();
+                    if (!s->animManager().allAnimNames().empty())
+                    {
+                        sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                        sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                    }
+                    if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
+                    {
+                        sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                        sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                        sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                        sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                        sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                        sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                        sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    }
+                    if (s->singleMeshFullSelected() != nullptr)
+                    {
+                        SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
                         if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
                         {
                             sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
                             sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
-
                         }
                     }
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
@@ -458,7 +464,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
                     sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                     sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
                     sprintf(m + strlen(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
@@ -466,7 +472,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                     sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
                 }
@@ -626,7 +632,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
                 ImGui::Text("Global Resources:");
 
-                if (am->meshes().size() && ImGui::TreeNode("Meshes"))
+                string label = "Meshes (" + std::to_string(am->meshes().size()) + ")";
+                if (am->meshes().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->meshes().size(); ++i)
                         ImGui::Text("[%d] %s (%u v.)",
@@ -637,7 +644,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (s->lights().size() && ImGui::TreeNode("Lights"))
+                label = "Lights (" + std::to_string(s->lights().size()) + ")";
+                if (s->lights().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < s->lights().size(); ++i)
                     {
@@ -648,7 +656,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
+                label = "Materials (" + std::to_string(sv->visibleMaterials3D().size()) + ")";
+                if (sv->visibleMaterials3D().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (auto* mat : sv->visibleMaterials3D())
                     {
@@ -675,7 +684,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->textures().size() && ImGui::TreeNode("Textures"))
+                label = "Meshes (" + std::to_string(am->textures().size()) + ")";
+                if (am->textures().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->textures().size(); ++i)
                     {
@@ -688,7 +698,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
+                label = "Programs in AM (" + std::to_string(am->programs().size()) + ")";
+                if (am->programs().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->programs().size(); ++i)
                     {
@@ -698,7 +709,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (ImGui::TreeNode("Programs (application)"))
+                label = "Programs in app (" + std::to_string(SLGLProgramManager::size()) + ")";
+                if (ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
                         ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
@@ -1852,6 +1864,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
+                    if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
+                        s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
@@ -1953,7 +1967,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         ImGui::EndMenu();
                     }
                 }
-                if (ImGui::BeginMenu("Particle System"))
+                if (ImGui::BeginMenu("Particle Systems"))
                 {
                     if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
                         s->onLoad(am, s, sv, SID_ParticleSystem_First);
@@ -1971,8 +1985,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
                     if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
                         s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
-                    
-                    
+
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -3778,7 +3791,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         {
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                            // Pause/Resume
+
+                            // Pause and Resume ??? Is there a global list of all particle systems
                             bool isPaused = ps->isPaused();
                             if (isPaused)
                             {
@@ -3796,11 +3810,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             // Amount
                             int amount = ps->amount();
-                            if(ImGui::InputInt("Amount of particles", &amount))
+                            if (ImGui::InputInt("Amount of particles", &amount))
                             {
                                 ps->amount(amount);
                                 ps->isGenerated(false);
                             }
+
                             // TTL (Time to live)
                             if (ImGui::CollapsingHeader("Time to live"))
                             {
@@ -3823,6 +3838,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::TextWrapped("Need to be enable by default but can create flickering with few particles, recommend to disable if few particles with no velocity ");
                                 ImGui::Unindent();
                             }
+
                             // Radius
                             float radiusW = ps->radiusW();
                             if (ImGui::InputFloat("Radius width", &radiusW))
@@ -3836,6 +3852,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->radiusH(radiusH);
                                 singleNode->needAABBUpdate();
                             }
+
                             // Scale
                             float scale = ps->scale();
                             if (ImGui::InputFloat("Scale", &scale))
@@ -3843,13 +3860,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->scale(scale);
                                 singleNode->needAABBUpdate();
                             }
+
                             // World space
                             SLbool doWorldSpace = ps->doWorldSpace();
                             if (ImGui::Checkbox("World space", &doWorldSpace))
                                 ps->doWorldSpace(doWorldSpace);
+
                             // Gravity
                             SLbool doGravity = ps->doGravity();
-                            if (ImGui::Checkbox("Gravity", &doGravity)) {
+                            if (ImGui::Checkbox("Gravity", &doGravity))
+                            {
                                 ps->doGravity(doGravity);
                                 m->programTF(nullptr);
                                 ps->isGenerated(false);
@@ -3866,11 +3886,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
-                                
+
                             // Billboard
                             int item_current = ps->billboardType();
-                            if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0Horizontal billboard\0")) {
-                                ps->billboardType(item_current);
+                            if (ImGui::Combo("Billboard Type",
+                                             &item_current,
+                                             "Camera Billboard\0Vertical Billboard\0Horizontal Billboard\0"))
+                            {
+                                ps->billboardType((SLBillboardType)item_current);
                                 m->program(nullptr);
                                 if (item_current == 2)
                                 {
@@ -3883,6 +3906,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         sv->drawBits()->toggle(SL_DB_CULLOFF);
                                 }
                             }
+
                             // Velocity
                             if (ps->doDirectionSpeed())
                                 ImGui::BeginDisabled();
@@ -3980,7 +4004,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
-                            
+
                             // Color checkbox
                             SLbool color_group = ps->doColor();
                             if (ImGui::Checkbox("Color", &color_group))
@@ -3991,11 +4015,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::CollapsingHeader("Color", &color_group))
                             {
                                 ImGui::Indent();
-                                //Color blending brightness/glow
-                                SLbool color_bright = ps->doBlendingBrigh();
+                                // Color blending brightness/glow
+                                SLbool color_bright = ps->doBlendBrightness();
                                 if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
                                 {
-                                    ps->doBlendingBrigh(color_bright);
+                                    ps->doBlendBrightness(color_bright);
                                 }
                                 // Color
                                 if (ps->doColorOverLF())
@@ -4060,10 +4084,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
 
                             // Rotation
-                            SLbool rot_group = ps->doRot();
+                            SLbool rot_group = ps->doRotation();
                             if (ImGui::Checkbox("Rotation", &rot_group))
                             {
-                                ps->doRot(rot_group);
+                                ps->doRotation(rot_group);
                                 m->program(nullptr);
                                 m->programTF(nullptr);
                                 ps->isGenerated(false);
@@ -4074,11 +4098,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 item_current = ps->doRotRange() ? 1 : 0;
                                 if (ImGui::Combo("Angular velocity value", &item_current, "Constant\0Random between two constants\0"))
                                 {
-                                    if (item_current==1)
+                                    if (item_current == 1)
                                         ps->doRotRange(true);
                                     else
                                         ps->doRotRange(false);
-                                    
+
                                     m->programTF(nullptr);
                                     ps->isGenerated(false);
                                 }
@@ -4190,7 +4214,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         singleNode->needAABBUpdate();
                                     }
                                 }
-                                //Add surface spawning check box
+                                // Add surface spawning check box
                                 SLbool shapeSurf = ps->doShapeSurface();
                                 if (ImGui::Checkbox("Spawn surface", &shapeSurf))
                                 {
@@ -4220,9 +4244,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    
                                 }
-                                else if (item_current == 0 || item_current == 1) {
+                                else if (item_current == 0 || item_current == 1)
+                                {
                                     SLbool shapeOverride = ps->doShapeOverride();
                                     if (ImGui::Checkbox("Inverse center direction (Override direction)", &shapeOverride))
                                     {
@@ -4239,8 +4263,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             // Acceleration
                             SLbool acc_group = ps->doAcc();
-                            if (ImGui::Checkbox("Acceleration", &acc_group)) {
-                                ps->doAcc(acc_group);
+                            if (ImGui::Checkbox("Acceleration", &acc_group))
+                            {
+                                ps->doAcceleration(acc_group);
                                 m->programTF(nullptr);
                                 singleNode->needAABBUpdate();
                                 ps->isGenerated(false);
@@ -4250,7 +4275,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Indent();
                                 if (ps->doAccDiffDir())
                                     ImGui::BeginDisabled();
-                                float accConst = ps->accConst();
+                                float accConst = ps->accelerationConst();
                                 if (ImGui::InputFloat("Accelaration constant", &accConst))
                                 {
                                     ps->accConst(accConst);
@@ -4264,13 +4289,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->doAccDiffDir(accDiffDirection_group);
                                     m->programTF(nullptr);
                                     singleNode->needAABBUpdate();
-                                    
                                 }
                                 if (ImGui::CollapsingHeader("Direction vector", &accDiffDirection_group))
                                 {
-                                    float vec3fAcc[3] = {ps->acc().x, ps->acc().y, ps->acc().z};
+                                    float vec3fAcc[3] = {ps->acceleration().x, ps->acceleration().y, ps->acceleration().z};
                                     ImGui::InputFloat3("input float3", vec3fAcc);
-                                    ps->acc(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                    ps->acceleration(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
                                     singleNode->needAABBUpdate();
                                 }
                                 ImGui::Unindent();
@@ -4278,14 +4302,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             // Alpha over lifetime
                             SLbool doAlphaOverL_group = ps->doAlphaOverL();
-                            if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group)) {
+                            if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group))
+                            {
                                 ps->doAlphaOverL(doAlphaOverL_group);
                                 m->program(nullptr);
                             }
                             if (ImGui::CollapsingHeader("Alpha over lifetime", &doAlphaOverL_group))
                             {
                                 ImGui::Indent();
-                                SLbool       doAlphaOverLCurve_group = ps->doAlphaOverLCurve();
+                                SLbool doAlphaOverLCurve_group = ps->doAlphaOverLCurve();
                                 if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &doAlphaOverLCurve_group))
                                 {
                                     ps->doAlphaOverLCurve(doAlphaOverLCurve_group);
@@ -4294,8 +4319,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::CollapsingHeader("Bezier curve alpha", &doAlphaOverLCurve_group))
                                 {
                                     ImGui::Indent();
-                                    float *vAlpha = ps->bezierControlPointAlpha();
-                                    float *staEndAlpha = ps->bezierStartEndPointAlpha();
+                                    float* vAlpha      = ps->bezierControlPointAlpha();
+                                    float* staEndAlpha = ps->bezierStartEndPointAlpha();
                                     ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
                                     ps->generateBernsteinPAlpha();
                                     ImGui::Unindent();
@@ -4305,7 +4330,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             // Size over lifetime
                             SLbool doSizeOverLF_group = ps->doSizeOverLF();
-                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group)) {
+                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group))
+                            {
                                 ps->doSizeOverLF(doSizeOverLF_group);
                                 m->program(nullptr);
                                 singleNode->needAABBUpdate();
@@ -4322,7 +4348,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLFCurve_group))
                                 {
                                     ImGui::Indent();
-                                    float *vSize = ps->bezierControlPointSize();
+                                    float* vSize      = ps->bezierControlPointSize();
                                     float* staEndSize = ps->bezierStartEndPointSize();
                                     ImGui::Bezier("easeInExpo", vSize, staEndSize);
                                     ps->generateBernsteinPSize();
@@ -4340,7 +4366,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->doFlipBookTexture(flipbookTex_group);
                                 m->program(nullptr);
                                 m->programTF(nullptr);
-                                ps->changeTexture();     // Switch texture
+                                ps->changeTexture(); // Switch texture
                                 ps->isGenerated(false);
                             }
                             if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
@@ -4370,9 +4396,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::PopItemWidth();
                             ImGui::TreePop();
                         }
-                    }
-                    else
-                    {
                     }
 
                     if (m->numTextures() > 0 &&
@@ -4936,7 +4959,10 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
         if (HttpUtils::download(fileToDownload, dstFolder, progressCallback) != 0)
+        {
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
+            SL_LOG("*** PLEASE RETRY DOWNLOAD ***", fileToDownload.c_str());
+        }
         AppDemo::jobIsRunning = false;
     };
 

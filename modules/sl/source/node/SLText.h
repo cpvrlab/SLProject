@@ -62,4 +62,4 @@ protected:
     SLGLVertexArray _vao;   //!< Vertex array for rendering
 };
 //-----------------------------------------------------------------------------
-#endif // SLSPHERE_H
+#endif

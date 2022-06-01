@@ -78,24 +78,6 @@ void SLLightRect::init(SLScene* s)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLLightRect::drawRec sets the light states and calls then the SLNode::drawRec
-method of its node.
-*/
-void SLLightRect::drawRec(SLSceneView* sv)
-{
-    if (_id != -1)
-    {
-        // Set emissive light material to the lights diffuse color
-        if (_mesh)
-            if (_mesh->mat())
-                _mesh->mat()->emissive(_isOn ? diffuseColor() : SLCol4f::BLACK);
-
-        // now draw the inherited object
-        SLNode::drawRec(sv);
-    }
-}
-//-----------------------------------------------------------------------------
-/*!
 SLLightRect::hitRec calls the nodes intersection code.
 */
 SLbool
