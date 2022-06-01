@@ -326,8 +326,10 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLstring msg;
     if (P.empty())
         msg = "No vertex positions (P)\n";
+
     if (_primitive == PT_points && I16.empty() && I32.empty())
         msg += "No vertex indices (I16 or I32)\n";
+
     if (msg.length() > 0)
     {
         SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
@@ -336,8 +338,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
 
     // Return if hidden
     if (node->levelForSM() == 0 &&
-        (node->drawBit(SL_DB_HIDDEN) ||
-         _primitive == PT_points))
+        (node->drawBit(SL_DB_HIDDEN) || _primitive == PT_points))
         return;
 
     if (!_vao.vaoID())
@@ -347,9 +348,9 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLGLProgram* sp    = depthMat->program();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix",
-                         1,
-                         (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
     _vao.drawElementsAs(PT_triangles);
 }
@@ -438,40 +439,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3.a) Apply mesh material if exists & differs from current
     _mat->activate(sv->camera(), &sv->s()->lights());
 
-    // 3.b) Pass the matrices to the shader program
+    // 3.b) Pass the standard matrices to the shader program
     SLGLProgram* sp = _mat->program();
-    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
-    sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
-    
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
-    // 3.c) Build & pass inverse, normal & texture matrix only if needed
-    SLint locIM = sp->getUniformLocation("u_invMvMatrix");
-    SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
-    SLint locP = sp->getUniformLocation("u_pMatrix"); // For particle system
-
-
-    if (locIM >= 0 && locNM >= 0)
-    {
-        stateGL->buildInverseAndNormalMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
-    }
-    else if (locIM >= 0)
-    {
-        stateGL->buildInverseMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
-    }
-    else if (locNM >= 0)
-    {
-        stateGL->buildNormalMatrix();
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
-    }
-    else if (locP >= 0) // For particle system
-    {
-        sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix); // For particle system
-    }
     if (locTM >= 0)
     {
         if (_mat->has3DTexture() && _mat->textures3d()[0]->autoCalcTM3D())
@@ -543,14 +517,21 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _vaoT.generateVertexPos(&V2);
         }
 
+        // Draw normals
         _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
-        if (!T.empty()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
-        if (blended) stateGL->blend(false);
+
+        // Draw tangents if available
+        if (!T.empty())
+            _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
+        if (blended)
+            stateGL->blend(false);
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.vaoID()) _vaoN.deleteGL();
-        if (_vaoT.vaoID()) _vaoT.deleteGL();
+        if (_vaoN.vaoID())
+            _vaoN.deleteGL();
+        if (_vaoT.vaoID())
+            _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////
@@ -611,7 +592,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
     else // rect selection or deselection is going on
     {
         // Build full viewport-modelview-projection transform matrix
-        SLMat4f mvp = *stateGL->mvpMatrix();
+        SLMat4f mvp(stateGL->projectionMatrix * stateGL->viewMatrix * node->updateAndGetWM());
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
         v.viewport((SLfloat)vp.x,
@@ -1062,7 +1043,7 @@ void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else
     {
-        // for now we just update the acceleration struct for non skinned meshes
+        // for now, we just update the acceleration struct for non skinned meshes
         // Building the entire voxelization of a mesh every frame is not feasible
         updateAccelStruct();
     }
@@ -1442,7 +1423,8 @@ void SLMesh::preShade(SLRay* ray)
                        finalN(iC) * ray->hitV);
 
     // transform normal back to world space
-    ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
+    SLMat3f wmN(ray->hitNode->updateAndGetWM().mat3());
+    ray->hitNormal.set(wmN * ray->hitNormal);
 
     // for shading the normal is expected to be unit length
     ray->hitNormal.normalize();
@@ -1470,13 +1452,13 @@ void SLMesh::preShade(SLRay* ray)
                              T[iB] * ray->hitU +
                              T[iC] * ray->hitV);
 
-                SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
-                T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y);   // slope of bump-map at tc
-                SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
-                SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
-                B *= T[iA].w;                                 // correct handedness
-                SLVec3f D(d.x * T3 + d.y * B);                // perturbation vector D
+                SLVec3f T3(hitT.x, hitT.y, hitT.z); // tangent with 3 components
+                T3.set(wmN * T3);                           // transform tangent back to world space
+                SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y); // slope of bump-map at tc
+                SLVec3f Nrm = ray->hitNormal;               // unperturbated normal
+                SLVec3f B(Nrm ^ T3);                        // bi-normal tangent B
+                B *= T[iA].w;                               // correct handedness
+                SLVec3f D(d.x * T3 + d.y * B);              // perturbation vector D
                 Nrm += D;
                 Nrm.normalize();
                 ray->hitNormal.set(Nrm);

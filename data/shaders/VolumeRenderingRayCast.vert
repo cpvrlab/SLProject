@@ -13,15 +13,16 @@
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 
-uniform mat4     u_mvpMatrix;         // = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
-out     vec3     v_raySource;         //The source coordinate of the view ray
-                                      //(in model coordinates)
+out     vec3  v_raySource;  //The source coordinate of the view (in model coords)
 //-----------------------------------------------------------------------------
 
 void main()
 {
-   v_raySource = a_position.xyz; 
-   gl_Position = u_mvpMatrix * a_position;
+   v_raySource = a_position.xyz;
+   gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

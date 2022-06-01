@@ -75,7 +75,7 @@ public: //! Public static instance getter for singleton pattern
     void     loadIntoLastFrame(float        vieportWdivH,
                                int          camWidth,
                                int          camHeight,
-                               CVPixFormat  srcPixelFormat,
+                               CVPixelFormatGL srcPixelFormat,
                                const uchar* data,
                                bool         isContinuous);
     void     adjustForSL(float viewportWdivH);
@@ -114,7 +114,7 @@ public: //! Public static instance getter for singleton pattern
     CVMat       lastFrame;          //!< last frame grabbed in RGB
     CVMat       lastFrameFull;      //!< last frame grabbed in RGB and full resolution
     CVMat       lastFrameGray;      //!< last frame in grayscale
-    CVPixFormat format;             //!< GL pixel format
+    CVPixelFormatGL format;             //!< GL pixel format
     CVSize      captureSize;        //!< size of captured frame
     float       startCaptureTimeMS; //!< start time of capturing in ms
     bool        hasSecondaryCamera; //!< flag if device has secondary camera

@@ -604,12 +604,12 @@ void SLGLTexture::load(const SLVCol4f& colors)
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
-SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
-                                   SLint       camHeight,
-                                   CVPixFormat srcFormat,
-                                   SLuchar*    data,
-                                   SLbool      isContinuous,
-                                   SLbool      isTopLeft)
+SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
+                                   SLint           camHeight,
+                                   CVPixelFormatGL srcFormat,
+                                   SLuchar*        data,
+                                   SLbool          isContinuous,
+                                   SLbool          isTopLeft)
 {
     PROFILE_FUNCTION();
 
@@ -653,13 +653,13 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     return needsBuild;
 }
 
-SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
-                                   SLint       camHeight,
-                                   CVPixFormat srcFormat,
-                                   CVPixFormat dstFormat,
-                                   SLuchar*    data,
-                                   SLbool      isContinuous,
-                                   SLbool      isTopLeft)
+SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
+                                   SLint           camHeight,
+                                   CVPixelFormatGL srcFormat,
+                                   CVPixelFormatGL dstFormat,
+                                   SLuchar*        data,
+                                   SLbool          isContinuous,
+                                   SLbool          isTopLeft)
 {
     PROFILE_FUNCTION();
 
@@ -1217,10 +1217,11 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
 
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
-    SLMat4f      mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
     SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     sp->uniform1i("u_matTexture0", 0);
     sp->uniform1f("u_oneOverGamma", 1.0f);
 
@@ -1571,7 +1572,8 @@ of all images.
 @param smoothRadius Soothing radius
 @param onUpdateProgress Callback function for progress display
 */
-void SLGLTexture::smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress)
+void SLGLTexture::smooth3DGradients(SLint               smoothRadius,
+                                    function<void(int)> onUpdateProgress)
 {
     SLint   r          = smoothRadius;
     SLint   volX       = (SLint)_images[0]->width();

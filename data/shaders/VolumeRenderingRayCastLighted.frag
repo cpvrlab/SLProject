@@ -16,7 +16,8 @@ precision highp sampler3D;
 //-----------------------------------------------------------------------------
 in      vec3       v_raySource;     // The source coordinate of the view ray (model coordinat
 
-uniform mat4       u_invMvMatrix;        // inverse modelView matrix = view matrix
+uniform mat4       u_mMatrix;             // Model matrix (object to world transform)
+uniform mat4       u_vMatrix;             // View matrix (world to camera transform)
 uniform float      u_volumeX;            // 3D texture width
 uniform float      u_volumeY;            // 3D texture height
 uniform float      u_volumeZ;            // 3D texture de
@@ -58,11 +59,11 @@ vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec3 source  = v_raySource;
-    vec4 eyeWS   = u_invMvMatrix * vec4(0.0, 0.0, 0.0, 1.0); // eye in world space
-    //vec4 lightWS = u_invMvMatrix * vec4(1.0, 1.0, 0.0, 1.0); // light in world space
-    vec3 direction = normalize(source - eyeWS.xyz);
-    vec3 destination = findRayDestination(source,direction);
+    vec3 source      = v_raySource;
+    mat4 invMvMatrix = inverse(u_vMatrix * u_mMatrix);
+    vec4 eyeWS       = invMvMatrix * vec4(0.0, 0.0, 0.0, 1.0); // eye in world space
+    vec3 direction   = normalize(source - eyeWS.xyz);
+    vec3 destination = findRayDestination(source, direction);
 
     vec3 size = vec3(u_volumeX, u_volumeY, u_volumeZ);
     float maxLength = max(max(size.x, size.y), size.z);

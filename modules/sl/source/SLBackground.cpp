@@ -151,18 +151,17 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // Set orthographic projection
     stateGL->projectionMatrix.ortho(0.0f, (SLfloat)widthPX, 0.0f, (SLfloat)heightPX, 0.0f, 1.0f);
-    stateGL->modelViewMatrix.identity();
-
-    // Combine modelview-projection matrix
-    SLMat4f mvp(stateGL->projectionMatrix * stateGL->modelViewMatrix);
-
+    stateGL->modelMatrix.identity();
+    stateGL->viewMatrix.identity();
     stateGL->depthTest(false);
     stateGL->multiSample(false);
 
     // Get shader program
     SLGLProgram* sp = _texture ? _textureOnlyProgram : _colorAttributeProgram;
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (SLfloat*)&mvp);
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     sp->uniform1f("u_oneOverGamma", SLLight::oneOverGamma());
 
     // Create or update buffer for vertex position and indices
@@ -256,7 +255,8 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
        +-----+
      LB       RB
 */
-void SLBackground::renderInScene(const SLVec3f& LT,
+void SLBackground::renderInScene(const SLMat4f& wm,
+                                 const SLVec3f& LT,
                                  const SLVec3f& LB,
                                  const SLVec3f& RT,
                                  const SLVec3f& RB)
@@ -268,7 +268,9 @@ void SLBackground::renderInScene(const SLVec3f& LT,
                         ? _textureOnlyProgram
                         : _colorAttributeProgram;
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (const SLfloat*)&wm);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (const SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (const SLfloat*)&stateGL->projectionMatrix);
 
     // Create or update buffer for vertex position and indices
     _vao.clearAttribs();

@@ -53,12 +53,9 @@ layout (location = 5) in vec4  a_tangent;         // Vertex tangent attribute)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_matrices_all = R"(
 
-uniform mat3  u_nMatrix;            // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mMatrix;            // model matrix
-uniform mat4  u_mvMatrix;           // modelview matrix
-uniform mat4  u_mvpMatrix;          // = projection * modelView)";
-const string vertInput_u_matrix_invMv = R"(
-uniform mat4  u_invMvMatrix;        // inverse modelview matrix)";
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.))";
 const string vertInput_u_matrix_vOmv  = R"(
 uniform mat4  u_vOmvMatrix;         // view or modelview matrix)";
 //-----------------------------------------------------------------------------
@@ -172,16 +169,20 @@ const string vertMain_Begin              = R"(
 void main()
 {)";
 const string vertMain_v_P_VS             = R"(
-    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix *  a_position);   // vertex position in view space)";
 const string vertMain_v_P_WS_Sm          = R"(
     v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
 const string vertMain_v_N_VS             = R"(
-    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    v_N_VS = vec3(nMatrix * a_normal);       // vertex normal in view space)";
 const string vertMain_v_R_OS             = R"(
     vec3 I = normalize(v_P_VS);
     vec3 N = normalize(v_N_VS);
-    v_R_OS =  mat3(u_invMvMatrix) * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
+    v_R_OS = invMvMatrix * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
 const string vertMain_v_uv0              = R"(
+
     v_uv0 = a_uv0;  // pass diffuse color tex.coord. 1 for interpolation)";
 const string vertMain_v_uv1              = R"(
     v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
@@ -189,8 +190,8 @@ const string vertMain_TBN_Nm             = R"(
 
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
-    vec3 n = normalize(u_nMatrix * a_normal);
-    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 n = normalize(nMatrix * a_normal);
+    vec3 t = normalize(nMatrix * a_tangent.xyz);
     vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
     mat3 TBN = mat3(t,b,n);
 
@@ -261,7 +262,7 @@ const string vertMain_PS_EndAll_VertBillboard = R"(
 const string vertMain_EndAll = R"(
 
     // pass the vertex w. the fix-function transform
-    gl_Position = u_mvpMatrix * a_position;
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 )";
 //-----------------------------------------------------------------------------
@@ -1637,7 +1638,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool  SiRandom      = mat->ps()->doSizeRandom();      // Size random
         bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
         bool  WS            = mat->ps()->doWorldSpace();      // World space or local space
-        bool  rot           = mat->ps()->doRot();             // Rotation
+        bool  rot           = mat->ps()->doRotation();        // Rotation
         programName += "-B" + std::to_string(billboardType);
         if (rot) programName += "-RT";
 
@@ -1658,7 +1659,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
         bool gravity    = mat->ps()->doGravity();         // Gravity
         bool FlBoTex    = mat->ps()->doFlipBookTexture(); // Flipbook texture
-        bool rot        = mat->ps()->doRot();             // Rotation
+        bool rot        = mat->ps()->doRotation();        // Rotation
         bool rotRange   = mat->ps()->doRotRange();        // Rotation range
         bool shape      = mat->ps()->doShape();           // Shape
         programName += "-Update";
@@ -1781,7 +1782,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     if (uv0) vertCode += vertInput_a_uv0;
     if (Nm) vertCode += vertInput_a_tangent;
     vertCode += vertInput_u_matrices_all;
-    if (sky) vertCode += vertInput_u_matrix_invMv;
+    // if (sky) vertCode += vertInput_u_matrix_invMv;
     if (Nm) vertCode += vertInput_u_lightNm;
 
     // Vertex shader outputs
@@ -1981,7 +1982,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Check what textures the material has
     bool  Dm            = mat->hasTextureType(TT_diffuse);
     GLint billboardType = mat->ps()->billboardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
-    bool  rot           = mat->ps()->doRot();             // Rotation
+    bool  rot           = mat->ps()->doRotation();        // Rotation
     bool  AlOvLi        = mat->ps()->doAlphaOverL();      // Alpha over life
     bool  Co            = mat->ps()->doColor();           // Color over life
     bool  CoOvLi        = mat->ps()->doColorOverLF();     // Color over life
@@ -2037,7 +2038,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (SiOvLi && SiOvLiCu) vertCode += vertMain_PS_v_s_curve;
     if (Co && CoOvLi) vertCode += vertMain_PS_v_doColorOverLF;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
-    if (billboardType == 1 || billboardType == 2)
+    if (billboardType == BT_Vertical || billboardType == BT_Horizontal)
         vertCode += vertMain_PS_EndAll_VertBillboard;
     else
         vertCode += vertMain_PS_EndAll;
@@ -2068,9 +2069,9 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (FlBoTex) geomCode += geomInput_PS_u_col;
     if (FlBoTex) geomCode += geomInput_PS_u_row;
     geomCode += geomInput_u_matrix_p;
-    if (billboardType == 1)
+    if (billboardType == BT_Vertical)
         geomCode += geomInput_u_matrix_vertBillboard;
-    else if (billboardType == 2)
+    else if (billboardType == BT_Horizontal)
         geomCode += vertInput_u_matrix_vOmv;
 
     // geometry shader outputs
@@ -2087,9 +2088,9 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += Co && CoOvLi ? geomMain_PS_v_doColorOverLF : Co ? geomMain_PS_v_c
                                                                 : geomMain_PS_v_withoutColor;
     geomCode += geomMain_PS_v_cT;
-    if (billboardType == 1)
+    if (billboardType == BT_Vertical)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_vertBillboard : geomMain_PS_fourCorners_vertBillboard;
-    else if (billboardType == 2)
+    else if (billboardType == BT_Horizontal)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_horizBillboard : geomMain_PS_fourCorners_horizBillboard;
     else
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners : geomMain_PS_fourCorners;
@@ -2135,7 +2136,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
     bool gravity    = mat->ps()->doGravity();         // Gravity
     bool FlBoTex    = mat->ps()->doFlipBookTexture(); // Flipbook texture
-    bool rot        = mat->ps()->doRot();             // Rotation
+    bool rot        = mat->ps()->doRotation();        // Rotation
     bool rotRange   = mat->ps()->doRotRange();        // Rotation range
     bool shape      = mat->ps()->doShape();           // Shape
 

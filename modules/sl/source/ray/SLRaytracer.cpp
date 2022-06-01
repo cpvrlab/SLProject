@@ -912,7 +912,8 @@ void SLRaytracer::renderImage(bool updateTextureGL)
     SLGLState* stateGL = SLGLState::instance();
     stateGL->viewport(vpRect.x, vpRect.y, (SLsizei)w, (SLsizei)h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
-    stateGL->modelViewMatrix.identity();
+    stateGL->viewMatrix.identity();
+    stateGL->modelMatrix.identity();
     stateGL->clearColorBuffer();
     stateGL->depthTest(false);
     stateGL->multiSample(false);

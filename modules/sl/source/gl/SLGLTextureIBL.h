@@ -41,8 +41,9 @@ public:
                    SLVec2i         size,
                    SLTextureType   texType,
                    SLenum          target,
-                   SLint           min_filter = GL_LINEAR,
-                   SLint           mag_filter = GL_LINEAR);
+                   SLbool          readBackPixels = true,
+                   SLint           min_filter     = GL_LINEAR,
+                   SLint           mag_filter     = GL_LINEAR);
 
     virtual ~SLGLTextureIBL();
 
@@ -53,6 +54,10 @@ protected:
     // converting the hdr image file to cubemap
     void renderCube();
     void renderQuad();
+    void readPixels(int    width,
+                    int    height,
+                    string name,
+                    bool   savePNG);
 
     SLuint _cubeVAO = 0;
     SLuint _cubeVBO = 0;
@@ -63,6 +68,7 @@ protected:
     SLGLProgram* _shaderProgram;     //!< shader program to render the texture
     SLMat4f      _captureProjection; //!< Projection matrix for capturing the textures
     SLVMat4f     _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
+    SLbool       _readBackPixels;    //!< Flag if generated texture should be read back from GPU into cvMat
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -159,8 +159,7 @@ void SLShadowMap::drawFrustum()
             s.scale(1.0f / _lightProj[i].m(0), 1.0f / _lightProj[i].m(5), 1.0f / _lightProj[i].m(10));
             t.translate((-_lightProj[i].m(12)), (-_lightProj[i].m(13)), (-_lightProj[i].m(14)));
 
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _lightView[i].inverted() * s * t;
-
+            stateGL->modelMatrix = _lightView[i].inverted() * s * t;
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
                                             1.0f,
@@ -172,8 +171,7 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
         {
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[i].inverted();
-
+            stateGL->modelMatrix = _lightSpace[i].inverted();
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
                                             1.0f,
@@ -192,53 +190,43 @@ void SLShadowMap::drawRays()
 #ifndef SL_GLES // Reading the depth-buffer with GLES is non-trivial
 
     if (_useCubemap) return; // Not implemented for cubemaps
-
     SLint w = _rayCount.x;
     SLint h = _rayCount.y;
-
-    if (w == 0 || h == 0)
-        return;
+    if (w == 0 || h == 0)  return;
 
     SLGLState* stateGL = SLGLState::instance();
     SLVVec3f   P;
 
     _depthBuffers[0]->bind();
 
-    SLfloat pixelWidth  = (SLfloat)_textureSize.x / w;
-    SLfloat pixelHeight = (SLfloat)_textureSize.y / h;
-
-    SLfloat* depths = _depthBuffers[0]->readPixels();
+    SLfloat  pixelWidth  = (SLfloat)_textureSize.x / w;
+    SLfloat  pixelHeight = (SLfloat)_textureSize.y / h;
+    SLfloat* depths      = _depthBuffers[0]->readPixels();
 
     for (SLint x = 0; x < w; ++x)
     {
         for (SLint y = 0; y < h; ++y)
         {
-            SLint pixelX = (SLint)(pixelWidth * (x + 0.5f));
-            SLint pixelY = (SLint)(pixelHeight * (y + 0.5f));
-
+            SLint   pixelX     = (SLint)(pixelWidth * (x + 0.5f));
+            SLint   pixelY     = (SLint)(pixelHeight * (y + 0.5f));
             SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
             SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / h, -1.0f, 1.0f);
-
-            SLfloat depth = depths[pixelY * _depthBuffers[0]->dimensions().x + pixelX] * 2 - 1;
-
-            if (depth == 1.0f) continue;
-
+            SLfloat depth      = depths[pixelY * _depthBuffers[0]->dimensions().x + pixelX] * 2 - 1;
+            if (depth == 1.0f)
+                continue;
             P.push_back(SLVec3f(viewSpaceX, viewSpaceY, -1.0f));
             P.push_back(SLVec3f(viewSpaceX, viewSpaceY, depth));
         }
     }
 
     delete depths;
-
     _depthBuffers[0]->unbind();
-
     if (P.empty()) return;
 
     SLGLVertexArrayExt vao;
     vao.generateVertexPos(&P);
 
-    stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[0].inverted();
-
+    stateGL->modelMatrix = _lightSpace[0].inverted();
     vao.drawArrayAsColored(PT_lines,
                            SLCol4f::YELLOW,
                            1.0f,
@@ -364,7 +352,7 @@ void SLShadowMap::lightCullingAdaptiveRec(SLNode*  node,
     // Check the 4 side planes of the frustum
     for (int i = 0; i < 4; i++)
     {
-        float distance = lightFrustumPlanes[i].distToPoint(node->aabb()->centerWS());
+        distance = lightFrustumPlanes[i].distToPoint(node->aabb()->centerWS());
         if (distance < -node->aabb()->radiusWS())
             return;
     }
@@ -418,7 +406,8 @@ void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
             node->mesh() &&
             node->mesh()->primitive() >= GL_TRIANGLES)
         {
-            stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
+            stateGL->viewMatrix  = lightView;
+            stateGL->modelMatrix = node->updateAndGetWM();
             node->mesh()->drawIntoDepthBuffer(sv, node, _material);
             SLShadowMap::drawCalls++;
         }
@@ -438,8 +427,9 @@ void SLShadowMap::drawNodesIntoDepthBufferRec(SLNode*      node,
 
     if (node->drawBit(SL_DB_HIDDEN))
         return;
-    SLGLState* stateGL       = SLGLState::instance();
-    stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
+    SLGLState* stateGL = SLGLState::instance();
+    stateGL->viewMatrix  = lightView;
+    stateGL->modelMatrix = node->updateAndGetWM();
 
     if (node->castsShadows() &&
         node->mesh() &&

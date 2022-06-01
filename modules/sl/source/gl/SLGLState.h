@@ -83,26 +83,16 @@ public:
     void        initAll();                               //! Init all states
 
     // matrices
-    SLMat4f modelViewMatrix;  //!< matrix for OpenGL modelview transform
-    SLMat4f projectionMatrix; //!< matrix for OpenGL projection transform
+    SLMat4f modelMatrix;      //!< matrix for model to world transform
+    SLMat4f projectionMatrix; //!< matrix for projection transform
     SLMat4f viewMatrix;       //!< matrix for the active cameras view transform
     SLMat4f textureMatrix;    //!< matrix for the texture transform
 
-    // setters
-    void invModelViewMatrix(SLMat4f& im) { _invModelViewMatrix.setMatrix(im); }
-    void normalMatrix(SLMat3f& nm) { _normalMatrix.setMatrix(nm); }
-
     // getters
-    inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
-    inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
-    const SLMat4f*        mvpMatrix(); //!< builds and returns proj.mat. x mv mat.
-    inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
+    inline bool hasMultiSampling() const { return _multiSampleSamples > 0; }
 
     // misc.
-    void   buildInverseMatrix();          //!< build inverse matrix from MV
-    void   buildNormalMatrix();           //!< build the normal matrix from MV
-    void   buildInverseAndNormalMatrix(); //!< build inverse & normal mat. from MV
-    void   unbindAnythingAndFlush();      //!< finishes all GL commands
+    void   unbindAnythingAndFlush(); //!< finishes all GL commands
     SLbool pixelFormatIsSupported(SLint pixelFormat);
     void   readPixels(void* buffer);
 
@@ -153,14 +143,6 @@ public:
     }
     SLMaterial* currentMaterial() { return _currentMaterial; }
 
-    // stack operations
-    inline void pushModelViewMatrix() { _modelViewMatrixStack.push(modelViewMatrix); }
-    inline void popModelViewMatrix()
-    {
-        modelViewMatrix = _modelViewMatrixStack.top();
-        _modelViewMatrixStack.pop();
-    }
-
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
 
@@ -173,11 +155,7 @@ private:
 
     static SLGLState* _instance; //!< global singleton object
 
-    SLbool   _isInitialized;        //!< flag for first init
-    SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform
-    SLMat3f  _normalMatrix;         //!< matrix for the normal transform
-    SLMat4f  _mvpMatrix;            //!< combined modelview-projection transform
-    SLSMat4f _modelViewMatrixStack; //!< stack for modelview matrices
+    SLbool _isInitialized; //!< flag for first init
 
     SLstring _glVersion;     //!< OpenGL Version string
     SLstring _glVersionNO;   //!< OpenGL Version number string

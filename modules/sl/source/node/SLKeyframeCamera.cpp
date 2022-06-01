@@ -111,7 +111,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
         _vao.drawArrayAsColored(PT_lines, color);
 
         if (renderBackground())
-            _background.renderInScene(nearLT, nearLB, nearRT, nearRB);
+            _background.renderInScene(updateAndGetWM(), nearLT, nearLB, nearRT, nearRB);
     }
 }
 

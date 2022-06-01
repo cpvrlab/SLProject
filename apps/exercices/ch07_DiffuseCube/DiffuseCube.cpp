@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      DiffuseCube.cpp
-//  Purpose:   Core profile OpenGL application with diffuse lighted cube with
-//             GLFW as the OS GUI interface (http://www.glfw.org/).
-//  Date:      September 2012 (HS12)
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      DiffuseCube.cpp
+//   Purpose:   Core profile OpenGL application with diffuse lighted cube with
+//              GLFW as the OS GUI interface (http://www.glfw.org/).
+//   Date:      September 2012 (HS12)
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
@@ -29,7 +29,7 @@ struct VertexPN
     }
 };
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
 static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
@@ -65,8 +65,9 @@ static GLuint _shaderProgID = 0; //! shader program id
 // Attribute & uniform variable location indexes
 static GLint _pLoc;              //!< attribute location for vertex position
 static GLint _nLoc;              //!< attribute location for vertex normal
-static GLint _mvpLoc;            //!< uniform location for modelview-projection matrix
-static GLint _nmLoc;             //!< uniform location for normal matrix
+static GLint _pmLoc;             //!< uniform location for projection matrix
+static GLint _vmLoc;             //!< uniform location for view matrix
+static GLint _mmLoc;             //!< uniform location for model matrix
 static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
 static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
 static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
@@ -190,8 +191,9 @@ void onInit()
     // Get the variable locations (identifiers) within the program
     _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
     _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
-    _mvpLoc            = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nmLoc             = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
     _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
     _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
     _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
@@ -209,7 +211,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -238,23 +240,15 @@ bool onPaint()
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    // 3) Model transform: move the cube so that it rotates around its center
+    // 2c) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Build the combined modelview-projection matrix
-    SLMat4f mvp(_projectionMatrix);
-    SLMat4f mv(_viewMatrix);
-    mv.multiply(_modelMatrix);
-    mvp.multiply(mv);
-
-    // 5) Build normal matrix
-    SLMat3f nm(mv.inverseTransposed());
-
     // 6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-    glUniformMatrix3fv(_nmLoc, 1, 0, (float*)&nm);
+    glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
+    glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
@@ -282,7 +276,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     float w = (float)width;
     float h = (float)height;
@@ -301,7 +295,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -332,7 +326,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -348,7 +342,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera forward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -360,7 +354,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {

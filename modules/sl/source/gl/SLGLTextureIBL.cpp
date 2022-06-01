@@ -19,6 +19,7 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager* am,
                                SLVec2i         size,
                                SLTextureType   texType,
                                SLenum          target,
+                               SLbool          readBackPixels,
                                SLint           min_filter,
                                SLint           mag_filter)
 {
@@ -45,6 +46,7 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager* am,
     _height                = size.y;
     _bytesPerPixel         = 0;
     _deleteImageAfterBuild = false;
+    _readBackPixels        = readBackPixels;
 
     name("Generated " + typeName());
 
@@ -108,6 +110,11 @@ SLGLTextureIBL::~SLGLTextureIBL()
 */
 void SLGLTextureIBL::build(SLint texUnit)
 {
+    // Assure to delete all images if we read the pixels back
+    if (_readBackPixels)
+        deleteImages();
+    bool saveReadbackTextures = false;
+
     glGenTextures(1, &_texID);
     glBindTexture(_target, _texID);
 
@@ -120,14 +127,15 @@ void SLGLTextureIBL::build(SLint texUnit)
     if (_texType == TT_environmentCubemap ||
         _texType == TT_irradianceCubemap)
     {
-        _bytesPerPixel = 3 * 2; // GL_RGB16F
+        _bytesPerPixel  = 3 * 2; // GL_RGB16F
+        _internalFormat = GL_RGB16F;
 
         // Build the textures for the 6 faces of a cubemap with no data
         for (SLuint i = 0; i < 6; i++)
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
-                         GL_RGB16F,
+                         _internalFormat,
                          _width,
                          _height,
                          0,
@@ -177,6 +185,18 @@ void SLGLTextureIBL::build(SLint texUnit)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderCube();
+
+            if (_readBackPixels)
+            {
+                string name = (_texType == TT_environmentCubemap)
+                                ? "environmentCubemap_side"
+                                : "irradianceCubemap_side";
+                name += std::to_string(i) + ".png";
+                readPixels(_width,
+                           _height,
+                           name,
+                           saveReadbackTextures);
+            }
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -193,13 +213,14 @@ void SLGLTextureIBL::build(SLint texUnit)
         assert(_sourceTexture->texType() == TT_environmentCubemap &&
                "the source texture is not an environment map");
 
-        _bytesPerPixel = 3 * 2; // GL_RGB16F
+        _bytesPerPixel  = 3 * 2; // GL_RGB16F
+        _internalFormat = GL_RGB16F;
 
         for (unsigned int i = 0; i < 6; ++i)
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
-                         GL_RGB16F,
+                         _internalFormat,
                          _width,
                          _height,
                          0,
@@ -249,6 +270,17 @@ void SLGLTextureIBL::build(SLint texUnit)
                 logFramebufferStatus();
 
                 renderCube();
+
+                if (_readBackPixels)
+                {
+                    string name = "roughnessCubemap_mip" +
+                                  std::to_string(mip) + "_side" +
+                                  std::to_string(i) + ".png";
+                    readPixels(mipWidth,
+                               mipHeight,
+                               name,
+                               saveReadbackTextures);
+                }
             }
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -256,11 +288,12 @@ void SLGLTextureIBL::build(SLint texUnit)
     }
     else if (_texType == TT_brdfLUT)
     {
-        _bytesPerPixel = 2 * 2; // GL_RG16F
+        _bytesPerPixel  = 2 * 2; // GL_RG16F
+        _internalFormat = GL_RG16F;
 
         glTexImage2D(_target,
                      0,
-                     GL_RG16F,
+                     _internalFormat,
                      _width,
                      _height,
                      0,
@@ -290,6 +323,16 @@ void SLGLTextureIBL::build(SLint texUnit)
         logFramebufferStatus();
 
         renderQuad();
+
+        if (_readBackPixels)
+        {
+            string name = "brdfLUT.png";
+            readPixels(_width,
+                       _height,
+                       name,
+                       saveReadbackTextures);
+        }
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
@@ -415,6 +458,32 @@ void SLGLTextureIBL::renderQuad()
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+}
+//-----------------------------------------------------------------------------
+//! Reads back the pixels into an image
+/*
+ * The image based lighting textures are only generated on the GPU. For
+ * debugging or ray tracing we need to read back the pixels into main memory.
+ */
+void SLGLTextureIBL::readPixels(int width, int height, string name, bool savePNG)
+{
+    CVImage* image = new CVImage(width,
+                                 height,
+                                 PF_rgb,
+                                 name);
+    glReadPixels(0,
+                 0,
+                 width,
+                 height,
+                 GL_RGB,
+                 GL_UNSIGNED_BYTE,
+                 image->data());
+    GET_GL_ERROR;
+
+    if (savePNG)
+        image->savePNG(name, 9, false);
+
+    _images.push_back(image);
 }
 //-----------------------------------------------------------------------------
 void SLGLTextureIBL::logFramebufferStatus()
