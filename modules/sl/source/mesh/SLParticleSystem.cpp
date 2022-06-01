@@ -677,6 +677,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
     spD->useProgram();
+
     SLGLState* stateGL = SLGLState::instance();
 
     // Start calculation of the elapsed time for the drawing
@@ -1020,6 +1021,10 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             if (_velocityType == 0)
             {
                 minV += SLVec3f(_vRandS.x, 0.0, _vRandS.z); // Apply velocity distance after time
+                if (_vRandS.y < 0 && _vRandE > 0)
+                    minV.y += _vRandS.y;
+                else if (_vRandS.y > 0 && _vRandE < 0)
+                    minV.y += _vRandS.y;
                 maxV += _vRandE;                            // Apply velocity distance after time
             }
             else
