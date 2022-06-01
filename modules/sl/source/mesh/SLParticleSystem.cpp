@@ -732,6 +732,12 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
+    //Check wireframe
+    if (sv->drawBits()->get(SL_DB_MESHWIRED)  || node->drawBits()->get(SL_DB_MESHWIRED))
+        spD->uniform1i("u_doWireFrame", 1.0);
+    else
+        spD->uniform1i("u_doWireFrame", 0.0);
+
     if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
 

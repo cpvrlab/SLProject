@@ -403,7 +403,6 @@ const string geomMain_PS_v_cT            = R"(
     color.w *= vert[0].transparency;   // Apply transparency)";
 
 const string geomMain_PS_fourCorners                         = R"(
-
     //BOTTOM LEFT
     vec4 va = vec4(P.xy + (rot * vec2(-radiusW, -radiusH)), P.z, 1); //Position in view space
     gl_Position = u_pMatrix * va; // Calculate position in clip space
@@ -626,7 +625,9 @@ in      vec2        v_texCoord;             // interpolated texture coordinate)"
 //-----------------------------------------------------------------------------
 const string fragInput_PS_u_overG = R"(
 uniform float       u_oneOverGamma;         // 1.0f / Gamma correction value)";
-//-----------------------------------------------------------------------------
+const string fragInput_PS_u_wireFrame = R"(
+uniform bool       u_doWireFrame;         // Boolean for wireFrame)";
+  //-----------------------------------------------------------------------------
 const string fragMain_PS_TF = R"(
 
 out     vec4     o_fragColor;               // output fragment color
@@ -645,22 +646,32 @@ void main()
    o_fragColor = v_particleColor;
 
    // componentwise multiply w. texture color
-   o_fragColor *= texture(u_matTextureDiffuse0, v_texCoord);
+    if(!u_doWireFrame)
+        o_fragColor *= texture(u_matTextureDiffuse0, v_texCoord);
 
    if(o_fragColor.a < 0.001)
         discard;
 
-   o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-})";
+)";
 const string fragMain_PS_withoutColor = R"(
 void main()
 {     
    // componentwise multiply w. texture color
-   o_fragColor = texture(u_matTextureDiffuse0, v_texCoord);
+   if(!u_doWireFrame)
+        o_fragColor = texture(u_matTextureDiffuse0, v_texCoord);
+   else
+        o_fragColor = vec4(0,0,0,1.0);
+
    o_fragColor.a *= v_particleColor.a;
 
    if(o_fragColor.a < 0.001)
         discard;
+
+)";
+const string fragMain_PS_endAll = R"(
+    //Same color for each wireframe
+    if(u_doWireFrame)
+        o_fragColor =  vec4(0,0,0,1.0);
 
    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 })";
@@ -2101,12 +2112,14 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Fragment shader uniforms
     if (Dm) fragCode += fragInput_u_matTexDm;
     fragCode += fragInput_PS_u_overG;
+    fragCode += fragInput_PS_u_wireFrame;
 
     // Fragment shader outputs
     fragCode += fragOutputs_o_fragColor;
 
     // Fragment shader main loop
     fragCode += Co ? fragMain_PS : fragMain_PS_withoutColor;
+    fragCode += fragMain_PS_endAll;
 
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
