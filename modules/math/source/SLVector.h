@@ -90,7 +90,7 @@ SLVector<T, U>::~SLVector()
 }
 //-----------------------------------------------------------------------------
 /*!
-The bracket operator as used in arrays. You can use it on the left or right 
+The bracket operator as used in arrays. You can use it on the left or right
 side of =. Overrun is checked in _DEBUG mode and causes Warning but returns
 a value so that the caller can be reached.
 */
@@ -168,9 +168,9 @@ void SLVector<T, U>::set(const SLVector& a)
 }
 //-----------------------------------------------------------------------------
 /*!
-Internal, the SLVector is representet by an c++Array not of size _size, but of 
-an internal size. The function reserve changes the internal representation and 
-can make adding much more faster. If s is smaller than the actual size, it 
+Internal, the SLVector is representet by an c++Array not of size _size, but of
+an internal size. The function reserve changes the internal representation and
+can make adding much more faster. If s is smaller than the actual size, it
 will be ignored.
 */
 template<class T, class U>

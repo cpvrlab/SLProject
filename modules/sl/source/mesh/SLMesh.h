@@ -225,11 +225,11 @@ protected:
     SLGLVertexArrayExt _vaoN;             //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;             //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;             //!< OpenGL VAO for optional selection drawing
-    SLbool             _isSelected;       //!< flag if mesh is partially of fully selected
-    SLfloat            _edgeAngleDEG;     //!< edge crease angle in degrees between face normals (30 deg. default)
-    SLfloat            _edgeWidth;        //!< line width for hard edge drawing
-    SLCol4f            _edgeColor;        //!< color for hard edge drawing
-    SLfloat            _vertexPosEpsilon; //!< vertex position epsilon used in computeHardEdgesIndices
+    SLbool             _isSelected;       //!< Flag if mesh is partially of fully selected
+    SLfloat            _edgeAngleDEG;     //!< Edge crease angle in degrees between face normals (30 deg. default)
+    SLfloat            _edgeWidth;        //!< Line width for hard edge drawing
+    SLCol4f            _edgeColor;        //!< Color for hard edge drawing
+    SLfloat            _vertexPosEpsilon; //!< Vertex position epsilon used in computeHardEdgesIndices
 
 #ifdef SL_HAS_OPTIX
     SLOptixCudaBuffer<SLVec3f>  _vertexBuffer;
@@ -242,9 +242,9 @@ protected:
 
     SLbool          _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct*  _accelStruct;          //!< KD-tree or uniform grid
-    SLbool          _accelStructOutOfDate; //!< flag id accel.struct needs update
-    SLAnimSkeleton* _skeleton;             //!< the skeleton this mesh is bound to
-    SLVMat4f        _jointMatrices;        //!< joint matrix vector for this mesh
+    SLbool          _accelStructOutOfDate; //!< Flag id accel.struct needs update
+    SLAnimSkeleton* _skeleton;             //!< The skeleton this mesh is bound to
+    SLVMat4f        _jointMatrices;        //!< Joint matrix vector for this mesh
     SLVVec3f*       _finalP;               //!< Pointer to final vertex position vector
     SLVVec3f*       _finalN;               //!< pointer to final vertex normal vector
 };

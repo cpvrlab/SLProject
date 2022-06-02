@@ -368,9 +368,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 2) Generate Vertex Array Object once<br>
 3) Apply the uniform variables to the shader<br>
 3a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
-3b) Pass the modelview and modelview-projection matrix to the shader.<br>
-3c) If needed build and pass the inverse modelview and the normal matrix.<br>
-3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
+3b) Pass the standard matrices to the shader program.<br>
 4) Finally do the draw call by calling SLGLVertexArray::drawElementsAs<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
@@ -490,8 +488,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     if (!N.empty() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
     {
-        // scale factor r 2% from scaled radius for normals & tangents
-        // build array between vertex and normal target point
+        // Scale factor r 2% from scaled radius for normals & tangents
+        // Build array between vertex and normal target point
         float    r = node->aabb()->radiusOS() * 0.02f;
         SLVVec3f V2;
         V2.resize(P.size() * 2);
@@ -775,19 +773,19 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
     vector<vector<int>> uE2E;
 
     // fill input matrices
-    V.resize(_finalP->size(), 3);
+    V.resize((Eigen::Index)_finalP->size(), 3);
     for (int i = 0; i < _finalP->size(); i++)
         V.row(i) << finalP(i).x, finalP(i).y, finalP(i).z;
 
     if (!I16.empty())
     {
-        F.resize(I16.size() / 3, 3);
+        F.resize((Eigen::Index)I16.size() / 3, 3);
         for (int j = 0, i = 0; i < I16.size(); j++, i += 3)
             F.row(j) << I16[i], I16[i + 1], I16[i + 2];
     }
     if (!I32.empty())
     {
-        F.resize(I32.size() / 3, 3);
+        F.resize((Eigen::Index)I32.size() / 3, 3);
         for (int j = 0, i = 0; i < I32.size(); j++, i += 3)
             F.row(j) << I32[i], I32[i + 1], I32[i + 2];
     }

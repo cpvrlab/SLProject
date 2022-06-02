@@ -34,7 +34,7 @@ struct VertexPC
     }
 };
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
 static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
@@ -47,7 +47,6 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
 static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
@@ -68,12 +67,12 @@ static GLuint _shaderFragID = 0; //! fragment shader id
 static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-static GLint _pLoc;   //!< attribute location for vertex position
-static GLint _cLoc;   //!< attribute location for vertex color
-static GLint _gLoc;   //!< uniform location for gamma value
-static GLint _pmLoc;  //!< uniform location for projection matrix
-static GLint _vmLoc;  //!< uniform location for view matrix
-static GLint _mmLoc;  //!< uniform location for model matrix
+static GLint _pLoc;  //!< attribute location for vertex position
+static GLint _cLoc;  //!< attribute location for vertex color
+static GLint _gLoc;  //!< uniform location for gamma value
+static GLint _pmLoc; //!< uniform location for projection matrix
+static GLint _vmLoc; //!< uniform location for view matrix
+static GLint _mmLoc; //!< uniform location for model matrix
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -175,12 +174,12 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
-    _cLoc   = glGetAttribLocation(_shaderProgID, "a_color");
-    _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
-    _pmLoc  = glGetUniformLocation(_shaderProgID, "u_pMatrix");
-    _vmLoc  = glGetUniformLocation(_shaderProgID, "u_vMatrix");
-    _mmLoc  = glGetUniformLocation(_shaderProgID, "u_mMatrix");
+    _pLoc  = glGetAttribLocation(_shaderProgID, "a_position");
+    _cLoc  = glGetAttribLocation(_shaderProgID, "a_color");
+    _gLoc  = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
+    _pmLoc = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc = glGetUniformLocation(_shaderProgID, "u_mMatrix");
 
     buildBox();
 
@@ -223,27 +222,27 @@ bool onPaint()
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    // 2c) Model transform: move the cube so that it rotates around its center
+    // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 3) Activate the shader program and pass the uniform variables to the shader
+    // 4) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform1f(_gLoc, 1.0f);
 
-    // 7a) Activate the vertex array
+    // 5a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 7b) Activate the index buffer
+    // 5b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 7c) Draw cube with triangles by indexes
+    // 6) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 

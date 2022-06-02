@@ -107,8 +107,8 @@ struct SLNodeStats
  *
  * A node can be transformed and has therefore a object matrix (_om) for its
  * local transform. All other matrices such as the world matrix (_wm), the
- * inverse world matrix (_wmI) and the normal world matrix (_wmN) are derived
- * from the object matrix and automatically generated and updated.\n\n
+ * inverse world matrix (_wmI) are derived from the object matrix and
+ * automatically generated and updated.\n\n
  *
  * A node can be transformed by one of the various transform functions such
  * as translate(). Many of these functions take an additional parameter

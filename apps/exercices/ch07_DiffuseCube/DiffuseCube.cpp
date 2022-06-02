@@ -42,7 +42,6 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
 static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
@@ -232,19 +231,19 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 2a) View transform: move the coordinate system away from the camera
+    // 2a) View transform 1: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
-    // 2b) Model transform: rotate the coordinate system increasingly
+    // 2b) View transform 2: rotate the coordinate system increasingly
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    // 2c) Model transform: move the cube so that it rotates around its center
+    // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 6) Activate the shader program and pass the uniform variables to the shader
+    // 4) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
@@ -254,16 +253,16 @@ bool onPaint()
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
     glUniform1f(_gLoc, 1.0f);                              // gamma value
 
-    // 7a) Activate the vertex array
+    // 5a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 7b) Activate the index buffer
+    // 5b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 7c) Draw cube with triangles by indexes
+    // 6) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 

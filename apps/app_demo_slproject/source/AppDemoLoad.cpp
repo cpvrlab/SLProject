@@ -530,7 +530,13 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(am,
+                                           SLVec2f(-5, -5),
+                                           SLVec2f(5, 5),
+                                           25,
+                                           25,
+                                           "rectangle mesh",
+                                           m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
@@ -5990,8 +5996,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->col(16);
         ps->row(4);
         ps->doFlipBookTexture(true);
-        ps->doCounterGap(false); //We don't want to have flickering
-        ps->changeTexture(); // Switch texture, need to be done, to have flipbook texture as active
+        ps->doCounterGap(false); // We don't want to have flickering
+        ps->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
         ps->doRotation(false);
@@ -6106,20 +6112,20 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texC             = new SLGLTexture(am, texPath + "smoke_08_C.png");
         SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
 
         // Create meshes and nodes
         // Dust storm
         SLParticleSystem* ps = new SLParticleSystem(am,
-                                                     500,
-                                                     SLVec3f(0.0f, 0.0f, 0.0f),
-                                                     SLVec3f(-0.1f, -0.5f, -5.0f),
-                                                     SLVec3f(0.1f, 0.5f, -2.5f),
-                                                     3.5f,
-                                                     texC,
-                                                     "DustStorm",
-                                                     texFlipbookSmoke);
+                                                    500,
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    SLVec3f(-0.1f, -0.5f, -5.0f),
+                                                    SLVec3f(0.1f, 0.5f, -2.5f),
+                                                    3.5f,
+                                                    texC,
+                                                    "DustStorm",
+                                                    texFlipbookSmoke);
         ps->doShape(true);
         ps->shapeType(1);
         ps->scaleBox(50.0f, 1.0f, 50.0f);
@@ -6128,8 +6134,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doAlphaOverL(true);
         ps->doAlphaOverLCurve(true);
         ps->bezierStartEndPointAlpha()[1] = 0.0f;
-        ps->bezierControlPointAlpha()[1] = 0.5f;
-        ps->bezierControlPointAlpha()[2] = 0.5f;
+        ps->bezierControlPointAlpha()[1]  = 0.5f;
+        ps->bezierControlPointAlpha()[2]  = 0.5f;
         ps->generateBernsteinPAlpha();
         ps->doRotRange(true);
         ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
@@ -6188,7 +6194,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
         ps->doSizeOverLF(false);
         ps->doAlphaOverL(false);
-        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
+        SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node
@@ -6217,7 +6223,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
 
         // Create meshes and nodes
-        SLParticleSystem* ps     = new SLParticleSystem(am,
+        SLParticleSystem* ps = new SLParticleSystem(am,
                                                     10000,
                                                     SLVec3f(0, 0.5, 0),
                                                     SLVec3f(0.0f, 0.0f, 0.0f),
@@ -6226,7 +6232,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texC,
                                                     "Sun Particle System",
                                                     texFlipbook);
-        
+
         ps->doShape(true);
         ps->shapeType(0);
         ps->radiusSphere(3.0f);
@@ -6234,7 +6240,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
         SLMesh* pSMesh = ps;
-        SLNode*           pSNode = new SLNode(pSMesh, "Particle Sun node");
+        SLNode* pSNode = new SLNode(pSMesh, "Particle Sun node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node
@@ -6254,7 +6260,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         s->info("Create fire complex effects particle system");
 
         // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
+        SLNode* scene       = new SLNode("scene node");
         SLNode* fireComplex = new SLNode("fireComplex node");
 
         // Create a light source node
@@ -6268,29 +6274,25 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
         // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
 
-
-
         // Create meshes and nodes
         SLParticleSystem* fire = new SLParticleSystem(am,
-                                                    25,
-                                                    SLVec3f(0, 0.5, 0),
-                                                    SLVec3f(-0.1f, 0.1f, -0.1f),
-                                                    SLVec3f(0.1f, 0.35f, 0.1f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Fire",
-                                                    texFlipbook);
+                                                      25,
+                                                      SLVec3f(0, 0.5, 0),
+                                                      SLVec3f(-0.1f, 0.1f, -0.1f),
+                                                      SLVec3f(0.1f, 0.35f, 0.1f),
+                                                      4.0f,
+                                                      texC,
+                                                      "Fire",
+                                                      texFlipbook);
 
-        
-        
         fire->timeToLive(2.0f);
         fire->billboardType(BT_Vertical);
 
-        //Rotation
+        // Rotation
         fire->doRotation(true);
         fire->doRotRange(true);
 
-        //Size
+        // Size
         fire->doSizeOverLFCurve(true);
         float sizeCPArray[4] = {0.0f, 1.25f, 1.0f, 1.25f};
         fire->bezierControlPointSize(sizeCPArray);
@@ -6298,7 +6300,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         fire->bezierStartEndPointSize(sizeSEArray);
         fire->generateBernsteinPSize();
 
-        //Alpha
+        // Alpha
         fire->doAlphaOverLCurve(true);
         float alphaCPArray[4] = {0.0f, 0.7f, 1.0f, 0.0f};
         fire->bezierControlPointAlpha(alphaCPArray);
@@ -6306,7 +6308,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         fire->bezierStartEndPointAlpha(alphaSEArray);
         fire->generateBernsteinPAlpha();
 
-        //Color
+        // Color
         fire->doColorOverLF(true);
         fire->doBlendBrightness(true);
         ImGradient gradient; // WILL not change UI
@@ -6316,11 +6318,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         gradient.addMark(1.0f, ImColor(255, 255, 255));
         fire->colorArr(gradient.cachedValues());
 
-        //Acceleration
+        // Acceleration
         fire->doAcceleration(true);
         fire->doAccDiffDir(true);
         fire->acceleration(0.0f, 0.02f, 0.0f);
-        
 
         fire->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
@@ -6331,35 +6332,35 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Flame
         //
         SLParticleSystem* flame = new SLParticleSystem(am,
-                                                    2,
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    1.0f,
-                                                    texC,
-                                                    "Flames",
-                                                    texFlipbook);
+                                                       2,
+                                                       SLVec3f(0.0f, 0.0f, 0.0f),
+                                                       SLVec3f(0.0f, 0.0f, 0.0f),
+                                                       SLVec3f(0.0f, 0.0f, 0.0f),
+                                                       1.0f,
+                                                       texC,
+                                                       "Flames",
+                                                       texFlipbook);
         flame->col(8);
         flame->row(4);
         flame->doFlipBookTexture(true);
-        flame->doCounterGap(false); //We don't want to have flickering
+        flame->doCounterGap(false); // We don't want to have flickering
         flame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
         flame->doAlphaOverL(false);
         flame->doSizeOverLF(false);
         flame->doRotation(false);
-        
+
         flame->frameRateFB(32);
         flame->radiusW(0.4f);
         flame->radiusH(0.5f);
         flame->scale(1.2);
         flame->billboardType(BT_Vertical);
 
-        //Color
+        // Color
         flame->doColor(true);
         flame->color(SLCol4f(0.52f, 0.47f, 0.32f, 1.0f));
         flame->doBlendBrightness(true);
 
-        //Size
+        // Size
         flame->doSizeOverLFCurve(true);
         float sizeCPArrayFl[4] = {0.0f, 1.25f, 0.0f, 1.0f};
         flame->bezierControlPointSize(sizeCPArrayFl);
@@ -6377,22 +6378,22 @@ resolution shadows near the camera and lower resolution shadows further away.");
         //
 
         SLGLTexture*      texGlow = new SLGLTexture(am, texPath + "circle_05_C.png");
-        SLParticleSystem* glow     = new SLParticleSystem(am,
-                                                    4,
-                                                    SLVec3f(0, 0.0, 0),
-                                                    SLVec3f(0.0f, 1.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.7f, 0.0f),
-                                                    2.0f,
-                                                    texGlow,
-                                                    "Glow",
-                                                    texFlipbook);
-        
+        SLParticleSystem* glow    = new SLParticleSystem(am,
+                                                      4,
+                                                      SLVec3f(0, 0.0, 0),
+                                                      SLVec3f(0.0f, 1.0f, 0.0f),
+                                                      SLVec3f(0.0f, 0.7f, 0.0f),
+                                                      2.0f,
+                                                      texGlow,
+                                                      "Glow",
+                                                      texFlipbook);
+
         glow->doColor(true);
         glow->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
         glow->doSizeOverLF(true);
         glow->doAlphaOverL(true);
 
-        //Size
+        // Size
         glow->doSizeOverLFCurve(true);
         float sizeCPArrayGl[4] = {0.0f, 1.5f, 1.0f, 1.5f};
         glow->bezierControlPointSize(sizeCPArrayGl);
@@ -6410,19 +6411,19 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         SLGLTexture*      texSmokeB = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
         SLParticleSystem* smokeB    = new SLParticleSystem(am,
-                                                      8,
-                                                      SLVec3f(0, 0.0, 0),
-                                                      SLVec3f(0.0f, 1.0f, 0.0f),
-                                                      SLVec3f(0.0f, 0.7f, 0.0f),
-                                                      2.0f,
-                                                      texSmokeB,
-                                                      "Smoke Black",
-                                                      texFlipbook);
+                                                        8,
+                                                        SLVec3f(0, 0.0, 0),
+                                                        SLVec3f(0.0f, 1.0f, 0.0f),
+                                                        SLVec3f(0.0f, 0.7f, 0.0f),
+                                                        2.0f,
+                                                        texSmokeB,
+                                                        "Smoke Black",
+                                                        texFlipbook);
 
         smokeB->doColor(false);
-        //smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
+        // smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
 
-        //Size
+        // Size
         smokeB->doSizeOverLF(true);
         smokeB->doSizeOverLFCurve(true);
         float sizeCPArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
@@ -6431,7 +6432,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeB->bezierStartEndPointSize(sizeSEArraySB);
         smokeB->generateBernsteinPSize();
 
-        //Alpha
+        // Alpha
         smokeB->doAlphaOverL(true);
         smokeB->doAlphaOverLCurve(true);
         float alphaCPArraySB[4] = {0.0f, 0.4f, 1.0f, 0.4f};
@@ -6466,9 +6467,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                         texFlipbook);
 
         smokeW->doColor(false);
-        //smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
+        // smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
 
-        //Size
+        // Size
         smokeW->doSizeOverLF(true);
         smokeW->doSizeOverLFCurve(true);
         float sizeCPArraySW[4] = {0.0f, 0.5f, 1.0f, 2.0f};
@@ -6477,7 +6478,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeW->bezierStartEndPointSize(sizeSEArraySW);
         smokeW->generateBernsteinPSize();
 
-        //Alpha
+        // Alpha
         smokeW->doAlphaOverL(true);
         smokeW->doAlphaOverLCurve(true);
         float alphaCPArraySW[4] = {0.0f, 0.018f, 1.0f, 0.018f};
@@ -6496,23 +6497,22 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeWNode->translate(0.0f, 0.9f, 0.0f, TS_object);
         fireComplex->addChild(smokeWNode);
 
-
         //
         // Sparks Falling
         //
 
-        SLParticleSystem* sparksF    = new SLParticleSystem(am,
-                                                        30,
-                                                        SLVec3f(0, 0.0, 0),
-                                                        SLVec3f(-1.0f, 3.8f, -1.0f),
-                                                        SLVec3f(1.0f, 4.6f, 1.0f),
-                                                        1.2f,
+        SLParticleSystem* sparksF = new SLParticleSystem(am,
+                                                         30,
+                                                         SLVec3f(0, 0.0, 0),
+                                                         SLVec3f(-1.0f, 3.8f, -1.0f),
+                                                         SLVec3f(1.0f, 4.6f, 1.0f),
+                                                         1.2f,
                                                          texGlow,
-                                                        "Sparks Falling",
-                                                        texFlipbook);
+                                                         "Sparks Falling",
+                                                         texFlipbook);
         sparksF->scale(0.05f);
-        
-        //Color
+
+        // Color
         sparksF->doColor(true);
         sparksF->doColorOverLF(true);
         sparksF->doBlendBrightness(true);
@@ -6523,27 +6523,24 @@ resolution shadows near the camera and lower resolution shadows further away.");
         gradientSparks.addMark(1.0f, ImColor(255, 255, 255));
         sparksF->colorArr(gradientSparks.cachedValues());
 
-
-        //Size
+        // Size
         sparksF->doSizeOverLF(false);
 
-
-        //Alpha
+        // Alpha
         sparksF->doAlphaOverL(false);
 
-        //Gravity
+        // Gravity
         sparksF->doGravity(true);
-
 
         SLMesh* sparksFMesh = sparksF;
         SLNode* sparksFNode = new SLNode(sparksFMesh, "Particle system node sparks falling");
         fireComplex->addChild(sparksFNode);
 
-        //NEED TO ADD FALLING SPARKS
+        // NEED TO ADD FALLING SPARKS
 
-         scene->addChild(fireComplex);
+        scene->addChild(fireComplex);
 
-        //Add other meshes (Floor, wall...)
+        // Add other meshes (Floor, wall...)
 
         SLMaterial* matYel = new SLMaterial(am, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
         SLMaterial* matRed = new SLMaterial(am, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
@@ -6571,8 +6568,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(rectBack);
         scene->addChild(rectLeft);
         scene->addChild(rectRight);
-
-       
 
         /* SLMaterial* matPerPixSM = new SLMaterial(am, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 

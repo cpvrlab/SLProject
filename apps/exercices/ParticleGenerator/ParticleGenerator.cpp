@@ -46,7 +46,7 @@ struct VertexPC
     }
 };
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
 static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
