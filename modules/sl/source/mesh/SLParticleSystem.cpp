@@ -449,10 +449,10 @@ StatEnd contains 1 and 4 controls points
 */
 void SLParticleSystem::generateBernsteinPAlpha()
 {
-    // For Y bezier curve
-    // T^3
     float* ContP        = _bezierControlPointAlpha;
     float* StaEnd       = _bezierStartEndPointAlpha;
+    // For Y bezier curve
+    // T^3
     _bernsteinPYAlpha.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
     // T^2
     _bernsteinPYAlpha.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;

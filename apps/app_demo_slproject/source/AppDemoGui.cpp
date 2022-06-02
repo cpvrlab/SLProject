@@ -4325,8 +4325,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Indent();
                                     float* vAlpha      = ps->bezierControlPointAlpha();
                                     float* staEndAlpha = ps->bezierStartEndPointAlpha();
-                                    ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
-                                    ps->generateBernsteinPAlpha();
+                                    if (ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha))
+                                        ps->generateBernsteinPAlpha();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();
@@ -4354,8 +4354,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Indent();
                                     float* vSize      = ps->bezierControlPointSize();
                                     float* staEndSize = ps->bezierStartEndPointSize();
-                                    ImGui::Bezier("easeInExpo", vSize, staEndSize);
-                                    ps->generateBernsteinPSize();
+                                    if(ImGui::Bezier("easeInExpo", vSize, staEndSize))
+                                        ps->generateBernsteinPSize();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();
