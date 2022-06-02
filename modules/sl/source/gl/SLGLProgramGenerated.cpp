@@ -2415,7 +2415,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         }
         else if (u_lightUsesCubemap[i])
         {)";
-        for (SLuint i = 0; i < lights->size(); ++i)
+        for (SLuint i = 0; i < lights->size(); ++i) 
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && shadowMap->useCubemap())
@@ -2430,8 +2430,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && !shadowMap->useCubemap() && !shadowMap->useCascaded())
-                shadowTestCode += "if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i);
-            +"}\n";
+                shadowTestCode += "if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i) + "}\n";
         }
         shadowTestCode += R"(
         }

@@ -113,6 +113,7 @@ SLSkybox::SLSkybox(SLAssetManager* am,
                                              resolution,
                                              TT_environmentCubemap,
                                              GL_TEXTURE_CUBE_MAP,
+                                             true,
                                              GL_LINEAR_MIPMAP_LINEAR);
 
     // The irradiance cubemap is used for the ambient indirect light of PBR materials

@@ -6352,7 +6352,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         flame->frameRateFB(32);
         flame->radiusW(0.4f);
         flame->radiusH(0.5f);
-        flame->scale(1.2);
+        flame->scale(1.2f);
         flame->billboardType(BT_Vertical);
 
         // Color

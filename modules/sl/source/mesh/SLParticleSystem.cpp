@@ -292,7 +292,7 @@ SLVec3f SLParticleSystem::getDirectionPyramid(SLVec3f position)
 //! ???
 void SLParticleSystem::generate()
 {
-    unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
+    SLuint                     seed = (SLuint)chrono::system_clock::now().time_since_epoch().count();
     default_random_engine      generator(seed);
     normal_distribution<float> distribution(0.0f, 1.0f);
 
@@ -752,7 +752,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (_doFlipBookTexture)
     {
         spD->uniform1i("u_col", _col);
-        spD->uniform1i("u_row", _row);
+        spD->uniform1i("u_row", _row); 
     }
 
     if (_isPaused) // Take time when pause was enable
@@ -769,9 +769,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     //Check wireframe
     if (sv->drawBits()->get(SL_DB_MESHWIRED)  || node->drawBits()->get(SL_DB_MESHWIRED))
-        spD->uniform1i("u_doWireFrame", 1.0);
+        spD->uniform1i("u_doWireFrame", 1);
     else
-        spD->uniform1i("u_doWireFrame", 0.0);
+        spD->uniform1i("u_doWireFrame", 0);
 
     if (_doColor && _doBlendBrightness)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
