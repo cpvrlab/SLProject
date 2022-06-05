@@ -1866,6 +1866,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
+                    if (ImGui::MenuItem("Particle System lot of fire complex", nullptr, sid == SID_Benchmark8_ParticleSystemFireComplex))
+                        s->onLoad(am, s, sv, SID_Benchmark8_ParticleSystemFireComplex);
+                    if (ImGui::MenuItem("Particle System lot of particle", nullptr, sid == SID_Benchmark9_ParticleSystemManyParticles))
+                        s->onLoad(am, s, sv, SID_Benchmark9_ParticleSystemManyParticles);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
@@ -4321,8 +4325,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Indent();
                                     float* vAlpha      = ps->bezierControlPointAlpha();
                                     float* staEndAlpha = ps->bezierStartEndPointAlpha();
-                                    ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
-                                    ps->generateBernsteinPAlpha();
+                                    if (ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha))
+                                        ps->generateBernsteinPAlpha();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();
@@ -4350,8 +4354,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Indent();
                                     float* vSize      = ps->bezierControlPointSize();
                                     float* staEndSize = ps->bezierStartEndPointSize();
-                                    ImGui::Bezier("easeInExpo", vSize, staEndSize);
-                                    ps->generateBernsteinPSize();
+                                    if(ImGui::Bezier("easeInExpo", vSize, staEndSize))
+                                        ps->generateBernsteinPSize();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();

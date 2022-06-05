@@ -187,6 +187,8 @@ enum SLSceneID
     SID_Benchmark5_ColumnsNoLOD,
     SID_Benchmark6_ColumnsLOD,
     SID_Benchmark7_JansUniverse,
+    SID_Benchmark8_ParticleSystemFireComplex,
+    SID_Benchmark9_ParticleSystemManyParticles,
 
     SID_ParticleSystem_First,
     SID_ParticleSystem_FireEffects,
