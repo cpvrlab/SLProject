@@ -1598,7 +1598,7 @@ SLVec2f SLCamera::projectWorldToNDC(const SLVec4f& worldPos) const
 the view frustum defined by its 6 planes by simply testing the distance of the
 AABBs center minus its radius. This is faster than the AABB in frustum test but
 not as precise. Please refer to the nice tutorial on frustum culling on:
-http://www.lighthouse3d.com/opengl/viewfrustum/
+https://cgvr.cs.uni-bremen.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/
 */
 SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 {
