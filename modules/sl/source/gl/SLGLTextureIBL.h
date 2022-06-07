@@ -65,9 +65,9 @@ protected:
     SLuint _quadVBO = 0;
 
     SLGLTexture* _sourceTexture;     //!< 2D Texture from the HDR Image
-    SLGLProgram* _shaderProgram;     //!< shader program to render the texture
+    SLGLProgram* _shaderProgram;     //!< Shader program to render the texture
     SLMat4f      _captureProjection; //!< Projection matrix for capturing the textures
-    SLVMat4f     _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
+    SLVMat4f     _captureViews;      //!< All 6 positions of the views that represent the 6 sides of the cube map
     SLbool       _readBackPixels;    //!< Flag if generated texture should be read back from GPU into cvMat
 };
 //-----------------------------------------------------------------------------
