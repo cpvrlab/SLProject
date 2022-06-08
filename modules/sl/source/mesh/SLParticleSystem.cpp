@@ -92,7 +92,7 @@ SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getDirectionSphere(SLVec3f position)
 {
-    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); // Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
 //! ???
@@ -154,7 +154,7 @@ SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getDirectionBox(SLVec3f position)
 {
-    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
+    return (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); // Get unit vector center to position
 }
 //-----------------------------------------------------------------------------
 //! ???
@@ -449,8 +449,8 @@ StatEnd contains 1 and 4 controls points
 */
 void SLParticleSystem::generateBernsteinPAlpha()
 {
-    float* ContP        = _bezierControlPointAlpha;
-    float* StaEnd       = _bezierStartEndPointAlpha;
+    float* ContP  = _bezierControlPointAlpha;
+    float* StaEnd = _bezierStartEndPointAlpha;
     // For Y bezier curve
     // T^3
     _bernsteinPYAlpha.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
@@ -753,7 +753,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (_doFlipBookTexture)
     {
         spD->uniform1i("u_col", _col);
-        spD->uniform1i("u_row", _row); 
+        spD->uniform1i("u_row", _row);
     }
 
     if (_isPaused) // Take time when pause was enable
@@ -768,8 +768,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
-    //Check wireframe
-    if (sv->drawBits()->get(SL_DB_MESHWIRED)  || node->drawBits()->get(SL_DB_MESHWIRED))
+    // Check wireframe
+    if (sv->drawBits()->get(SL_DB_MESHWIRED) || node->drawBits()->get(SL_DB_MESHWIRED))
         spD->uniform1i("u_doWireFrame", 1);
     else
         spD->uniform1i("u_doWireFrame", 0);
@@ -1002,7 +1002,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 minP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
         }
 
-        //ACCELERATION
+        // ACCELERATION
         if (_doAcceleration && _doAccDiffDir)
         {
             maxP += 0.5f * _acceleration * (_timeToLive * _timeToLive); // Apply acceleration after time
@@ -1025,7 +1025,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                     minV.y += _vRandS.y;
                 else if (_vRandS.y > 0 && _vRandE < 0)
                     minV.y += _vRandS.y;
-                maxV += _vRandE;                            // Apply velocity distance after time
+                maxV += _vRandE; // Apply velocity distance after time
             }
             else
             {
