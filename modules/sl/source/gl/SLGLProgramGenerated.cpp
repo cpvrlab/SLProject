@@ -1635,7 +1635,6 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool  SiOvLiCu      = mat->ps()->doSizeOverLFCurve(); // Size over life curve
         bool  Co            = mat->ps()->doColor();           // Color over life
         bool  CoOvLi        = mat->ps()->doColorOverLF();     // Color over life
-        bool  SiRandom      = mat->ps()->doSizeRandom();      // Size random
         bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
         bool  WS            = mat->ps()->doWorldSpace();      // World space or local space
         bool  rot           = mat->ps()->doRotation();        // Rotation
@@ -1648,7 +1647,6 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (SiOvLi && SiOvLiCu) programName += "cu";
         if (Co) programName += "-CO";
         if (Co && CoOvLi) programName += "cl";
-        if (SiRandom) programName += "-SR";
         if (FlBoTex) programName += "-FB";
         if (WS) programName += "-WS";
     }
@@ -1990,7 +1988,6 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     bool  SiOvLi        = mat->ps()->doSizeOverLF();      // Size over life
     bool  SiOvLiCu      = mat->ps()->doSizeOverLFCurve(); // Size over life curve
     bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
-    bool  SiRandom      = mat->ps()->doSizeRandom();      // Size random
 
     //////////////////////////////
     // Assemble vertex shader code
