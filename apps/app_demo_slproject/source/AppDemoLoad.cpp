@@ -48,6 +48,7 @@
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 #include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
+#include <SLNodeDOD.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -455,6 +456,22 @@ void appDemoLoadScene(SLAssetManager* am,
                       SLSceneID       sceneID)
 {
     PROFILE_FUNCTION();
+
+    /*
+    // Test code for SLNodeDOD
+    SLVNodeDOD nodes;
+    SLNodeDOD::addChild(nodes,-1,SLNodeDOD()); // Root node
+    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,2,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,2,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,1,SLNodeDOD());
+    SLNodeDOD::addChild(nodes,5,SLNodeDOD());
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
+    */
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
