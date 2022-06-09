@@ -3816,6 +3816,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             int amount = ps->amount();
                             if (ImGui::InputInt("Amount of particles", &amount))
                             {
+                                if (amount <= 0)
+                                    amount = 1;
                                 ps->amount(amount);
                                 ps->isGenerated(false);
                             }
