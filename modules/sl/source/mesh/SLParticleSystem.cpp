@@ -536,16 +536,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (!_mat->program() || !_mat->programTF())
         _mat->generateProgramPS();
 
-    /////////////////////////////
-    // UPDATING
-    /////////////////////////////
-
-    // Now use the updating program
-    SLGLProgram* spTF = _mat->programTF();
-    spTF->useProgram();
 
     /////////////////////////////
-    // UPDATING -> Calculate time
+    // Calculate time and paused and frustum culling
     /////////////////////////////
 
     float difTime   = 0.0f;
@@ -586,12 +579,20 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     _deltaTimeUpdateS = GlobalTimer::timeS() - _startUpdateTimeS;
     _startUpdateTimeS = GlobalTimer::timeS();
 
-    /////////////////////////////
-    // Apply Uniform Variables
-    /////////////////////////////
-
     if (!_isPaused) // The updating is paused, therefore no need to send uniforms
     {
+        /////////////////////////////
+        // UPDATING
+        /////////////////////////////
+
+        // Now use the updating program
+        SLGLProgram* spTF = _mat->programTF();
+        spTF->useProgram();
+
+        /////////////////////////////
+        // Apply Uniform Variables
+        /////////////////////////////
+
         // Time difference, between when the particle system was culled or paused or both
         spTF->uniform1f("u_difTime", difTime);
 
