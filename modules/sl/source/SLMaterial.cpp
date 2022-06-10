@@ -414,9 +414,9 @@ void SLMaterial::generateProgramPS()
         if (!_programTF)
         {
             _programTF = new SLGLProgramGenerated(_assetManager,
-                                                programNameUpdate,
-                                                this,
-                                                false);
+                                                  programNameUpdate,
+                                                  this,
+                                                  false);
 
             int                 countString = 3;
             vector<const char*> outputNames;

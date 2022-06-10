@@ -147,7 +147,7 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _gizmosNode->addChild(_rotGizmos);
     this->addChild(_gizmosNode);
 
-    this->updateAABBRec();
+    this->updateAABBRec(true);
 
     setDrawBitRecursive(SL_DB_OVERDRAW, _gizmosNode, true);
 
@@ -340,11 +340,8 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                                                             t2))
                             {
                                 SLVec3f translationDiff = axisPoint - _hitCoordinate;
-
                                 _targetNode->translate(translationDiff, TS_world);
-
                                 _gizmosNode->translation(_targetNode->updateAndGetWM().translation());
-
                                 _hitCoordinate = axisPoint;
                             }
 

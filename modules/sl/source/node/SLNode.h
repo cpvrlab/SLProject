@@ -152,7 +152,7 @@ public:
     virtual bool      hitRec(SLRay* ray);
     virtual void      statsRec(SLNodeStats& stats);
     virtual SLNode*   copyRec();
-    virtual SLAABBox& updateAABBRec();
+    virtual SLAABBox& updateAABBRec(SLbool updateAlsoAABBinOS);
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);

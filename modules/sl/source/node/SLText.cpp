@@ -74,7 +74,7 @@ void SLText::statsRec(SLNodeStats& stats)
 /*!
 SLText::buildAABB builds and returns the axis-aligned bounding box.
 */
-SLAABBox& SLText::updateAABBRec()
+SLAABBox& SLText::updateAABBRec(SLbool updateAlsoAABBinOS)
 {
     SLVec2f size = _font->calcTextSize(_text);
 
@@ -83,7 +83,8 @@ SLAABBox& SLText::updateAABBRec()
     SLVec3f maxOS(size.x, size.y, 0.01f);
 
     // apply world matrix: this overwrites the AABB of the group
-    _aabb.fromOStoWS(minOS, maxOS, updateAndGetWM());
+    if (updateAlsoAABBinOS)
+        _aabb.fromOStoWS(minOS, maxOS, updateAndGetWM());
 
     return _aabb;
 }

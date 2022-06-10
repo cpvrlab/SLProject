@@ -234,7 +234,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         _sceneViewCamera.translate(SLVec3f(0, 0, dist), TS_object);
     }
 
-    _sceneViewCamera.updateAABBRec();
+    _sceneViewCamera.updateAABBRec(false);
     _sceneViewCamera.setInitialState();
 
     // if no camera exists or in VR mode use the sceneViewCamera
@@ -395,7 +395,7 @@ void SLSceneView::onInitialize()
 
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();
-        _s->root3D()->updateAABBRec();
+        _s->root3D()->updateAABBRec(true);
         _s->root3D()->updateMeshAccelStructs();
 
         SL_LOG("Time for AABBs  : %5.3f sec.",
@@ -413,7 +413,7 @@ void SLSceneView::onInitialize()
     if (_s && _s->root2D() && _s->root2D()->aabb()->radiusOS() < 0.0001f)
     {
         // build axis aligned bounding box hierarchy after init
-        _s->root2D()->updateAABBRec();
+        _s->root2D()->updateAABBRec(true);
 
         // Collect node statistics
         _stats2D.clear();
@@ -1495,6 +1495,10 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
         if (_camera)
         {
             _camera->eyeToPixelRay((SLfloat)x, (SLfloat)y, &pickRay);
+
+            // Update the AABB min & max points in OS
+            _s->root3D()->updateAABBRec(true);
+
             _s->root3D()->hitRec(&pickRay);
             if (pickRay.hitNode)
                 cout << "NODE HIT: " << pickRay.hitNode->name() << endl;

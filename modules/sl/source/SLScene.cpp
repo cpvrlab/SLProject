@@ -189,9 +189,9 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     SLfloat startAAABBUpdateMS = GlobalTimer::timeMS();
     SLNode::numWMUpdates       = 0;
     if (_root3D)
-        _root3D->updateAABBRec();
+        _root3D->updateAABBRec(renderTypeIsRT);
     if (_root2D)
-        _root2D->updateAABBRec();
+        _root2D->updateAABBRec(renderTypeIsRT);
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
 
     // Finish total updateRec time

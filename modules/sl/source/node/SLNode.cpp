@@ -676,7 +676,7 @@ const SLMat4f& SLNode::updateAndGetWMI() const
 //-----------------------------------------------------------------------------
 /*! Updates the axis aligned bounding box in world space recursively.
  */
-SLAABBox& SLNode::updateAABBRec()
+SLAABBox& SLNode::updateAABBRec(SLbool updateAlsoAABBinOS)
 {
     if (_isAABBUpToDate)
         return _aabb;
@@ -703,10 +703,11 @@ SLAABBox& SLNode::updateAABBRec()
 
     // Merge children in WS
     for (auto* child : _children)
-        _aabb.mergeWS(child->updateAABBRec());
+        _aabb.mergeWS(child->updateAABBRec(updateAlsoAABBinOS));
 
     // We need min & max also in OS for the uniform grid intersection in OS
-    _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
+    if (updateAlsoAABBinOS)
+        _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
 
     // For visualizing the nodes' orientation we finally updateRec the axis in WS
     _aabb.updateAxisWS(updateAndGetWM());
@@ -1009,7 +1010,7 @@ dimension is maxDim and the center is in [0,0,0].
 */
 void SLNode::scaleToCenter(SLfloat maxDim)
 {
-    _aabb = updateAABBRec();
+    _aabb = updateAABBRec(true);
     SLVec3f size(_aabb.maxWS() - _aabb.minWS());
     SLVec3f center((_aabb.maxWS() + _aabb.minWS()) * 0.5f);
     SLfloat scaleFactor = maxDim / size.maxXYZ();
