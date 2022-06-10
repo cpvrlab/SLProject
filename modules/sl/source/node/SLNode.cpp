@@ -706,6 +706,7 @@ SLAABBox& SLNode::updateAABBRec(SLbool updateAlsoAABBinOS)
         _aabb.mergeWS(child->updateAABBRec(updateAlsoAABBinOS));
 
     // We need min & max also in OS for the uniform grid intersection in OS
+    // This is used for ray casts (picking) and raytracing.
     if (updateAlsoAABBinOS)
         _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
 

@@ -298,7 +298,6 @@ private:
     SLCol4f _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
     SLfloat _colorArr[256 * 3];                         //!< Color values of color gradient widget
 
-
     // Int (but boolean) to switch buffer
     int _drawBuf = 0; //!< Boolean to switch buffer
 

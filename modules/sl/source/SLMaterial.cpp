@@ -383,9 +383,9 @@ void SLMaterial::generateProgramPS()
     if (!_program)
     {
         /////////////////////////////
-        // Draw program
+        // Generate draw program
         /////////////////////////////
-        //
+
         // Check first the asset manager if the requested program type already exists
         string programNameDraw;
         SLGLProgramGenerated::buildProgramNamePS(this, programNameDraw, true);
@@ -401,10 +401,11 @@ void SLMaterial::generateProgramPS()
                                                 "Geom");
         }
     }
+
     if (!_programTF)
     {
         /////////////////////////////
-        // Update program
+        // Generate update program
         /////////////////////////////
 
         // Check first the asset manager if the requested programTF type already exists

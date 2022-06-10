@@ -5935,7 +5935,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false);
         s->root3D(root);
     }
-    else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //............................................
+    else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
     {
         s->name("Fire Complex Test Scene");
         s->info(s->name());
@@ -5944,7 +5944,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
         cam1->translation(0, 10, 40);
-        //cam1->rotate(90, 1, 0, 0);
+        // cam1->rotate(90, 1, 0, 0);
         cam1->focalDist(100);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
@@ -5981,11 +5981,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
             fire->timeToLive(2.0f);
             fire->billboardType(BT_Vertical);
 
-            //Rotation
+            // Rotation
             fire->doRotation(true);
             fire->doRotRange(true);
 
-            //Size
+            // Size
             fire->doSizeOverLFCurve(true);
             float sizeCPArray[4] = {0.0f, 1.25f, 1.0f, 1.25f};
             fire->bezierControlPointSize(sizeCPArray);
@@ -5993,7 +5993,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             fire->bezierStartEndPointSize(sizeSEArray);
             fire->generateBernsteinPSize();
 
-            //Alpha
+            // Alpha
             fire->doAlphaOverLCurve(true);
             float alphaCPArray[4] = {0.0f, 0.7f, 1.0f, 0.0f};
             fire->bezierControlPointAlpha(alphaCPArray);
@@ -6001,7 +6001,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             fire->bezierStartEndPointAlpha(alphaSEArray);
             fire->generateBernsteinPAlpha();
 
-            //Color
+            // Color
             fire->doColorOverLF(true);
             fire->doBlendBrightness(true);
             ImGradient gradient; // WILL not change UI
@@ -6011,7 +6011,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             gradient.addMark(1.0f, ImColor(255, 255, 255));
             fire->colorArr(gradient.cachedValues());
 
-            //Acceleration
+            // Acceleration
             fire->doAcceleration(true);
             fire->doAccDiffDir(true);
             fire->acceleration(0.0f, 0.02f, 0.0f);
@@ -6037,7 +6037,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             flame->col(8);
             flame->row(4);
             flame->doFlipBookTexture(true);
-            flame->doCounterGap(false); //We don't want to have flickering
+            flame->doCounterGap(false); // We don't want to have flickering
             flame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
             flame->doAlphaOverL(false);
             flame->doSizeOverLF(false);
@@ -6049,12 +6049,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
             flame->scale(1.2);
             flame->billboardType(BT_Vertical);
 
-            //Color
+            // Color
             flame->doColor(true);
             flame->color(SLCol4f(0.52f, 0.47f, 0.32f, 1.0f));
             flame->doBlendBrightness(true);
 
-            //Size
+            // Size
             flame->doSizeOverLFCurve(true);
             float sizeCPArrayFl[4] = {0.0f, 1.25f, 0.0f, 1.0f};
             flame->bezierControlPointSize(sizeCPArrayFl);
@@ -6085,7 +6085,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             glow->doSizeOverLF(true);
             glow->doAlphaOverL(true);
 
-            //Size
+            // Size
             glow->doSizeOverLFCurve(true);
             float sizeCPArrayGl[4] = {0.0f, 1.5f, 1.0f, 1.5f};
             glow->bezierControlPointSize(sizeCPArrayGl);
@@ -6112,9 +6112,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                             texFlipbook);
 
             smokeB->doColor(false);
-            //smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
+            // smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
 
-            //Size
+            // Size
             smokeB->doSizeOverLF(true);
             smokeB->doSizeOverLFCurve(true);
             float sizeCPArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
@@ -6123,7 +6123,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             smokeB->bezierStartEndPointSize(sizeSEArraySB);
             smokeB->generateBernsteinPSize();
 
-            //Alpha
+            // Alpha
             smokeB->doAlphaOverL(true);
             smokeB->doAlphaOverLCurve(true);
             float alphaCPArraySB[4] = {0.0f, 0.4f, 1.0f, 0.4f};
@@ -6157,9 +6157,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                             texFlipbook);
 
             smokeW->doColor(false);
-            //smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
+            // smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
 
-            //Size
+            // Size
             smokeW->doSizeOverLF(true);
             smokeW->doSizeOverLFCurve(true);
             float sizeCPArraySW[4] = {0.0f, 0.5f, 1.0f, 2.0f};
@@ -6168,7 +6168,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             smokeW->bezierStartEndPointSize(sizeSEArraySW);
             smokeW->generateBernsteinPSize();
 
-            //Alpha
+            // Alpha
             smokeW->doAlphaOverL(true);
             smokeW->doAlphaOverLCurve(true);
             float alphaCPArraySW[4] = {0.0f, 0.018f, 1.0f, 0.018f};
@@ -6202,7 +6202,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                              texFlipbook);
             sparksF->scale(0.05f);
 
-            //Color
+            // Color
             sparksF->doColor(true);
             sparksF->doColorOverLF(true);
             sparksF->doBlendBrightness(true);
@@ -6213,31 +6213,31 @@ resolution shadows near the camera and lower resolution shadows further away.");
             gradientSparks.addMark(1.0f, ImColor(255, 255, 255));
             sparksF->colorArr(gradientSparks.cachedValues());
 
-            //Size
+            // Size
             sparksF->doSizeOverLF(false);
 
-            //Alpha
+            // Alpha
             sparksF->doAlphaOverL(false);
 
-            //Gravity
+            // Gravity
             sparksF->doGravity(true);
 
             SLMesh* sparksFMesh = sparksF;
             SLNode* sparksFNode = new SLNode(sparksFMesh, "Particle system node sparks falling");
             nodes[i]->addChild(sparksFNode);
 
-            //Translation of fire complex node
+            // Translation of fire complex node
             nodes[i]->translate(-20.0 + (float)(i % 20) * 2, 0.0f, -(float)((i - (i % 20)) / 20) * 4, TS_object);
         }
 
-        //for (int i = 0; i < NUM_NODES; ++i) // Pause all the particle system 
+        // for (int i = 0; i < NUM_NODES; ++i) // Pause all the particle system
         //{
-        //    for (SLNode* n : nodes[i]->children()) {
-        //        SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(n->mesh());
-        //        if (tempPS)
-        //            tempPS->pauseOrResume();
-        //    }
-        //}
+        //     for (SLNode* n : nodes[i]->children()) {
+        //         SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(n->mesh());
+        //         if (tempPS)
+        //             tempPS->pauseOrResume();
+        //     }
+        // }
 
         for (int i = 0; i < NUM_NODES; ++i)
         {
@@ -6248,7 +6248,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false);
         s->root3D(root);
     }
-    else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //............................................
+    else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
     {
         s->name("Particle System number Scene");
         s->info(s->name());
@@ -6285,27 +6285,27 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doRotation(false);
         ps->doShape(true);
         ps->shapeType(1);
-        ps->scaleBox(100.0f,100.0f,100.0f);
+        ps->scaleBox(100.0f, 100.0f, 100.0f);
         ps->doDirectionSpeed(true);
         ps->doBlendBrightness(true);
         ps->doColor(true);
-        ps->color(SLCol4f(0.875f, 0.156f, 0.875f,1.0f));
+        ps->color(SLCol4f(0.875f, 0.156f, 0.875f, 1.0f));
         ps->speed(0.0f);
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         root->addChild(pSNode);
 
-        //SLVMesh meshes(NUM_MESH);
-        //for (int i = 0; i < NUM_MESH; ++i)
+        // SLVMesh meshes(NUM_MESH);
+        // for (int i = 0; i < NUM_MESH; ++i)
         //{
-        //    SLstring meshName = "mesh-" + std::to_string(i);
-        //    meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
-        //}
+        //     SLstring meshName = "mesh-" + std::to_string(i);
+        //     meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
+        // }
 
         //// Create universe
-        //SLuint const levels     = 6;
-        //SLuint const childCount = 8;
-        //generateUniverse(am, s, root, levels, childCount, materials, meshes);
+        // SLuint const levels     = 6;
+        // SLuint const childCount = 8;
+        // generateUniverse(am, s, root, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
@@ -6324,18 +6324,22 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
         SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
-        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
-        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
-        light1->translation(0, -1, 2);
+        light1->translation(5, 5, 5);
         light1->name("light node");
         scene->addChild(light1);
 
+        // Create and add camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 1.5f, 4);
+        cam1->lookAt(0, 1.5f, 0);
+        scene->addChild(cam1);
+
         // Create meshes and nodes
         SLParticleSystem* ps     = new SLParticleSystem(am,
-                                                    500,
+                                                    50,
                                                     SLVec3f(0, 0.5, 0),
                                                     SLVec3f(0.04f, 0.4f, 0.1f),
                                                     SLVec3f(-0.11f, 0.7f, -0.1f),
@@ -6343,8 +6347,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texC,
                                                     "Particle System",
                                                     texFlipbook);
-        SLMesh*           pSMesh = ps;
-        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
+        SLNode*           pSNode = new SLNode(ps, "Particle system node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node
@@ -6353,6 +6356,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // pass the scene group as root node
         s->root3D(scene);
+
+        sv->camera(cam1);
 
         // Save energy
         sv->doWaitOnIdle(false);
@@ -6495,7 +6500,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_DustStorm) //.........................................
+    else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
     {
         // Set scene name and info string
         s->name("Dust storm particle system");
@@ -6551,7 +6556,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_Fountain) //...............................................
+    else if (sceneID == SID_ParticleSystem_Fountain) //............................................
     {
         // Set scene name and info string
         s->name("Fountain particle system");
@@ -6600,7 +6605,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_Sun) //...............................................
+    else if (sceneID == SID_ParticleSystem_Sun) //.................................................
     {
         // Set scene name and info string
         s->name("Sun particle system");
@@ -6646,7 +6651,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_FireComplex) //...............................................
+    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
     {
         // Set scene name and info string
         s->name("Fire Complex particle system");
@@ -6980,7 +6985,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_RingOfFire) //...............................................
+    else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
     {
         // Set scene name and info string
         s->name("Ring of fire particle system");
