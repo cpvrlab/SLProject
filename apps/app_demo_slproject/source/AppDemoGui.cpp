@@ -3791,7 +3791,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
                     else if (m->reflectionModel() == RM_Particle)
                     {
-                        if (ImGui::TreeNode("Reflection Model: Particle"))
+                        if (ImGui::TreeNode("Particle System, Config"))
                         {
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
@@ -3816,6 +3816,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             int amount = ps->amount();
                             if (ImGui::InputInt("Amount of particles", &amount))
                             {
+                                if (amount <= 0)
+                                    amount = 1;
                                 ps->amount(amount);
                                 ps->isGenerated(false);
                             }
@@ -4065,28 +4067,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
-
-                            // Tree (Fractal)
-                            SLbool tree_group = ps->doTree();
-                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &tree_group))
-                            {
-                                ps->doTree(tree_group);
-                                m->programTF(nullptr);
-                            }
-                            if (ImGui::CollapsingHeader("Tree param", &tree_group))
-                            {
-                                float angle = ps->angle();
-                                if (ImGui::InputFloat("Angle of branches", &angle))
-                                {
-                                    ps->angle(angle);
-                                }
-                                int numBranch = ps->numBranch();
-                                if (ImGui::InputInt("Number of branches", &numBranch))
-                                {
-                                    ps->numBranch((int)angle);
-                                }
-                            }
-
                             // Rotation
                             SLbool rot_group = ps->doRotation();
                             if (ImGui::Checkbox("Rotation", &rot_group))
@@ -4385,17 +4365,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ps->textureFlipbook() == nullptr)
                                 ImGui::EndDisabled();
-
-                            // Size random (not done yet)
-                            SLbool doSizeRandom_group = ps->doSizeRandom();
-                            if (ImGui::Checkbox("Size random (NOT DONE)", &doSizeRandom_group))
-                                ps->doSizeRandom(doSizeRandom_group);
-                            if (ImGui::CollapsingHeader("Size random", &doSizeRandom_group))
-                            {
-                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
-                                for (int i = 0; i < 5; i++)
-                                    ImGui::Text("More content %d", i);
-                            }
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();

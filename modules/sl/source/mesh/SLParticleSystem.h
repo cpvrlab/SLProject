@@ -64,15 +64,12 @@ public:
     float*          bezierControlPointSize() { return _bezierControlPointSize; }
     float*          bezierStartEndPointSize() { return _bezierStartEndPointSize; }
     SLCol4f         color() { return _color; }
-    SLbool          doTree() { return _doTree; }
     SLbool          doDirectionSpeed() { return _doDirectionSpeed; }
     SLbool          doSpeedRange() { return _doSpeedRange; }
     SLbool          isGenerated() { return _isGenerated; }
     SLbool          isPaused() { return _isPaused; }
     SLbool          doBlendBrightness() { return _doBlendBrightness; }
-    SLfloat         angle() { return _angle; }
     SLfloat         accelerationConst() { return _accelerationConst; }
-    SLint           numBranch() { return _numBranch; }
     SLbool          doWorldSpace() { return _doWorldSpace; }
     SLbool          doGravity() { return _doGravity; }
     SLbool          doCounterGap() { return _doCounterGap; }
@@ -82,7 +79,6 @@ public:
     SLbool          doFlipBookTexture() { return _doFlipBookTexture; }
     SLbool          doSizeOverLF() { return _doSizeOverLF; }
     SLbool          doSizeOverLFCurve() { return _doSizeOverLFCurve; }
-    SLbool          doSizeRandom() { return _doSizeRandom; }
     SLbool          doColor() { return _doColor; }
     SLbool          doShape() { return _doShape; }
     SLbool          doShapeSurface() { return _doShapeSurface; }
@@ -199,7 +195,6 @@ public:
     void color(SLCol4f c) { _color = c; }
     void isGenerated(SLbool b) { _isGenerated = b; }
     void doBlendBrightness(SLbool b) { _doBlendBrightness = b; }
-    void angle(SLfloat f) { _angle = f; }
     void accConst(SLfloat f) { _accelerationConst = f; }
     void velocityConst(SLVec3f v) { _velocityConst = v; }
     void velocityConst(SLfloat vX, SLfloat vY, SLfloat vZ)
@@ -208,8 +203,6 @@ public:
         _velocityConst.y = vY;
         _velocityConst.z = vZ;
     }
-    void numBranch(SLint i) { _numBranch = i; }
-    void doTree(SLbool b) { _doTree = b; }
     void doDirectionSpeed(SLbool b) { _doDirectionSpeed = b; }
     void doSpeedRange(SLbool b) { _doSpeedRange = b; }
     void doWorldSpace(SLbool b) { _doWorldSpace = b; }
@@ -221,7 +214,6 @@ public:
     void doFlipBookTexture(SLbool b) { _doFlipBookTexture = b; }
     void doSizeOverLF(SLbool b) { _doSizeOverLF = b; }
     void doSizeOverLFCurve(SLbool b) { _doSizeOverLFCurve = b; }
-    void doSizeRandom(SLbool b) { _doSizeRandom = b; }
     void doColor(SLbool b) { _doColor = b; }
     void doShape(SLbool b) { _doShape = b; }
     void doShapeSurface(SLbool b) { _doShapeSurface = b; }
@@ -306,9 +298,6 @@ private:
     SLCol4f _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
     SLfloat _colorArr[256 * 3];                         //!< Color values of color gradient widget
 
-    // Tree
-    SLfloat _angle     = 30.0f; //!< Angle of branches (for tree fractal)
-    SLint   _numBranch = 4;     //!< Number of branches (for tree fractal)
 
     // Int (but boolean) to switch buffer
     int _drawBuf = 0; //!< Boolean to switch buffer
@@ -371,7 +360,6 @@ private:
 
     // Boolean for features
     SLbool _doBlendBrightness = false; //!< Blending for glow/brightness on pixel with many particle
-    SLbool _doTree            = false; //!< Boolean for doTree fractal
     SLbool _doDirectionSpeed  = false; //!< Boolean for direction and speed (override velocity)
     SLbool _doSpeedRange      = false; //!< Boolean for speed range
     SLbool _doCounterGap      = true;  //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
@@ -392,7 +380,6 @@ private:
     SLbool _doSizeOverLF      = true;  //!< Boolean for size over life time
     SLbool _doSizeOverLFCurve = false; //!< Boolean for size over life time curve
     SLbool _doFlipBookTexture = false; //!< Boolean for flipbook texture
-    SLbool _doSizeRandom      = false; //!< Boolean for size over life time
 };
 //-----------------------------------------------------------------------------
 #endif
