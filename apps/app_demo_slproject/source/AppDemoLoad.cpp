@@ -457,21 +457,7 @@ void appDemoLoadScene(SLAssetManager* am,
 {
     PROFILE_FUNCTION();
 
-    /*
-    // Test code for SLNodeDOD
-    SLVNodeDOD nodes;
-    SLNodeDOD::addChild(nodes,-1,SLNodeDOD()); // Root node
-    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,2,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,2,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,0,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,1,SLNodeDOD());
-    SLNodeDOD::addChild(nodes,5,SLNodeDOD());
-    SLNodeDOD::dump(nodes, false);
-    SLNodeDOD::dump(nodes, true);
-    */
+    //SLNodeDOD::test();
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 

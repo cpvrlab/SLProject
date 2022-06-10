@@ -23,7 +23,7 @@ typedef vector<SLNodeDOD> SLVNodeDOD;
 //-----------------------------------------------------------------------------
 //! SLNodeDOD is the Data Oriented Design version of a SLNode
 /* The intension of this struct is to be an entity for a tightly packed vector
- * without pointers for the parent-child relation.
+ without pointers for the parent-child relation.
  */
 struct SLNodeDOD
 {
@@ -33,12 +33,24 @@ struct SLNodeDOD
         childCount(0) {}
 
     //! Adds a child into the vector nodes right after its parent
-    static void addChild(SLVNodeDOD& nodes,
+    static void addChild(SLVNodeDOD& scenegraph,
                          SLint       myParentID,
                          SLNodeDOD   node);
 
+    //! Deletes a node at index id with all its children
+    static void deleteNode(SLVNodeDOD& scenegraph, SLint id);
+
+    //! Returns the pointer to a node if id is valid else a nullptr
+    static SLNodeDOD* getNode(SLVNodeDOD& scenegraph, SLint id);
+
+    //! Returns the pointer to the parent of a node if id is valid else a nullptr
+    static SLNodeDOD* getParent(SLVNodeDOD& scenegraph, SLint id);
+
     //! Dump scenegraph as a flat vector or as a tree
-    static void dump(SLVNodeDOD& nodes, SLbool doTreeDump);
+    static void dump(SLVNodeDOD& scenegraph, SLbool doTreeDump);
+
+    //! test operations on SLNodeDOD
+    static void test();
 
     SLint   parentID;   //!< ID of the parent node (-1 of no parent)
     SLuint  childCount; //!< Number of children
@@ -46,34 +58,62 @@ struct SLNodeDOD
     SLMat4f wm;         //!< World matrix for world transform
     SLMat4f wmI;        //!< Inverse world matrix
     SLMesh* mesh;       //!< Pointer to the mesh if any
-
 };
 //-----------------------------------------------------------------------------
+/*! Returns the pointer to the node at id
+ @param scenegraph The scenegraph as a SLNodeDOD vector
+ @param id The index of the node to return as a pointer
+ @return The pointer of the node at id
+ */
+SLNodeDOD* SLNodeDOD::getNode(SLVNodeDOD& scenegraph, SLint id)
+{
+    if (id >= 0 && id < scenegraph.size())
+        return &scenegraph[id];
+    else
+        return nullptr;
+}
+//-----------------------------------------------------------------------------
+/*! Returns the pointer to the parent of the node at id
+ @param scenegraph The scenegraph as a SLNodeDOD vector
+ @param id The index of the node in the scenegraph vector
+ @return The pointer of the parent of the node at id
+ */
+SLNodeDOD* SLNodeDOD::getParent(SLVNodeDOD& scenegraph, SLint id)
+{
+    if (id >= 1 && id < scenegraph.size())
+        return &scenegraph[scenegraph[id].parentID];
+    else
+        return nullptr;
+}
+//-----------------------------------------------------------------------------
 /*! Prints the scenegraph vector flat or as hierarchical tree as follows:
-Pattern: ID.Parent.childCount
-Example from SLNodeDOD::addChild:
+ @param scenegraph The scenegraph as a node vector
+ @param doTreeDump Flag if dump as a tree or flat
 
-00.-1.04
-+--01.00.01
-|  +--02.01.00
-+--03.00.00
-+--04.00.02
-|  +--05.04.00
-|  +--06.04.00
-+--07.00.00
-*/
-void SLNodeDOD::dump(SLVNodeDOD& nodes, SLbool doTreeDump)
+ Pattern: ID.Parent.childCount
+ Example from SLNodeDOD::addChild:
+
+ 00.-1.04
+ +--01.00.01
+ |  +--02.01.00
+ +--03.00.00
+ +--04.00.02
+ |  +--05.04.00
+ |  +--06.04.00
+ +--07.00.00
+ */
+void SLNodeDOD::dump(SLVNodeDOD& scenegraph, SLbool doTreeDump)
 {
     if (doTreeDump)
     {
         SLuint depth        = 0;
-        SLint lastParentID = -1;
+        SLint  lastParentID = -1;
 
-        for (SLuint i = 0; i < nodes.size(); ++i)
+        for (SLuint i = 0; i < scenegraph.size(); ++i)
         {
-            if (nodes[i].parentID > lastParentID)
+            if (scenegraph[i].parentID > lastParentID)
                 depth++;
-            else if (nodes[i].parentID < lastParentID)
+            else if (scenegraph[i].parentID < lastParentID)
                 depth--;
 
             string tabs;
@@ -85,35 +125,40 @@ void SLNodeDOD::dump(SLVNodeDOD& nodes, SLbool doTreeDump)
 
             printf("%02u.%02d.%02u\n",
                    i,
-                   nodes[i].parentID,
-                   nodes[i].childCount);
+                   scenegraph[i].parentID,
+                   scenegraph[i].childCount);
 
-            lastParentID = nodes[i].parentID;
+            lastParentID = scenegraph[i].parentID;
         }
+        cout << endl;
     }
     else
     {
-        for (SLuint i = 0; i < nodes.size(); ++i)
+        for (SLuint i = 0; i < scenegraph.size(); ++i)
             printf("|  %02u  ", i);
         cout << "|" << endl;
 
-        for (SLuint i = 0; i < nodes.size(); ++i)
+        for (SLuint i = 0; i < scenegraph.size(); ++i)
             cout << "-------";
         cout << "-" << endl;
 
-        for (SLuint i = 0; i < nodes.size(); ++i)
-            if (nodes[i].parentID == -1)
-                printf("|-1  %02u", nodes[i].childCount);
+        for (SLuint i = 0; i < scenegraph.size(); ++i)
+            if (scenegraph[i].parentID == -1)
+                printf("|-1  %02u", scenegraph[i].childCount);
             else
-                printf("|%02u  %02u", nodes[i].parentID, nodes[i].childCount);
+                printf("|%02u  %02u", scenegraph[i].parentID, scenegraph[i].childCount);
         cout << "|" << endl;
     }
+    cout << endl;
 }
 //-----------------------------------------------------------------------------
-/*!
- addChild adds a child node by inserting an SLNodeDOD into a vector in
+/*! addChild adds a child node by inserting an SLNodeDOD into a vector in
  Depth First Search order. The root node gets the parent ID -1.
  The child is inserted right after the parent node.
+ @param scenegraph The scenegraph as a vector
+ @param myParentID Index of the parent node
+ @param node The node to add as child of the parent
+
  Legend: The * shows the updated fields
          The ------ shows the inserted node
 
@@ -157,11 +202,76 @@ void SLNodeDOD::addChild(SLVNodeDOD& scenegraph,
         scenegraph.insert(scenegraph.begin() + myParentID + 1, node);
         scenegraph[myParentID].childCount++;
 
-        // Increase parentIDs of following subtrees
+        // Increase parentIDs of following subtrees that are greater
         for (SLuint i = myParentID + 2; i < scenegraph.size(); i++)
             if (scenegraph[i].parentID > myParentID)
                 scenegraph[i].parentID++;
     }
+}
+//-----------------------------------------------------------------------------
+/*! Deletes a node at index id with all with all children
+ @param scenegraph The scenegraph as a SLNodeDOD vector
+ @param id Index of node to delete
+ */
+void SLNodeDOD::deleteNode(SLVNodeDOD& scenegraph, SLint id)
+{
+    assert(id <= scenegraph.size() &&
+           id >= 0 &&
+           "Invalid id");
+
+    if (id == 0)
+        scenegraph.clear();
+    else
+    {
+        // Find the next child with the same parentID
+        SLuint toID;
+        SLint  myParentID = scenegraph[id].parentID;
+        for (toID = id + 1; toID < scenegraph.size(); toID++)
+            if (scenegraph[toID].parentID == myParentID)
+                break;
+
+        // Erase the elements in the vector
+        scenegraph.erase(scenegraph.begin() + id, scenegraph.begin() + toID);
+        scenegraph[myParentID].childCount--;
+
+        // Decrease parentIDs of following subtrees that are greater
+        SLuint numNodesToErase = toID - id;
+        for (SLuint i = id; i < scenegraph.size(); i++)
+            if (scenegraph[i].parentID > myParentID)
+                scenegraph[i].parentID = scenegraph[i].parentID - numNodesToErase;
+    }
+}
+//-----------------------------------------------------------------------------
+void SLNodeDOD::test()
+{
+    SLVNodeDOD nodes;
+    SLNodeDOD::addChild(nodes, 0, SLNodeDOD()); // Root node
+    SLNodeDOD::addChild(nodes, 0, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 0, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 0, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 2, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 2, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 0, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 1, SLNodeDOD());
+    SLNodeDOD::addChild(nodes, 5, SLNodeDOD());
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
+
+    SLNodeDOD::deleteNode(nodes, 1);
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
+
+    SLNodeDOD::deleteNode(nodes, 6);
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
+
+    SLNodeDOD::deleteNode(nodes, 2);
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
+
+    SLNodeDOD::deleteNode(nodes, 0);
+    SLNodeDOD::dump(nodes, false);
+    SLNodeDOD::dump(nodes, true);
 }
 //-----------------------------------------------------------------------------
 #endif // SLNODEDOD_H
