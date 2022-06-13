@@ -37,7 +37,8 @@ SLScene::SLScene(const SLstring& name,
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
-    _updateAnimTimesMS(60, 0.0f)
+    _updateAnimTimesMS(60, 0.0f),
+    _updateDODTimesMS(60, 0.0f)
 {
     onLoad = onSceneLoadCallback;
 
@@ -88,6 +89,7 @@ void SLScene::init(SLAssetManager* am)
     _updateTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
+    _updateDODTimesMS.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -193,6 +195,16 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     if (_root2D)
         _root2D->updateAABBRec(renderTypeIsRT);
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
+
+#ifdef SL_TEST_SCENE_DOD
+    SLfloat startDODUpdateMS = GlobalTimer::timeMS();
+    if (sceneDOD.size())
+    {
+        SLMat4f root;
+        sceneDOD.updateWM(0, root);
+    }
+    _updateDODTimesMS.set(GlobalTimer::timeMS() - startDODUpdateMS);
+#endif
 
     // Finish total updateRec time
     SLfloat updateTimeMS = GlobalTimer::timeMS() - startUpdateMS;
@@ -338,7 +350,7 @@ void SLScene::deselectAllNodesAndMeshes()
 SLint SLScene::numSceneCameras()
 {
     if (!_root3D) return 0;
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    deque<SLCamera*> cams = _root3D->findChildren<SLCamera>();
     return (SLint)cams.size();
 }
 //-----------------------------------------------------------------------------
@@ -347,7 +359,7 @@ SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
 {
     if (!_root3D) return nullptr;
 
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    deque<SLCamera*> cams = _root3D->findChildren<SLCamera>();
 
     if (cams.empty()) return nullptr;
     if (cams.size() == 1) return cams[0];

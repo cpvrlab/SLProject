@@ -57,6 +57,8 @@ file(GLOB sources
         source/SLObject.h
         source/SLScene.cpp
         source/SLScene.h
+        source/SLSceneDOD.cpp
+        source/SLSceneDOD.h
         source/SLSceneView.cpp
         source/SLSceneView.h
         source/SLShadowMap.cpp
@@ -226,8 +228,6 @@ file(GLOB sources
         source/node/SLLightSpot.h
         source/node/SLNode.cpp
         source/node/SLNode.h
-        source/node/SLNodeDOD.cpp
-        source/node/SLNodeDOD.h
         source/node/SLNodeLOD.cpp
         source/node/SLNodeLOD.h
         source/node/SLSkybox.cpp

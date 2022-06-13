@@ -386,6 +386,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                     SLfloat updateAABBTime = s->updateAABBTimesMS().average();
+                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -401,6 +402,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
@@ -421,6 +423,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     {
                         sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
                         sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                        sprintf(m + strlen(m), "  DOD      : %5.1f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
                     }
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {

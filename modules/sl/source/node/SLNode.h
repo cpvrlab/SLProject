@@ -15,6 +15,9 @@
 #include <SLEventHandler.h>
 #include <SLMesh.h>
 #include <SLQuat4.h>
+#include <deque>
+
+using std::deque;
 
 class SLSceneView;
 class SLRay;
@@ -24,7 +27,7 @@ class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typedef for a vector of SLNodes
-typedef vector<SLNode*> SLVNode;
+typedef deque<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
 /*! The SLNodeStats struct holds some statistics that are set in the recursive
@@ -180,13 +183,13 @@ public:
     T* findChild(const SLstring& name          = "",
                  SLbool          findRecursive = true);
     template<typename T>
-    vector<T*>      findChildren(const SLstring& name          = "",
-                                 SLbool          findRecursive = true,
-                                 SLbool          canContain    = false);
-    vector<SLNode*> findChildren(const SLMesh* mesh,
-                                 SLbool        findRecursive = true);
-    vector<SLNode*> findChildren(SLuint drawbit,
-                                 SLbool findRecursive = true);
+    deque<T*>      findChildren(const SLstring& name          = "",
+                                SLbool          findRecursive = true,
+                                SLbool          canContain    = false);
+    deque<SLNode*> findChildren(const SLMesh* mesh,
+                                SLbool        findRecursive = true);
+    deque<SLNode*> findChildren(SLuint drawbit,
+                                SLbool findRecursive = true);
 
     // local direction getter functions
     SLVec3f translationOS() const;
@@ -312,15 +315,15 @@ private:
     void updateWM() const;
     template<typename T>
     void findChildrenHelper(const SLstring& name,
-                            vector<T*>&     list,
+                            deque<T*>&      list,
                             SLbool          findRecursive,
                             SLbool          canContain = false);
-    void findChildrenHelper(const SLMesh*    mesh,
-                            vector<SLNode*>& list,
-                            SLbool           findRecursive);
-    void findChildrenHelper(SLuint           drawbit,
-                            vector<SLNode*>& list,
-                            SLbool           findRecursive);
+    void findChildrenHelper(const SLMesh*   mesh,
+                            deque<SLNode*>& list,
+                            SLbool          findRecursive);
+    void findChildrenHelper(SLuint          drawbit,
+                            deque<SLNode*>& list,
+                            SLbool          findRecursive);
 
 protected:
     SLNode* _parent;   //!< pointer to the parent node
@@ -392,12 +395,12 @@ SLNode::findChildren<T> finds a list of all children that are of type T or
 subclasses of T. If a name is specified only nodes with that name are included.
 */
 template<typename T>
-vector<T*>
+deque<T*>
 SLNode::findChildren(const SLstring& name,
                      SLbool          findRecursive,
                      SLbool          canContain)
 {
-    vector<T*> list;
+    deque<T*> list;
     findChildrenHelper<T>(name, list, findRecursive);
     return list;
 }
@@ -409,7 +412,7 @@ It appends all newly found children to 'list'.
 */
 template<typename T>
 void SLNode::findChildrenHelper(const SLstring& name,
-                                vector<T*>&     list,
+                                deque<T*>&      list,
                                 SLbool          findRecursive,
                                 SLbool          canContain)
 {

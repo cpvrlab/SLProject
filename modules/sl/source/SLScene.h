@@ -19,6 +19,7 @@
 #include <SLGLOculus.h>
 #include <SLLight.h>
 #include <SLMesh.h>
+#include <SLSceneDOD.h>
 
 class SLCamera;
 class SLSkybox;
@@ -80,6 +81,7 @@ public:
     AvgFloat&        updateTimesMS() { return _updateTimesMS; }
     AvgFloat&        updateAnimTimesMS() { return _updateAnimTimesMS; }
     AvgFloat&        updateAABBTimesMS() { return _updateAABBTimesMS; }
+    AvgFloat&        updateDODTimesMS() { return _updateDODTimesMS; }
 
     //! Returns the node if only one is selected. See also SLMesh::selectNodeMesh
     SLNode* singleNodeSelected() { return _selectedNodes.size() == 1 ? _selectedNodes[0] : nullptr; }
@@ -109,6 +111,10 @@ public:
 
     SLGLOculus* oculus() { return _oculus.get(); }
 
+#ifdef SL_TEST_SCENE_DOD
+    SLSceneDOD sceneDOD;
+#endif
+
 protected:
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
@@ -132,6 +138,7 @@ protected:
     AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
     AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
+    AvgFloat _updateDODTimesMS;  //!< Averaged time for update the SLSceneDOD graph
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 

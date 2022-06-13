@@ -179,7 +179,7 @@ void SLNode::addChild(SLNode* child)
     assert(this != child && "You can not add the node to itself.");
     assert(!child->parent() && "The child has already a parent.");
 
-    _children.push_back(child);
+    _children.push_front(child);
     _isAABBUpToDate = false;
     child->parent(this);
 }
@@ -261,11 +261,11 @@ bool SLNode::deleteChild(const SLstring& name)
 /*!
 Searches for all nodes that contain the provided mesh
 */
-vector<SLNode*>
+std::deque<SLNode*>
 SLNode::findChildren(const SLMesh* mesh,
                      SLbool        findRecursive)
 {
-    vector<SLNode*> list;
+    std::deque<SLNode*> list;
     findChildrenHelper(mesh, list, findRecursive);
 
     return list;
@@ -274,9 +274,9 @@ SLNode::findChildren(const SLMesh* mesh,
 /*!
 Helper function of findChildren for the passed mesh pointer
 */
-void SLNode::findChildrenHelper(const SLMesh*    mesh,
-                                vector<SLNode*>& list,
-                                SLbool           findRecursive)
+void SLNode::findChildrenHelper(const SLMesh*   mesh,
+                                deque<SLNode*>& list,
+                                SLbool          findRecursive)
 {
     for (auto* child : _children)
     {
@@ -290,22 +290,21 @@ void SLNode::findChildrenHelper(const SLMesh*    mesh,
 /*!
 Searches for all nodes that contain the provided mesh
 */
-vector<SLNode*>
+deque<SLNode*>
 SLNode::findChildren(const SLuint drawbit,
                      SLbool       findRecursive)
 {
-    vector<SLNode*> list;
+    deque<SLNode*> list;
     findChildrenHelper(drawbit, list, findRecursive);
-
     return list;
 }
 //-----------------------------------------------------------------------------
 /*!
 Helper function of findChildren for passed drawing bit
 */
-void SLNode::findChildrenHelper(const SLuint     drawbit,
-                                vector<SLNode*>& list,
-                                SLbool           findRecursive)
+void SLNode::findChildrenHelper(const SLuint    drawbit,
+                                deque<SLNode*>& list,
+                                SLbool          findRecursive)
 {
     for (auto* child : _children)
     {

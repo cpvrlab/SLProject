@@ -48,7 +48,7 @@
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 #include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
-#include <SLNodeDOD.h>
+#include <SLSceneDOD.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -334,6 +334,7 @@ SLNode* BuildFigureGroup(SLAssetManager* am,
 void addUniverseLevel(SLAssetManager* am,
                       SLScene*        s,
                       SLNode*         parent,
+                      SLint           parentID,
                       SLuint          currentLevel,
                       SLuint          levels,
                       SLuint          childCount,
@@ -341,20 +342,12 @@ void addUniverseLevel(SLAssetManager* am,
                       SLVMesh&        meshes,
                       SLuint&         numNodes)
 {
-    if (currentLevel >= levels) return;
+    if (currentLevel >= levels)
+        return;
 
     const float degPerChild = 360.0f / childCount;
     SLuint      mod         = currentLevel % 3;
 
-    /*
-    SLVec3f trans;
-    if (mod == 0)
-        trans.set(1.0f, 0.0f, 0.0f);
-    else if (mod == 1)
-        trans.set(0.0f, 1.0f, 0.0f);
-    else if (mod == 2)
-        trans.set(0.0f, 0.0f, 1.0f);
-    */
     float scaleFactor = 0.25f;
 
     for (SLuint i = 0; i < childCount; i++)
@@ -364,17 +357,6 @@ void addUniverseLevel(SLAssetManager* am,
                            "-L" + std::to_string(currentLevel) +
                            "-C" + std::to_string(i);
         SLNode* child = new SLNode(meshes[numNodes % meshes.size()], childName);
-
-        /*
-        SLQuat4f quat;
-        float    angleRAD = Utils::DEG2RAD * i * degPerChild;
-        if (mod == 0)
-            quat.fromEulerAngles(0.0f, angleRAD, 0.0f);
-        else if (mod == 1)
-            quat.fromEulerAngles(angleRAD, 0.0f, 0.0f);
-        else if (mod == 2)
-            quat.fromEulerAngles(0.0f, 0.0f, angleRAD);
-        */
 
         child->rotate(i * degPerChild, 0, 0, 1);
         child->translate(2, 0, 0);
@@ -391,9 +373,17 @@ void addUniverseLevel(SLAssetManager* am,
 
         parent->addChild(child);
 
+        SLint childID = parentID;
+#ifdef SL_TEST_SCENE_DOD
+        childID = s->sceneDOD.addChild(parentID,
+                                       SLNodeDOD(child,
+                                                 child->mesh()));
+#endif
+
         addUniverseLevel(am,
                          s,
                          child,
+                         childID,
                          currentLevel + 1,
                          levels,
                          childCount,
@@ -407,6 +397,7 @@ void addUniverseLevel(SLAssetManager* am,
 void generateUniverse(SLAssetManager* am,
                       SLScene*        s,
                       SLNode*         parent,
+                      SLint           parentID,
                       SLuint          levels,
                       SLuint          childCount,
                       SLVMaterial&    materials,
@@ -427,11 +418,17 @@ void generateUniverse(SLAssetManager* am,
     lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
     parent->addChild(light);
 
+    SLint childID = parentID;
+#ifdef SL_TEST_SCENE_DOD
+    childID = s->sceneDOD.addChild(parentID, SLNodeDOD(light, light->mesh()));
+#endif
+
     SLuint numNodes = 1;
 
     addUniverseLevel(am,
                      s,
                      light,
+                     childID,
                      1,
                      levels,
                      childCount,
@@ -457,7 +454,9 @@ void appDemoLoadScene(SLAssetManager* am,
 {
     PROFILE_FUNCTION();
 
-    //SLNodeDOD::test();
+#ifdef SL_TEST_SCENE_DOD
+    //s->sceneDOD.test();
+#endif
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
@@ -5864,8 +5863,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
-        cam1->translation(0, 0, 100);
-        cam1->focalDist(100);
+        cam1->translation(0, 0, 75);
+        cam1->focalDist(75);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
@@ -5873,6 +5872,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Root scene node
         SLNode* root = new SLNode;
         root->addChild(cam1);
+
+#ifdef SL_TEST_SCENE_DOD
+        s->sceneDOD.addChild(0, SLNodeDOD(root));
+        s->sceneDOD.addChild(0, SLNodeDOD(cam1));
+#endif
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
@@ -5915,11 +5919,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create universe
         SLuint const levels     = 6;
         SLuint const childCount = 8;
-        generateUniverse(am, s, root, levels, childCount, materials, meshes);
+        generateUniverse(am, s, root, 0, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
         s->root3D(root);
+
+#ifdef SL_TEST_SCENE_DOD
+        s->sceneDOD.dump(true);
+#endif
     }
     else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
     {
