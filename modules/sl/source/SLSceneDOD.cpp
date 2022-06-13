@@ -45,13 +45,16 @@ void SLSceneDOD::updateWM(SLint id, SLMat4f& parentWM)
 {
     SLNodeDOD* nodeDOD = getNode(id);
 
-    nodeDOD->wm.setMatrix(nodeDOD->om * parentWM);
+    nodeDOD->om = nodeDOD->node->om();
+    SLMat4f nodeWM = nodeDOD->node->updateAndGetWM();
+
+    nodeDOD->wm.setMatrix(parentWM * nodeDOD->om);
     nodeDOD->wmI.setMatrix(nodeDOD->wm.inverted());
 
-    if (!nodeDOD->wm.isEqual(nodeDOD->node->updateAndGetWM()))
+    if (!nodeDOD->wm.isEqual(nodeWM))
     {
         nodeDOD->wm.print("wmDOD:");
-        nodeDOD->node->updateAndGetWM().print("node.wm:");
+        nodeDOD->node->updateAndGetWM().print("nodeWM:");
     }
 
     for(SLint i = 0; i < nodeDOD->childCount; ++i)
@@ -162,15 +165,15 @@ SLint SLSceneDOD::addChild(SLint     myParentID,
            myParentID >= -1 &&
            "Invalid parentID");
 
+    if(nodeDOD.node)
+        nodeDOD.om = nodeDOD.node->om();
+
     if (_graph.empty())
     {
         // Root node and ignore myParentID
         _graph.push_back(nodeDOD);
         _graph[0].parentID   = -1;
         _graph[0].childCount = 0;
-
-        if(nodeDOD.node)
-            nodeDOD.om = nodeDOD.node->om();
 
         return 0;
     }

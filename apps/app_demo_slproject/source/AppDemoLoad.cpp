@@ -362,7 +362,7 @@ void addUniverseLevel(SLAssetManager* am,
         child->translate(2, 0, 0);
         child->scale(scaleFactor);
 
-        // Node animation on child node
+        /* Node animation on child node
         string       animName  = "Anim" + std::to_string(numNodes);
         SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
                                                                       60,
@@ -370,7 +370,7 @@ void addUniverseLevel(SLAssetManager* am,
                                                                       EC_linear,
                                                                       AL_loop);
         childAnim->createNodeAnimTrackForRotation360(child, {0, 0, 1});
-
+*/
         parent->addChild(child);
 
         SLint childID = parentID;
@@ -408,14 +408,15 @@ void generateUniverse(SLAssetManager* am,
     light->attenuation(1, 0, 0);
     light->scale(10, 10, 10);
     light->diffuseColor({1.0f, 1.0f, 0.5f});
-
-    // Node animation on light node
-    SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
-                                                                  60,
-                                                                  true,
-                                                                  EC_linear,
-                                                                  AL_loop);
-    lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+    /*
+        // Node animation on light node
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
+                                                                      60,
+                                                                      true,
+                                                                      EC_linear,
+                                                                      AL_loop);
+        lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+        */
     parent->addChild(light);
 
     SLint childID = parentID;
@@ -455,7 +456,7 @@ void appDemoLoadScene(SLAssetManager* am,
     PROFILE_FUNCTION();
 
 #ifdef SL_TEST_SCENE_DOD
-    //s->sceneDOD.test();
+    // s->sceneDOD.test();
 #endif
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
@@ -5880,8 +5881,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT  = 100;
-        const int NUM_MESH = 100;
+        const int NUM_MAT  = 10;
+        const int NUM_MESH = 10;
 #else
         const int NUM_MAT    = 20;
         const int NUM_MESH   = 20;
@@ -5917,7 +5918,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Create universe
-        SLuint const levels     = 6;
+        SLuint const levels     = 3;
         SLuint const childCount = 8;
         generateUniverse(am, s, root, 0, levels, childCount, materials, meshes);
 
