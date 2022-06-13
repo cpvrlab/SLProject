@@ -451,7 +451,7 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
     primaryRay->sv = _sv;
 
     // calculate ray from eye to pixel (See also prepareImage())
-    if (_cam->projection() == P_monoOrthographic)
+    if (_cam->projType() == P_monoOrthographic)
     {
         primaryRay->setDir(_LA);
         primaryRay->origin = _BL + _pxSize * ((SLfloat)x * _LR + (SLfloat)y * _LU);
@@ -829,7 +829,7 @@ void SLRaytracer::prepareImage()
     // get camera vectors eye, lookAt, lookUp
     _cam->updateAndGetVM().lookAt(&_EYE, &_LA, &_LU, &_LR);
 
-    if (_cam->projection() == P_monoOrthographic)
+    if (_cam->projType() == P_monoOrthographic)
     {
         /*
         In orthographic projection the bottom-left vector (_BL) points

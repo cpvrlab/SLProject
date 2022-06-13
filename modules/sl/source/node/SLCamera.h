@@ -91,9 +91,9 @@ public:
     void setFrustumPlanes();
 
     // Setters
-    void projection(SLProjection p)
+    void projType(SLProjType p)
     {
-        _projection       = p;
+        _projType         = p;
         currentProjection = p;
     }
     //! vertical field of view
@@ -131,8 +131,8 @@ public:
 
     // Getters
     const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
-    SLProjection   projection() const { return _projection; }
-    SLstring       projectionStr() const { return projectionToStr(_projection); }
+    SLProjType     projType() const { return _projType; }
+    SLstring       projTypeStr() const { return projTypeToStr(_projType); }
     SLfloat        unitScaling() const { return _unitScaling; }
     SLfloat        fovV() const { return _fovV; } //!< Vertical field of view
     SLfloat        fovH() const;                  //!< Horizontal field of view
@@ -177,15 +177,15 @@ public:
     void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
-    static SLCamAnim    currentAnimation;
-    static SLProjection currentProjection;
-    static SLfloat      currentFOV;
-    static SLint        currentDevRotation;
-    static SLstring     projectionToStr(SLProjection p);
+    static SLCamAnim  currentAnimation;
+    static SLProjType currentProjection;
+    static SLfloat    currentFOV;
+    static SLint      currentDevRotation;
+    static SLstring   projTypeToStr(SLProjType pt);
 
 protected:
     // projection parameters
-    SLProjection _projection;    //!< projection type
+    SLProjType   _projType;      //!< Projection type
     SLfloat      _fovV;          //!< Current vertical field of view (view angle) in degrees
     SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane

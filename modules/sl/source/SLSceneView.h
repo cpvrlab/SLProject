@@ -118,7 +118,7 @@ public:
 
     // SceneView camera
     void   initSceneViewCamera(const SLVec3f& dir  = -SLVec3f::AXISZ,
-                               SLProjection   proj = P_monoPerspective);
+                               SLProjType     proj = P_monoPerspective);
     void   switchToSceneViewCamera();
     void   switchToNextCameraInScene();
     SLbool isSceneViewCameraActive() { return _camera == &_sceneViewCamera; }

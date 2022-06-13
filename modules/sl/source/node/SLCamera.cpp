@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
 SLCamAnim    SLCamera::currentAnimation   = CA_turntableYUp;
-SLProjection SLCamera::currentProjection  = P_monoPerspective;
+SLProjType   SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ SLCamera::SLCamera(const SLstring& name,
     _unitScaling(1.0f),
     _fogIsOn(false),
     _fogMode(FM_linear),
-    _fogDensity(0.2f),
+    _fogDensity(0.1f),
     _fogStart(1.0f),
     _fogEnd(6.0f),
     _fogColor(SLCol4f::GRAY),
@@ -53,7 +53,7 @@ SLCamera::SLCamera(const SLstring& name,
     _clipNear      = 0.1f;
     _clipFar       = 300.0f;
     _fovV          = 45.0;
-    _projection    = P_monoPerspective;
+    _projType      = P_monoPerspective;
     _camAnim       = CA_turntableYUp;
     _castsShadows  = false;
 
@@ -166,7 +166,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
         // Vertices of the far plane
         SLVec3f farRT, farRB, farLT, farLB;
 
-        if (_projection == P_monoOrthographic)
+        if (_projType == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;
@@ -235,7 +235,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
 
             _vao.generateVertexPos(&P);
         }
-        else if (_projection == P_monoPerspective || _projection == P_monoIntrinsic)
+        else if (_projType == P_monoPerspective || _projType == P_monoIntrinsic)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
@@ -390,9 +390,9 @@ SLVec2f SLCamera::frustumSizeAtDistance(SLfloat distance)
 }
 //-----------------------------------------------------------------------------
 //! Returns the projection type as string
-SLstring SLCamera::projectionToStr(SLProjection p)
+SLstring SLCamera::projTypeToStr(SLProjType pt)
 {
-    switch (p)
+    switch (pt)
     {
         case P_monoPerspective: return "Perspective";
         case P_monoIntrinsic: return "Perspective Intrinsic";
@@ -449,7 +449,7 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
     SLint fbH2 = fbH >> 1;  // fbH/2
     SLint fbH4 = fbH2 >> 1; // fbH2/2
 
-    if (_projection == P_stereoSideBySideD)
+    if (_projType == P_stereoSideBySideD)
     {
         SLint fbOcW2 = sv->oculusFB()->halfWidth();
         SLint fbOcH  = sv->oculusFB()->height();
@@ -458,14 +458,14 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
         else
             stateGL->viewport(fbOcW2, 0, fbOcW2, fbOcH);
     }
-    else if (_projection == P_stereoSideBySide)
+    else if (_projType == P_stereoSideBySide)
     {
         if (eye == ET_left)
             stateGL->viewport(0, 0, fbW2, fbH);
         else
             stateGL->viewport(fbW2, 0, fbW2, fbH);
     }
-    else if (_projection == P_stereoSideBySideP)
+    else if (_projType == P_stereoSideBySideP)
     {
         if (eye == ET_left)
             stateGL->viewport(0, fbH4, fbW2, fbH2);
@@ -498,7 +498,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d; // frustum parameters
 
-    switch (_projection)
+    switch (_projType)
     {
         case P_monoPerspective:
             stateGL->projectionMatrix.perspective(_fovV, _viewportRatio, _clipNear, _clipFar);
@@ -555,11 +555,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     //  Set Color Mask and Filter  //
     /////////////////////////////////
 
-    if (_projection >= P_stereoColorRC)
+    if (_projType >= P_stereoColorRC)
     {
         if (eye == ET_left)
         {
-            switch (_projection)
+            switch (_projType)
             {
                 case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
                 case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
@@ -570,7 +570,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         }
         else
         {
-            switch (_projection)
+            switch (_projType)
             {
                 case P_stereoColorRC: stateGL->colorMask(0, 1, 1, 1); break;
                 case P_stereoColorRB: stateGL->colorMask(0, 0, 1, 1); break;
@@ -581,7 +581,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         }
 
         // Set color filter matrix for red-cyan and yello-blue (ColorCode3D)
-        switch (_projection)
+        switch (_projType)
         {
             case P_stereoColorRC:
                 _stereoColorFilter.setMatrix(0.29f,
@@ -887,7 +887,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     }
     else // stereo viewing
     {
-        if (_projection == P_stereoSideBySideD)
+        if (_projType == P_stereoSideBySideD)
         {
             // half inter-pupilar distance
             SLfloat halfIPD = (SLfloat)eye * _stereoEyeSeparation * -0.5f;
@@ -1496,7 +1496,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     // get camera vectors eye, lookAt, lookUp from view matrix
     updateAndGetVM().lookAt(&EYE, &LA, &LU, &LR);
 
-    if (_projection == P_monoOrthographic)
+    if (_projType == P_monoOrthographic)
     { /*
         In orthographic projection the top-left vector (TL) points
         from the eye to the center of the TL-left pixel of a plane that
@@ -1625,7 +1625,7 @@ SLstring SLCamera::toString() const
 {
     SLMat4f            vm = updateAndGetVM();
     std::ostringstream ss;
-    ss << "Projection: " << projectionStr() << endl;
+    ss << "Projection: " << projTypeStr() << endl;
     ss << "FOV: " << _fovV << endl;
     ss << "ClipNear: " << _clipNear << endl;
     ss << "ClipFar: " << _clipFar << endl;
@@ -1667,29 +1667,28 @@ void SLCamera::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLCamera::passToUniforms: No shader program set!");
 
-    SLint loc;
-    loc = program->uniform1i("u_camProjection", _projection);
-    loc = program->uniform1i("u_camStereoEye", _stereoEye);
-    loc = program->uniformMatrix3fv("u_camStereoColors",
-                                    1,
-                                    (SLfloat*)&_stereoColorFilter);
+    program->uniform1i("u_camProjType", _projType);
+    program->uniform1i("u_camStereoEye", _stereoEye);
+    program->uniformMatrix3fv("u_camStereoColors",
+                              1,
+                              (SLfloat*)&_stereoColorFilter);
     // Pass fog parameters
     if (_fogColorIsBack)
         _fogColor = _background.avgColor();
     _fogStart = _clipNear;
     _fogEnd   = _clipFar;
 
-    loc = program->uniform1i("u_camFogIsOn", _fogIsOn);
-    loc = program->uniform1i("u_camFogMode", _fogMode);
-    loc = program->uniform1f("u_camFogDensity", _fogDensity);
-    loc = program->uniform1f("u_camFogStart", _fogStart);
-    loc = program->uniform1f("u_camFogEnd", _fogEnd);
-    loc = program->uniform1f("u_camClipNear", _clipNear);
-    loc = program->uniform1f("u_camClipFar", _clipFar);
-    loc = program->uniform1f("u_camBkgdWidth", _background.rect().width);
-    loc = program->uniform1f("u_camBkgdHeight", _background.rect().height);
-    loc = program->uniform1f("u_camBkgdLeft", _background.rect().x);
-    loc = program->uniform1f("u_camBkgdBottom", _background.rect().y);
-    loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
+    program->uniform1i("u_camFogIsOn", _fogIsOn);
+    program->uniform1i("u_camFogMode", _fogMode);
+    program->uniform1f("u_camFogDensity", _fogDensity);
+    program->uniform1f("u_camFogStart", _fogStart);
+    program->uniform1f("u_camFogEnd", _fogEnd);
+    program->uniform1f("u_camClipNear", _clipNear);
+    program->uniform1f("u_camClipFar", _clipFar);
+    program->uniform1f("u_camBkgdWidth", _background.rect().width);
+    program->uniform1f("u_camBkgdHeight", _background.rect().height);
+    program->uniform1f("u_camBkgdLeft", _background.rect().x);
+    program->uniform1f("u_camBkgdBottom", _background.rect().y);
+    program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
 }
 //-----------------------------------------------------------------------------

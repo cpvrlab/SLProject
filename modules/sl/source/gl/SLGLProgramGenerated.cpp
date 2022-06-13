@@ -738,7 +738,7 @@ uniform float       u_skyExposure;          // PBR skybox exposure)";
 //-----------------------------------------------------------------------------
 const string fragInput_u_cam = R"(
 
-uniform int         u_camProjection;    // type of stereo
+uniform int         u_camProjType;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
@@ -971,13 +971,13 @@ const string fragFunctionDoStereoSeparation = R"(
 //-----------------------------------------------------------------------------
 void doStereoSeparation()
 {
-    // See SLProjection in SLEnum.h
-    if (u_camProjection > 8) // stereoColors
+    // See SLProjType in SLEnum.h
+    if (u_camProjType > 8) // stereoColors
     {
         // Apply color filter but keep alpha
         o_fragColor.rgb = u_camStereoColors * o_fragColor.rgb;
     }
-    else if (u_camProjection == 6) // stereoLineByLine
+    else if (u_camProjType == 6) // stereoLineByLine
     {
         if (mod(floor(gl_FragCoord.y), 2.0) < 0.5)// even
         {
@@ -989,7 +989,7 @@ void doStereoSeparation()
                 discard;
         }
     }
-    else if (u_camProjection == 7) // stereoColByCol
+    else if (u_camProjType == 7) // stereoColByCol
     {
         if (mod(floor(gl_FragCoord.x), 2.0) < 0.5)// even
         {
@@ -1001,7 +1001,7 @@ void doStereoSeparation()
                 discard;
         }
     }
-    else if (u_camProjection == 8) // stereoCheckerBoard
+    else if (u_camProjType == 8) // stereoCheckerBoard
     {
         bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
         bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
@@ -1250,7 +1250,7 @@ const string fragMain_5_FogGammaStereo = R"(
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
-    if (u_camProjection > 1)
+    if (u_camProjType > 1)
         doStereoSeparation();
 }
 )";

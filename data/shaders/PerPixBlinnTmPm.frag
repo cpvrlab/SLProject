@@ -44,7 +44,7 @@ uniform sampler2D   u_matTextureHeight0;  // Height map;
 uniform float       u_scale;              // Height scale for parallax mapping
 uniform float       u_offset;             // Height bias for parallax mapping
 
-uniform int         u_camProjection;    // type of stereo
+uniform int         u_camProjType;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
@@ -123,7 +123,7 @@ void main()
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
 
     // Apply stereo eye separation
-    if (u_camProjection > 1)
+    if (u_camProjType > 1)
         doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

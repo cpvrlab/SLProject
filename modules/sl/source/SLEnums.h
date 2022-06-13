@@ -239,7 +239,7 @@ enum SLCamAnim
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
-enum SLProjection
+enum SLProjType
 {
     P_monoPerspective = 0,  //!< standard mono pinhole perspective projection
     P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration

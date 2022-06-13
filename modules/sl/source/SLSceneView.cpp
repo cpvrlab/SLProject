@@ -141,7 +141,7 @@ SLSceneView::onInitialize is called by the window system before the first
 rendering. It applies all scene rendering attributes with the according
 OpenGL function.
 */
-void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
+void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjType proj)
 {
     _sceneViewCamera.camAnim(CA_turntableYUp);
     _sceneViewCamera.name("SceneView Camera");
@@ -150,7 +150,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
     _sceneViewCamera.maxSpeed(40);
     _sceneViewCamera.stereoEyeSeparation(_sceneViewCamera.focalDist() / 30.0f);
     _sceneViewCamera.setProjection(this, ET_center);
-    _sceneViewCamera.projection(proj);
+    _sceneViewCamera.projType(proj);
 
     // fit scenes bounding box in view frustum
     if (_s && _s->root3D())
@@ -467,7 +467,7 @@ void SLSceneView::onResize(SLint width, SLint height)
                              _viewportSameAsVideo);
 
         // Resize Oculus framebuffer
-        if (_s && _camera && _camera->projection() == P_stereoSideBySideD)
+        if (_s && _camera && _camera->projType() == P_stereoSideBySideD)
         {
             _oculusFB.updateSize((SLint)(_s->oculus()->resolutionScale() * (SLfloat)_viewportRect.width),
                                  (SLint)(_s->oculus()->resolutionScale() * (SLfloat)_viewportRect.height));
@@ -523,7 +523,7 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    if (_gui && _camera && _camera->projection() != P_stereoSideBySideD)
+    if (_gui && _camera && _camera->projType() != P_stereoSideBySideD)
         _gui->onInitNewFrame(_s, this);
 
     // Clear NO. of draw calls after UI creation
@@ -552,7 +552,7 @@ SLbool SLSceneView::onPaint()
     SLGLState::instance()->unbindAnythingAndFlush();
 
     // Finish Oculus framebuffer
-    if (_s && _camera && _camera->projection() == P_stereoSideBySideD)
+    if (_s && _camera && _camera->projType() == P_stereoSideBySideD)
         _s->oculus()->renderDistortion(_scrW,
                                        _scrH,
                                        _oculusFB.texID(),
@@ -663,7 +663,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////
 
     // Render into framebuffer if Oculus stereo projection is used
-    if (_camera->projection() == P_stereoSideBySideD)
+    if (_camera->projType() == P_stereoSideBySideD)
     {
         _s->oculus()->beginFrame();
         _oculusFB.bindFramebuffer((SLint)(_s->oculus()->resolutionScale() * (SLfloat)_scrW),
@@ -678,7 +678,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 4. Set viewport //
     /////////////////////
 
-    if (_camera->projection() > P_monoOrthographic)
+    if (_camera->projType() > P_monoOrthographic)
         _camera->setViewport(this, ET_left);
     else
         _camera->setViewport(this, ET_center);
@@ -700,7 +700,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////////
 
     // Set projection
-    if (_camera->projection() > P_monoOrthographic)
+    if (_camera->projType() > P_monoOrthographic)
     {
         _camera->setProjection(this, ET_left);
         _camera->setView(this, ET_left);
@@ -751,12 +751,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 10. Draw right eye for stereo projections //
     ///////////////////////////////////////////////
 
-    if (_camera->projection() > P_monoOrthographic)
+    if (_camera->projType() > P_monoOrthographic)
     {
         _camera->setViewport(this, ET_right);
 
         // Only draw backgrounds for stereo projections in different viewports
-        if (!_s->skybox() && _camera->projection() < P_stereoLineByLine)
+        if (!_s->skybox() && _camera->projType() < P_stereoLineByLine)
             _camera->background().render(_viewportRect.width, _viewportRect.height);
 
         _camera->setProjection(this, ET_right);
@@ -1674,9 +1674,9 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='K') {drawBits()->toggle(SL_DB_SKELETON); return true;}
 
     if (key=='5')
-    {   if (_camera->projection() == P_monoPerspective)
-            _camera->projection(P_monoOrthographic);
-        else _camera->projection(P_monoPerspective);
+    {   if (_camera->projType() == P_monoPerspective)
+            _camera->projType(P_monoOrthographic);
+        else _camera->projType(P_monoPerspective);
         if (_renderType == RT_rt && !_raytracer.doContinuous() &&
             _raytracer.state() == rtFinished)
             _raytracer.state(rtReady);
@@ -1686,8 +1686,8 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_esc)
     {
-        if (_camera && _camera->projection() == P_stereoSideBySideD)
-            _camera->projection(P_monoPerspective);
+        if (_camera && _camera->projType() == P_stereoSideBySideD)
+            _camera->projType(P_monoPerspective);
 
         if (!_s->selectedNodes().empty() ||
             !_camera->selectRect().isEmpty() ||

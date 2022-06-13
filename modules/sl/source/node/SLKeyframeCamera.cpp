@@ -34,7 +34,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
         // Vertices of the near plane
         SLVec3f nearRT, nearRB, nearLT, nearLB;
 
-        if (_projection == P_monoOrthographic)
+        if (_projType == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;

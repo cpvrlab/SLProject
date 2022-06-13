@@ -219,7 +219,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     SLAssetManager* am = s->assetManager();
 
     if (AppDemoGui::hideUI ||
-        (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD))
+        (sv->camera() && sv->camera()->projType() == P_stereoSideBySideD))
     {
         // So far no UI in distorted stereo projection
         buildMenuContext(s, sv);
@@ -2731,7 +2731,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Camera"))
         {
             SLCamera*    cam  = sv->camera();
-            SLProjection proj = cam->projection();
+            SLProjType   proj = cam->projType();
 
             if (ImGui::MenuItem("Reset"))
             {
@@ -2771,7 +2771,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Perspective", "5", proj == P_monoPerspective))
                 {
-                    cam->projection(P_monoPerspective);
+                    cam->projType(P_monoPerspective);
                     if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
                         sv->raytracer()->state() == rtFinished)
                         sv->raytracer()->state(rtReady);
@@ -2779,7 +2779,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Orthographic", "5", proj == P_monoOrthographic))
                 {
-                    cam->projection(P_monoOrthographic);
+                    cam->projType(P_monoOrthographic);
                     if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
                         sv->raytracer()->state() == rtFinished)
                         sv->raytracer()->state(rtReady);
@@ -2789,9 +2789,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     for (SLint p = P_stereoSideBySide; p <= P_stereoColorYB; ++p)
                     {
-                        SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
-                        if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjection)p))
-                            cam->projection((SLProjection)p);
+                        SLstring pStr = SLCamera::projTypeToStr((SLProjType)p);
+                        if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjType)p))
+                            cam->projType((SLProjType)p);
                     }
 
                     if (proj >= P_stereoSideBySide)
@@ -2888,7 +2888,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (cam->fogMode() == FM_exp || cam->fogMode() == FM_exp2)
                 {
                     static SLfloat fogDensity = cam->fogDensity();
-                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))
+                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 0.2f))
                         cam->fogDensity(fogDensity);
                 }
 
@@ -3539,11 +3539,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                          "Stereo Color Red-Blue",
                                                          "Stereo Color Yellow-Blue"};
 
-                            int proj = cam->projection();
+                            int proj = cam->projType();
                             if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
-                                cam->projection((SLProjection)proj);
+                                cam->projType((SLProjType)proj);
 
-                            if (cam->projection() > P_monoOrthographic)
+                            if (cam->projType() > P_monoOrthographic)
                             {
                                 SLfloat eyeSepar = cam->stereoEyeSeparation();
                                 if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
