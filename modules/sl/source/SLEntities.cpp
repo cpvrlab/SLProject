@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLSceneDOD.cpp
+//  File:      SLEntities.cpp
 //  Date:      June 2022
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch
@@ -7,16 +7,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLSceneDOD.h>
+#include <SLEntities.h>
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
 /*! Returns the pointer to the node at id
- @param scenegraph The scenegraph as a SLSceneDOD vector
+ @param scenegraph The scenegraph as a SLEntities vector
  @param id The index of the node to return as a pointer
  @return The pointer of the node at id
  */
-SLNodeDOD* SLSceneDOD::getNode(SLint id)
+SLEntity* SLEntities::getEntity(SLint id)
 {
     if (id >= 0 && id < _graph.size())
         return &_graph[id];
@@ -24,12 +24,22 @@ SLNodeDOD* SLSceneDOD::getNode(SLint id)
         return nullptr;
 }
 //-----------------------------------------------------------------------------
+/*! Returns the ID for the passed SLNode if found else INT32_MIN
+ */
+SLint SLEntities::getEntityID(SLNode* node)
+{
+    for (SLuint i = 0; i < _graph.size(); ++i)
+        if (_graph[i].node == node)
+            return i;
+    return INT32_MIN;
+}
+//-----------------------------------------------------------------------------
 /*! Returns the pointer to the parent of the node at id
- @param scenegraph The scenegraph as a SLSceneDOD vector
+ @param scenegraph The scenegraph as a SLEntities vector
  @param id The index of the node in the scenegraph vector
  @return The pointer of the parent of the node at id
  */
-SLNodeDOD* SLSceneDOD::getParent(SLint id)
+SLEntity* SLEntities::getParent(SLint id)
 {
     if (id >= 1 && id < _graph.size())
         return &_graph[_graph[id].parentID];
@@ -37,31 +47,45 @@ SLNodeDOD* SLSceneDOD::getParent(SLint id)
         return nullptr;
 }
 //-----------------------------------------------------------------------------
+/*! Returns the parentID for the passed SLNode if found else INT32_MIN
+ */
+SLint SLEntities::getParentID(SLNode* node)
+{
+    for (SLEntity entity : _graph)
+        if (entity.node == node)
+            return entity.parentID;
+    return INT32_MIN;
+}
+//-----------------------------------------------------------------------------
 /*! Updates the world matrix recursively
  * @param id Index of the current node to update
  * @param parentWM World transform matrix of the parent
+ * @return The no. of nodes updated
  */
-void SLSceneDOD::updateWM(SLint id, SLMat4f& parentWM)
+SLuint SLEntities::updateWMRec(SLint id, SLMat4f& parentWM)
 {
-    SLNodeDOD* nodeDOD = getNode(id);
+    SLEntity* entity = getEntity(id);
 
-    nodeDOD->om = nodeDOD->node->om();
-    SLMat4f nodeWM = nodeDOD->node->updateAndGetWM();
+    entity->om     = entity->node->om();
+    SLMat4f nodeWM = entity->node->updateAndGetWM();
 
-    nodeDOD->wm.setMatrix(parentWM * nodeDOD->om);
-    nodeDOD->wmI.setMatrix(nodeDOD->wm.inverted());
+    entity->wm.setMatrix(parentWM * entity->om);
+    entity->wmI.setMatrix(entity->wm.inverted());
 
-    if (!nodeDOD->wm.isEqual(nodeWM))
+    if (!entity->wm.isEqual(nodeWM))
     {
-        nodeDOD->wm.print("wmDOD:");
-        nodeDOD->node->updateAndGetWM().print("nodeWM:");
+        entity->wm.print("wmDOD:");
+        entity->node->updateAndGetWM().print("nodeWM:");
     }
 
-    for(SLint i = 0; i < nodeDOD->childCount; ++i)
+    SLuint handledChildren = 0;
+    while (handledChildren < entity->childCount)
     {
-        SLint childID = id + i + 1;
-        updateWM(childID, nodeDOD->wm);
+        SLint childID = id + handledChildren + 1;
+        handledChildren += this->updateWMRec(childID, entity->wm);
     }
+
+    return handledChildren + 1;
 }
 //-----------------------------------------------------------------------------
 /*! Prints the scenegraph vector flat or as hierarchical tree as follows:
@@ -69,7 +93,7 @@ void SLSceneDOD::updateWM(SLint id, SLMat4f& parentWM)
  @param doTreeDump Flag if dump as a tree or flat
 
 Pattern: ID.Parent.childCount
-Example from SLSceneDOD::addChild:
+Example from SLEntities::addChild:
 00.-1.04
 +--01.00.01
 |  +--02.01.00
@@ -79,16 +103,16 @@ Example from SLSceneDOD::addChild:
 |  +--06.04.00
 +--07.00.00
 */
-void SLSceneDOD::dump(SLbool doTreeDump)
+void SLEntities::dump(SLbool doTreeDump)
 {
     if (doTreeDump)
     {
         for (SLuint i = 0; i < _graph.size(); ++i)
         {
             // Calculate depth
-            SLuint depth        = 0;
+            SLuint depth      = 0;
             SLint  myParentID = _graph[i].parentID;
-            while(myParentID != -1)
+            while (myParentID != -1)
             {
                 depth++;
                 myParentID = _graph[myParentID].parentID;
@@ -130,7 +154,7 @@ void SLSceneDOD::dump(SLbool doTreeDump)
     cout << endl;
 }
 //-----------------------------------------------------------------------------
-/*! addChild adds a child node by inserting an SLSceneDOD into a vector in
+/*! addChild adds a child node by inserting an SLEntities into a vector in
  Depth First Search order. The root node gets the parent ID -1.
  The child is inserted right after the parent node.
  @param scenegraph The scenegraph as a vector
@@ -158,46 +182,59 @@ addChild(sg,0,node)  |-1  04|00  00|00  00|00  02|03  00|03  00|00  00|
 addChild(sg,1,node)  |-1  04|00  01|01  00|00  00|00  02|04  00|04  00|00  00|
                                   * ------                *      *
 */
-SLint SLSceneDOD::addChild(SLint     myParentID,
-                           SLNodeDOD nodeDOD)
+void SLEntities::addChildEntity(SLint    myParentID,
+                                 SLEntity entity)
 {
-    assert(myParentID <= _graph.size() &&
-           myParentID >= -1 &&
-           "Invalid parentID");
+    if (myParentID > (int)_graph.size() || myParentID < -1)
+        SL_EXIT_MSG("Invalid parent ID");
 
-    if(nodeDOD.node)
-        nodeDOD.om = nodeDOD.node->om();
+    if (entity.node)
+        entity.om = entity.node->om();
+
+    SLint entityID = 0;
 
     if (_graph.empty())
     {
         // Root node and ignore myParentID
-        _graph.push_back(nodeDOD);
+        entityID = 0;
+        _graph.push_back(entity);
         _graph[0].parentID   = -1;
         _graph[0].childCount = 0;
-
-        return 0;
+        _graph[0].node->entityID(0);
+        if (_graph[0].node->parent() != nullptr)
+            SL_EXIT_MSG("Root node parent pointer must be null");
     }
     else
     {
-        nodeDOD.parentID   = myParentID;
-        nodeDOD.childCount = 0;
-        _graph.insert(_graph.begin() + myParentID + 1, nodeDOD);
+        entity.parentID   = myParentID;
+        entity.childCount = 0;
+        entityID          = myParentID + 1;
+        _graph.insert(_graph.begin() + entityID, entity);
         _graph[myParentID].childCount++;
+        _graph[entityID].node->entityID(entityID);
 
         // Increase parentIDs of following subtrees that are greater
-        for (SLuint i = myParentID + 2; i < _graph.size(); i++)
+        for (SLuint i = entityID + 1; i < _graph.size(); i++)
             if (_graph[i].parentID > myParentID)
                 _graph[i].parentID++;
+    }
 
-        return myParentID + 1;
+    // Recursively add children of the entity
+    if (_graph[entityID].node->children().size())
+    {
+        for (SLuint i = 0; i < _graph[entityID].node->children().size(); ++i)
+        {
+            SLNode* childNode = _graph[entityID].node->children()[i];
+            this->addChildEntity(entityID, SLEntity(childNode));
+        }
     }
 }
 //-----------------------------------------------------------------------------
 /*! Deletes a node at index id with all with all children
- @param scenegraph The scenegraph as a SLSceneDOD vector
+ @param scenegraph The scenegraph as a SLEntities vector
  @param id Index of node to delete
  */
-void SLSceneDOD::deleteNode(SLint id)
+void SLEntities::deleteEntity(SLint id)
 {
     assert(id <= _graph.size() &&
            id >= 0 &&
@@ -226,34 +263,31 @@ void SLSceneDOD::deleteNode(SLint id)
     }
 }
 //-----------------------------------------------------------------------------
-void SLSceneDOD::test()
+/*! Deletes all children of an entity with the index id. Also sub-children of
+ * those children get deleted.
+ * @param id Index of the parent entity
+ */
+void SLEntities::deleteChildren(SLint id)
 {
-    addChild(0, SLNodeDOD()); // Root node
-    addChild(0, SLNodeDOD());
-    addChild(0, SLNodeDOD());
-    addChild(0, SLNodeDOD());
-    addChild(2, SLNodeDOD());
-    addChild(2, SLNodeDOD());
-    addChild(0, SLNodeDOD());
-    addChild(1, SLNodeDOD());
-    addChild(5, SLNodeDOD());
-    dump(false);
-    dump(true);
+    assert(id <= _graph.size() &&
+           id >= 0 &&
+           "Invalid id");
 
-    deleteNode(1);
-    dump(false);
-    dump(true);
+    // Find the next child with the same parentID
+    SLuint toID;
+    SLint  myParentID = _graph[id].parentID;
+    for (toID = id + 1; toID < _graph.size(); toID++)
+        if (_graph[toID].parentID == myParentID)
+            break;
 
-    deleteNode(6);
-    dump(false);
-    dump(true);
+    // Erase the elements in the vector
+    _graph.erase(_graph.begin() + id + 1, _graph.begin() + toID);
+    _graph[id].childCount = 0;
 
-    deleteNode(2);
-    dump(false);
-    dump(true);
-
-    deleteNode(0);
-    dump(false);
-    dump(true);
+    // Decrease parentIDs of following subtrees that are greater
+    SLuint numNodesToErase = toID - id;
+    for (SLuint i = id; i < _graph.size(); i++)
+        if (_graph[i].parentID > myParentID)
+            _graph[i].parentID = _graph[i].parentID - numNodesToErase;
 }
 //-----------------------------------------------------------------------------

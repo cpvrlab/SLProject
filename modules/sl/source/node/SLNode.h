@@ -261,6 +261,7 @@ public:
 
     // Setters (see also members)
     void parent(SLNode* p);
+    void entityID(SLint entityID) { _entityID = entityID; }
     void om(const SLMat4f& mat)
     {
         _om = mat;
@@ -278,6 +279,7 @@ public:
     // Getters (see also member)
     SLNode*               parent() { return _parent; }
     SLint                 depth() const { return _depth; }
+    SLint                 entityID() const { return _entityID; }
     const SLMat4f&        om() { return _om; }
     const SLMat4f&        initialOM() { return _initialOM; }
     const SLMat4f&        updateAndGetWM() const;
@@ -301,7 +303,7 @@ public:
     SLfloat               minLodCoverage() { return _minLodCoverage; }
     SLubyte               levelForSM() { return _levelForSM; }
 
-    static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
+    static SLuint numWMUpdates; //!< NO. of calls to updateWMRec per frame
 
     static unsigned int instanceIndex; //!< ???
 
@@ -331,6 +333,7 @@ protected:
     SLMesh* _mesh;     //!< pointer to a single mesh
 
     SLint           _depth;          //!< depth of the node in a scene tree
+    SLint           _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design
     SLMat4f         _om;             //!< object matrix for local transforms
     SLMat4f         _initialOM;      //!< the initial om state
     mutable SLMat4f _wm;             //!< world matrix for world transform

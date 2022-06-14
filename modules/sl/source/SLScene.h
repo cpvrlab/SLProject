@@ -19,7 +19,7 @@
 #include <SLGLOculus.h>
 #include <SLLight.h>
 #include <SLMesh.h>
-#include <SLSceneDOD.h>
+#include <SLEntities.h>
 
 class SLCamera;
 class SLSkybox;
@@ -57,7 +57,18 @@ public:
     void initOculus(SLstring shaderDir);
 
     // Setters
-    void root3D(SLNode* root3D) { _root3D = root3D; }
+    void root3D(SLNode* root3D)
+    {
+        _root3D = root3D;
+
+#ifdef SL_TEST_ENTITIES
+        SLint rootEntityID = SLScene::entities.getEntityID(root3D);
+        if (rootEntityID == INT32_MIN)
+            SLScene::entities.addChildEntity(-1, SLEntity(root3D));
+        else if (rootEntityID > -1)
+            SL_EXIT_MSG("Root node exists already with another ID among the entities");
+#endif
+    }
     void root2D(SLNode* root2D) { _root2D = root2D; }
     void skybox(SLSkybox* skybox) { _skybox = skybox; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
@@ -111,8 +122,8 @@ public:
 
     SLGLOculus* oculus() { return _oculus.get(); }
 
-#ifdef SL_TEST_SCENE_DOD
-    SLSceneDOD sceneDOD;
+#ifdef SL_TEST_ENTITIES
+    static SLEntities entities;
 #endif
 
 protected:
@@ -138,7 +149,7 @@ protected:
     AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
     AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
     AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
-    AvgFloat _updateDODTimesMS;  //!< Averaged time for update the SLSceneDOD graph
+    AvgFloat _updateDODTimesMS;  //!< Averaged time for update the SLEntities graph
 
     SLbool _stopAnimations; //!< Global flag for stopping all animations
 

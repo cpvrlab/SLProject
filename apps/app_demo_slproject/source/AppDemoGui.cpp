@@ -423,7 +423,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     {
                         sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
                         sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                        sprintf(m + strlen(m), "  DOD      : %5.1f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
+#ifdef SL_TEST_ENTITIES
+                        sprintf(m + strlen(m), "  DOD      : %5.4f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
+#endif
                     }
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {

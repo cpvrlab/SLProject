@@ -14,10 +14,15 @@
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <Profiler.h>
+#include <SLEntities.h>
 
 //-----------------------------------------------------------------------------
+// Global static instances
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
+#ifdef SL_TEST_ENTITIES
+SLEntities                       SLScene::entities;
+#endif
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
@@ -196,12 +201,12 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
         _root2D->updateAABBRec(renderTypeIsRT);
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
 
-#ifdef SL_TEST_SCENE_DOD
+#ifdef SL_TEST_ENTITIES
     SLfloat startDODUpdateMS = GlobalTimer::timeMS();
-    if (sceneDOD.size())
+    if (entities.size())
     {
         SLMat4f root;
-        sceneDOD.updateWM(0, root);
+        entities.updateWMRec(0, root);
     }
     _updateDODTimesMS.set(GlobalTimer::timeMS() - startDODUpdateMS);
 #endif

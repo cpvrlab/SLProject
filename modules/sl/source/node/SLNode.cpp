@@ -14,6 +14,8 @@
 #include <SLLightSpot.h>
 #include <SLNode.h>
 #include <SLText.h>
+#include <SLScene.h>
+#include <SLEntities.h>
 #include <SLSceneView.h>
 #include <Profiler.h>
 
@@ -31,8 +33,9 @@ Default constructor just setting the name.
 */
 SLNode::SLNode(const SLstring& name) : SLObject(name)
 {
-    _parent = nullptr;
-    _depth  = 1;
+    _parent   = nullptr;
+    _depth    = 1;
+    _entityID = INT32_MIN;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -55,8 +58,9 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 {
     assert(mesh && "No mesh passed");
 
-    _parent = nullptr;
-    _depth  = 1;
+    _parent   = nullptr;
+    _depth    = 1;
+    _entityID = INT32_MIN;
     _om.identity();
     _wm.identity();
     _wmI.identity();
@@ -83,8 +87,9 @@ SLNode::SLNode(SLMesh*         mesh,
 {
     assert(mesh && "No mesh passed");
 
-    _parent = nullptr;
-    _depth  = 1;
+    _parent   = nullptr;
+    _depth    = 1;
+    _entityID = INT32_MIN;
     _om.identity();
     _om.translate(translation);
     _wm.identity();
@@ -111,13 +116,20 @@ Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
 SLNode::~SLNode()
 {
-    // SL_LOG("~SLNode: %s", name().c_str());
-
     for (auto* child : _children)
         delete child;
     _children.clear();
 
     delete _animation;
+
+#ifdef SL_TEST_ENTITIES
+    SLint entityID = SLScene::entities.getEntityID(this);
+    SLint parentID = SLScene::entities.getParentID(this);
+    if (entityID != INT32_MIN && parentID != INT32_MIN)
+    {
+        SLScene::entities.deleteEntity(entityID);
+    }
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -182,6 +194,15 @@ void SLNode::addChild(SLNode* child)
     _children.push_front(child);
     _isAABBUpToDate = false;
     child->parent(this);
+
+#ifdef SL_TEST_ENTITIES
+    // Only add child to existing parents in entities
+    SLint parentID = SLScene::entities.getEntityID(this);
+    if (parentID != INT32_MIN)
+    {
+        SLScene::entities.addChildEntity(parentID, SLEntity(child));
+    }
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -211,6 +232,15 @@ void SLNode::deleteChildren()
     for (auto& i : _children)
         delete i;
     _children.clear();
+
+#ifdef SL_TEST_ENTITIES
+    SLint entityID = SLScene::entities.getEntityID(this);
+    SLint parentID = SLScene::entities.getParentID(this);
+    if (entityID != INT32_MIN && parentID != INT32_MIN)
+    {
+        SLScene::entities.deleteChildren(entityID);
+    }
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!

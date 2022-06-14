@@ -48,7 +48,7 @@
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 #include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
-#include <SLSceneDOD.h>
+#include <SLEntities.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -362,7 +362,7 @@ void addUniverseLevel(SLAssetManager* am,
         child->translate(2, 0, 0);
         child->scale(scaleFactor);
 
-        /* Node animation on child node
+        // Node animation on child node
         string       animName  = "Anim" + std::to_string(numNodes);
         SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
                                                                       60,
@@ -370,20 +370,13 @@ void addUniverseLevel(SLAssetManager* am,
                                                                       EC_linear,
                                                                       AL_loop);
         childAnim->createNodeAnimTrackForRotation360(child, {0, 0, 1});
-*/
-        parent->addChild(child);
 
-        SLint childID = parentID;
-#ifdef SL_TEST_SCENE_DOD
-        childID = s->sceneDOD.addChild(parentID,
-                                       SLNodeDOD(child,
-                                                 child->mesh()));
-#endif
+        parent->addChild(child);
 
         addUniverseLevel(am,
                          s,
                          child,
-                         childID,
+                         parentID,
                          currentLevel + 1,
                          levels,
                          childCount,
@@ -408,28 +401,23 @@ void generateUniverse(SLAssetManager* am,
     light->attenuation(1, 0, 0);
     light->scale(10, 10, 10);
     light->diffuseColor({1.0f, 1.0f, 0.5f});
-    /*
-        // Node animation on light node
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
-                                                                      60,
-                                                                      true,
-                                                                      EC_linear,
-                                                                      AL_loop);
-        lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
-        */
-    parent->addChild(light);
 
-    SLint childID = parentID;
-#ifdef SL_TEST_SCENE_DOD
-    childID = s->sceneDOD.addChild(parentID, SLNodeDOD(light, light->mesh()));
-#endif
+    // Node animation on light node
+    SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
+                                                                  60,
+                                                                  true,
+                                                                  EC_linear,
+                                                                  AL_loop);
+    lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+
+    parent->addChild(light);
 
     SLuint numNodes = 1;
 
     addUniverseLevel(am,
                      s,
                      light,
-                     childID,
+                     parentID,
                      1,
                      levels,
                      childCount,
@@ -454,10 +442,6 @@ void appDemoLoadScene(SLAssetManager* am,
                       SLSceneID       sceneID)
 {
     PROFILE_FUNCTION();
-
-#ifdef SL_TEST_SCENE_DOD
-    // s->sceneDOD.test();
-#endif
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
@@ -521,6 +505,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
@@ -546,10 +531,6 @@ void appDemoLoadScene(SLAssetManager* am,
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(true);
     }
@@ -587,14 +568,13 @@ void appDemoLoadScene(SLAssetManager* am,
         SLNode* figure = BuildFigureGroup(am, s, m1, true);
 
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(floorRect);
         scene->addChild(figure);
 
-        // Set background color, active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_MeshLoad) //...........................................................
     {
@@ -683,6 +663,7 @@ void appDemoLoadScene(SLAssetManager* am,
         rt->translate(0, 0, -b, TS_object);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(rb);
@@ -696,7 +677,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Revolver) //...........................................................
     {
@@ -845,6 +825,7 @@ void appDemoLoadScene(SLAssetManager* am,
         r->translate(0, 0, -pR, TS_object);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(glass);
         scene->addChild(wine);
@@ -860,7 +841,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_TextureBlend) //.......................................................
     {
@@ -959,6 +939,7 @@ void appDemoLoadScene(SLAssetManager* am,
         tG.push_back(SLVec2f(0, 30));
 
         SLNode* scene = new SLNode("grScene");
+        s->root3D(scene);
         scene->addChild(light);
         scene->addChild(tree);
         scene->addChild(new SLNode(new SLPolygon(am, pG, tG, "Ground", m2)));
@@ -986,7 +967,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_TextureFilter) //......................................................
     {
@@ -1071,6 +1051,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* scene = new SLNode();
+        s->root3D(scene);
         scene->addChild(polyB);
         scene->addChild(polyL);
         scene->addChild(polyT);
@@ -1078,7 +1059,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(sphere);
         scene->addChild(cam1);
         sv->camera(cam1);
-        s->root3D(scene);
     }
 #ifdef SL_BUILD_WITH_KTX
     else if (sceneID == SID_TextureCompression) //.................................................
@@ -1089,6 +1069,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f);
@@ -1184,9 +1165,6 @@ void appDemoLoadScene(SLAssetManager* am,
         rectNodeKtxUastc0->translate(-1.05f, -1.05f, 0);
         scene->addChild(rectNodeKtxUastc0);
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Add active camera
         sv->camera(cam1);
 
@@ -1219,6 +1197,7 @@ void appDemoLoadScene(SLAssetManager* am,
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -1250,7 +1229,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_2Dand3DText) //........................................................
     {
@@ -1314,6 +1292,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Assemble 3D scene as usual with camera and light
         SLNode* scene3D = new SLNode("root3D");
+        s->root3D(scene3D);
         scene3D->addChild(cam1);
         scene3D->addChild(light1);
         scene3D->addChild(new SLNode(new SLSphere(am, 0.5f, 32, 32, "Sphere", m1)));
@@ -1325,13 +1304,11 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Assemble 2D scene
         SLNode* scene2D = new SLNode("root2D");
+        s->root2D(scene2D);
         scene2D->addChild(t2D16);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(true);
-
-        s->root3D(scene3D);
-        s->root2D(scene2D);
     }
     else if (sceneID == SID_PointClouds) //........................................................
     {
@@ -1373,6 +1350,7 @@ void appDemoLoadScene(SLAssetManager* am,
         pc2->translate(5, 0, 0);
 
         SLNode* scene = new SLNode("scene");
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
         scene->addChild(pc1);
@@ -1380,7 +1358,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
@@ -1432,6 +1409,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 7);
@@ -1512,7 +1490,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(sphereM);
         scene->addChild(sphereR);
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderPerPixelCook) //.................................................
     {
@@ -1524,6 +1501,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 30);
@@ -1613,7 +1591,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(light4);
         scene->addChild(light5);
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderIBL) //..........................................................
     {
@@ -1631,6 +1608,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera and initialize its parameters
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1714,7 +1692,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         s->skybox(skybox);
-        s->root3D(scene);
 
         // Save energy
         sv->doWaitOnIdle(true);
@@ -1757,13 +1734,13 @@ void appDemoLoadScene(SLAssetManager* am,
         light0->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light0);
         scene->addChild(wave);
         scene->addChild(new SLNode(new SLSphere(am, 1, 32, 32, "Red Sphere", matRed)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
     else if (sceneID == SID_ShaderBumpNormal) //...................................................
@@ -1803,13 +1780,13 @@ void appDemoLoadScene(SLAssetManager* am,
         anim->createNodeAnimTrackForEllipse(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderBumpParallax) //.................................................
     {
@@ -1863,13 +1840,13 @@ void appDemoLoadScene(SLAssetManager* am,
         anim->createNodeAnimTrackForEllipse(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderSkyBox) //.......................................................
     {
@@ -1902,6 +1879,7 @@ void appDemoLoadScene(SLAssetManager* am,
                                              shaderPath + "RefractReflect.frag"));
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1950,9 +1928,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         s->skybox(skybox);
-
-        // pass the scene group as root node
-        s->root3D(scene);
 
         // Save energy
         sv->doWaitOnIdle(true);
@@ -2013,20 +1988,21 @@ void appDemoLoadScene(SLAssetManager* am,
         earth->rotate(90, -1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(sun);
         scene->addChild(earth);
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderVoxelConeDemo) //................................................
     {
         s->name("Voxelization Test");
-        s->info("Voxelizing a Scnene and Display result");
+        s->info("Voxelizing a Scene and Display result");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 1.8f);
@@ -2138,7 +2114,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(light0);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingBasicScene) //............................................
     {
@@ -2149,6 +2124,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 7, 12);
@@ -2187,7 +2163,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingLightTypes) //............................................
     {
@@ -2198,6 +2173,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 20);
@@ -2290,7 +2266,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingSpotLights) //............................................
     {
@@ -2298,13 +2273,11 @@ void appDemoLoadScene(SLAssetManager* am,
         s->info("8 Spot lights use a perspective projection for their light space.");
 
         // Setup shadow mapping material
-        // SLGLProgram* progPerPixSM = new SLGLProgramGeneric(am,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(am, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 5, 13);
@@ -2347,7 +2320,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingPointLights) //...........................................
     {
@@ -2355,13 +2327,11 @@ void appDemoLoadScene(SLAssetManager* am,
         s->info("Point lights use cubemaps to store shadow maps.");
 
         // Setup shadow mapping material
-        // SLGLProgram* progPerPixSM = new SLGLProgramGeneric(am,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(am, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         // Create camera
         SLCamera* cam1 = new SLCamera;
@@ -2446,7 +2416,6 @@ void appDemoLoadScene(SLAssetManager* am,
         }
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingCascaded) //..............................................
     {
@@ -2459,6 +2428,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 7, 12);
@@ -2497,7 +2467,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID >= SID_SuzannePerPixBlinn &&
              sceneID <= SID_SuzannePerPixBlinnTmNmAoSm) //.........................................
@@ -2526,6 +2495,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2673,9 +2643,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(true);
     }
@@ -2751,6 +2718,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                             "HDR Skybox");
             // Create a scene group node
             SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
 
             // Create camera and initialize its parameters
             SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2790,7 +2758,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(pbrGroup);
 
             s->skybox(skybox);
-            s->root3D(scene);
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy
         }
@@ -2855,12 +2822,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene with box node
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(new SLNode(new SLBox(am, -1, -1, -1, 1, 1, 1, "Box", matVR)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_VolumeRayCastLighted) //...............................................
     {
@@ -2932,12 +2899,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene with box node
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(new SLNode(new SLBox(am, -1, -1, -1, 1, 1, 1, "Box", matVR)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_AnimationSkeletal) //..................................................
@@ -2949,6 +2916,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Root scene node
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
 
         // camera
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3026,9 +2994,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cube3Anim->playForward();
         scene->addChild(cube3);
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_AnimationNode) //......................................................
     {
@@ -3119,6 +3085,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* figure = BuildFigureGroup(am, s, m2, true);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(cam1);
@@ -3132,9 +3099,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(ball5);
         scene->addChild(figure);
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_AnimationMass) //......................................................
     {
@@ -3144,10 +3109,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f);
         light1->translate(0, 10, 0);
 
-        // build a basic scene to have a reference for the occuring rotations
+        // build a basic scene to have a reference for the occurring rotations
         SLMaterial* genericMat = new SLMaterial(am, "some material");
 
-        // we use the same mesh to viasualize all the nodes
+        // we use the same mesh to visualize all the nodes
         SLBox* box = new SLBox(am, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
 
         s->root3D(new SLNode);
@@ -3251,6 +3216,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(rect);
         scene->addChild(center);
@@ -3274,9 +3240,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             }
         }
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_VideoTextureLive ||
@@ -3305,6 +3269,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3336,9 +3301,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->name("light node");
         scene->addChild(light1);
 
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
@@ -3486,6 +3448,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3521,9 +3484,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tracker = new CVTrackedAruco(9, AppDemo::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
-
-        // pass the scene group as root node
-        s->root3D(scene);
 
         // Set active camera
         sv->camera(cam1);
@@ -3581,6 +3541,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
@@ -3596,8 +3557,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-
-        s->root3D(scene);
         AppDemo::devRot.isUsed(true);
     }
     else if (sceneID == SID_VideoTrackFaceMain ||
@@ -3657,6 +3616,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(glasses);
@@ -3671,8 +3631,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-
-        s->root3D(scene);
     }
 #ifdef SL_BUILD_WAI
     else if (sceneID == SID_VideoTrackWAI) //......................................................
@@ -3690,6 +3648,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3733,10 +3692,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tracker->drawDetection(true);
         trackedNode = cam1;
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
 
         // Turn on constant redraw
@@ -3784,14 +3739,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light);
         scene->addChild(cam1);
         scene->addChild(box);
         scene->addChild(axis);
 
         sv->camera(cam1);
-
-        s->root3D(scene);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         // activate rotation and gps sensor
@@ -3922,6 +3876,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         gateAnim->createNodeAnimTrackForTranslation(gate, SLVec3f(0.0f, -3.6f, 0.0f));
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(bern);
@@ -3969,7 +3924,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARBielBFH) //.....................................................
     {
@@ -4044,6 +3998,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(bfh);
@@ -4082,7 +4037,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
         sv->drawBits()->on(SL_DB_ONLYEDGES);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTmp) //...........................................
     {
@@ -4185,6 +4139,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4228,7 +4183,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTht) //...........................................
     {
@@ -4331,6 +4285,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4374,7 +4329,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTmpTht) //........................................
     {
@@ -4478,6 +4432,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4557,7 +4512,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumAmphiteatre) //........................................
     {
@@ -4637,6 +4591,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(amphiTheatre);
@@ -4680,7 +4635,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumCigognier) //..........................................
     {
@@ -4759,6 +4713,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(cigognier);
@@ -4800,7 +4755,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumTheatre) //............................................
     {
@@ -4881,6 +4835,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(theatre);
@@ -4924,7 +4879,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARSutzKirchrain18) //.............................................
     {
@@ -5004,6 +4958,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(sutzK18);
@@ -5049,13 +5004,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
-        s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        s->info("Muttenzer Box with environment mapped reflective sphere and transparent refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLProgramGeneric(am, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
@@ -5128,6 +5082,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // assemble scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(lightRect);
 
@@ -5153,11 +5108,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         f->translate(0, 0, pF, TS_object);
         scene->addChild(f);
 
-        // // near plane
-        // SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
-        // n->translate(0, 0, pN, TS_object);
-        // scene->addChild(n);
-
         // left plane
         SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", red));
         l->rotate(90, 0, 1, 0);
@@ -5173,7 +5123,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(balls);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTSpheres) //..........................................................
     {
@@ -5206,6 +5155,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light2->attenuation(0, 0, 1);
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(SphereGroupRT(am, 3, 0, 0, 0, 1, 30, matGla, matRed));
@@ -5213,7 +5163,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         s->root3D(scene);
-        sv->camera(cam1);
     }
     else if (sceneID == SID_RTSoftShadows) //......................................................
     {
@@ -5252,6 +5201,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light2->createShadowMap();
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(SphereGroupRT(am, 1, 0, 0, 0, 1, 32, matBlk, matRed));
@@ -5259,7 +5209,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTDoF) //..............................................................
     {
@@ -5341,13 +5290,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         balls->addChild(sp);
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(balls);
         scene->addChild(rect);
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTLens) //.............................................................
     {
@@ -5423,6 +5372,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Node
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         // scene->addChild(lensA);
         // scene->addChild(lensB);
         // scene->addChild(lensC);
@@ -5432,7 +5382,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTTest) //.............................................................
     {
@@ -5465,14 +5414,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group and add all nodes
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(boxNode1);
         scene->addChild(boxNode2);
 
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
     }
 
@@ -5516,12 +5463,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                          SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
             SLNode* scene = new SLNode("Scene");
+            s->root3D(scene);
             scene->addChild(light1);
             scene->addChild(gDragonModel);
             scene->addChild(cam1);
 
             sv->camera(cam1);
-            s->root3D(scene);
         }
     }
     else if (sceneID == SID_Benchmark2_MassiveNodes) //............................................
@@ -5543,6 +5490,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -5586,7 +5534,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark3_NodeAnimations) //..........................................
     {
@@ -5607,6 +5554,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -5639,7 +5587,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark4_SkinnedAnimations) //.......................................
     {
@@ -5684,6 +5631,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(rect);
         scene->addChild(cam1);
@@ -5712,9 +5660,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             z -= offset;
         }
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
              sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
@@ -5809,6 +5755,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             // Assemble scene
             SLNode* scene = new SLNode("Scene");
+            s->root3D(scene);
             scene->addChild(sunLight);
             scene->addChild(rect);
             scene->addChild(cam1);
@@ -5853,7 +5800,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Set active camera & the root pointer
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
-            s->root3D(scene);
         }
     }
     else if (sceneID == SID_Benchmark7_JansUniverse) //............................................
@@ -5871,18 +5817,14 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->setInitialState();
 
         // Root scene node
-        SLNode* root = new SLNode;
-        root->addChild(cam1);
-
-#ifdef SL_TEST_SCENE_DOD
-        s->sceneDOD.addChild(0, SLNodeDOD(root));
-        s->sceneDOD.addChild(0, SLNodeDOD(cam1));
-#endif
+        SLNode* scene = new SLNode;
+        s->root3D(scene);
+        scene->addChild(cam1);
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT  = 10;
-        const int NUM_MESH = 10;
+        const int NUM_MAT  = 100;
+        const int NUM_MESH = 100;
 #else
         const int NUM_MAT    = 20;
         const int NUM_MESH   = 20;
@@ -5918,16 +5860,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Create universe
-        SLuint const levels     = 3;
+        SLuint const levels     = 6;
         SLuint const childCount = 8;
-        generateUniverse(am, s, root, 0, levels, childCount, materials, meshes);
+        generateUniverse(am, s, scene, 0, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(root);
 
 #ifdef SL_TEST_SCENE_DOD
-        s->sceneDOD.dump(true);
+        SLScene::entities.dump(true);
 #endif
     }
     else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
@@ -5947,6 +5888,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Root scene node
         SLNode* root = new SLNode;
+        s->root3D(root);
         root->addChild(cam1);
         const int NUM_NODES = 1000;
 
@@ -6225,15 +6167,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             nodes[i]->translate(-20.0 + (float)(i % 20) * 2, 0.0f, -(float)((i - (i % 20)) / 20) * 4, TS_object);
         }
 
-        // for (int i = 0; i < NUM_NODES; ++i) // Pause all the particle system
-        //{
-        //     for (SLNode* n : nodes[i]->children()) {
-        //         SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(n->mesh());
-        //         if (tempPS)
-        //             tempPS->pauseOrResume();
-        //     }
-        // }
-
         for (int i = 0; i < NUM_NODES; ++i)
         {
             root->addChild(nodes[i]);
@@ -6241,7 +6174,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(root);
     }
     else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
     {
@@ -6315,6 +6247,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -6348,13 +6281,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         sv->camera(cam1);
-
-        // Save energy
         sv->doWaitOnIdle(false);
     }
     else if (sceneID == SID_ParticleSystem_FireEffects) //.........................................
@@ -6365,6 +6292,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -6447,10 +6375,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.3f, 0.3f, 0.3f),
                                                    SLCol4f(0.1f, 0.1f, 0.1f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6462,6 +6386,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -6488,10 +6413,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6503,6 +6424,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC             = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -6544,10 +6466,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6559,6 +6477,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "circle_05_C.png");
@@ -6593,10 +6512,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6608,6 +6523,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -6639,10 +6555,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6654,6 +6566,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene       = new SLNode("scene node");
+        s->root3D(scene);
+
         SLNode* fireComplex = new SLNode("fireComplex node");
 
         // Create a light source node
@@ -6764,10 +6678,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         flameNode->translate(0.0f, 0.7f, 0.0f, TS_object);
         fireComplex->addChild(flameNode);
 
-        //
         // Glow
-        //
-
         SLGLTexture*      texGlow = new SLGLTexture(am, texPath + "circle_05_C.png");
         SLParticleSystem* glow    = new SLParticleSystem(am,
                                                       4,
@@ -6796,10 +6707,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* glowNode = new SLNode(glowMesh, "Particle system node glow");
         fireComplex->addChild(glowNode);
 
-        //
         // Black smoke
-        //
-
         SLGLTexture*      texSmokeB = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
         SLParticleSystem* smokeB    = new SLParticleSystem(am,
                                                         8,
@@ -6842,10 +6750,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeBNode->translate(0.0f, 0.9f, 0.0f, TS_object);
         fireComplex->addChild(smokeBNode);
 
-        //
         // White smoke
-        //
-
         SLGLTexture*      texSmokeW = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
         SLParticleSystem* smokeW    = new SLParticleSystem(am,
                                                         40,
@@ -6888,10 +6793,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         smokeWNode->translate(0.0f, 0.9f, 0.0f, TS_object);
         fireComplex->addChild(smokeWNode);
 
-        //
         // Sparks Falling
-        //
-
         SLParticleSystem* sparksF = new SLParticleSystem(am,
                                                          30,
                                                          SLVec3f(0, 0.0, 0),
@@ -6973,10 +6875,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }
@@ -6988,6 +6886,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
@@ -7022,10 +6921,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(false);
     }

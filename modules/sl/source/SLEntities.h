@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLSceneDOD.h
+//  File:      SLEntities.h
 //  Date:      June 2022
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch
@@ -15,18 +15,18 @@
 
 using namespace std;
 
-//#define SL_TEST_SCENE_DOD
+//#define SL_TEST_ENTITIES
 
 //-----------------------------------------------------------------------------
-//! SLNodeDOD is the Data Oriented Design version of a SLNode
+//! SLEntity is the Data Oriented Design version of a SLNode
 /* This struct is an entity for a tightly packed vector without pointers for
- * the parent-child relation.
+ * the parent-child relation. This allows a scene traversal with much less
+ * cache misses.
  */
-struct SLNodeDOD
+struct SLEntity
 {
-    SLNodeDOD(SLNode* myNode = nullptr, SLMesh* myMesh = nullptr)
+    SLEntity(SLNode* myNode = nullptr)
       : node(myNode),
-        mesh(myMesh),
         parentID(0),
         childCount(0) {}
 
@@ -35,43 +35,48 @@ struct SLNodeDOD
     SLMat4f om;         //!< Object matrix for local transforms
     SLMat4f wm;         //!< World matrix for world transform
     SLMat4f wmI;        //!< Inverse world matrix
-    SLMesh* mesh;       //!< Pointer to the mesh if any
     SLNode* node;       //!< Pointer to the corresponding SLNode instance
 };
 //-----------------------------------------------------------------------------
-//! SLVNode typedef for a vector of SLNodes
-typedef vector<SLNodeDOD> SLVNodeDOD;
+//! Vector of SLEntity
+typedef vector<SLEntity> SLVEntity;
 //-----------------------------------------------------------------------------
-//! Scenegraph in Data Oriented Design with flat std::vector of SLNodeDOD
-class SLSceneDOD
+//! Scenegraph in Data Oriented Design with flat std::vector of SLEntity
+class SLEntities
 {
 public:
     //! Adds a child into the vector nodes right after its parent
-    SLint addChild(SLint     myParentID,
-                  SLNodeDOD node);
+    void addChildEntity(SLint myParentID, SLEntity entity);
 
     //! Deletes a node at index id with all its children
-    void deleteNode(SLint id);
+    void deleteEntity(SLint id);
 
-    //! Updates all world matrices
-    void updateWM(SLint id, SLMat4f& parentWM);
+    //! Deletes all children of an entity with index id
+    void deleteChildren(SLint id);
+
+    //! Updates all world matrices and returns no. of updated
+    SLuint updateWMRec(SLint id, SLMat4f& parentWM);
 
     //! Returns the pointer to a node if id is valid else a nullptr
-    SLNodeDOD* getNode(SLint id);
+    SLEntity* getEntity(SLint id);
+
+    //! Returns the ID of the entity with a SLNode pointer
+    SLint getEntityID(SLNode* node);
 
     //! Returns the pointer to the parent of a node if id is valid else a nullptr
-    SLNodeDOD* getParent(SLint id);
+    SLEntity* getParent(SLint id);
+
+    //! Returns the parentID of a SLNode pointer
+    SLint getParentID(SLNode* node);
 
     //! Dump scenegraph as a flat vector or as a tree
     void dump(SLbool doTreeDump);
 
-    //! test operations on SLSceneDOD
-    void test();
-
-    SLuint size () { return _graph.size(); }
+    //! Returns the size of the entity vector
+    SLuint size() { return _graph.size(); }
 
 private:
-    SLVNodeDOD _graph;  //!< Vector of SLNodeDOD of entire scenegraph
+    SLVEntity _graph; //!< Vector of SLEntity of entire scenegraph
 };
 //-----------------------------------------------------------------------------
 #endif // SLSCENEDOD_H

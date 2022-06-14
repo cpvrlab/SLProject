@@ -57,8 +57,8 @@ file(GLOB sources
         source/SLObject.h
         source/SLScene.cpp
         source/SLScene.h
-        source/SLSceneDOD.cpp
-        source/SLSceneDOD.h
+        source/SLEntities.cpp
+        source/SLEntities.h
         source/SLSceneView.cpp
         source/SLSceneView.h
         source/SLShadowMap.cpp
