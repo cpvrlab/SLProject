@@ -6458,6 +6458,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doSizeOverLF(false);
         ps->doRotation(false);
         ps->doColor(false);
+        ps->acceleration(-0.5, 0.0, 0.0);
+        ps->timeToLive(2.0f);
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
