@@ -6446,7 +6446,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create meshes and nodes
         SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    10,
+                                                    1,
                                                     SLVec3f(0, 0.5, 0),
                                                     SLVec3f(0.04f, 0.4f, 0.1f),
                                                     SLVec3f(-0.11f, 0.7f, -0.1f),
