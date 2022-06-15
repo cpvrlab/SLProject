@@ -482,6 +482,10 @@ void appDemoLoadScene(SLAssetManager* am,
     AppDemo::devRot.init();
     AppDemo::devLoc.init();
 
+#ifdef SL_USE_ENTITIES_DEBUG
+    SLScene::entities.dump(true);
+#endif
+
     if (sceneID == SID_Empty) //...................................................................
     {
         s->name("No Scene loaded.");
@@ -5823,14 +5827,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT  = 100;
-        const int NUM_MESH = 100;
+        const int NUM_MAT_MESH  = 10;
 #else
         const int NUM_MAT    = 20;
         const int NUM_MESH   = 20;
 #endif
-        SLVMaterial materials(NUM_MAT);
-        for (int i = 0; i < NUM_MAT; ++i)
+        SLVMaterial materials(NUM_MAT_MESH);
+        for (int i = 0; i < NUM_MAT_MESH; ++i)
         {
             /*
             SLGLProgram* spTex   = new SLGLProgramGeneric(am,
@@ -5847,29 +5850,25 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                           nullptr,
                                           nullptr);
             SLCol4f color;
-            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT_MESH, 1.0f, 1.0f));
             materials[i]->diffuse(color);
         }
 
         // Generate NUM_MESH sphere meshes
-        SLVMesh meshes(NUM_MESH);
-        for (int i = 0; i < NUM_MESH; ++i)
+        SLVMesh meshes(NUM_MAT_MESH);
+        for (int i = 0; i < NUM_MAT_MESH; ++i)
         {
             SLstring meshName = "mesh-" + std::to_string(i);
-            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
+            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT_MESH]);
         }
 
         // Create universe
-        SLuint const levels     = 6;
+        SLuint const levels     = 3;
         SLuint const childCount = 8;
         generateUniverse(am, s, scene, 0, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-
-#ifdef SL_TEST_SCENE_DOD
-        SLScene::entities.dump(true);
-#endif
     }
     else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
     {
@@ -6948,5 +6947,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
             CVCapture::instance()->start(sv->viewportWdivH());
     }
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
+
+#ifdef SL_USE_ENTITIES_DEBUG
+    SLScene::entities.dump(true);
+#endif
 }
 //-----------------------------------------------------------------------------

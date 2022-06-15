@@ -122,12 +122,15 @@ SLNode::~SLNode()
 
     delete _animation;
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
     SLint entityID = SLScene::entities.getEntityID(this);
     SLint parentID = SLScene::entities.getParentID(this);
     if (entityID != INT32_MIN && parentID != INT32_MIN)
     {
-        SLScene::entities.deleteEntity(entityID);
+        if (parentID == -1)
+            SLScene::entities.clear();
+        else
+            SLScene::entities.deleteEntity(entityID);
     }
 #endif
 }
@@ -191,16 +194,15 @@ void SLNode::addChild(SLNode* child)
     assert(this != child && "You can not add the node to itself.");
     assert(!child->parent() && "The child has already a parent.");
 
-    _children.push_front(child);
+    _children.push_back(child);
     _isAABBUpToDate = false;
     child->parent(this);
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
     // Only add child to existing parents in entities
-    SLint parentID = SLScene::entities.getEntityID(this);
-    if (parentID != INT32_MIN)
+    if (_entityID != INT32_MIN)
     {
-        SLScene::entities.addChildEntity(parentID, SLEntity(child));
+        SLScene::entities.addChildEntity(_entityID, SLEntity(child));
     }
 #endif
 }
@@ -233,7 +235,7 @@ void SLNode::deleteChildren()
         delete i;
     _children.clear();
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
     SLint entityID = SLScene::entities.getEntityID(this);
     SLint parentID = SLScene::entities.getParentID(this);
     if (entityID != INT32_MIN && parentID != INT32_MIN)
@@ -553,8 +555,8 @@ bool SLNode::hitRec(SLRay* ray)
 */
 SLNode* SLNode::copyRec()
 {
-    SLNode* copy          = new SLNode(name());
-    copy->_om             = _om;
+    SLNode* copy = new SLNode(name());
+    copy->_om.setMatrix(_om);
     copy->_depth          = _depth;
     copy->_isAABBUpToDate = _isAABBUpToDate;
     copy->_isAABBUpToDate = _isWMUpToDate;
@@ -597,6 +599,11 @@ the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
+#ifdef SL_USE_ENTITIES
+    if (_entityID != INT32_MIN)
+        SLScene::entities.getEntity(_entityID)->om.setMatrix(_om);
+#endif
+
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
         return;
@@ -829,23 +836,21 @@ void SLNode::rotation(const SLQuat4f&  rot,
         // set the om rotation to the inverse of the parents rotation to achieve a
         // 0, 0, 0 relative rotation in world space
         _om.rotation(0, 0, 0, 0);
-        _om *= parentRotInv;
-        needUpdate();
+        _om.setMatrix(_om * parentRotInv);
         rotate(rot, relativeTo);
     }
     else if (relativeTo == TS_parent)
     { // relative to parent, reset current rotation and just rotate again
         _om.rotation(0, 0, 0, 0);
-        needUpdate();
         rotate(rot, relativeTo);
     }
     else
     {
         // in TS_Object everything is relative to our current orientation
         _om.rotation(0, 0, 0, 0);
-        _om *= rotation;
-        needUpdate();
+        _om.setMatrix(_om * rotation);
     }
+    needUpdate();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -897,7 +902,6 @@ void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
             _om.translation(delta + _om.translation());
             break;
     }
-
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -921,7 +925,7 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 
     if (relativeTo == TS_object)
     {
-        _om *= rotation;
+        _om.setMatrix(_om * rotation);
     }
     else if (_parent && relativeTo == TS_world)
     {
@@ -930,7 +934,7 @@ void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
         rotWS.multiply(rotation);
         rotWS.translate(-updateAndGetWM().translation());
 
-        _om = _parent->_wm.inverted() * rotWS * updateAndGetWM();
+        _om.setMatrix(_parent->_wm.inverted() * rotWS * updateAndGetWM());
     }
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
     {
@@ -1064,7 +1068,7 @@ Resets this object to its initial state
 */
 void SLNode::resetToInitialState()
 {
-    _om = _initialOM;
+    _om.setMatrix(_initialOM);
     needUpdate();
 }
 //-----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 // Global static instances
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
 SLEntities                       SLScene::entities;
 #endif
 //-----------------------------------------------------------------------------
@@ -170,6 +170,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     if (_root2D)
         _root2D->updateRec();
 
+    // Update node animations
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
 
     // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
@@ -201,7 +202,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
         _root2D->updateAABBRec(renderTypeIsRT);
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
     SLfloat startDODUpdateMS = GlobalTimer::timeMS();
     if (entities.size())
     {

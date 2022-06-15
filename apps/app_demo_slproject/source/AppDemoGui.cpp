@@ -419,13 +419,13 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+#ifdef SL_USE_ENTITIES
+                    sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
+#endif
                     if (!s->animManager().allAnimNames().empty())
                     {
                         sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
                         sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-#ifdef SL_TEST_ENTITIES
-                        sprintf(m + strlen(m), "  DOD      : %5.4f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
-#endif
                     }
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {

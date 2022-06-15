@@ -114,7 +114,7 @@ class SLMat4
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
 
-        SLbool      isEqual     (const SLMat4& A, SLfloat epsilon = 0.0001f);
+        SLbool      isEqual     (const SLMat4& A, SLfloat epsilon = 0.01f);
         void        multiply    (const SLMat4& A);
         SLVec3<T>   multVec     (SLVec3<T> v) const;
         SLVec4<T>   multVec     (SLVec4<T> v) const;

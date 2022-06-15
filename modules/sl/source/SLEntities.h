@@ -15,7 +15,8 @@
 
 using namespace std;
 
-//#define SL_TEST_ENTITIES
+//#define SL_USE_ENTITIES
+//#define SL_USE_ENTITIES_DEBUG
 
 //-----------------------------------------------------------------------------
 //! SLEntity is the Data Oriented Design version of a SLNode
@@ -74,6 +75,9 @@ public:
 
     //! Returns the size of the entity vector
     SLuint size() { return _graph.size(); }
+
+    //! Clears the the entities vector
+    void clear() { _graph.clear(); }
 
 private:
     SLVEntity _graph; //!< Vector of SLEntity of entire scenegraph

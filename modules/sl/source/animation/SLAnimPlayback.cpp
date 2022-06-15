@@ -26,7 +26,7 @@ SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
 {
 }
 //-----------------------------------------------------------------------------
-/*! Advances the time of the playbackplay based on its different easing parameters.
+/*! Advances the time of the playback play based on its different easing parameters.
  */
 void SLAnimPlayback::advanceTime(SLfloat delta)
 {
@@ -61,6 +61,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
                 break;
         }
     }
+
     // fix negative inputs, playback rate could be negative
     else if (_linearLocalTime < 0.0f)
     {

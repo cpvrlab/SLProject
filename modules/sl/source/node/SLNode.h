@@ -264,7 +264,7 @@ public:
     void entityID(SLint entityID) { _entityID = entityID; }
     void om(const SLMat4f& mat)
     {
-        _om = mat;
+        _om.setMatrix(mat);
         needUpdate();
     }
     void         animation(SLAnimation* a) { _animation = a; }

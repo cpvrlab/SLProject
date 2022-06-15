@@ -61,7 +61,7 @@ public:
     {
         _root3D = root3D;
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
         SLint rootEntityID = SLScene::entities.getEntityID(root3D);
         if (rootEntityID == INT32_MIN)
             SLScene::entities.addChildEntity(-1, SLEntity(root3D));
@@ -122,7 +122,7 @@ public:
 
     SLGLOculus* oculus() { return _oculus.get(); }
 
-#ifdef SL_TEST_ENTITIES
+#ifdef SL_USE_ENTITIES
     static SLEntities entities;
 #endif
 
