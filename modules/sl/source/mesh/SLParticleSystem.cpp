@@ -712,11 +712,32 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     // Billboard type
     // World space
-    if (_doWorldSpace)
-        spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    if (_doWorldSpace) {
+        
+        if (_billboardType == BT_Vertical)
+        {
+            SLMat4f vMat = stateGL->viewMatrix; // Just view matrix because world space is enabled
+
+            vMat.m(0, 1.0f);
+            vMat.m(1, 0.0f);
+            vMat.m(2, 0.0f);
+
+            vMat.m(8, 0.0f);
+            vMat.m(9, 0.0f);
+            vMat.m(10, 1.0f);
+
+            spD->uniformMatrix4fv("u_vYawPMatrix",
+                                  1,
+                                  (SLfloat*)&vMat); // TO change for custom shader generation
+        }
+        else
+        {
+            spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+        }
+    }   
     else
     {
-        SLMat4f mvMat = stateGL->viewMatrix * stateGL->modelMatrix;
+        SLMat4f mvMat = stateGL->viewMatrix * stateGL->modelMatrix; // Model-View Matrix
 
         if (_billboardType == BT_Vertical)
         {
