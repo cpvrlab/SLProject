@@ -1775,6 +1775,90 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::BeginMenu("Particle Systems"))
+                {
+                    if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_First);
+                    if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
+                    if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
+                    if (ImGui::MenuItem("Dust storm effect particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
+                    if (ImGui::MenuItem("Fountain effect particle system", nullptr, sid == SID_ParticleSystem_Fountain))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
+                    if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
+                    if (ImGui::MenuItem("FireComplex effect particle system", nullptr, sid == SID_ParticleSystem_FireComplex))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
+                    if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
+
+                    ImGui::EndMenu();
+                }
+
+                SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
+                SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
+                SLstring modelAR1    = erlebarPath + "augst/augst-thtL1-tmpL2.gltf";
+                SLstring modelAR2    = erlebarPath + "augst/augst-thtL2-tmpL1.gltf";
+                SLstring modelAR3    = erlebarPath + "augst/augst-thtL1L2-tmpL1L2.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
+                SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
+                SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
+                SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
+
+                if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAR2) ||
+                    Utils::fileExists(modelAR3) ||
+                    Utils::fileExists(modelAV3) ||
+                    Utils::fileExists(modelBR2) ||
+                    Utils::fileExists(modelSU1) ||
+                    Utils::fileExists(modelEV1))
+                {
+                    if (ImGui::BeginMenu("Erleb-AR"))
+                    {
+                        if (Utils::fileExists(modelBR2))
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
+                                s->onLoad(am, s, sv, SID_ErlebARBernChristoffel);
+
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(am, s, sv, SID_ErlebARBielBFH);
+
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmp);
+
+                        if (Utils::fileExists(modelAR2))
+                            if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTht);
+
+                        if (Utils::fileExists(modelAR3))
+                            if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmpTht);
+
+                        if (Utils::fileExists(modelAV1_AO))
+                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumAmphiteatre);
+
+                        if (Utils::fileExists(modelAV2_AO))
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumCigognier);
+
+                        if (Utils::fileExists(modelAV3))
+                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumTheatre);
+
+                        if (Utils::fileExists(modelSU1))
+                            if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
+                                s->onLoad(am, s, sv, SID_ErlebARSutzKirchrain18);
+
+                        ImGui::EndMenu();
+                    }
+                }
+
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
@@ -1917,88 +2001,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
-                SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
-                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
-                SLstring modelAR1    = erlebarPath + "augst/augst-thtL1-tmpL2.gltf";
-                SLstring modelAR2    = erlebarPath + "augst/augst-thtL2-tmpL1.gltf";
-                SLstring modelAR3    = erlebarPath + "augst/augst-thtL1L2-tmpL1L2.gltf";
-                SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
-                SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
-                SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
-                SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
-
-                if (Utils::fileExists(modelAR1) ||
-                    Utils::fileExists(modelAR2) ||
-                    Utils::fileExists(modelAR3) ||
-                    Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR2) ||
-                    Utils::fileExists(modelSU1) ||
-                    Utils::fileExists(modelEV1))
-                {
-                    if (ImGui::BeginMenu("Erleb-AR"))
-                    {
-                        if (Utils::fileExists(modelBR2))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
-                                s->onLoad(am, s, sv, SID_ErlebARBernChristoffel);
-
-                        if (Utils::fileExists(modelBFH))
-                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
-                                s->onLoad(am, s, sv, SID_ErlebARBielBFH);
-
-                        if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmp);
-
-                        if (Utils::fileExists(modelAR2))
-                            if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTht);
-
-                        if (Utils::fileExists(modelAR3))
-                            if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmpTht);
-
-                        if (Utils::fileExists(modelAV1_AO))
-                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumAmphiteatre);
-
-                        if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumCigognier);
-
-                        if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumTheatre);
-
-                        if (Utils::fileExists(modelSU1))
-                            if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
-                                s->onLoad(am, s, sv, SID_ErlebARSutzKirchrain18);
-
-                        ImGui::EndMenu();
-                    }
-                }
-                if (ImGui::BeginMenu("Particle Systems"))
-                {
-                    if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_First);
-                    if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
-                    if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
-                    if (ImGui::MenuItem("Dust storm effect particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
-                    if (ImGui::MenuItem("Fountain effect particle system", nullptr, sid == SID_ParticleSystem_Fountain))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
-                    if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
-                    if (ImGui::MenuItem("FireComplex effect particle system", nullptr, sid == SID_ParticleSystem_FireComplex))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
-                    if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
-
-                    ImGui::EndMenu();
-                }
                 ImGui::EndMenu();
             }
 

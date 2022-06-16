@@ -180,6 +180,15 @@ enum SLSceneID
     SID_ErlebARAventicumTheatre,
     SID_ErlebARSutzKirchrain18,
 
+    SID_ParticleSystem_First,
+    SID_ParticleSystem_FireEffects,
+    SID_ParticleSystem_Demo,
+    SID_ParticleSystem_DustStorm,
+    SID_ParticleSystem_Fountain,
+    SID_ParticleSystem_Sun,
+    SID_ParticleSystem_FireComplex,
+    SID_ParticleSystem_RingOfFire,
+
     SID_Benchmark1_LargeModel,
     SID_Benchmark2_MassiveNodes,
     SID_Benchmark3_NodeAnimations,
@@ -189,15 +198,6 @@ enum SLSceneID
     SID_Benchmark7_JansUniverse,
     SID_Benchmark8_ParticleSystemFireComplex,
     SID_Benchmark9_ParticleSystemManyParticles,
-
-    SID_ParticleSystem_First,
-    SID_ParticleSystem_FireEffects,
-    SID_ParticleSystem_Demo,
-    SID_ParticleSystem_DustStorm,
-    SID_ParticleSystem_Fountain,
-    SID_ParticleSystem_Sun,
-    SID_ParticleSystem_FireComplex,
-    SID_ParticleSystem_RingOfFire,
 
     SID_Maximal
 };
