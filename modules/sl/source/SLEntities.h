@@ -15,7 +15,7 @@
 
 using namespace std;
 
-#define SL_USE_ENTITIES
+//#define SL_USE_ENTITIES
 //#define SL_USE_ENTITIES_DEBUG
 
 //-----------------------------------------------------------------------------
