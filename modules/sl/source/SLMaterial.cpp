@@ -420,7 +420,7 @@ void SLMaterial::generateProgramPS()
                                                   false);
 
             int                 countString = 3;
-            vector<const char*> outputNames;
+            vector<const char*> outputNames; // For transform feedback
             outputNames.push_back("tf_position");
             outputNames.push_back("tf_velocity");
             outputNames.push_back("tf_startTime");

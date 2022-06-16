@@ -437,7 +437,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
                         sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
-                    if (s->singleMeshFullSelected() != nullptr)
+
+                    // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
+                    /* if (s->singleMeshFullSelected() != nullptr)
                     {
                         SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
                         if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
@@ -445,7 +447,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                             sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
                             sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
                         }
-                    }
+                    }*/
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
