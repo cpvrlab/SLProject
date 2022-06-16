@@ -598,8 +598,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         // Take default delta time, because when just paused no need to take last delta time, the draw call continue to be called
     }
 
-    // Calculate the elapsed time for the updating
-    _startUpdateTimeMS = GlobalTimer::timeMS();
+    // Calculate the elapsed time for the updating, need to change to use a real profiler (can't measure time like this on the GPU)
+    _startUpdateTimeMS = GlobalTimer::timeMS(); 
 
     // MS above, S below
     _deltaTimeUpdateS = GlobalTimer::timeS() - _startUpdateTimeS;
@@ -707,7 +707,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     SLGLState* stateGL = SLGLState::instance();
 
-    // Start calculation of the elapsed time for the drawing
+    // Start calculation of the elapsed time for the drawing, need to change to use a real profiler (can't measure time like this on the GPU)
     _startDrawTimeMS = GlobalTimer::timeMS();
 
     // Billboard type
