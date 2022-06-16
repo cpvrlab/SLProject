@@ -17,7 +17,11 @@
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
-//! SLParticleSystem ctor with a given vector of points
+//! SLParticleSystem ctor with some inital values. The number of particles
+//! The particle emmiter position, the start and end random value range
+//! The time to live of the particle (lifetime). A texture, a name
+//! , and a flipbook texture.
+//! particleEmiPos is not used (need to be removed)
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
                                    const SLint     amount,
                                    const SLVec3f&  particleEmiPos,
@@ -447,7 +451,7 @@ void SLParticleSystem::generate()
 }
 //-----------------------------------------------------------------------------
 /*!
-Generate Bernstein Polynomial with 4 controls points.
+Generate Bernstein Polynomial with 4 controls points for alpha over life.
 ContP contains 2 and 3 controls points
 StatEnd contains 1 and 4 controls points
 */
@@ -467,7 +471,7 @@ void SLParticleSystem::generateBernsteinPAlpha()
 }
 //-----------------------------------------------------------------------------
 /*!
-Generate Bernstein Polynomial with 4 controls points.
+Generate Bernstein Polynomial with 4 controls points for size over life.
 ContP contains 2 and 3 controls points
 StatEnd contains 1 and 4 controls points
 */
@@ -486,6 +490,10 @@ void SLParticleSystem::generateBernsteinPSize()
     _bernsteinPYSize.w = StaEnd[1];
 }
 //-----------------------------------------------------------------------------
+/*!
+Change the current use texture, this will switch between the normal texture and
+the flipbook texture (and vice versa)
+*/
 void SLParticleSystem::changeTexture()
 {
     if (_doFlipBookTexture)
@@ -500,6 +508,10 @@ void SLParticleSystem::changeTexture()
     }
 }
 //-----------------------------------------------------------------------------
+/*!
+Function called inside SLNode cull3DRec(..) which set a boolean and a time for the next
+draw call to update the start time of the particles.
+*/
 void SLParticleSystem::notVisibleFrustumCulling()
 {
     if (_isViFrustumCulling)
@@ -509,6 +521,10 @@ void SLParticleSystem::notVisibleFrustumCulling()
     }
 }
 //-----------------------------------------------------------------------------
+/*!
+Function called by the user to pause or resume the particle system. This will
+freeze the particle system there won't be any updating, only the drawing
+*/
 void SLParticleSystem::pauseOrResume()
 {
     if (!_isPaused)
@@ -520,6 +536,12 @@ void SLParticleSystem::pauseOrResume()
         _isPaused = false;
 }
 //-----------------------------------------------------------------------------
+/*!
+Draw function override from SLMesh. In this function I start by generate the
+particle and programs if they are not, then I check if the particle have been culled
+by the frstum culling or if they have been resumed by the user. After I update
+the particle in the update pass, then and finally I draw them.
+*/
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
     /////////////////////////////////////
@@ -975,7 +997,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             if (_gravity.z != 0.0f) timeForZGrav = maxV.z / _gravity.z;
 
             if (timeForXGrav < 0.0f)                             // If the gravity go against the velocity
-                maxP.x -= maxV.x * (_timeToLive + timeForXGrav); // We remove the position the velocity that we will not make because we go against it (becareful! here timeForXGrav is negative)
+                maxP.x -= maxV.x * (_timeToLive + timeForXGrav); // I remove the position  with the velocity that it will not do because it go against the velocity (becareful! here timeForXGrav is negative)
             else if (timeForXGrav > 0.0f)                        // If the gravity go with the velocity
                 maxP.x += 0.5f * _gravity.x * (_timeToLive * _timeToLive);
             if (timeForYGrav < 0.0f) // If the gravity go against the velocity
