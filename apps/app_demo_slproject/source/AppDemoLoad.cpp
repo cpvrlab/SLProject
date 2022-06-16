@@ -6592,7 +6592,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* root = new SLNode;
         s->root3D(root);
         root->addChild(cam1);
-        const int NUM_NODES = 1000;
+        const int NUM_NODES = 250;
 
         // Create textures and materials
         SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
@@ -6706,9 +6706,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             flameNode->translate(0.0f, 0.7f, 0.0f, TS_object);
             nodes[i]->addChild(flameNode);
 
-            //
             // Glow
-            //
             SLParticleSystem* glow = new SLParticleSystem(am,
                                                           4,
                                                           SLVec3f(0, 0.0, 0),
@@ -6736,10 +6734,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLNode* glowNode = new SLNode(glowMesh, "Particle system node glow");
             nodes[i]->addChild(glowNode);
 
-            //
             // Black smoke
-            //
-
             SLParticleSystem* smokeB = new SLParticleSystem(am,
                                                             8,
                                                             SLVec3f(0, 0.0, 0),
@@ -6781,10 +6776,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             smokeBNode->translate(0.0f, 0.9f, 0.0f, TS_object);
             nodes[i]->addChild(smokeBNode);
 
-            //
             // White smoke
-            //
-
             SLParticleSystem* smokeW = new SLParticleSystem(am,
                                                             40,
                                                             SLVec3f(0, 0.0, 0),

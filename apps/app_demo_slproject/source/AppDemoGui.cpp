@@ -1955,12 +1955,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
-                    if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
-                        s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
-                    if (ImGui::MenuItem("Particle System lot of fire complex", nullptr, sid == SID_Benchmark8_ParticleSystemFireComplex))
-                        s->onLoad(am, s, sv, SID_Benchmark8_ParticleSystemFireComplex);
-                    if (ImGui::MenuItem("Particle System lot of particle", nullptr, sid == SID_Benchmark9_ParticleSystemManyParticles))
-                        s->onLoad(am, s, sv, SID_Benchmark9_ParticleSystemManyParticles);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
@@ -1997,7 +1991,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark6_ColumnsLOD);
                         }
                     }
-
+                    if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
+                        s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
+                    if (ImGui::MenuItem("Particle System lot of fire complex", nullptr, sid == SID_Benchmark8_ParticleSystemFireComplex))
+                        s->onLoad(am, s, sv, SID_Benchmark8_ParticleSystemFireComplex);
+                    if (ImGui::MenuItem("Particle System lot of particle", nullptr, sid == SID_Benchmark9_ParticleSystemManyParticles))
+                        s->onLoad(am, s, sv, SID_Benchmark9_ParticleSystemManyParticles);
                     ImGui::EndMenu();
                 }
 
