@@ -116,12 +116,6 @@ Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
 SLNode::~SLNode()
 {
-    for (auto* child : _children)
-        delete child;
-    _children.clear();
-
-    delete _animation;
-
 #ifdef SL_USE_ENTITIES
     SLint entityID = SLScene::entities.getEntityID(this);
     SLint parentID = SLScene::entities.getParentID(this);
@@ -133,6 +127,12 @@ SLNode::~SLNode()
             SLScene::entities.deleteEntity(entityID);
     }
 #endif
+
+    for (auto* child : _children)
+        delete child;
+    _children.clear();
+
+    delete _animation;
 }
 //-----------------------------------------------------------------------------
 /*!

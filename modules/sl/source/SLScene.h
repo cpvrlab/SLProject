@@ -63,7 +63,7 @@ public:
 
 #ifdef SL_USE_ENTITIES
         SLint rootEntityID = SLScene::entities.getEntityID(root3D);
-        if (rootEntityID == INT32_MIN)
+        if (rootEntityID == INT32_MIN && root3D)
             SLScene::entities.addChildEntity(-1, SLEntity(root3D));
         else if (rootEntityID > -1)
             SL_EXIT_MSG("Root node exists already with another ID among the entities");

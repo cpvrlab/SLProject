@@ -11,6 +11,77 @@
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
+/*! addChild adds a child node by inserting an SLEntities into a vector in
+ Depth First Search order. The root node gets the parent ID -1.
+ The child is inserted right after the parent node.
+ @param scenegraph The scenegraph as a vector
+ @param myParentID Index of the parent node
+ @param node The node to add as child of the parent
+*/
+void SLEntities::addChildEntity(SLint    myParentID,
+                                SLEntity entity)
+{
+    if (myParentID > (int)_graph.size() || myParentID < -1)
+        SL_EXIT_MSG("Invalid parent ID");
+
+    SLint entityID; // ID and insert position of new entity
+
+#ifdef SL_USE_ENTITIES_DEBUG
+    this->dump(true);
+#endif
+
+    if (_graph.empty())
+    {
+        // Root node and ignore myParentID
+        entityID = 0;
+        _graph.push_back(entity);
+        _graph[0].parentID   = -1;
+        _graph[0].childCount = 0;
+        _graph[0].om         = _graph[0].node->om();
+        _graph[0].node->entityID(0);
+        if (_graph[0].node->parent() != nullptr)
+            SL_EXIT_MSG("Root node parent pointer must be null");
+    }
+    else
+    {
+        entity.parentID   = myParentID;
+        entity.childCount = 0;
+        entity.om         = entity.node->om();
+
+        // Loop forward to the insert position
+        SLint insertPos = myParentID + 1;
+        while (insertPos < _graph.size() && _graph[insertPos].parentID >= myParentID)
+            insertPos++;
+
+        entityID = insertPos;
+        if (entityID == _graph.size())
+            _graph.push_back(entity); // faster than insert
+        else
+            _graph.insert(_graph.begin() + entityID, entity);
+
+        _graph[myParentID].childCount++;
+
+        // Increase parentIDs of following subtrees that are greater
+        for (SLuint i = entityID + 1; i < _graph.size(); i++)
+            if (_graph[i].parentID > myParentID)
+                _graph[i].parentID++;
+
+        // Correct all node->entityIDs
+        for (SLuint i = 0; i < _graph.size(); ++i)
+            _graph[i].node->entityID(i);
+    }
+
+    // Recursively add children of the entity
+    if (_graph[entityID].node->children().size())
+    {
+        for (SLint i = 0; i < _graph[entityID].node->children().size(); ++i)
+        {
+            SLNode* childNode = _graph[entityID].node->children()[i];
+            this->addChildEntity(entityID, SLEntity(childNode));
+        }
+    }
+}
+//-----------------------------------------------------------------------------
 /*! Returns the pointer to the node at id
  @param scenegraph The scenegraph as a SLEntities vector
  @param id The index of the node to return as a pointer
@@ -68,8 +139,7 @@ SLuint SLEntities::updateWMRec(SLint id, SLMat4f& parentWM)
 
 #ifdef SL_USE_ENTITIES_DEBUG
     SLMat4f nodeOM = entity->node->om();
-
-    if (!entity->om.isEqual(nodeOM)) // && entity->node->name() == "LightSpot Node")
+    if (!entity->om.isEqual(nodeOM))
     {
         string nodeName = "nodeOM: " + entity->node->name();
         entity->om.print("entityOM:");
@@ -113,8 +183,10 @@ Example from SLEntities::addChild:
 +--03.00.00
 +--04.00.02
 |  +--05.04.00
-|  +--06.04.00
-+--07.00.00
+|  +--06.04.01
+|  |  +--07.06.01
+|  |  |  +--08.07.00
++--09.00.00
 */
 void SLEntities::dump(SLbool doTreeDump)
 {
@@ -166,103 +238,6 @@ void SLEntities::dump(SLbool doTreeDump)
         cout << "|" << endl;
     }
     cout << "----------------------------------------------------------" << endl;
-}
-//-----------------------------------------------------------------------------
-/*! addChild adds a child node by inserting an SLEntities into a vector in
- Depth First Search order. The root node gets the parent ID -1.
- The child is inserted right after the parent node.
- @param scenegraph The scenegraph as a vector
- @param myParentID Index of the parent node
- @param node The node to add as child of the parent
-
- Legend: The * shows the updated fields
-         The ------ shows the inserted node
-
-                     |  00  |  01  |  02  |  03  |  04  |  05  |  06  |  07  |
-addChild(sg,0,node)  |-1  00|
-                      ------
-addChild(sg,0,node)  |-1  01|00  00|
-                           * ------
-addChild(sg,0,node)  |-1  02|00  00|00  00|
-                           * ------
-addChild(sg,0,node)  |-1  03|00  00|00  00|00  00|
-                           * ------
-addChild(sg,2,node)  |-1  03|00  00|00  01|02  00|00  00|
-                                         * ------
-addChild(sg,2,node)  |-1  03|00  00|00  02|02  00|02  00|00  00|
-                                         * ------
-addChild(sg,0,node)  |-1  04|00  00|00  00|00  02|03  00|03  00|00  00|
-                           * ------                *      *
-addChild(sg,1,node)  |-1  04|00  01|01  00|00  00|00  02|04  00|04  00|00  00|
-                                  * ------                *      *
-*/
-void SLEntities::addChildEntity(SLint    myParentID,
-                                SLEntity entity)
-{
-    if (myParentID > (int)_graph.size() || myParentID < -1)
-        SL_EXIT_MSG("Invalid parent ID");
-
-    SLint entityID = 0;
-
-    if (_graph.empty())
-    {
-        // Root node and ignore myParentID
-        entityID = 0;
-        _graph.push_back(entity);
-        _graph[0].parentID   = -1;
-        _graph[0].childCount = 0;
-        _graph[0].node->entityID(0);
-        if (_graph[0].node->parent() != nullptr)
-            SL_EXIT_MSG("Root node parent pointer must be null");
-    }
-    else
-    {
-        entity.parentID   = myParentID;
-        entity.childCount = 0;
-
-        // Go to last child of same parent
-        SLint lastChild = myParentID;
-        if (_graph[myParentID].childCount > 0)
-        {
-            SLuint childCount = 0;
-            for (SLuint i = myParentID + 1; i < _graph.size(); i++)
-                if (_graph[i].parentID == myParentID)
-                {
-                    childCount++;
-                    if (childCount == _graph[myParentID].childCount)
-                    {
-                        lastChild = i;
-                        break;
-                    }
-                }
-        }
-
-        entityID = lastChild + 1;
-        if (entityID == _graph.size())
-            _graph.push_back(entity); // faster than insert
-        else
-            _graph.insert(_graph.begin() + entityID, entity);
-
-        // Increase parentIDs of following subtrees that are greater
-        for (SLuint i = entityID + 1; i < _graph.size(); i++)
-            if (_graph[i].parentID > myParentID)
-                _graph[i].parentID++;
-
-        // Correct all node->entityIDs
-        for (SLuint i = 0; i < _graph.size(); ++i)
-            _graph[i].node->entityID(i);
-
-    }
-
-    // Recursively add children of the entity
-    if (_graph[entityID].node->children().size())
-    {
-        for (SLint i = 0; i < _graph[entityID].node->children().size(); ++i)
-        {
-            SLNode* childNode = _graph[entityID].node->children()[i];
-            this->addChildEntity(entityID, SLEntity(childNode));
-        }
-    }
 }
 //-----------------------------------------------------------------------------
 /*! Deletes a node at index id with all with all children

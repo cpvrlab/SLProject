@@ -5827,7 +5827,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT_MESH  = 10;
+        const int NUM_MAT_MESH  = 100;
 #else
         const int NUM_MAT    = 20;
         const int NUM_MESH   = 20;
@@ -5863,7 +5863,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Create universe
-        SLuint const levels     = 3;
+        SLuint const levels     = 6;
         SLuint const childCount = 8;
         generateUniverse(am, s, scene, 0, levels, childCount, materials, meshes);
 
