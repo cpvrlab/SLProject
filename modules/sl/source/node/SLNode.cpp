@@ -736,7 +736,7 @@ SLAABBox& SLNode::updateAABBRec(SLbool updateAlsoAABBinOS)
         _aabb.mergeWS(aabbMesh);
     }
 
-    // Merge children in WS
+    // Merge children in WS recursively
     for (auto* child : _children)
         _aabb.mergeWS(child->updateAABBRec(updateAlsoAABBinOS));
 
@@ -744,6 +744,8 @@ SLAABBox& SLNode::updateAABBRec(SLbool updateAlsoAABBinOS)
     // This is used for ray casts (picking) and raytracing.
     if (updateAlsoAABBinOS)
         _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
+
+    _aabb.setCenterAndRadiusWS();
 
     // For visualizing the nodes' orientation we finally updateRec the axis in WS
     _aabb.updateAxisWS(updateAndGetWM());
