@@ -177,6 +177,7 @@ public:
     SLCol4f               edgeColor() const { return _edgeColor; }
     SLVec3f               finalP(SLuint i) { return _finalP->operator[](i); }
     SLVec3f               finalN(SLuint i) { return _finalN->operator[](i); }
+    SLbool                accelStructIsOutOfDate() { return _accelStructIsOutOfDate; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -240,13 +241,13 @@ protected:
     unsigned int                _sbtIndex;
 #endif
 
-    SLbool          _isVolume;             //!< Flag for RT if mesh is a closed volume
-    SLAccelStruct*  _accelStruct;          //!< KD-tree or uniform grid
-    SLbool          _accelStructOutOfDate; //!< Flag id accel.struct needs update
-    SLAnimSkeleton* _skeleton;             //!< The skeleton this mesh is bound to
-    SLVMat4f        _jointMatrices;        //!< Joint matrix vector for this mesh
-    SLVVec3f*       _finalP;               //!< Pointer to final vertex position vector
-    SLVVec3f*       _finalN;               //!< pointer to final vertex normal vector
+    SLbool          _isVolume;               //!< Flag for RT if mesh is a closed volume
+    SLAccelStruct*  _accelStruct;            //!< KD-tree or uniform grid
+    SLbool          _accelStructIsOutOfDate; //!< Flag id accel.struct needs update
+    SLAnimSkeleton* _skeleton;               //!< The skeleton this mesh is bound to
+    SLVMat4f        _jointMatrices;          //!< Joint matrix vector for this mesh
+    SLVVec3f*       _finalP;                 //!< Pointer to final vertex position vector
+    SLVVec3f*       _finalN;                 //!< pointer to final vertex normal vector
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;

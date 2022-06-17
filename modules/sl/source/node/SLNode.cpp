@@ -724,10 +724,9 @@ SLAABBox& SLNode::updateAABBRec(SLbool updateAlsoAABBinOS)
         _aabb.maxWS(SLVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX));
     }
 
+    // Update special case of camera because it has no mesh
     if (dynamic_cast<SLCamera*>(this))
-    {
         ((SLCamera*)this)->buildAABB(_aabb, updateAndGetWM());
-    }
 
     // Build or updateRec AABB of meshes & merge them to the nodes aabb in WS
     if (_mesh)
@@ -1115,7 +1114,7 @@ void SLNode::updateMeshAccelStructs()
 {
     PROFILE_FUNCTION();
 
-    if (_mesh)
+    if (_mesh && _mesh->accelStructIsOutOfDate())
         _mesh->updateAccelStruct();
 
     for (auto* child : _children)

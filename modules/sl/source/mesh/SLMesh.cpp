@@ -47,15 +47,15 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-    _skeleton             = nullptr;
-    _isVolume             = true;    // is used for RT to decide inside/outside
-    _accelStruct          = nullptr; // no initial acceleration structure
-    _accelStructOutOfDate = true;
-    _isSelected           = false;
-    _edgeAngleDEG         = 30.0f;
-    _edgeWidth            = 2.0f;
-    _edgeColor            = SLCol4f::WHITE;
-    _vertexPosEpsilon     = 0.001f;
+    _skeleton               = nullptr;
+    _isVolume               = true;    // is used for RT to decide inside/outside
+    _accelStruct            = nullptr; // no initial acceleration structure
+    _accelStructIsOutOfDate = true;
+    _isSelected             = false;
+    _edgeAngleDEG           = 30.0f;
+    _edgeWidth              = 2.0f;
+    _edgeColor              = SLCol4f::WHITE;
+    _vertexPosEpsilon       = 0.001f;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -226,7 +226,7 @@ void SLMesh::deleteSelected(SLNode* node)
 
     // flag aabb and aceleration structure to be updated
     node->needAABBUpdate();
-    _accelStructOutOfDate = true;
+    _accelStructIsOutOfDate = true;
 }
 //-----------------------------------------------------------------------------
 //! Deletes unused vertices (= vertices that are not indexed in I16 or I32)
@@ -1033,7 +1033,7 @@ the min & max points in WS with the passed WM of the node.
 */
 void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
-    // update acceleration struct and calculate min max
+    // Update acceleration struct and calculate min max
     if (_skeleton)
     {
         minP = _skeleton->minOS();
@@ -1041,9 +1041,10 @@ void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else
     {
-        // for now, we just update the acceleration struct for non skinned meshes
+        // For now, we just update the acceleration struct for non-skinned meshes
         // Building the entire voxelization of a mesh every frame is not feasible
-        updateAccelStruct();
+        if (_accelStructIsOutOfDate)
+            updateAccelStruct();
     }
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
@@ -1054,9 +1055,6 @@ flag is set. This can happen for mesh animations.
 */
 void SLMesh::updateAccelStruct()
 {
-    if (!_accelStructOutOfDate)
-        return;
-
     calcMinMax();
 
     // Add half a percent in each direction to avoid zero size dimensions
@@ -1074,7 +1072,7 @@ void SLMesh::updateAccelStruct()
     if (_accelStruct && numI() > 15)
     {
         _accelStruct->build(minP, maxP);
-        _accelStructOutOfDate = false;
+        _accelStructIsOutOfDate = false;
     }
 }
 //-----------------------------------------------------------------------------
@@ -1450,7 +1448,7 @@ void SLMesh::preShade(SLRay* ray)
                              T[iB] * ray->hitU +
                              T[iC] * ray->hitV);
 
-                SLVec3f T3(hitT.x, hitT.y, hitT.z); // tangent with 3 components
+                SLVec3f T3(hitT.x, hitT.y, hitT.z);         // tangent with 3 components
                 T3.set(wmN * T3);                           // transform tangent back to world space
                 SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y); // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;               // unperturbated normal
@@ -1529,7 +1527,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     _finalN = &skinnedN;
 
     // flag acceleration structure to be rebuilt
-    _accelStructOutOfDate = true;
+    _accelStructIsOutOfDate = true;
 
     // iterate over all vertices and write to new buffers
     for (SLulong i = 0; i < P.size(); ++i)
@@ -1632,7 +1630,7 @@ void SLMesh::createMeshAccelerationStructure()
 //-----------------------------------------------------------------------------
 void SLMesh::updateMeshAccelerationStructure()
 {
-    if (!_accelStructOutOfDate)
+    if (!_accelStructIsOutOfDate)
         return;
 
     uploadData();
