@@ -410,7 +410,7 @@ void SLParticleSystem::generate()
             tempAngulareVelo[i] = random(_angularVelocityRange.x * DEG2RAD,
                                          _angularVelocityRange.y * DEG2RAD); // Start rotation of the particle
         if (_doFlipBookTexture) // Flipbook texture
-            tempTexNum[i] = random(0, _row * _col - 1);
+            tempTexNum[i] = random(0, _flipbookRows * _flipbookColumns - 1);
         if (_doShape)   // Shape feature
             tempInitP[i] = tempP[i];
     }
@@ -658,15 +658,15 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         // Flipbook
         if (_doFlipBookTexture)
         {
-            spTF->uniform1i("u_col", _col);
-            spTF->uniform1i("u_row", _row);
-            _lastUpdateFB += _deltaTimeUpdateS;
+            spTF->uniform1i("u_col", _flipbookColumns);
+            spTF->uniform1i("u_row", _flipbookRows);
+            _flipboookLastUpdate += _deltaTimeUpdateS;
 
-            if (_lastUpdateFB > (1.0f / (float)_frameRateFB))
+            if (_flipboookLastUpdate > (1.0f / (float)_flipbookFPS))
             {
                 // Last time FB was updated is bigger than the time needed for each update
                 spTF->uniform1i("u_condFB", 1);
-                _lastUpdateFB = 0.0f;
+                _flipboookLastUpdate = 0.0f;
             }
             else
                 spTF->uniform1i("u_condFB", 0);
@@ -800,8 +800,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Flipbook
     if (_doFlipBookTexture)
     {
-        spD->uniform1i("u_col", _col);
-        spD->uniform1i("u_row", _row);
+        spD->uniform1i("u_col", _flipbookColumns);
+        spD->uniform1i("u_row", _flipbookRows);
     }
 
     if (_isPaused) // Take time when pause was enable

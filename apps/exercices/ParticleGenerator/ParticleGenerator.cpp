@@ -284,7 +284,7 @@ void onInit()
 
     // Load textures
     //_textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
-    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/smoke_08_C.png");
+    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/ParticleSmoke_08_C.png");
 
     // Load, compile & link shaders for transform feedback
     _tFShaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTFOLD.vert", GL_VERTEX_SHADER);

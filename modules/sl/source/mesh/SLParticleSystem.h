@@ -88,8 +88,8 @@ public:
     SLBillboardType billboardType() { return _billboardType; }
     SLint           shapeType() { return _shapeType; }
     SLint           velocityType() { return _velocityType; }
-    SLint           col() { return _col; }
-    SLint           row() { return _row; }
+    SLint           flipbookColumns() { return _flipbookColumns; }
+    SLint           flipbookRows() { return _flipbookRows; }
     SLfloat         timeToLive() { return _timeToLive; }
     SLfloat         radiusW() { return _radiusW; }
     SLfloat         radiusH() { return _radiusH; }
@@ -105,7 +105,7 @@ public:
     SLfloat         radiusSphere() { return _radiusSphere; }
     AvgFloat&       updateTime() { return _updateTime; }
     AvgFloat&       drawTime() { return _drawTime; }
-    int             frameRateFB() { return _frameRateFB; }
+    int             frameRateFB() { return _flipbookFPS; }
     SLGLTexture*    textureFirst() { return _textureFirst; }
     SLGLTexture*    textureFlipbook() { return _textureFlipbook; }
 
@@ -223,8 +223,8 @@ public:
     void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLBillboardType bt) { _billboardType = bt; }
     void velocityType(SLint i) { _velocityType = i; }
-    void col(SLint i) { _col = i; }
-    void row(SLint i) { _row = i; }
+    void flipbookColumns(SLint i) { _flipbookColumns = i; }
+    void flipbookRows(SLint i) { _flipbookRows = i; }
     void timeToLive(SLfloat f) { _timeToLive = f; }
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
@@ -243,7 +243,7 @@ public:
         _angularVelocityRange.y = vY;
     }
     void radiusSphere(SLfloat f) { _radiusSphere = f; }
-    void frameRateFB(int i) { _frameRateFB = i; }
+    void frameRateFB(int i) { _flipbookFPS = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
@@ -302,10 +302,10 @@ private:
     int _drawBuf = 0; //!< Boolean to switch buffer
 
     // Flipbook
-    int   _frameRateFB  = 16;   //!< Number of update of flipbook by second
-    float _lastUpdateFB = 0.0f; //!< Last time flipbook was updated
-    SLint _col          = 8;    //!< Number of texture by column
-    SLint _row          = 8;    //!< Number of texture by row
+    int   _flipbookFPS         = 16;   //!< Number of update of flipbook by second
+    float _flipboookLastUpdate = 0.0f; //!< Last time flipbook was updated
+    SLint _flipbookColumns     = 8;    //!< Number of flipbook sub-textures by column
+    SLint _flipbookRows        = 8;    //!< Number of flipbook sub-textures by row
 
     // Statistics
     AvgFloat _updateTime;               //!< Averaged time for updating in MS
