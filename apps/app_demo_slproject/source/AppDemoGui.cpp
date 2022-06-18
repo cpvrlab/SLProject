@@ -1749,7 +1749,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Ray tracing"))
+                if (ImGui::BeginMenu("Ray Tracing"))
                 {
                     if (ImGui::MenuItem("Spheres", nullptr, sid == SID_RTSpheres))
                         s->onLoad(am, s, sv, SID_RTSpheres);
@@ -1767,7 +1767,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Path tracing"))
+                if (ImGui::BeginMenu("Path Tracing"))
                 {
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
                         s->onLoad(am, s, sv, SID_RTMuttenzerBox);
@@ -1779,20 +1779,20 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
                         s->onLoad(am, s, sv, SID_ParticleSystem_First);
-                    if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
+                    if (ImGui::MenuItem("Simple Fire Particle System", nullptr, sid == SID_ParticleSystem_FireEffects))
                         s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
-                    if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
+                    if (ImGui::MenuItem("Demo Particle System", nullptr, sid == SID_ParticleSystem_Demo))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
-                    if (ImGui::MenuItem("Dust storm effect particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
+                    if (ImGui::MenuItem("Dust Storm Particle System", nullptr, sid == SID_ParticleSystem_DustStorm))
                         s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
-                    if (ImGui::MenuItem("Fountain effect particle system", nullptr, sid == SID_ParticleSystem_Fountain))
+                    if (ImGui::MenuItem("Fountain Particle System", nullptr, sid == SID_ParticleSystem_Fountain))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
-                    if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
+                    if (ImGui::MenuItem("Sun Particle System", nullptr, sid == SID_ParticleSystem_Sun))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
-                    if (ImGui::MenuItem("FireComplex effect particle system", nullptr, sid == SID_ParticleSystem_FireComplex))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
-                    if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
+                    if (ImGui::MenuItem("Ring of Rire Particle System", nullptr, sid == SID_ParticleSystem_RingOfFire))
                         s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
+                    if (ImGui::MenuItem("Complex Fire Particle System", nullptr, sid == SID_ParticleSystem_FireComplex))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
 
                     ImGui::EndMenu();
                 }

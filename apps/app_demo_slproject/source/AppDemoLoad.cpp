@@ -3347,8 +3347,22 @@ resolution shadows near the camera and lower resolution shadows further away.");
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
 
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
+
+        // Create and add camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 20, 40);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(42);
+        scene->addChild(cam1);
+        sv->camera(cam1);
+
+        // Add spotlight
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f);
         light1->translate(0, 10, 0);
+        scene->addChild(light1);
 
         // build a basic scene to have a reference for the occurring rotations
         SLMaterial* genericMat = new SLMaterial(am, "some material");
@@ -3356,12 +3370,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // we use the same mesh to visualize all the nodes
         SLBox* box = new SLBox(am, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
 
-        s->root3D(new SLNode);
-        s->root3D()->addChild(light1);
-
-        // we build a stack of levels, each level has a grid of boxes on it
-        // each box on this grid has an other grid above it with child nodes
-        // best results are achieved if gridSize is an uneven number.
+        // We build a stack of levels, each level has a grid of boxes on it
+        // each box on this grid has another grid above it with child nodes.
+        // Best results are achieved if gridSize is an uneven number.
         // (gridSize^2)^levels = num nodes. handle with care.
         const SLint levels      = 3;
         const SLint gridSize    = 3;
@@ -3380,7 +3391,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         vector<SLNode*> curParentsVector;
 
         // first parent is the scene root
-        parents.push_back(s->root3D());
+        parents.push_back(scene);
 
         SLint nodeIndex = 0;
         for (float lvl : nodeSpacing)
@@ -5720,7 +5731,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         s->root3D(scene);
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+        SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
         SLGLTexture* texFlipbook      = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
         SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
 
