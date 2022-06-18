@@ -140,7 +140,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject
 
 SLstring AppDemoGui::infoCredits = R"(
 Contributors since 2005 in alphabetic order:
-Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marino von Wattenwyl, Marc Wacker, Pascal Zingg
+Marc Affolter, Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marino von Wattenwyl, Marc Wacker, Pascal Zingg
 
 Credits for external libraries:
 - assimp: assimp.sourceforge.net
