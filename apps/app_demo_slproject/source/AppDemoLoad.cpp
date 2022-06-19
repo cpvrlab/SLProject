@@ -6022,14 +6022,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
         SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
 
-        scene->addChild(createComplexFire(am,
-                                          s,
-                                          true,
-                                          texFireCld,
-                                          texFireFlm,
-                                          texCircle,
-                                          texSmokeB,
-                                          texSmokeW));
+        SLNode* complexFire = createComplexFire(am,
+                                                s,
+                                                true,
+                                                texFireCld,
+                                                texFireFlm,
+                                                texCircle,
+                                                texSmokeB,
+                                                texSmokeW);
+        scene->addChild(complexFire);
 
         // Add other meshes (Floor, wall...)
         SLMaterial* matYel = new SLMaterial(am, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
@@ -6058,6 +6059,21 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(rectBack);
         scene->addChild(rectLeft);
         scene->addChild(rectRight);
+
+        /* Firewood
+        SLAssimpImporter importer;
+        SLNode*          firewood = importer.load(s->animManager(),
+                                         am,
+                                         modelPath + "GLTF/Firewood/Firewood1.gltf",
+                                         texPath,
+                                         nullptr,
+                                         false,   // delete tex images after build
+                                         true,    // load meshes only
+                                         nullptr, // override material
+                                         0.3f);
+        firewood->scale(2);
+        scene->addChild(firewood);
+        */
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
