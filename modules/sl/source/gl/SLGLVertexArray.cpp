@@ -237,7 +237,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/* Same as generate but with transform feedback */
+/*! Same as generate but with transform feedback */
 void SLGLVertexArray::generateTF(SLuint          numVertices,
                                  SLGLBufferUsage usage,
                                  SLbool          outputInterleaved)
@@ -313,7 +313,7 @@ void SLGLVertexArray::generateTF(SLuint          numVertices,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/* Discard the rendering because we just compute next position with the
+/*! Discard the rendering because we just compute next position with the
  * transform feedback. We need to bind a transform feedback object but not the
  * same from this vao, because we want to read from one vao and write on another.
  */
@@ -330,7 +330,7 @@ void SLGLVertexArray::beginTF(SLuint tfoID)
 }
 
 //-----------------------------------------------------------------------------
-/* We activate back the rendering and stop the transform feedback.
+/*! We activate back the rendering and stop the transform feedback.
  */
 void SLGLVertexArray::endTF()
 {

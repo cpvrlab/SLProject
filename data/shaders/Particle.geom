@@ -19,11 +19,11 @@ in vertex {
     float size;
 } vert[];
 
-uniform mat4 u_pMatrix; // Projection matrix
+uniform mat4 u_pMatrix;     // Projection matrix
 
-uniform vec4 u_color;   // Particle color
-uniform float u_scale;  // Particle scale
-uniform float u_radius; // Particle radius
+uniform vec4 u_color;       // Particle color
+uniform float u_scale;      // Particle scale
+uniform float u_radius;     // Particle radius
 
 out vec4 v_particleColor;   // The resulting color per vertex
 out vec2 v_texCoord;        // Texture coordinate at vertex
@@ -44,7 +44,7 @@ void main (void)
   mat2 rot = mat2(cos(vert[0].rotation),-sin(vert[0].rotation),sin(vert[0].rotation),cos(vert[0].rotation)); // Matrix of rotation
   // Create 4 points to create two triangle to draw one particle
 
-  vec4 color = u_color;   // Particle color
+  vec4 color = u_color;              // Particle color
   color.w *= vert[0].transparency;   // Apply transparency
 
   //BOTTOM LEFT

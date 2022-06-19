@@ -297,7 +297,7 @@ SLVec3f SLParticleSystem::getDirectionPyramid(SLVec3f position)
     return SLVec3f(newX, _heightPyramid, newZ).normalize();
 }
 //-----------------------------------------------------------------------------
-//! Function which will generate the particles, attribes them to the VAO
+//! Function which will generate the particles and attributes them to the VAO
 void SLParticleSystem::generate()
 {
     SLuint                     seed = (SLuint)chrono::system_clock::now().time_since_epoch().count();
@@ -358,7 +358,7 @@ void SLParticleSystem::generate()
                 tempP[i] = getPointInPyramid();
             else
                 tempP[i] = getPointOnPyramid();
-        else // Position is not a volumn, spawn from start point (particle emmiter position)
+        else // Position is not a volume, spawn from start point (particle emitter position)
             tempP[i] = SLVec3f(0, 0, 0); 
 
         if (!_doDirectionSpeed) // Use normal velocity
@@ -563,9 +563,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _mat->generateProgramPS();
 
 
-    /////////////////////////////
+    ////////////////////////////////////////////////
     // Calculate time and paused and frustum culling
-    /////////////////////////////
+    ////////////////////////////////////////////////
 
     float difTime   = 0.0f;
     float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual delta time

@@ -457,7 +457,7 @@ SLNode* createComplexFire(SLAssetManager* am,
                                                           "Fire glow PS",
                                                           texFireFlm);
     fireGlowMesh->timeToLive(2.0f);
-    fireGlowMesh->billboardType(BT_Vertical);
+    fireGlowMesh->billboardType(BT_Camera);
     fireGlowMesh->radiusW(0.25f);
     fireGlowMesh->radiusH(0.25f);
 

@@ -41,15 +41,15 @@ layout (location = 4) in float a_rotation;       // Particle rotation attribute)
 const string vertInput_PS_a_r_angularVelo = R"(
 layout (location = 5) in float a_angularVelo;    // Particle rotation rate attribute)";
 const string vertInput_PS_a_texNum        = R"(
-layout (location = 6) in uint  a_texNum;          // Particle rotation attribute)";
+layout (location = 6) in uint  a_texNum;         // Particle rotation attribute)";
 const string vertInput_PS_a_initP         = R"(
-layout (location = 7) in vec3  a_initialPosition; // Particle initial position attribute)";
+layout (location = 7) in vec3  a_initialPosition;// Particle initial position attribute)";
 const string vertInput_a_uv0              = R"(
-layout (location = 2) in vec2  a_uv0;             // Vertex tex.coord. 1 for diffuse color)";
+layout (location = 2) in vec2  a_uv0;            // Vertex tex.coord. 1 for diffuse color)";
 const string vertInput_a_uv1              = R"(
-layout (location = 3) in vec2  a_uv1;             // Vertex tex.coord. 2 for AO)";
+layout (location = 3) in vec2  a_uv1;            // Vertex tex.coord. 2 for AO)";
 const string vertInput_a_tangent          = R"(
-layout (location = 5) in vec4  a_tangent;         // Vertex tangent attribute)";
+layout (location = 5) in vec4  a_tangent;        // Vertex tangent attribute)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_matrices_all = R"(
 
@@ -141,27 +141,27 @@ const string vertOutput_PS_struct_s      = R"(
 const string vertOutput_PS_struct_c      = R"(
     vec3 color;         // Color of a particle )";
 const string vertOutput_PS_struct_texNum = R"(
-    uint texNum;        // Num of texture )";
+    uint texNum;        // Num of texture in flipbook)";
 const string vertOutput_PS_struct_End    = R"(
 } vert; )";
 //-----------------------------------------------------------------------------
 const string vertOutput_PS_tf_p             = R"(
 
-out     vec3 tf_position;           // To transform feedback)";
+out     vec3  tf_position;          // To transform feedback)";
 const string vertOutput_PS_tf_v             = R"(
-out     vec3 tf_velocity;           // To transform feedback)";
+out     vec3  tf_velocity;          // To transform feedback)";
 const string vertOutput_PS_tf_st            = R"(
 out     float tf_startTime;         // To transform feedback)";
 const string vertOutput_PS_tf_initV         = R"(
-out     vec3 tf_initialVelocity;    // To transform feedback)";
+out     vec3  tf_initialVelocity;   // To transform feedback)";
 const string vertOutput_PS_tf_r             = R"(
 out     float tf_rotation;          // To transform feedback)";
 const string vertOutput_PS_tf_r_angularVelo = R"(
 out     float tf_angularVelo;       // To transform feedback)";
 const string vertOutput_PS_tf_texNum        = R"(
-out     uint tf_texNum;             // To transform feedback)";
+out     uint  tf_texNum;            // To transform feedback)";
 const string vertOutput_PS_tf_initP         = R"(
-out     vec3 tf_initialPosition;    // To transform feedback)";
+out     vec3  tf_initialPosition;   // To transform feedback)";
 
 //-----------------------------------------------------------------------------
 const string vertMain_Begin              = R"(
@@ -325,7 +325,8 @@ const string vertMain_PS_U_alive_a_diffDir     = R"(
 const string vertMain_PS_U_alive_g             = R"(
             tf_velocity += u_deltaTime * u_gravity;         // Apply gravity)";
 const string vertMain_PS_U_alive_texNum        = R"(
-            if(u_condFB == 1){
+            if(u_condFB == 1)
+            {
                 tf_texNum++;  // Increment to draw next texture (flipbook)
                 tf_texNum = uint(tf_texNum % (u_col*u_row));  // Modulo to not exceed the max and reset
             })";
@@ -349,7 +350,7 @@ const string geomInput_PS_struct_s      = R"(
 const string geomInput_PS_struct_c      = R"(
     vec3 color;         // Color of a particle )";
 const string geomInput_PS_struct_texNum = R"(
-    uint texNum;        // Num of texture )";
+    uint texNum;        // Num of texture in flipbook)";
 const string geomInput_PS_struct_End    = R"(
 } vert[]; )";
 //-----------------------------------------------------------------------------
@@ -393,15 +394,15 @@ const string geomMain_PS_v_rot           = R"(
     mat2 rot = mat2(cos(vert[0].rotation),-sin(vert[0].rotation),
                     sin(vert[0].rotation), cos(vert[0].rotation)); // Matrix of rotation)";
 const string geomMain_PS_v_rotIden       = R"(
-    mat2 rot = mat2(1.0, 0.0, 0.0, 1.0); // Matrix of rotation)";
+    mat2 rot = mat2(1.0, 0.0, 0.0, 1.0);     // Matrix of rotation)";
 const string geomMain_PS_v_c             = R"(
-    vec4 color = u_color;   // Particle color)";
+    vec4 color = u_color;                    // Particle color)";
 const string geomMain_PS_v_doColorOverLF = R"(
     vec4 color = vec4(vert[0].color, 1.0);   // Particle color)";
 const string geomMain_PS_v_withoutColor  = R"(
-    vec4 color = vec4( 0.0, 0.0, 0.0, 1.0);   // Particle color)";
+    vec4 color = vec4( 0.0, 0.0, 0.0, 1.0);  // Particle color)";
 const string geomMain_PS_v_cT            = R"(
-    color.w *= vert[0].transparency;   // Apply transparency)";
+    color.w *= vert[0].transparency;         // Apply transparency)";
 
 const string geomMain_PS_fourCorners                         = R"(
     //BOTTOM LEFT
@@ -627,7 +628,7 @@ in      vec2        v_texCoord;             // interpolated texture coordinate)"
 const string fragInput_PS_u_overG = R"(
 uniform float       u_oneOverGamma;         // 1.0f / Gamma correction value)";
 const string fragInput_PS_u_wireFrame = R"(
-uniform bool       u_doWireFrame;         // Boolean for wireFrame)";
+uniform bool        u_doWireFrame;          // Boolean for wireFrame)";
   //-----------------------------------------------------------------------------
 const string fragMain_PS_TF = R"(
 

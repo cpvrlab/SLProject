@@ -15,13 +15,13 @@ layout (points) in;
 layout (triangle_strip) out;
 layout (max_vertices = 4) out;
 
-uniform mat4 u_pMatrix;  // projection matrix
+uniform mat4 u_pMatrix;     // projection matrix
 
-uniform vec4 u_color; // Object color
-uniform float u_scale; // Object scale 
+uniform vec4 u_color;       // Object color
+uniform float u_scale;      // Object scale
 
-out vec4 v_particleColor; // The resulting color per vertex
-out vec2 v_texCoord; //Texture coordinate at vertex
+out vec4 v_particleColor;   // The resulting color per vertex
+out vec2 v_texCoord;        //Texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main (void)
 {
