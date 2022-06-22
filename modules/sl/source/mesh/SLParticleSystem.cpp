@@ -167,11 +167,11 @@ SLVec3f SLParticleSystem::getDirectionBox(SLVec3f position)
 SLVec3f SLParticleSystem::getPointInCone()
 {
     float y      = 0.0f;
-    float radius = _radiusCone;
+    float radius = _shapeRadius;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y      = random(0.0f, _heightCone); // NEED TO HAVE MORE value near 1 when we have smaller base that top
-        radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+        y      = random(0.0f, _shapeHeight); // NEED TO HAVE MORE value near 1 when we have smaller base that top
+        radius = _shapeRadius + tan(_shapeAngle * DEG2RAD) * y;
     }
     float r     = radius * sqrt(random(0.0f, 1.0f));
     float theta = random(0.0f, 1.0f) * 2 * PI;
@@ -185,11 +185,11 @@ SLVec3f SLParticleSystem::getPointInCone()
 SLVec3f SLParticleSystem::getPointOnCone()
 {
     float y      = 0.0f;
-    float radius = _radiusCone;
+    float radius = _shapeRadius;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y      = random(0.0f, _heightCone); // NEED TO HAVE MORE value near 1 when we have smaller base that top
-        radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+        y      = random(0.0f, _shapeHeight); // NEED TO HAVE MORE value near 1 when we have smaller base that top
+        radius = _shapeRadius + tan(_shapeAngle * DEG2RAD) * y;
     }
     float r     = radius;
     float theta = random(0.0f, 1.0f) * 2 * PI;
@@ -203,23 +203,23 @@ SLVec3f SLParticleSystem::getPointOnCone()
 //! particle system.
 SLVec3f SLParticleSystem::getDirectionCone(SLVec3f position)
 {
-    float maxRadius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone; // Calculate max radius
-    float percentX  = position.x / maxRadius;                                // Calculate at which pourcent our x is, to know how much we need to adapt our angle
-    float percentZ  = position.z / maxRadius;                                // Calculate at which pourcent our z is, to know how much we need to adapt our angle
-    float newX      = position.x + tan(_angleCone * percentX * DEG2RAD) * _heightCone;
-    float newZ      = position.z + tan(_angleCone * percentZ * DEG2RAD) * _heightCone;
-    return SLVec3f(newX, _heightCone, newZ).normalize();
+    float maxRadius = _shapeRadius + tan(_shapeAngle * DEG2RAD) * _shapeHeight; // Calculate max radius
+    float percentX  = position.x / maxRadius;                                // Calculate at which percent our x is, to know how much we need to adapt our angle
+    float percentZ  = position.z / maxRadius;                                // Calculate at which percent our z is, to know how much we need to adapt our angle
+    float newX      = position.x + tan(_shapeAngle * percentX * DEG2RAD) * _shapeHeight;
+    float newZ      = position.z + tan(_shapeAngle * percentZ * DEG2RAD) * _shapeHeight;
+    return SLVec3f(newX, _shapeHeight, newZ).normalize();
 }
 //-----------------------------------------------------------------------------
 //! Function which return a position in the pyramid define in the particle system
 SLVec3f SLParticleSystem::getPointInPyramid()
 {
     float y      = 0.0f;
-    float radius = _halfSidePyramid;
+    float radius = _shapeWidth;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y      = random(0.0f, _heightPyramid);
-        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+        y      = random(0.0f, _shapeHeight);
+        radius = _shapeWidth + tan(_shapeAngle * DEG2RAD) * y;
     }
     float x = random(-radius, radius);
     float z = random(-radius, radius);
@@ -231,11 +231,11 @@ SLVec3f SLParticleSystem::getPointInPyramid()
 SLVec3f SLParticleSystem::getPointOnPyramid()
 {
     float y      = 0.0f;
-    float radius = _halfSidePyramid;
+    float radius = _shapeWidth;
     if (!_doShapeSpawnBase) // Spawn inside volume
     {
-        y      = random(0.0f, _heightPyramid);
-        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+        y      = random(0.0f, _shapeHeight);
+        radius = _shapeWidth + tan(_shapeAngle * DEG2RAD) * y;
     }
 
     // int   temp      = random(0, 5);
@@ -266,7 +266,7 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
     /* else if (temp == 4) //TOP
     {
         y = _heightPyramid;
-        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+        radius = _shapeWidth + tan(_anglePyramid * DEG2RAD) * y;
 
         x = random(-radius, radius);
         z = random(-radius, radius);
@@ -274,7 +274,7 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
     else if (temp == 5) // BOTTOM
     {
         y      = 0.0f;
-        radius = _halfSidePyramid;
+        radius = _shapeWidth;
         x = random(-radius, radius);
         z = random(-radius, radius);
     }*/
@@ -286,15 +286,15 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
 //! particle system.
 SLVec3f SLParticleSystem::getDirectionPyramid(SLVec3f position)
 {
-    float maxRadius = _halfSidePyramid +
-                      tan(_anglePyramid * DEG2RAD) * _heightPyramid;
+    float maxRadius = _shapeWidth +
+                      tan(_shapeAngle * DEG2RAD) * _shapeHeight;
 
     // Calculate at which percent our x & z is to know how much we need to adapt our angle
     float percentX = position.x / maxRadius;
     float percentZ = position.z / maxRadius;
-    float newX     = position.x + tan(_anglePyramid * percentX * DEG2RAD) * _heightPyramid;
-    float newZ     = position.z + tan(_anglePyramid * percentZ * DEG2RAD) * _heightPyramid;
-    return SLVec3f(newX, _heightPyramid, newZ).normalize();
+    float newX     = position.x + tan(_shapeAngle * percentX * DEG2RAD) * _shapeHeight;
+    float newZ     = position.z + tan(_shapeAngle * percentZ * DEG2RAD) * _shapeHeight;
+    return SLVec3f(newX, _shapeHeight, newZ).normalize();
 }
 //-----------------------------------------------------------------------------
 //! Function which will generate the particles and attributes them to the VAO
@@ -330,30 +330,30 @@ void SLParticleSystem::generate()
     // Normal generation
     for (SLint i = 0; i < _amount; i++)
     {
-        if (_doShape && _shapeType == 0) // Position in or on sphere
+        if (_doShape && _shapeType == ST_Sphere) // Position in or on sphere
         {
             if (!_doShapeSurface) // In volume
-                tempP[i] = getPointInSphere(_radiusSphere,
+                tempP[i] = getPointInSphere(_shapeRadius,
                                             SLVec3f(distribution(generator),
                                                     distribution(generator),
                                                     distribution(generator)));
             else // On surface
-                tempP[i] = getPointOnSphere(_radiusSphere,
+                tempP[i] = getPointOnSphere(_shapeRadius,
                                             SLVec3f(distribution(generator),
                                                     distribution(generator),
                                                     distribution(generator)));
         }
-        else if (_doShape && _shapeType == 1) // Position in or on box
+        else if (_doShape && _shapeType == ST_Box) // Position in or on box
             if (!_doShapeSurface)
-                tempP[i] = getPointInBox(_scaleBox);
+                tempP[i] = getPointInBox(_shapeScale);
             else
-                tempP[i] = getPointOnBox(_scaleBox);
-        else if (_doShape && _shapeType == 2) // Position in or on cone
+                tempP[i] = getPointOnBox(_shapeScale);
+        else if (_doShape && _shapeType == ST_Cone) // Position in or on cone
             if (!_doShapeSurface)
                 tempP[i] = getPointInCone();
             else
                 tempP[i] = getPointOnCone();
-        else if (_doShape && _shapeType == 3) // Position in or on pyramid
+        else if (_doShape && _shapeType == ST_Pyramid) // Position in or on pyramid
             if (!_doShapeSurface)
                 tempP[i] = getPointInPyramid();
             else
@@ -381,13 +381,13 @@ void SLParticleSystem::generate()
             SLVec3f tempDirection;
             if (_doShapeOverride) // Direction for shape
             {
-                if (_doShape && _shapeType == 0)
+                if (_doShape && _shapeType == ST_Sphere)
                     tempDirection = getDirectionSphere(tempP[i]);
-                else if (_doShape && _shapeType == 1)
+                else if (_doShape && _shapeType == ST_Box)
                     tempDirection = getDirectionBox(tempP[i]);
-                else if (_doShape && _shapeType == 2)
+                else if (_doShape && _shapeType == ST_Cone)
                     tempDirection = getDirectionCone(tempP[i]);
-                else if (_doShape && _shapeType == 3)
+                else if (_doShape && _shapeType == ST_Pyramid)
                     tempDirection = getDirectionPyramid(tempP[i]);
             }
             else // Normal direction
@@ -892,9 +892,9 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     // Shape
     if (_doShape)
     {
-        if (_shapeType == 0)
+        if (_shapeType == ST_Sphere)
         {
-            float radius = cbrt(_radiusSphere);
+            float radius = cbrt(_shapeRadius);
             minP         = SLVec3f(-radius, -radius, -radius);
             maxP         = SLVec3f(radius, radius, radius);
             // Override direction
@@ -904,22 +904,22 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 maxV += SLVec3f(radius, radius, radius) * tempSpeed;
             }
         }
-        if (_shapeType == 1)
+        if (_shapeType == ST_Box)
         {
-            minP = SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z);
-            maxP = _scaleBox;
+            minP = SLVec3f(-_shapeScale.x, -_shapeScale.y, -_shapeScale.z);
+            maxP = _shapeScale;
             if (_doDirectionSpeed && _doShapeOverride)
             {
-                minV += SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z) * tempSpeed;
-                maxV += _scaleBox * tempSpeed;
+                minV += SLVec3f(-_shapeScale.x, -_shapeScale.y, -_shapeScale.z) * tempSpeed;
+                maxV += _shapeScale * tempSpeed;
             }
         }
-        if (_shapeType == 2)
+        if (_shapeType == ST_Cone)
         {
-            float radius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone;
+            float radius = _shapeRadius + tan(_shapeAngle * DEG2RAD) * _shapeHeight;
             minP         = SLVec3f(-radius, -0.0, -radius);
             if (!_doShapeSpawnBase) // Spawn inside volume
-                maxP = SLVec3f(radius, _heightCone, radius);
+                maxP = SLVec3f(radius, _shapeHeight, radius);
             else // Spawn base volume
                 maxP = SLVec3f(radius, 0.0f, radius);
             if (_doDirectionSpeed && _doShapeOverride)
@@ -927,16 +927,16 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 SLVec3f temp = getDirectionCone(SLVec3f(-radius, -0.0, -radius)) * tempSpeed;
                 temp.y       = 0.0;
                 minV += temp;
-                maxV += getDirectionCone(SLVec3f(radius, _heightCone, radius)) * tempSpeed;
+                maxV += getDirectionCone(SLVec3f(radius, _shapeHeight, radius)) * tempSpeed;
             }
         }
-        if (_shapeType == 3)
+        if (_shapeType == ST_Pyramid)
         {
 
-            float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid;
+            float radius = _shapeWidth + tan(_shapeAngle * DEG2RAD) * _shapeHeight;
             minP         = SLVec3f(-radius, -0.0, -radius);
             if (!_doShapeSpawnBase) // Spawn inside volume
-                maxP = SLVec3f(radius, _heightPyramid, radius);
+                maxP = SLVec3f(radius, _shapeHeight, radius);
             else // Spawn base volume
                 maxP = SLVec3f(radius, 0.0f, radius);
             if (_doDirectionSpeed && _doShapeOverride)
@@ -944,12 +944,12 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 SLVec3f temp = getDirectionPyramid(SLVec3f(-radius, -0.0, -radius)) * tempSpeed;
                 temp.y       = 0.0;
                 minV += temp;
-                maxV += getDirectionPyramid(SLVec3f(radius, _heightPyramid, radius)) * tempSpeed;
+                maxV += getDirectionPyramid(SLVec3f(radius, _shapeHeight, radius)) * tempSpeed;
             }
         }
     }
 
-    if (_doAcceleration || _doGravity) // If acceleration or gravity is enable
+    if (_doAcceleration || _doGravity) // If acceleration or gravity is enabled
     {
         if (!_doDirectionSpeed) // If direction is not enable
         {

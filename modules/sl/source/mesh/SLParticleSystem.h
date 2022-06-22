@@ -58,7 +58,6 @@ public:
     SLfloat         speed() { return _speed; }
     SLVec2f         speedRange() { return _speedRange; }
     SLVec3f         velocityConst() { return _velocityConst; }
-    SLVec3f         scaleBox() { return _scaleBox; }
     float*          bezierControlPointAlpha() { return _bezierControlPointAlpha; }
     float*          bezierStartEndPointAlpha() { return _bezierStartEndPointAlpha; }
     float*          bezierControlPointSize() { return _bezierControlPointSize; }
@@ -86,7 +85,12 @@ public:
     SLbool          doShapeSpawnBase() { return _doShapeSpawnBase; }
     SLint           amount() { return _amount; }
     SLBillboardType billboardType() { return _billboardType; }
-    SLint           shapeType() { return _shapeType; }
+    SLShapeType     shapeType() { return _shapeType; }
+    SLfloat         shapeAngle() { return _shapeAngle; }
+    SLfloat         shapeHeight() { return _shapeHeight; }
+    SLfloat         shapeRadius() { return _shapeRadius; }
+    SLVec3f         shapeScale() { return _shapeScale; }
+    SLfloat         shapeWidth() { return _shapeWidth; }
     SLint           velocityType() { return _velocityType; }
     SLint           flipbookColumns() { return _flipbookColumns; }
     SLint           flipbookRows() { return _flipbookRows; }
@@ -94,15 +98,8 @@ public:
     SLfloat         radiusW() { return _radiusW; }
     SLfloat         radiusH() { return _radiusH; }
     SLfloat         scale() { return _scale; }
-    SLfloat         radiusCone() { return _radiusCone; }
-    SLfloat         angleCone() { return _angleCone; }
-    SLfloat         heightCone() { return _heightCone; }
-    SLfloat         halfSidePyramid() { return _halfSidePyramid; }
-    SLfloat         anglePyramid() { return _anglePyramid; }
-    SLfloat         heightPyramid() { return _heightPyramid; }
     SLfloat         angularVelocityConst() { return _angularVelocityConst; }
     SLVec2f         angularVelocityRange() { return _angularVelocityRange; }
-    SLfloat         radiusSphere() { return _radiusSphere; }
     AvgFloat&       updateTime() { return _updateTime; }
     AvgFloat&       drawTime() { return _drawTime; }
     int             frameRateFB() { return _flipbookFPS; }
@@ -156,13 +153,6 @@ public:
     {
         _speedRange.x = vX;
         _speedRange.y = vY;
-    }
-    void scaleBox(SLVec3f v) { _scaleBox = v; }
-    void scaleBox(SLfloat vX, SLfloat vY, SLfloat vZ)
-    {
-        _scaleBox.x = vX;
-        _scaleBox.y = vY;
-        _scaleBox.z = vZ;
     }
     void bezierControlPointAlpha(float arrayPoint[4])
     {
@@ -220,7 +210,6 @@ public:
     void doShapeOverride(SLbool b) { _doShapeOverride = b; }
     void doShapeSpawnBase(SLbool b) { _doShapeSpawnBase = b; }
     void amount(SLint i) { _amount = i; }
-    void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLBillboardType bt) { _billboardType = bt; }
     void velocityType(SLint i) { _velocityType = i; }
     void flipbookColumns(SLint i) { _flipbookColumns = i; }
@@ -229,12 +218,6 @@ public:
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
-    void radiusCone(SLfloat f) { _radiusCone = f; }
-    void angleCone(SLfloat f) { _angleCone = f; }
-    void heightCone(SLfloat f) { _heightCone = f; }
-    void halfSidePyramid(SLfloat f) { _halfSidePyramid = f; }
-    void anglePyramid(SLfloat f) { _anglePyramid = f; }
-    void heightPyramid(SLfloat f) { _heightPyramid = f; }
     void angularVelocityConst(SLfloat f) { _angularVelocityConst = f; }
     void angularVelocityRange(SLVec2f v) { _angularVelocityRange = v; }
     void angularVelocityRange(SLfloat vX, SLfloat vY)
@@ -242,7 +225,18 @@ public:
         _angularVelocityRange.x = vX;
         _angularVelocityRange.y = vY;
     }
-    void radiusSphere(SLfloat f) { _radiusSphere = f; }
+    void shapeType(SLShapeType st) { _shapeType = st; }
+    void shapeAngle(SLfloat f) { _shapeAngle = f; }
+    void shapeRadius(SLfloat r) { _shapeRadius = r; }
+    void shapeScale(SLVec3f v) { _shapeScale = v; }
+    void shapeScale(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _shapeScale.x = vX;
+        _shapeScale.y = vY;
+        _shapeScale.z = vZ;
+    }
+    void shapeHeight(SLfloat f) { _shapeHeight = f; }
+    void shapeWidth(SLfloat f) { _shapeWidth = f; }
     void frameRateFB(int i) { _flipbookFPS = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
@@ -321,19 +315,12 @@ private:
     // For drawing while pause
     SLfloat _lastTimeBeforePauseS = 0.0f; //!< Time since the particle system is paused
 
-    // Shape
-    // Sphere
-    SLfloat _radiusSphere = 1.0f; //!< Radius of sphere "Shape -> sphere"
-    // Box
-    SLVec3f _scaleBox = SLVec3f(1.0f); //!< Scale of box edges "Shape -> box"
-    // Cone
-    SLfloat _radiusCone = 2.0f;  //!< Radius of base cone "Shape -> cone"
-    SLfloat _heightCone = 3.0f;  //!< Height of cone "Shape -> cone"
-    SLfloat _angleCone  = 10.0f; //!< Angle of cone "Shape -> cone"
-    // Pyramid
-    SLfloat _halfSidePyramid = 2.0f;  //!< Width of pyramid "Shape -> pyramid"
-    SLfloat _heightPyramid   = 3.0f;  //!< Height of pyramid "Shape -> pyramid"
-    SLfloat _anglePyramid    = 10.0f; //!< Angle of pyramid "Shape -> pyramid"
+    // Shape parameters
+    SLfloat _shapeRadius = 1.0f;          //!< Radius of sphere and cone shape
+    SLVec3f _shapeScale  = SLVec3f(1.0f); //!< Scale of box shape
+    SLfloat _shapeHeight = 3.0f;          //!< Height of cone and pyramid shapes
+    SLfloat _shapeAngle  = 10.0f;         //!< Angle of cone and pyramid shapes
+    SLfloat _shapeWidth  = 2.0f;          //!< Width of pyramid shape
 
     // Rotation
     SLfloat _angularVelocityConst = 30.0f;                  //!< Rotation rate const (change in angular rotation divide by change in time)
@@ -341,7 +328,7 @@ private:
 
     // Type of selected feature
     SLBillboardType _billboardType = BT_Camera; //!< Billboard type
-    SLint           _shapeType     = 0;         //!< Shape type
+    SLShapeType     _shapeType     = ST_Sphere; //!< Shape type
     SLint           _velocityType  = 0;         //!< Velocity type
 
     // Textures

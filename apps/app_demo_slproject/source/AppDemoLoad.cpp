@@ -469,6 +469,9 @@ SLNode* createComplexFire(SLAssetManager* am,
     fireGlowMesh->billboardType(BT_Camera);
     fireGlowMesh->radiusW(0.25f);
     fireGlowMesh->radiusH(0.25f);
+    fireGlowMesh->doShape(true);
+    fireGlowMesh->shapeType(ST_Sphere);
+    fireGlowMesh->shapeRadius(0.01f);
 
     // Fire glow rotation
     fireGlowMesh->doRotation(true);
@@ -673,6 +676,7 @@ SLNode* createComplexFire(SLAssetManager* am,
     return fireComplex;
 }
 //-----------------------------------------------------------------------------
+
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
  passed as a void*-pointer to slCreateScene. It will be called from within
@@ -5885,8 +5889,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     "DustStorm",
                                                     texFlipbookSmoke);
         ps->doShape(true);
-        ps->shapeType(1);
-        ps->scaleBox(50.0f, 1.0f, 50.0f);
+        ps->shapeType(ST_Box);
+        ps->shapeScale(50.0f, 1.0f, 50.0f);
         ps->scale(15.0f);
         ps->doSizeOverLF(false);
         ps->doAlphaOverL(true);
@@ -5991,8 +5995,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texFlipbook);
 
         ps->doShape(true);
-        ps->shapeType(0);
-        ps->radiusSphere(3.0f);
+        ps->shapeType(ST_Sphere);
+        ps->shapeRadius(3.0f);
         ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
@@ -6032,10 +6036,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texFlipbook);
 
         ps->doShape(true);
-        ps->shapeType(2);
+        ps->shapeType(ST_Cone);
         ps->doShapeSpawnBase(true);
         ps->doShapeSurface(true);
-        ps->radiusCone(1.0f);
+        ps->shapeRadius(1.0f);
         ps->doBlendBrightness(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
 
@@ -6679,8 +6683,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doSizeOverLF(false);
         ps->doRotation(false);
         ps->doShape(true);
-        ps->shapeType(1);
-        ps->scaleBox(100.0f, 100.0f, 100.0f);
+        ps->shapeType(ST_Box);
+        ps->shapeScale(100.0f, 100.0f, 100.0f);
         ps->doDirectionSpeed(true);
         ps->doBlendBrightness(true);
         ps->doColor(true);

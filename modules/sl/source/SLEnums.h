@@ -384,6 +384,15 @@ enum SLBillboardType
     BT_Horizontal
 };
 //-----------------------------------------------------------------------------
+//! Particle system shape type
+enum SLShapeType
+{
+    ST_Sphere = 0,
+    ST_Box,
+    ST_Cone,
+    ST_Pyramid
+};
+//-----------------------------------------------------------------------------
 //! Light Reflection Models for shader generation usd in SLMaterial
 enum SLReflectionModel
 {

@@ -4133,75 +4133,75 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 item_current = ps->shapeType();
                                 if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
                                 {
-                                    ps->shapeType(item_current);
+                                    ps->shapeType((SLShapeType)item_current);
                                     m->programTF(nullptr);
                                     ps->isGenerated(false);
                                     singleNode->needAABBUpdate();
                                 }
-                                if (item_current == 0)
+                                if (item_current == ST_Sphere)
                                 {
-                                    float radiusSphere = ps->radiusSphere();
+                                    float radiusSphere = ps->shapeRadius();
                                     if (ImGui::InputFloat("Radius of the sphere", &radiusSphere))
                                     {
-                                        ps->radiusSphere(radiusSphere);
+                                        ps->shapeRadius(radiusSphere);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
                                 }
-                                if (item_current == 1)
+                                if (item_current == ST_Box)
                                 {
-                                    float vec3fScaleBox[3] = {ps->scaleBox().x, ps->scaleBox().y, ps->scaleBox().z};
+                                    float vec3fScaleBox[3] = {ps->shapeScale().x, ps->shapeScale().y, ps->shapeScale().z};
                                     if (ImGui::InputFloat3("Scale box XYZ", vec3fScaleBox))
                                     {
-                                        ps->scaleBox(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
+                                        ps->shapeScale(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
                                 }
-                                if (item_current == 2)
+                                if (item_current == ST_Cone)
                                 {
-                                    float radius = ps->radiusCone();
+                                    float radius = ps->shapeRadius();
                                     if (ImGui::InputFloat("Radius", &radius))
                                     {
-                                        ps->radiusCone(radius);
+                                        ps->shapeRadius(radius);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    float angle = ps->angleCone();
+                                    float angle = ps->shapeAngle();
                                     if (ImGui::InputFloat("Angle", &angle))
                                     {
-                                        ps->angleCone(angle);
+                                        ps->shapeAngle(angle);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    float height = ps->heightCone();
+                                    float height = ps->shapeHeight();
                                     if (ImGui::InputFloat("Height", &height))
                                     {
-                                        ps->heightCone(height);
+                                        ps->shapeHeight(height);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
                                 }
-                                if (item_current == 3)
+                                if (item_current == ST_Pyramid)
                                 {
-                                    float halfSide = ps->halfSidePyramid();
+                                    float halfSide = ps->shapeWidth();
                                     if (ImGui::InputFloat("Half side", &halfSide))
                                     {
-                                        ps->halfSidePyramid(halfSide);
+                                        ps->shapeWidth(halfSide);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    float angle = ps->anglePyramid();
+                                    float angle = ps->shapeAngle();
                                     if (ImGui::InputFloat("Angle", &angle))
                                     {
-                                        ps->anglePyramid(angle);
+                                        ps->shapeAngle(angle);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    float height = ps->heightPyramid();
+                                    float height = ps->shapeHeight();
                                     if (ImGui::InputFloat("Height", &height))
                                     {
-                                        ps->heightPyramid(height);
+                                        ps->shapeHeight(height);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
