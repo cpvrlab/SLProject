@@ -432,6 +432,8 @@ SLNode* createComplexFire(SLAssetManager* am,
                           SLbool          withLight,
                           SLGLTexture*    texFireCld,
                           SLGLTexture*    texFireFlm,
+                          SLint           flipbookCols,
+                          SLint           flipbookRows,
                           SLGLTexture*    texCircle,
                           SLGLTexture*    texSmokeB,
                           SLGLTexture*    texSmokeW)
@@ -443,6 +445,13 @@ SLNode* createComplexFire(SLAssetManager* am,
     {
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f, 180.0f, false);
         light1->name("Fire light node");
+        light1->translate(0, 1.0f, 0);
+        light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
+        light1->attenuation(0, 0, 1);
+
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("light_anim", 0.2f, true, EC_inOutCubic, AL_pingPongLoop);
+        lightAnim->createNodeAnimTrackForTranslation(light1, SLVec3f(0.3f, 0, 0));
+
         fireComplex->addChild(light1);
     }
 
@@ -501,7 +510,7 @@ SLNode* createComplexFire(SLAssetManager* am,
 
     // Fire flame mesh
     SLParticleSystem* fireFlameMesh = new SLParticleSystem(am,
-                                                           2,
+                                                           1,
                                                            SLVec3f(0.0f, 0.0f, 0.0f),
                                                            SLVec3f(0.0f, 0.0f, 0.0f),
                                                            SLVec3f(0.0f, 0.0f, 0.0f),
@@ -511,8 +520,8 @@ SLNode* createComplexFire(SLAssetManager* am,
                                                            "Fire flame PS",
                                                            texFireFlm);
     // Fire flame flipbook settings
-    fireFlameMesh->flipbookColumns(8);
-    fireFlameMesh->flipbookRows(4);
+    fireFlameMesh->flipbookColumns(flipbookCols);
+    fireFlameMesh->flipbookRows(flipbookRows);
     fireFlameMesh->doFlipBookTexture(true);
     fireFlameMesh->doCounterGap(false); // We don't want to have flickering
     fireFlameMesh->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
@@ -521,9 +530,9 @@ SLNode* createComplexFire(SLAssetManager* am,
     fireFlameMesh->doSizeOverLF(false);
     fireFlameMesh->doRotation(false);
 
-    fireFlameMesh->frameRateFB(32);
-    fireFlameMesh->radiusW(0.4f);
-    fireFlameMesh->radiusH(0.5f);
+    fireFlameMesh->frameRateFB(64);
+    fireFlameMesh->radiusW(0.6f);
+    fireFlameMesh->radiusH(0.6f);
     fireFlameMesh->scale(1.2f);
     fireFlameMesh->billboardType(BT_Vertical);
 
@@ -1041,7 +1050,7 @@ void appDemoLoadScene(SLAssetManager* am,
         SLfloat pB = -3.5f, pT = 14.5f; // bottom/top
         SLfloat pN = 9.0f, pF = -9.0f;  // near/far
 
-        //// bottom rectangle
+        // bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "PolygonFloor", mat2));
         b->rotate(90, -1, 0, 0);
         b->translate(0, 0, pB, TS_object);
@@ -5480,7 +5489,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint    numSamples = 4;
+        SLuint       numSamples   = 4;
 #endif
 
         stringstream ss;
@@ -5571,7 +5580,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint    numSamples = 6;
+        SLuint       numSamples   = 6;
 #endif
 
         // Scene
@@ -5997,90 +6006,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
-    {
-        // Set scene name and info string
-        s->name("Fire Complex particle system");
-        s->info("Create fireGlowMesh complex effects particle system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create and add camera
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1.5f, 5);
-        cam1->lookAt(0, 1.5f, 0);
-        cam1->focalDist(5);
-        scene->addChild(cam1);
-        sv->camera(cam1);
-
-        // Create textures and materials
-        SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
-        SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
-        SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
-        SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
-        SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
-
-        SLNode* complexFire = createComplexFire(am,
-                                                s,
-                                                true,
-                                                texFireCld,
-                                                texFireFlm,
-                                                texCircle,
-                                                texSmokeB,
-                                                texSmokeW);
-        scene->addChild(complexFire);
-
-        // Add other meshes (Floor, wall...)
-        SLMaterial* matYel = new SLMaterial(am, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
-        SLMaterial* matRed = new SLMaterial(am, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-
-        SLNode* rectFloor = new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect floor", matRed));
-        rectFloor->rotate(90, -1, 0, 0);
-        rectFloor->translate(0, 0, -0.5f);
-        rectFloor->castsShadows(false);
-
-        SLNode* rectBack = new SLNode(new SLRectangle(am, SLVec2f(-5, -0), SLVec2f(5, 5), 1, 1, "Rect Back", matRed));
-        rectBack->translate(0, -0.5, -5.0f);
-        rectBack->castsShadows(false);
-
-        SLNode* rectLeft = new SLNode(new SLRectangle(am, SLVec2f(-5, -0), SLVec2f(5, 5), 1, 1, "Rect Left", matRed));
-        rectLeft->rotate(90, 0, 1, 0);
-        rectLeft->translate(0.0f, -0.5, -5.0f);
-        rectLeft->castsShadows(false);
-
-        SLNode* rectRight = new SLNode(new SLRectangle(am, SLVec2f(-5, -0), SLVec2f(5, 5), 1, 1, "Rect Right", matRed));
-        rectRight->rotate(90, 0, -1, 0);
-        rectRight->translate(0.0f, -0.5, -5.0f);
-        rectRight->castsShadows(false);
-
-        scene->addChild(rectFloor);
-        scene->addChild(rectBack);
-        scene->addChild(rectLeft);
-        scene->addChild(rectRight);
-
-        /* Firewood
-        SLAssimpImporter importer;
-        SLNode*          firewood = importer.load(s->animManager(),
-                                         am,
-                                         modelPath + "GLTF/Firewood/Firewood1.gltf",
-                                         texPath,
-                                         nullptr,
-                                         false,   // delete tex images after build
-                                         true,    // load meshes only
-                                         nullptr, // override material
-                                         0.3f);
-        firewood->scale(2);
-        scene->addChild(firewood);
-        */
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
     else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
     {
         // Set scene name and info string
@@ -6118,6 +6043,104 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* pSNode = new SLNode(pSMesh, "Particle Ring Fire node");
         pSNode->rotate(90, 1, 0, 0);
         scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+    {
+        // Set scene name and info string
+        s->name("Fire Complex particle system");
+        s->info("Create fireGlowMesh complex effects particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
+
+        // Create and add camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 1.5f, 4.5f);
+        cam1->lookAt(0, 1.5f, 0);
+        cam1->focalDist(4.5f);
+        scene->addChild(cam1);
+        sv->camera(cam1);
+
+        // Create textures and materials
+        SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+        //SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
+        SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
+        SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+        SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+        SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+
+        SLNode* complexFire = createComplexFire(am,
+                                                s,
+                                                true,
+                                                texFireCld,
+                                                texFireFlm,
+                                                8,
+                                                8,
+                                                texCircle,
+                                                texSmokeB,
+                                                texSmokeW);
+        scene->addChild(complexFire);
+
+        // Back wall material
+        SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
+        matWall->specular(SLCol4f::BLACK);
+
+        // Room dimensions
+        SLfloat pL = -2.0f, pR = 2.0f;  // left/right
+        SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
+        SLfloat pN = 2.0f, pF = -2.0f;  // near/far
+
+        // bottom rectangle
+        SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
+        b->rotate(90, -1, 0, 0);
+        b->translate(0, 0, pB, TS_object);
+        scene->addChild(b);
+
+        // far rectangle
+        SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
+        f->translate(0, 0, pF, TS_object);
+        scene->addChild(f);
+
+        // near rectangle
+        SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
+        n->rotate(180, 0, 1, 0);
+        n->translate(0, 0, pF, TS_object);
+        scene->addChild(n);
+
+        // left rectangle
+        SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
+        l->rotate(90, 0, 1, 0);
+        l->translate(0, 0, pL, TS_object);
+        scene->addChild(l);
+
+        // right rectangle
+        SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
+        r->rotate(90, 0, -1, 0);
+        r->translate(0, 0, -pR, TS_object);
+        scene->addChild(r);
+
+        // Firewood
+        SLAssimpImporter importer;
+        SLNode*          firewood = importer.load(s->animManager(),
+                                         am,
+                                         modelPath + "GLTF/Firewood/Firewood1.gltf",
+                                         texPath,
+                                         nullptr,
+                                         false,   // delete tex images after build
+                                         true,    // load meshes only
+                                         nullptr, // override material
+                                         0.3f);
+        firewood->scale(2);
+        scene->addChild(firewood);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
@@ -6526,10 +6549,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT_MESH = 100;
+        const int    NUM_MAT_MESH = 100;
+        SLuint const levels       = 6;
+        SLuint const childCount   = 8;
 #else
-        const int NUM_MAT    = 20;
-        const int NUM_MESH   = 20;
+        const int    NUM_MAT_MESH = 20;
+        SLuint const levels       = 6;
+        SLuint const childCount   = 8;
 #endif
         SLVMaterial materials(NUM_MAT_MESH);
         for (int i = 0; i < NUM_MAT_MESH; ++i)
@@ -6562,8 +6588,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Create universe
-        SLuint const levels     = 6;
-        SLuint const childCount = 8;
         generateUniverse(am, s, scene, 0, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
@@ -6604,6 +6628,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     false,
                                                     texFireCld,
                                                     texFireFlm,
+                                                    8,
+                                                    4,
                                                     texCircle,
                                                     texSmokeB,
                                                     texSmokeW);
@@ -6663,18 +6689,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         root->addChild(pSNode);
-
-        // SLVMesh meshes(NUM_MESH);
-        // for (int i = 0; i < NUM_MESH; ++i)
-        //{
-        //     SLstring meshName = "mesh-" + std::to_string(i);
-        //     meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
-        // }
-
-        //// Create universe
-        // SLuint const levels     = 6;
-        // SLuint const childCount = 8;
-        // generateUniverse(am, s, root, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);

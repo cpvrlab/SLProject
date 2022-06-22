@@ -1236,7 +1236,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         _gui->onMouseDown(button, x, y);
 
         // Touch devices on iOS or Android have no mouse move event when the
-        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // finger isn't touching the screen. Therefore, imgui can not detect hovering
         // over an imgui window. Without this extra frame you would have to touch
         // the display twice to open e.g. a menu.
         _gui->renderExtraFrame(_s, this, x, y);
@@ -1261,13 +1261,9 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
         }
 
         if (!eventConsumed)
-        {
             result = _camera->onMouseDown(button, x, y, mod);
-        }
         else
-        {
             result = true;
-        }
     }
 
     return result;

@@ -524,6 +524,10 @@ bool SLNode::hitRec(SLRay* ray)
     }
     else
     {
+        // Do not raytrace particle systems
+        if (dynamic_cast<SLParticleSystem*>(_mesh))
+            return false;
+
         // transform origin position to object space
         ray->originOS.set(updateAndGetWMI().multVec(ray->origin));
 
@@ -533,6 +537,7 @@ bool SLNode::hitRec(SLRay* ray)
         // test all meshes
         if (_mesh->hit(ray, this) && !meshWasHit)
             meshWasHit = true;
+
         if (ray->isShaded())
             return true;
     }

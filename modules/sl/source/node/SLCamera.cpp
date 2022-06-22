@@ -989,26 +989,16 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     {
         // Start selection rectangle. See also SLMesh::handleRectangleSelection
         if (mod & K_ctrl)
-        {
             _selectRect.tl(_oldTouchPos1);
-            return true;
-        }
 
         // Start deselection rectangle. See also SLMesh::handleRectangleSelection
         if (mod & K_alt)
-        {
             _deselectRect.tl(_oldTouchPos1);
-            return true;
-        }
 
         if (_camAnim == CA_trackball)
-        {
-            // todo anim
             _trackballStartVec = trackballVec(x, y);
-            return true;
-        }
     }
-    return false;
+    return true;
 }
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse is moved.
