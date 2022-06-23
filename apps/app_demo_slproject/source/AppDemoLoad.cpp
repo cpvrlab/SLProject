@@ -447,7 +447,7 @@ SLNode* createComplexFire(SLAssetManager* am,
         light1->name("Fire light node");
         light1->translate(0, 1.0f, 0);
         light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
-        light1->diffusePower(1.2f);
+        light1->diffusePower(1.5f);
         light1->attenuation(0, 0, 1);
         /*
         light1->onUpdateCB([=]()
@@ -688,7 +688,6 @@ SLNode* createComplexFire(SLAssetManager* am,
     return fireComplex;
 }
 //-----------------------------------------------------------------------------
-
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
  passed as a void*-pointer to slCreateScene. It will be called from within
@@ -6072,6 +6071,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 1.5f, 4.5f);
         cam1->lookAt(0, 1.5f, 0);
         cam1->focalDist(4.5f);
+        cam1->setInitialState();
         scene->addChild(cam1);
         sv->camera(cam1);
 
