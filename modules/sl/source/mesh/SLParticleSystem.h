@@ -14,6 +14,7 @@
 #include <SLGLTexture.h>
 #include <Averaged.h>
 #include <SLRnd3f.h>
+#include <SLTexColorLUT.h>
 
 //-----------------------------------------------------------------------------
 //! SLParticleSystem creates
@@ -25,7 +26,6 @@ public:
     //! Ctor for a given vector of points
     SLParticleSystem(SLAssetManager* assetMgr,
                      const SLint     amount,
-                     const SLVec3f&  particleEmiPos,
                      const SLVec3f&  velocityRandomStart,
                      const SLVec3f&  velocityRandomEnd,
                      const SLfloat&  timeToLive,
@@ -45,73 +45,71 @@ public:
     void pauseOrResume();
 
     // Getters
-    SLVec3f         emitterPos() const { return _emitterPos; }
-    SLbool          doAcc() { return _doAcceleration; }
-    SLbool          doAccDiffDir() { return _doAccDiffDir; }
-    SLbool          doRotation() { return _doRotation; }
-    SLbool          doRotRange() { return _doRotRange; }
-    SLVec3f         acceleration() { return _acceleration; }
-    SLVec3f         gravity() { return _gravity; }
-    SLVec3f         vRandS() { return _vRandS; }
-    SLVec3f         vRandE() { return _vRandE; }
-    SLVec3f         direction() { return _direction; }
-    SLfloat         speed() { return _speed; }
-    SLVec2f         speedRange() { return _speedRange; }
-    SLVec3f         velocityConst() { return _velocityConst; }
-    float*          bezierControlPointAlpha() { return _bezierControlPointAlpha; }
-    float*          bezierStartEndPointAlpha() { return _bezierStartEndPointAlpha; }
-    float*          bezierControlPointSize() { return _bezierControlPointSize; }
-    float*          bezierStartEndPointSize() { return _bezierStartEndPointSize; }
-    SLCol4f         color() { return _color; }
-    SLbool          doDirectionSpeed() { return _doDirectionSpeed; }
-    SLbool          doSpeedRange() { return _doSpeedRange; }
-    SLbool          isGenerated() { return _isGenerated; }
-    SLbool          isPaused() { return _isPaused; }
-    SLbool          doBlendBrightness() { return _doBlendBrightness; }
-    SLfloat         accelerationConst() { return _accelerationConst; }
-    SLbool          doWorldSpace() { return _doWorldSpace; }
-    SLbool          doGravity() { return _doGravity; }
-    SLbool          doCounterGap() { return _doCounterGap; }
-    SLbool          doAlphaOverL() { return _doAlphaOverL; }
-    SLbool          doColorOverLF() { return _doColorOverLF; }
-    SLbool          doAlphaOverLCurve() { return _doAlphaOverLCurve; }
-    SLbool          doFlipBookTexture() { return _doFlipBookTexture; }
-    SLbool          doSizeOverLF() { return _doSizeOverLF; }
-    SLbool          doSizeOverLFCurve() { return _doSizeOverLFCurve; }
-    SLbool          doColor() { return _doColor; }
-    SLbool          doShape() { return _doShape; }
-    SLbool          doShapeSurface() { return _doShapeSurface; }
-    SLbool          doShapeOverride() { return _doShapeOverride; }
-    SLbool          doShapeSpawnBase() { return _doShapeSpawnBase; }
-    SLint           amount() { return _amount; }
-    SLBillboardType billboardType() { return _billboardType; }
-    SLShapeType     shapeType() { return _shapeType; }
-    SLfloat         shapeAngle() { return _shapeAngle; }
-    SLfloat         shapeHeight() { return _shapeHeight; }
-    SLfloat         shapeRadius() { return _shapeRadius; }
-    SLVec3f         shapeScale() { return _shapeScale; }
-    SLfloat         shapeWidth() { return _shapeWidth; }
-    SLint           velocityType() { return _velocityType; }
-    SLint           flipbookColumns() { return _flipbookColumns; }
-    SLint           flipbookRows() { return _flipbookRows; }
-    SLfloat         timeToLive() { return _timeToLive; }
-    SLfloat         radiusW() { return _radiusW; }
-    SLfloat         radiusH() { return _radiusH; }
-    SLfloat         scale() { return _scale; }
-    SLfloat         angularVelocityConst() { return _angularVelocityConst; }
-    SLVec2f         angularVelocityRange() { return _angularVelocityRange; }
-    AvgFloat&       updateTime() { return _updateTime; }
-    AvgFloat&       drawTime() { return _drawTime; }
-    int             frameRateFB() { return _flipbookFPS; }
-    SLGLTexture*    textureFirst() { return _textureFirst; }
-    SLGLTexture*    textureFlipbook() { return _textureFlipbook; }
+    SLVec3f           acceleration() { return _acceleration; }
+    SLfloat           accelerationConst() { return _accelerationConst; }
+    SLint             amount() { return _amount; }
+    SLfloat           angularVelocityConst() { return _angularVelocityConst; }
+    SLVec2f           angularVelocityRange() { return _angularVelocityRange; }
+    float*            bezierControlPointAlpha() { return _bezierControlPointAlpha; }
+    float*            bezierStartEndPointAlpha() { return _bezierStartEndPointAlpha; }
+    float*            bezierControlPointSize() { return _bezierControlPointSize; }
+    float*            bezierStartEndPointSize() { return _bezierStartEndPointSize; }
+    SLBillboardType   billboardType() { return _billboardType; }
+    SLCol4f           color() { return _color; }
+    SLVColorLUTPoint& colorPoints() { return _colorPoints; }
+    SLbool            doDirectionSpeed() { return _doDirectionSpeed; }
+    SLbool            doSpeedRange() { return _doSpeedRange; }
+    SLbool            doAcc() { return _doAcceleration; }
+    SLbool            doAccDiffDir() { return _doAccDiffDir; }
+    SLbool            doAlphaOverLT() { return _doAlphaOverLT; }
+    SLbool            doAlphaOverLTCurve() { return _doAlphaOverLTCurve; }
+    SLbool            doBlendBrightness() { return _doBlendBrightness; }
+    SLbool            doCounterGap() { return _doCounterGap; }
+    SLbool            doColor() { return _doColor; }
+    SLbool            doColorOverLT() { return _doColorOverLT; }
+    SLbool            doGravity() { return _doGravity; }
+    SLbool            doFlipBookTexture() { return _doFlipBookTexture; }
+    SLbool            doRotation() { return _doRotation; }
+    SLbool            doRotRange() { return _doRotRange; }
+    SLbool            doSizeOverLT() { return _doSizeOverLT; }
+    SLbool            doSizeOverLTCurve() { return _doSizeOverLTCurve; }
+    SLbool            doShape() { return _doShape; }
+    SLbool            doShapeSurface() { return _doShapeSurface; }
+    SLbool            doShapeOverride() { return _doShapeOverride; }
+    SLbool            doShapeSpawnBase() { return _doShapeSpawnBase; }
+    SLbool            doWorldSpace() { return _doWorldSpace; }
+    SLVec3f           direction() { return _direction; }
+    AvgFloat&         drawTime() { return _drawTime; }
+    SLVec3f           emitterPos() const { return _emitterPos; }
+    SLVec3f           gravity() { return _gravity; }
+    SLint             flipbookColumns() { return _flipbookColumns; }
+    SLint             flipbookRows() { return _flipbookRows; }
+    int               frameRateFB() { return _flipbookFPS; }
+    SLbool            isGenerated() { return _isGenerated; }
+    SLbool            isPaused() { return _isPaused; }
+    SLfloat           radiusW() { return _radiusW; }
+    SLfloat           radiusH() { return _radiusH; }
+    SLfloat           scale() { return _scale; }
+    SLShapeType       shapeType() { return _shapeType; }
+    SLfloat           shapeAngle() { return _shapeAngle; }
+    SLfloat           shapeHeight() { return _shapeHeight; }
+    SLfloat           shapeRadius() { return _shapeRadius; }
+    SLVec3f           shapeScale() { return _shapeScale; }
+    SLfloat           shapeWidth() { return _shapeWidth; }
+    SLfloat           speed() { return _speed; }
+    SLVec2f           speedRange() { return _speedRange; }
+    SLGLTexture*      textureFirst() { return _textureFirst; }
+    SLGLTexture*      textureFlipbook() { return _textureFlipbook; }
+    SLfloat           timeToLive() { return _timeToLive; }
+    AvgFloat&         updateTime() { return _updateTime; }
+    SLint             velocityType() { return _velocityType; }
+    SLVec3f           velocityConst() { return _velocityConst; }
+    SLVec3f           velocityRndMin() { return _velocityRndMin; }
+    SLVec3f           velocityRndMax() { return _velocityRndMax; }
 
     // Setters
-    void emitterPos(SLVec3f p) { _emitterPos = p; }
-    void doAcceleration(SLbool b) { _doAcceleration = b; }
-    void doAccDiffDir(SLbool b) { _doAccDiffDir = b; }
-    void doRotation(SLbool b) { _doRotation = b; }
-    void doRotRange(SLbool b) { _doRotRange = b; }
+    void amount(SLint i) { _amount = i; }
+    void accConst(SLfloat f) { _accelerationConst = f; }
     void acceleration(SLVec3f v) { _acceleration = v; }
     void acceleration(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
@@ -119,41 +117,14 @@ public:
         _acceleration.y = vY;
         _acceleration.z = vZ;
     }
-    void gravity(SLVec3f v) { _gravity = v; }
-    void gravity(SLfloat vX, SLfloat vY, SLfloat vZ)
+    void angularVelocityConst(SLfloat f) { _angularVelocityConst = f; }
+    void angularVelocityRange(SLVec2f v) { _angularVelocityRange = v; }
+    void angularVelocityRange(SLfloat vX, SLfloat vY)
     {
-        _gravity.x = vX;
-        _gravity.y = vY;
-        _gravity.z = vZ;
+        _angularVelocityRange.x = vX;
+        _angularVelocityRange.y = vY;
     }
-    void vRandS(SLVec3f v) { _vRandS = v; }
-    void vRandS(SLfloat vX, SLfloat vY, SLfloat vZ)
-    {
-        _vRandS.x = vX;
-        _vRandS.y = vY;
-        _vRandS.z = vZ;
-    }
-    void vRandE(SLVec3f v) { _vRandE = v; }
-    void vRandE(SLfloat vX, SLfloat vY, SLfloat vZ)
-    {
-        _vRandE.x = vX;
-        _vRandE.y = vY;
-        _vRandE.z = vZ;
-    }
-    void direction(SLVec3f v) { _direction = v; }
-    void direction(SLfloat vX, SLfloat vY, SLfloat vZ)
-    {
-        _direction.x = vX;
-        _direction.y = vY;
-        _direction.z = vZ;
-    }
-    void speed(SLfloat f) { _speed = f; }
-    void speedRange(SLVec2f v) { _speedRange = v; }
-    void speedRange(SLfloat vX, SLfloat vY)
-    {
-        _speedRange.x = vX;
-        _speedRange.y = vY;
-    }
+    void billboardType(SLBillboardType bt) { _billboardType = bt; }
     void bezierControlPointAlpha(float arrayPoint[4])
     {
         _bezierControlPointAlpha[0] = arrayPoint[0];
@@ -183,47 +154,56 @@ public:
         _bezierStartEndPointSize[3] = arrayPoint[3];
     }
     void color(SLCol4f c) { _color = c; }
-    void isGenerated(SLbool b) { _isGenerated = b; }
-    void doBlendBrightness(SLbool b) { _doBlendBrightness = b; }
-    void accConst(SLfloat f) { _accelerationConst = f; }
-    void velocityConst(SLVec3f v) { _velocityConst = v; }
-    void velocityConst(SLfloat vX, SLfloat vY, SLfloat vZ)
+    void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
+    void direction(SLVec3f v) { _direction = v; }
+    void direction(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
-        _velocityConst.x = vX;
-        _velocityConst.y = vY;
-        _velocityConst.z = vZ;
+        _direction.x = vX;
+        _direction.y = vY;
+        _direction.z = vZ;
     }
-    void doDirectionSpeed(SLbool b) { _doDirectionSpeed = b; }
-    void doSpeedRange(SLbool b) { _doSpeedRange = b; }
-    void doWorldSpace(SLbool b) { _doWorldSpace = b; }
-    void doGravity(SLbool b) { _doGravity = b; }
-    void doCounterGap(SLbool b) { _doCounterGap = b; }
-    void doAlphaOverL(SLbool b) { _doAlphaOverL = b; }
-    void doColorOverLF(SLbool b) { _doColorOverLF = b; }
-    void doAlphaOverLCurve(SLbool b) { _doAlphaOverLCurve = b; }
-    void doFlipBookTexture(SLbool b) { _doFlipBookTexture = b; }
-    void doSizeOverLF(SLbool b) { _doSizeOverLF = b; }
-    void doSizeOverLFCurve(SLbool b) { _doSizeOverLFCurve = b; }
+    void doAcceleration(SLbool b) { _doAcceleration = b; }
+    void doAlphaOverLT(SLbool b) { _doAlphaOverLT = b; }
+    void doAlphaOverLTCurve(SLbool b) { _doAlphaOverLTCurve = b; }
+    void doAccDiffDir(SLbool b) { _doAccDiffDir = b; }
+    void doBlendBrightness(SLbool b) { _doBlendBrightness = b; }
     void doColor(SLbool b) { _doColor = b; }
+    void doColorOverLT(SLbool b) { _doColorOverLT = b; }
+    void doCounterGap(SLbool b) { _doCounterGap = b; }
+    void doDirectionSpeed(SLbool b) { _doDirectionSpeed = b; }
+    void doGravity(SLbool b) { _doGravity = b; }
+    void doFlipBookTexture(SLbool b) { _doFlipBookTexture = b; }
+    void doRotation(SLbool b) { _doRotation = b; }
+    void doRotRange(SLbool b) { _doRotRange = b; }
+    void doSpeedRange(SLbool b) { _doSpeedRange = b; }
     void doShape(SLbool b) { _doShape = b; }
     void doShapeSurface(SLbool b) { _doShapeSurface = b; }
     void doShapeOverride(SLbool b) { _doShapeOverride = b; }
     void doShapeSpawnBase(SLbool b) { _doShapeSpawnBase = b; }
-    void amount(SLint i) { _amount = i; }
-    void billboardType(SLBillboardType bt) { _billboardType = bt; }
-    void velocityType(SLint i) { _velocityType = i; }
+    void doSizeOverLT(SLbool b) { _doSizeOverLT = b; }
+    void doSizeOverLTCurve(SLbool b) { _doSizeOverLTCurve = b; }
+    void doWorldSpace(SLbool b) { _doWorldSpace = b; }
+    void emitterPos(SLVec3f p) { _emitterPos = p; }
+    void gravity(SLVec3f v) { _gravity = v; }
+    void gravity(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _gravity.x = vX;
+        _gravity.y = vY;
+        _gravity.z = vZ;
+    }
     void flipbookColumns(SLint i) { _flipbookColumns = i; }
     void flipbookRows(SLint i) { _flipbookRows = i; }
-    void timeToLive(SLfloat f) { _timeToLive = f; }
+    void frameRateFB(int i) { _flipbookFPS = i; }
+    void isGenerated(SLbool b) { _isGenerated = b; }
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
-    void angularVelocityConst(SLfloat f) { _angularVelocityConst = f; }
-    void angularVelocityRange(SLVec2f v) { _angularVelocityRange = v; }
-    void angularVelocityRange(SLfloat vX, SLfloat vY)
+    void speed(SLfloat f) { _speed = f; }
+    void speedRange(SLVec2f v) { _speedRange = v; }
+    void speedRange(SLfloat vX, SLfloat vY)
     {
-        _angularVelocityRange.x = vX;
-        _angularVelocityRange.y = vY;
+        _speedRange.x = vX;
+        _speedRange.y = vY;
     }
     void shapeType(SLShapeType st) { _shapeType = st; }
     void shapeAngle(SLfloat f) { _shapeAngle = f; }
@@ -237,10 +217,31 @@ public:
     }
     void shapeHeight(SLfloat f) { _shapeHeight = f; }
     void shapeWidth(SLfloat f) { _shapeWidth = f; }
-    void frameRateFB(int i) { _flipbookFPS = i; }
-    void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
+    void timeToLive(SLfloat f) { _timeToLive = f; }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
+    void velocityType(SLint i) { _velocityType = i; }
+    void velocityConst(SLVec3f v) { _velocityConst = v; }
+    void velocityConst(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _velocityConst.x = vX;
+        _velocityConst.y = vY;
+        _velocityConst.z = vZ;
+    }
+    void velocityRndMin(SLVec3f v) { _velocityRndMin = v; }
+    void velocityRndMin(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _velocityRndMin.x = vX;
+        _velocityRndMin.y = vY;
+        _velocityRndMin.z = vZ;
+    }
+    void velocityRndMax(SLVec3f v) { _velocityRndMax = v; }
+    void velocityRndMax(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _velocityRndMax.x = vX;
+        _velocityRndMax.y = vY;
+        _velocityRndMax.z = vZ;
+    }
 
 private:
     // Random point getter functions depending on the PS shape
@@ -258,12 +259,12 @@ private:
     SLVec3f getDirectionPyramid(SLVec3f position);
 
     // Core values
+    SLint   _amount;         //!< Amount of a particle
     SLVec3f _emitterPos;     //!< Position of the particle emitter
     SLfloat _timeToLive;     //!< Time to live of a particle
     SLfloat _radiusW = 0.4f; //!< width radius of a particle
     SLfloat _radiusH = 0.4f; //!< height radius of a particle
     SLfloat _scale   = 1.0f; //!< Scale of a particle (Scale the radius)
-    SLint   _amount;         //!< Amount of a particle
 
     // Bezier
     SLVec4f _bernsteinPYAlpha            = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f); //!< Vector for bezier curve (default linear function)
@@ -279,9 +280,9 @@ private:
     SLVec3f _gravity           = SLVec3f(0.0f, -9.81f, 0.0f); //!< Vector for gravity (??? Is there a use for gravity AND acceleration?
 
     // Velocity
-    SLVec3f _velocityConst = SLVec3f(0.0f, 1.0f, 0.0f); //!< Velocity constant (go in xyz direction)
-    SLVec3f _vRandS        = SLVec3f(0.0f, 0.0f, 0.0f); //!< vec start for random velocity
-    SLVec3f _vRandE        = SLVec3f(1.0f, 1.0f, 1.0f); //!< vec end for random velocity
+    SLVec3f _velocityConst  = SLVec3f(0, 1, 0);    //!< Velocity constant (go in xyz direction)
+    SLVec3f _velocityRndMin = SLVec3f(-1, -1, -1); //!< Min. random velocity
+    SLVec3f _velocityRndMax = SLVec3f(1, 1, 1);    //!< Max. random velocity
 
     // Direction speed
     SLVec3f _direction  = SLVec3f(0.0f, 1.0f, 0.0f); //!< Direction of particle
@@ -289,8 +290,9 @@ private:
     SLVec2f _speedRange = SLVec2f(1.0f, 2.0f);       //!< Speed random between two value
 
     // Color
-    SLCol4f _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
-    SLfloat _colorArr[256 * 3];                         //!< Color values of color gradient widget
+    SLCol4f          _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLfloat          _colorArr[256 * 3];                         //!< Color values of color gradient widget
+    SLVColorLUTPoint _colorPoints;                               //! Color gradient points
 
     // Int (but boolean) to switch buffer
     int _drawBuf = 0; //!< Boolean to switch buffer
@@ -345,27 +347,27 @@ private:
     SLbool _isGenerated        = false; //!< Boolean to generate particle system and load it on the GPU
 
     // Boolean for features
-    SLbool _doBlendBrightness = false; //!< Blending for glow/brightness on pixel with many particle
-    SLbool _doDirectionSpeed  = false; //!< Boolean for direction and speed (override velocity)
-    SLbool _doSpeedRange      = false; //!< Boolean for speed range
-    SLbool _doCounterGap      = true;  //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
-    SLbool _doAcceleration    = false; //!< Boolean for acceleration
-    SLbool _doAccDiffDir      = false; //!< Boolean for acceleration (different direction)
-    SLbool _doRotation        = true;  //!< Boolean for rotation
-    SLbool _doRotRange        = false; //!< Boolean for rotation range (random value between range)
-    SLbool _doColor           = true;  //!< Boolean for color
-    SLbool _doShape           = false; //!< Boolean for shape feature
-    SLbool _doShapeSurface    = false; //!< Boolean for shape surface (particle will be spawned on surface)
-    SLbool _doShapeOverride   = false; //!< Boolean for override direction for shape direction
-    SLbool _doShapeSpawnBase  = false; //!< Boolean for spawn at base of shape (for cone and pyramid)
-    SLbool _doWorldSpace      = false; //!< Boolean for world space position
-    SLbool _doGravity         = false; //!< Boolean for gravity
-    SLbool _doAlphaOverL      = true;  //!< Boolean for alpha over life time
-    SLbool _doColorOverLF     = false; //!< Boolean for color over life time
-    SLbool _doAlphaOverLCurve = false; //!< Boolean for alpha over life time curve
-    SLbool _doSizeOverLF      = true;  //!< Boolean for size over life time
-    SLbool _doSizeOverLFCurve = false; //!< Boolean for size over life time curve
-    SLbool _doFlipBookTexture = false; //!< Boolean for flipbook texture
+    SLbool _doBlendBrightness  = false; //!< Blending for glow/brightness on pixel with many particle
+    SLbool _doDirectionSpeed   = false; //!< Boolean for direction and speed (override velocity)
+    SLbool _doSpeedRange       = false; //!< Boolean for speed range
+    SLbool _doCounterGap       = true;  //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
+    SLbool _doAcceleration     = false; //!< Boolean for acceleration
+    SLbool _doAccDiffDir       = false; //!< Boolean for acceleration (different direction)
+    SLbool _doRotation         = true;  //!< Boolean for rotation
+    SLbool _doRotRange         = false; //!< Boolean for rotation range (random value between range)
+    SLbool _doColor            = true;  //!< Boolean for color
+    SLbool _doShape            = false; //!< Boolean for shape feature
+    SLbool _doShapeSurface     = false; //!< Boolean for shape surface (particle will be spawned on surface)
+    SLbool _doShapeOverride    = false; //!< Boolean for override direction for shape direction
+    SLbool _doShapeSpawnBase   = false; //!< Boolean for spawn at base of shape (for cone and pyramid)
+    SLbool _doWorldSpace       = false; //!< Boolean for world space position
+    SLbool _doGravity          = false; //!< Boolean for gravity
+    SLbool _doAlphaOverLT      = true;  //!< Boolean for alpha over life time
+    SLbool _doColorOverLT      = false; //!< Boolean for color over life time
+    SLbool _doAlphaOverLTCurve = false; //!< Boolean for alpha over life time curve
+    SLbool _doSizeOverLT       = true;  //!< Boolean for size over life time
+    SLbool _doSizeOverLTCurve  = false; //!< Boolean for size over life time curve
+    SLbool _doFlipBookTexture  = false; //!< Boolean for flipbook texture
 };
 //-----------------------------------------------------------------------------
 #endif

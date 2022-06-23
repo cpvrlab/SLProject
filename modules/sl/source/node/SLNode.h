@@ -275,6 +275,7 @@ public:
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
     void         minLodCoverage(SLfloat minLodCoverage) { _minLodCoverage = minLodCoverage; }
     void         levelForSM(SLubyte lfsm) { _levelForSM = lfsm; }
+    void         onUpdateCB(function<void()> callbackFunc) { _onUpdateCB = callbackFunc; }
 
     // Getters (see also member)
     SLNode*               parent() { return _parent; }
@@ -332,22 +333,23 @@ protected:
     SLVNode _children; //!< vector of children nodes
     SLMesh* _mesh;     //!< pointer to a single mesh
 
-    SLint           _depth;          //!< depth of the node in a scene tree
-    SLint           _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design
-    SLMat4f         _om;             //!< object matrix for local transforms
-    SLMat4f         _initialOM;      //!< the initial om state
-    mutable SLMat4f _wm;             //!< world matrix for world transform
-    mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
-    mutable SLbool  _isWMIUpToDate;  //!< is the inverse WM of this node still valid
-    mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
-    bool            _castsShadows;   //!< flag if meshes of node should cast shadows
-    bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
-    SLDrawBits      _drawBits;       //!< node level drawing flags
-    SLAABBox        _aabb;           //!< axis aligned bounding box
-    SLAnimation*    _animation;      //!< animation of the node
-    SLfloat         _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
-    SLubyte         _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    SLint            _depth;          //!< depth of the node in a scene tree
+    SLint            _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design
+    SLMat4f          _om;             //!< object matrix for local transforms
+    SLMat4f          _initialOM;      //!< the initial om state
+    mutable SLMat4f  _wm;             //!< world matrix for world transform
+    mutable SLMat4f  _wmI;            //!< inverse world matrix
+    mutable SLbool   _isWMUpToDate;   //!< is the WM of this node still valid
+    mutable SLbool   _isWMIUpToDate;  //!< is the inverse WM of this node still valid
+    mutable SLbool   _isAABBUpToDate; //!< is the saved aabb still valid
+    bool             _castsShadows;   //!< flag if meshes of node should cast shadows
+    bool             _isSelected;     //!< flag if node and one or more of its meshes are selected
+    SLDrawBits       _drawBits;       //!< node level drawing flags
+    SLAABBox         _aabb;           //!< axis aligned bounding box
+    SLAnimation*     _animation;      //!< animation of the node
+    SLfloat          _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
+    SLubyte          _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    function<void()> _onUpdateCB;     //!< Optional lambda callback once per update
 };
 
 ////////////////////////

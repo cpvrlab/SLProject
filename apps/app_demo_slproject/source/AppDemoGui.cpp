@@ -3936,17 +3936,17 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 if (item_current == 0)
                                 {
-                                    float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
-                                    if (ImGui::InputFloat3("Start range XYZ", vec3fVstart))
+                                    float vec3fVstart[3] = {ps->velocityRndMin().x, ps->velocityRndMin().y, ps->velocityRndMin().z};
+                                    if (ImGui::InputFloat3("Min. random XYZ", vec3fVstart))
                                     {
-                                        ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                        ps->velocityRndMin(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
-                                    float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
-                                    if (ImGui::InputFloat3("End range XYZ", vec3fVend))
+                                    float vec3fVend[3] = {ps->velocityRndMax().x, ps->velocityRndMax().y, ps->velocityRndMax().z};
+                                    if (ImGui::InputFloat3("Max. random XYZ", vec3fVend))
                                     {
-                                        ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
+                                        ps->velocityRndMax(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
@@ -4036,45 +4036,50 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->doBlendBrightness(color_bright);
                                 }
                                 // Color
-                                if (ps->doColorOverLF())
+                                if (ps->doColorOverLT())
                                     ImGui::BeginDisabled();
                                 ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
                                 SLCol4f             c   = ps->color();
                                 if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
                                     ps->color(c);
-                                if (ps->doColorOverLF())
+                                if (ps->doColorOverLT())
                                     ImGui::EndDisabled();
-                                // Color over life
-                                SLbool doColorOverLF_group = ps->doColorOverLF();
+
+                                // Color over lifetime
+                                SLbool doColorOverLT_group = ps->doColorOverLT();
 
                                 static ImGradient      gradient;
                                 static ImGradientMark* draggingMark = nullptr;
                                 static ImGradientMark* selectedMark = nullptr;
 
-                                static bool once = []()
+                                static bool once = [ps]()
                                 {
                                     gradient.getMarks().clear();
-                                    gradient.addMark(0.0f, ImColor(255, 0, 0));
-                                    gradient.addMark(0.37f, ImColor(255, 193, 3));
-                                    gradient.addMark(1.0f, ImColor(255, 255, 255));
+                                    for (auto cp : ps->colorPoints())
+                                        gradient.addMark(cp.pos, ImColor(cp.color.r, cp.color.g, cp.color.b));
                                     return true;
                                 }();
 
-                                if (ImGui::Checkbox("Color over lifetime", &doColorOverLF_group))
+                                if (ImGui::Checkbox("Color over lifetime", &doColorOverLT_group))
                                 {
-                                    ps->doColorOverLF(doColorOverLF_group);
+                                    ps->doColorOverLT(doColorOverLT_group);
                                     ps->colorArr(gradient.cachedValues());
                                     m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Color over lifetime", &doColorOverLF_group))
+
+                                if (ImGui::CollapsingHeader("Color over lifetime", &doColorOverLT_group))
                                 {
                                     if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
                                     {
+                                        ps->colorPoints().clear();
+                                        for (auto cp : gradient.getMarks())
+                                            ps->colorPoints().push_back(SLColorLUTPoint(SLCol3f(cp->color), cp->position));
                                         ps->colorArr(gradient.cachedValues());
                                     }
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Rotation
                             SLbool rot_group = ps->doRotation();
                             if (ImGui::Checkbox("Rotation", &rot_group))
@@ -4293,19 +4298,19 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
 
                             // Alpha over lifetime
-                            SLbool doAlphaOverL_group = ps->doAlphaOverL();
+                            SLbool doAlphaOverL_group = ps->doAlphaOverLT();
                             if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group))
                             {
-                                ps->doAlphaOverL(doAlphaOverL_group);
+                                ps->doAlphaOverLT(doAlphaOverL_group);
                                 m->program(nullptr);
                             }
                             if (ImGui::CollapsingHeader("Alpha over lifetime", &doAlphaOverL_group))
                             {
                                 ImGui::Indent();
-                                SLbool doAlphaOverLCurve_group = ps->doAlphaOverLCurve();
+                                SLbool doAlphaOverLCurve_group = ps->doAlphaOverLTCurve();
                                 if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &doAlphaOverLCurve_group))
                                 {
-                                    ps->doAlphaOverLCurve(doAlphaOverLCurve_group);
+                                    ps->doAlphaOverLTCurve(doAlphaOverLCurve_group);
                                     m->program(nullptr);
                                 }
                                 if (ImGui::CollapsingHeader("Bezier curve alpha", &doAlphaOverLCurve_group))
@@ -4321,23 +4326,23 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
 
                             // Size over lifetime
-                            SLbool doSizeOverLF_group = ps->doSizeOverLF();
-                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group))
+                            SLbool doSizeOverLT_group = ps->doSizeOverLT();
+                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLT_group))
                             {
-                                ps->doSizeOverLF(doSizeOverLF_group);
+                                ps->doSizeOverLT(doSizeOverLT_group);
                                 m->program(nullptr);
                                 singleNode->needAABBUpdate();
                             }
-                            if (ImGui::CollapsingHeader("Size over lifetime", &doSizeOverLF_group))
+                            if (ImGui::CollapsingHeader("Size over lifetime", &doSizeOverLT_group))
                             {
                                 ImGui::Indent();
-                                SLbool doSizeOverLFCurve_group = ps->doSizeOverLFCurve();
-                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &doSizeOverLFCurve_group))
+                                SLbool doSizeOverLTCurve_group = ps->doSizeOverLTCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &doSizeOverLTCurve_group))
                                 {
-                                    ps->doSizeOverLFCurve(doSizeOverLFCurve_group);
+                                    ps->doSizeOverLTCurve(doSizeOverLTCurve_group);
                                     m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLFCurve_group))
+                                if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLTCurve_group))
                                 {
                                     ImGui::Indent();
                                     float* vSize      = ps->bezierControlPointSize();

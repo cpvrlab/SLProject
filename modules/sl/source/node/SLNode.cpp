@@ -1091,7 +1091,13 @@ void SLNode::updateRec()
 {
     // if (_parent == nullptr) PROFILE_FUNCTION();
 
+    // Call optional update callback of attached
+    if (_onUpdateCB)
+        _onUpdateCB();
+
+    // Call doUpdate for inherited classes if implemented
     doUpdate();
+
     for (auto* child : _children)
         child->updateRec();
 }

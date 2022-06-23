@@ -118,7 +118,7 @@ out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space)";
 //-----------------------------------------------------------------------------
-const string vertFunction_PS_ColorOverLF = R"(
+const string vertFunction_PS_ColorOverLT = R"(
 
 vec3 colorByAge(float age)
 {
@@ -242,7 +242,7 @@ const string vertMain_PS_v_s_curve       = R"(
                 pow(vert.size,2) * u_si_bernstein.y +
                 vert.size * u_si_bernstein.z +
                 u_si_bernstein.w;  // Get transparency by bezier curve)";
-const string vertMain_PS_v_doColorOverLF = R"(
+const string vertMain_PS_v_doColorOverLT = R"(
     vert.color = colorByAge(age/u_tTL);)";
 const string vertMain_PS_v_texNum        = R"(
     vert.texNum = a_texNum;)";
@@ -397,7 +397,7 @@ const string geomMain_PS_v_rotIden       = R"(
     mat2 rot = mat2(1.0, 0.0, 0.0, 1.0);     // Matrix of rotation)";
 const string geomMain_PS_v_c             = R"(
     vec4 color = u_color;                    // Particle color)";
-const string geomMain_PS_v_doColorOverLF = R"(
+const string geomMain_PS_v_doColorOverLT = R"(
     vec4 color = vec4(vert[0].color, 1.0);   // Particle color)";
 const string geomMain_PS_v_withoutColor  = R"(
     vec4 color = vec4( 0.0, 0.0, 0.0, 1.0);  // Particle color)";
@@ -1630,12 +1630,12 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         programName += "-Draw";
         programName += mat->texturesString();
         GLint billboardType = mat->ps()->billboardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
-        bool  AlOvLi        = mat->ps()->doAlphaOverL();      // Alpha over life
-        bool  AlOvLiCu      = mat->ps()->doAlphaOverLCurve(); // Alpha over life curve
-        bool  SiOvLi        = mat->ps()->doSizeOverLF();      // Size over life
-        bool  SiOvLiCu      = mat->ps()->doSizeOverLFCurve(); // Size over life curve
+        bool  AlOvLi        = mat->ps()->doAlphaOverLT();      // Alpha over life
+        bool  AlOvLiCu      = mat->ps()->doAlphaOverLTCurve(); // Alpha over life curve
+        bool  SiOvLi        = mat->ps()->doSizeOverLT();      // Size over life
+        bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve(); // Size over life curve
         bool  Co            = mat->ps()->doColor();           // Color over life
-        bool  CoOvLi        = mat->ps()->doColorOverLF();     // Color over life
+        bool  CoOvLi        = mat->ps()->doColorOverLT();     // Color over life
         bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
         bool  WS            = mat->ps()->doWorldSpace();      // World space or local space
         bool  rot           = mat->ps()->doRotation();        // Rotation
@@ -1982,12 +1982,12 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     bool  Dm            = mat->hasTextureType(TT_diffuse);
     GLint billboardType = mat->ps()->billboardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
     bool  rot           = mat->ps()->doRotation();        // Rotation
-    bool  AlOvLi        = mat->ps()->doAlphaOverL();      // Alpha over life
+    bool  AlOvLi        = mat->ps()->doAlphaOverLT();      // Alpha over life
     bool  Co            = mat->ps()->doColor();           // Color over life
-    bool  CoOvLi        = mat->ps()->doColorOverLF();     // Color over life
-    bool  AlOvLiCu      = mat->ps()->doAlphaOverLCurve(); // Alpha over life curve
-    bool  SiOvLi        = mat->ps()->doSizeOverLF();      // Size over life
-    bool  SiOvLiCu      = mat->ps()->doSizeOverLFCurve(); // Size over life curve
+    bool  CoOvLi        = mat->ps()->doColorOverLT();     // Color over life
+    bool  AlOvLiCu      = mat->ps()->doAlphaOverLTCurve(); // Alpha over life curve
+    bool  SiOvLi        = mat->ps()->doSizeOverLT();      // Size over life
+    bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve(); // Size over life curve
     bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
 
     //////////////////////////////
@@ -2020,7 +2020,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     vertCode += vertOutput_PS_struct_End;
 
     // Vertex shader functions
-    if (Co && CoOvLi) vertCode += vertFunction_PS_ColorOverLF;
+    if (Co && CoOvLi) vertCode += vertFunction_PS_ColorOverLT;
 
     // Vertex shader main loop
     vertCode += vertMain_Begin;
@@ -2034,7 +2034,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (rot) vertCode += vertMain_PS_v_r;
     if (SiOvLi) vertCode += vertMain_PS_v_s;
     if (SiOvLi && SiOvLiCu) vertCode += vertMain_PS_v_s_curve;
-    if (Co && CoOvLi) vertCode += vertMain_PS_v_doColorOverLF;
+    if (Co && CoOvLi) vertCode += vertMain_PS_v_doColorOverLT;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
     if (billboardType == BT_Vertical || billboardType == BT_Horizontal)
         vertCode += vertMain_PS_EndAll_VertBillboard;
@@ -2083,7 +2083,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_rad;
     geomCode += geomMain_PS_v_p;
     geomCode += rot ? geomMain_PS_v_rot : geomMain_PS_v_rotIden;
-    geomCode += Co && CoOvLi ? geomMain_PS_v_doColorOverLF : Co ? geomMain_PS_v_c
+    geomCode += Co && CoOvLi ? geomMain_PS_v_doColorOverLT : Co ? geomMain_PS_v_c
                                                                 : geomMain_PS_v_withoutColor;
     geomCode += geomMain_PS_v_cT;
     if (billboardType == BT_Vertical)

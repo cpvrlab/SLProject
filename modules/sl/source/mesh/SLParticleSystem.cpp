@@ -17,14 +17,13 @@
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
-//! SLParticleSystem ctor with some inital values. The number of particles
-//! The particle emmiter position, the start and end random value range
-//! The time to live of the particle (lifetime). A texture, a name
-//! , and a flipbook texture.
-//! particleEmiPos is not used (need to be removed)
+//! SLParticleSystem ctor with some initial values. The number of particles
+/*! The particle emitter position, the start and end random value range
+ * The time to live of the particle (lifetime). A texture, a name
+ * and a flipbook texture.
+ */
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
                                    const SLint     amount,
-                                   const SLVec3f&  particleEmiPos,
                                    const SLVec3f&  velocityRandomStart,
                                    const SLVec3f&  velocityRandomEnd,
                                    const SLfloat&  timeToLive,
@@ -41,12 +40,10 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
 
     _timeToLive = timeToLive;
     _amount     = amount;
-    _vRandS     = velocityRandomStart;
-    _vRandE     = velocityRandomEnd;
+    _velocityRndMin = velocityRandomStart;
+    _velocityRndMax = velocityRandomEnd;
 
     P.resize(1); // To trick parent class
-
-    // emitterPos(particleEmiPos);
 
     _textureFirst    = texC;
     _textureFlipbook = texFlipbook;
@@ -365,9 +362,9 @@ void SLParticleSystem::generate()
         {
             if (_velocityType == 0) // Random value
             {
-                tempV[i].x = random(_vRandS.x, _vRandE.x); // Random value for x velocity
-                tempV[i].y = random(_vRandS.y, _vRandE.y); // Random value for y velocity
-                tempV[i].z = random(_vRandS.z, _vRandE.z); // Random value for z velocity
+                tempV[i].x = random(_velocityRndMin.x, _velocityRndMax.x); // Random value for x velocity
+                tempV[i].y = random(_velocityRndMin.y, _velocityRndMax.y); // Random value for y velocity
+                tempV[i].z = random(_velocityRndMin.z, _velocityRndMax.z); // Random value for z velocity
             }
             else if (_velocityType == 1) // Constant
             {
@@ -762,7 +759,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
 
     // Alpha over life Bézier curve
-    if (_doAlphaOverLCurve)
+    if (_doAlphaOverLTCurve)
     {
         spD->uniform4f("u_al_bernstein",
                        _bernsteinPYAlpha.x,
@@ -772,7 +769,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
 
     // Size over life Bézier curve
-    if (_doSizeOverLFCurve)
+    if (_doSizeOverLTCurve)
     {
         spD->uniform4f("u_si_bernstein",
                        _bernsteinPYSize.x,
@@ -782,7 +779,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
 
     // Color over life by gradient color editor
-    if (_doColorOverLF)
+    if (_doColorOverLT)
     {
         spD->uniform1fv("u_colorArr",
                         256 * 3,
@@ -955,8 +952,8 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         {
             if (_velocityType == 0)
             {
-                SLVec3f minVTemp = SLVec3f(min(_vRandE.x, _vRandS.x), min(_vRandE.y, _vRandS.y), min(_vRandE.z, _vRandS.z)); // Apply velocity distance after time
-                SLVec3f maxVTemp = SLVec3f(max(_vRandE.x, _vRandS.x), max(_vRandE.y, _vRandS.y), max(_vRandE.z, _vRandS.z)); // Apply velocity distance after time
+                SLVec3f minVTemp = SLVec3f(min(_velocityRndMax.x, _velocityRndMin.x), min(_velocityRndMax.y, _velocityRndMin.y), min(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
+                SLVec3f maxVTemp = SLVec3f(max(_velocityRndMax.x, _velocityRndMin.x), max(_velocityRndMax.y, _velocityRndMin.y), max(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
 
                 if (minVTemp.x > 0 && maxVTemp.x > 0) minVTemp.x = 0.0;
                 if (minVTemp.y > 0 && maxVTemp.y > 0) minVTemp.y = 0.0;
@@ -1061,8 +1058,8 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         {
             if (_velocityType == 0)
             {
-                SLVec3f minVTemp = SLVec3f(min(_vRandE.x, _vRandS.x), min(_vRandE.y, _vRandS.y), min(_vRandE.z, _vRandS.z)); // Apply velocity distance after time
-                SLVec3f maxVTemp = SLVec3f(max(_vRandE.x, _vRandS.x), max(_vRandE.y, _vRandS.y), max(_vRandE.z, _vRandS.z)); // Apply velocity distance after time
+                SLVec3f minVTemp = SLVec3f(min(_velocityRndMax.x, _velocityRndMin.x), min(_velocityRndMax.y, _velocityRndMin.y), min(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
+                SLVec3f maxVTemp = SLVec3f(max(_velocityRndMax.x, _velocityRndMin.x), max(_velocityRndMax.y, _velocityRndMin.y), max(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
 
                 if (minVTemp.x > 0 && maxVTemp.x > 0) minVTemp.x = 0.0;
                 if (minVTemp.y > 0 && maxVTemp.y > 0) minVTemp.y = 0.0;
@@ -1115,7 +1112,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 
     // Add size particle
     minP.x += minP.x < maxP.x ? -rW : rW; // Add size of particle
-    // if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    // if (!_doSizeOverLT) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.z += minP.z < maxP.z ? -rW : rW; // Add size of particle
 
