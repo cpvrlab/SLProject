@@ -449,10 +449,12 @@ SLNode* createComplexFire(SLAssetManager* am,
         light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
         light1->diffusePower(1.2f);
         light1->attenuation(0, 0, 1);
+        /*
         light1->onUpdateCB([=]()
                            { light1->translation(0,
                                                  Utils::random(0.9f, 1.1f),
                                                  0); });
+         */
         fireComplex->addChild(light1);
     }
 
@@ -567,45 +569,45 @@ SLNode* createComplexFire(SLAssetManager* am,
 
     // Fire smoke black mesh
     {
-        SLParticleSystem* fireSmokeBlack = new SLParticleSystem(am,
-                                                                8,
-                                                                SLVec3f(0.0f, 1.0f, 0.0f),
-                                                                SLVec3f(0.0f, 0.7f, 0.0f),
-                                                                2.0f,
-                                                                texSmokeB,
-                                                                "Fire smoke black PS",
-                                                                texFireFlm);
-        fireSmokeBlack->doColor(false);
+        SLParticleSystem* fireSmokeB = new SLParticleSystem(am,
+                                                            8,
+                                                            SLVec3f(0.0f, 1.0f, 0.0f),
+                                                            SLVec3f(0.0f, 0.7f, 0.0f),
+                                                            2.0f,
+                                                            texSmokeB,
+                                                            "Fire smoke black PS",
+                                                            texFireFlm);
+        fireSmokeB->doColor(false);
 
         // Fire smoke black size
-        fireSmokeBlack->doSizeOverLT(true);
-        fireSmokeBlack->doSizeOverLTCurve(true);
+        fireSmokeB->doSizeOverLT(true);
+        fireSmokeB->doSizeOverLTCurve(true);
         float sizeCPArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
-        fireSmokeBlack->bezierControlPointSize(sizeCPArraySB);
+        fireSmokeB->bezierControlPointSize(sizeCPArraySB);
         float sizeSEArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
-        fireSmokeBlack->bezierStartEndPointSize(sizeSEArraySB);
-        fireSmokeBlack->generateBernsteinPSize();
+        fireSmokeB->bezierStartEndPointSize(sizeSEArraySB);
+        fireSmokeB->generateBernsteinPSize();
 
         // Fire smoke black alpha
-        fireSmokeBlack->doAlphaOverLT(true);
-        fireSmokeBlack->doAlphaOverLTCurve(true);
+        fireSmokeB->doAlphaOverLT(true);
+        fireSmokeB->doAlphaOverLTCurve(true);
         float alphaCPArraySB[4] = {0.0f, 0.4f, 1.0f, 0.4f};
-        fireSmokeBlack->bezierControlPointAlpha(alphaCPArraySB);
+        fireSmokeB->bezierControlPointAlpha(alphaCPArraySB);
         float alphaSEArraySB[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-        fireSmokeBlack->bezierStartEndPointAlpha(alphaSEArraySB);
-        fireSmokeBlack->generateBernsteinPAlpha();
+        fireSmokeB->bezierStartEndPointAlpha(alphaSEArraySB);
+        fireSmokeB->generateBernsteinPAlpha();
 
         // Fire smoke black acceleration
-        fireSmokeBlack->doAcceleration(true);
-        fireSmokeBlack->doAccDiffDir(true);
-        fireSmokeBlack->acceleration(0.0f, 0.25f, 0.3f);
+        fireSmokeB->doAcceleration(true);
+        fireSmokeB->doAccDiffDir(true);
+        fireSmokeB->acceleration(0.0f, 0.25f, 0.3f);
 
-        SLNode* fireSmokeBlackNode = new SLNode(fireSmokeBlack, "Fire smoke black node");
+        SLNode* fireSmokeBlackNode = new SLNode(fireSmokeB, "Fire smoke black node");
         fireSmokeBlackNode->translate(0.0f, 0.9f, 0.0f, TS_object);
         fireComplex->addChild(fireSmokeBlackNode);
     }
 
-    // White smoke
+    // Fire smoke white mesh
     {
         SLParticleSystem* fireSmokeW = new SLParticleSystem(am,
                                                             40,
@@ -639,7 +641,7 @@ SLNode* createComplexFire(SLAssetManager* am,
         // Acceleration
         fireSmokeW->doAcceleration(true);
         fireSmokeW->doAccDiffDir(true);
-        fireSmokeW->acceleration(0.0f, 0.02f, 0.55f);
+        fireSmokeW->acceleration(0.0f, 0.25f, 0.3f);
 
         SLNode* fireSmokeWNode = new SLNode(fireSmokeW, "Fire smoke white node");
         fireSmokeWNode->translate(0.0f, 0.9f, 0.0f, TS_object);
