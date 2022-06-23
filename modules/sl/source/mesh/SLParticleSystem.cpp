@@ -857,7 +857,7 @@ void SLParticleSystem::deleteDataGpu()
  Take into account features like acceleration, gravity, shape, velocity.
  SLMesh::buildAABB builds the passed axis-aligned bounding box in OS and updates
  the min& max points in WS with the passed WM of the node.
- Todo: Can ben enhance furthemore, the acceleration doesn't work wll for the moments
+ Todo: Can ben enhance furthermore the acceleration doesn't work wll for the moments
  The negative value for the acceleration are not take into account and also
  acceleration which goes against the velocity. To adapt the acceleration to
  exactly the same as the gravity not enough time to do it. Need to adapt more
@@ -870,11 +870,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     float rH = _radiusH * _scale;
 
     // Speed for direction if used
-    float tempSpeed;
-    if (_doSpeedRange)
-        tempSpeed = max(_speedRange.x, _speedRange.y);
-    else
-        tempSpeed = _speed;
+    float tempSpeed = _doSpeedRange ? max(_speedRange.x, _speedRange.y) : _speed;
 
     // Empty point
     minP = SLVec3f();
@@ -899,7 +895,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 maxV += SLVec3f(radius, radius, radius) * tempSpeed;
             }
         }
-        if (_shapeType == ST_Box)
+        else if (_shapeType == ST_Box)
         {
             minP = SLVec3f(-_shapeScale.x, -_shapeScale.y, -_shapeScale.z);
             maxP = _shapeScale;
@@ -909,7 +905,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 maxV += _shapeScale * tempSpeed;
             }
         }
-        if (_shapeType == ST_Cone)
+        else if (_shapeType == ST_Cone)
         {
             float radius = _shapeRadius + tan(_shapeAngle * DEG2RAD) * _shapeHeight;
             minP         = SLVec3f(-radius, -0.0, -radius);
@@ -925,15 +921,15 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 maxV += getDirectionCone(SLVec3f(radius, _shapeHeight, radius)) * tempSpeed;
             }
         }
-        if (_shapeType == ST_Pyramid)
+        else if (_shapeType == ST_Pyramid)
         {
-
             float radius = _shapeWidth + tan(_shapeAngle * DEG2RAD) * _shapeHeight;
             minP         = SLVec3f(-radius, -0.0, -radius);
             if (!_doShapeSpawnBase) // Spawn inside volume
                 maxP = SLVec3f(radius, _shapeHeight, radius);
             else // Spawn base volume
                 maxP = SLVec3f(radius, 0.0f, radius);
+
             if (_doDirectionSpeed && _doShapeOverride)
             {
                 SLVec3f temp = getDirectionPyramid(SLVec3f(-radius, -0.0, -radius)) * tempSpeed;
@@ -950,8 +946,12 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         {
             if (_velocityType == 0)
             {
-                SLVec3f minVTemp = SLVec3f(min(_velocityRndMax.x, _velocityRndMin.x), min(_velocityRndMax.y, _velocityRndMin.y), min(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
-                SLVec3f maxVTemp = SLVec3f(max(_velocityRndMax.x, _velocityRndMin.x), max(_velocityRndMax.y, _velocityRndMin.y), max(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
+                SLVec3f minVTemp = SLVec3f(min(_velocityRndMax.x, _velocityRndMin.x),
+                                           min(_velocityRndMax.y, _velocityRndMin.y),
+                                           min(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
+                SLVec3f maxVTemp = SLVec3f(max(_velocityRndMax.x, _velocityRndMin.x),
+                                           max(_velocityRndMax.y, _velocityRndMin.y),
+                                           max(_velocityRndMax.z, _velocityRndMin.z)); // Apply velocity distance after time
 
                 if (minVTemp.x > 0 && maxVTemp.x > 0) minVTemp.x = 0.0;
                 if (minVTemp.y > 0 && maxVTemp.y > 0) minVTemp.y = 0.0;
@@ -970,7 +970,8 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                 maxV = SLVec3f(0.0, _velocityConst.y, _velocityConst.z);
             }
         }
-        else if (_doDirectionSpeed && !_doShapeOverride) // Direction and speed, but no shape override, because I want a constant direction in one way I don't want the direction to be overrided
+        // Direction and speed, but no shape override, because I want a constant direction in one way I don't want the direction to be overridden
+        else if (_doDirectionSpeed && !_doShapeOverride)
         {
             tempSpeed = 0.0f;
             if (_doSpeedRange)
@@ -1110,7 +1111,6 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 
     // Add size particle
     minP.x += minP.x < maxP.x ? -rW : rW; // Add size of particle
-    // if (!_doSizeOverLT) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.z += minP.z < maxP.z ? -rW : rW; // Add size of particle
 

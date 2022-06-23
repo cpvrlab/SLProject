@@ -524,17 +524,13 @@ bool SLNode::hitRec(SLRay* ray)
     }
     else
     {
-        // Do not raytrace particle systems
-        if (dynamic_cast<SLParticleSystem*>(_mesh))
-            return false;
-
         // transform origin position to object space
         ray->originOS.set(updateAndGetWMI().multVec(ray->origin));
 
         // transform the direction only with the linear sub matrix
         ray->setDirOS(_wmI.mat3() * ray->dir);
 
-        // test all meshes
+        // test the mesh
         if (_mesh->hit(ray, this) && !meshWasHit)
             meshWasHit = true;
 

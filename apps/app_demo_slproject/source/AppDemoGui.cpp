@@ -420,7 +420,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
-                    sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime,  (SLint)updateDODTimePC);
+                    sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
 #endif
                     if (!s->animManager().allAnimNames().empty())
                     {
@@ -2738,8 +2738,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Camera"))
         {
-            SLCamera*    cam  = sv->camera();
-            SLProjType   proj = cam->projType();
+            SLCamera*  cam  = sv->camera();
+            SLProjType proj = cam->projType();
 
             if (ImGui::MenuItem("Reset"))
             {
@@ -3715,9 +3715,18 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
                     ImGui::Text("Mesh name    : %s", singleFullMesh->name().c_str());
-                    ImGui::Text("# vertices   : %u", v);
-                    ImGui::Text("# triangles  : %u", t);
-                    ImGui::Text("# hard edges : %u", e);
+                    if (m->reflectionModel() == RM_Particle)
+                    {
+                        SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh);
+                        ImGui::Text("# vertices   : %u", ps->amount() * 4);
+                        ImGui::Text("# triangles  : %u", ps->amount() * 2);
+                    }
+                    else
+                    {
+                        ImGui::Text("# vertices   : %u", v);
+                        ImGui::Text("# triangles  : %u", t);
+                        ImGui::Text("# hard edges : %u", e);
+                    }
                     ImGui::Text("Material Name: %s", m->name().c_str());
 
                     if (m->reflectionModel() == RM_BlinnPhong)
@@ -4347,7 +4356,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Indent();
                                     float* vSize      = ps->bezierControlPointSize();
                                     float* staEndSize = ps->bezierStartEndPointSize();
-                                    if(ImGui::Bezier("easeInExpo", vSize, staEndSize))
+                                    if (ImGui::Bezier("easeInExpo", vSize, staEndSize))
                                         ps->generateBernsteinPSize();
                                     ImGui::Unindent();
                                 }
