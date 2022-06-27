@@ -3633,10 +3633,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     light->specularColor(sC);
                             }
 
-                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, aP * 1.1f, "%.2f"))
                                 light->ambientPower(aP);
 
-                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, dP * 1.1f, "%.2f"))
                                 light->diffusePower(dP);
 
                             float sP = light->specularPower();

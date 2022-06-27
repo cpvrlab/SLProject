@@ -278,6 +278,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
                                SLbool             loadMeshesOnly,         //!< Default = true
                                SLMaterial*        overrideMat,            //!< Override material
                                float              ambientFactor,          //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLbool             forceCookTorranceRM,    //!< Forces Cook-Torrance reflection model
                                SLProgressHandler* progressHandler,        //!< Pointer to progress handler
                                SLuint             flags                   //!< Import flags (see postprocess.h)
 )
@@ -332,6 +333,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
                                              texturePath,
                                              skybox,
                                              ambientFactor,
+                                             forceCookTorranceRM,
                                              deleteTexImgAfterBuild));
     }
 
@@ -674,6 +676,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                                            const SLstring& texturePath,
                                            SLSkybox*       skybox,
                                            float           ambientFactor,
+                                           SLbool          forceCookTorranceRM,
                                            SLbool          deleteTexImgAfterBuild)
 {
     PROFILE_FUNCTION();
@@ -838,7 +841,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     aiString texRoughnessMetallic;
 
     // increase shininess if specular color is not low.
-    // The aiMat will otherwise be to bright
+    // The aiMat will otherwise be too bright
     if (specular.r > 0.5f &&
         specular.g > 0.5f &&
         specular.b > 0.5f &&
@@ -865,10 +868,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     if (slMat->hasTextureType(TT_roughness) ||
         slMat->hasTextureType(TT_metallic) ||
         slMat->hasTextureType(TT_roughMetal) ||
-        slMat->hasTextureType(TT_occluRoughMetal))
+        slMat->hasTextureType(TT_occluRoughMetal) ||
+        forceCookTorranceRM)
     {
         slMat->reflectionModel(RM_CookTorrance);
         slMat->skybox(skybox);
+
+        if (roughness == -1.0f)
+            slMat->roughness(1.0f);
+
+        if (metalness == -1.0f)
+            slMat->metalness(0.0f);
+
     }
     else
         slMat->reflectionModel(RM_BlinnPhong);

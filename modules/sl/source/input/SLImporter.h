@@ -84,6 +84,7 @@ public:
                          SLbool             loadMeshesOnly         = true,
                          SLMaterial*        overrideMat            = nullptr,
                          float              ambientFactor          = 0.0f,
+                         SLbool             forceCookTorranceRM    = false,
                          SLProgressHandler* progressHandler        = nullptr,
                          SLuint             flags =
                            SLProcess_Triangulate |

@@ -447,77 +447,37 @@ SLNode* createComplexFire(SLAssetManager* am,
         light1->name("Fire light node");
         light1->translate(0, 1.0f, 0);
         light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
-        light1->diffusePower(1.5f);
+        light1->diffusePower(18);
         light1->attenuation(0, 0, 1);
-        /*
-        light1->onUpdateCB([=]()
-                           { light1->translation(0,
-                                                 Utils::random(0.9f, 1.1f),
-                                                 0); });
-         */
         fireComplex->addChild(light1);
     }
 
     // Fire glow mesh
     {
         SLParticleSystem* fireGlowMesh = new SLParticleSystem(am,
-                                                              25,
-                                                              SLVec3f(-0.1f, 0.1f, -0.1f),
-                                                              SLVec3f(0.1f, 0.35f, 0.1f),
+                                                              24,
+                                                              SLVec3f(-0.1f, 0.0f, -0.1f),
+                                                              SLVec3f(0.1f, 0.0f, 0.1f),
                                                               4.0f,
                                                               texFireCld,
                                                               "Fire glow PS",
                                                               texFireFlm);
         fireGlowMesh->timeToLive(2.0f);
         fireGlowMesh->billboardType(BT_Camera);
-        fireGlowMesh->radiusW(0.25f);
-        fireGlowMesh->radiusH(0.25f);
-        fireGlowMesh->doShape(true);
-        fireGlowMesh->shapeType(ST_Sphere);
-        fireGlowMesh->shapeRadius(0.01f);
-
-        // Fire glow rotation
+        fireGlowMesh->radiusW(0.4f);
+        fireGlowMesh->radiusH(0.4f);
+        fireGlowMesh->doShape(false);
         fireGlowMesh->doRotation(true);
         fireGlowMesh->doRotRange(true);
-
-        // Fire glow size
-        fireGlowMesh->doSizeOverLTCurve(true);
-        float sizeCPArray[4] = {0.0f, 1.25f, 1.0f, 1.25f};
-        fireGlowMesh->bezierControlPointSize(sizeCPArray);
-        float sizeSEArray[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-        fireGlowMesh->bezierStartEndPointSize(sizeSEArray);
-        fireGlowMesh->generateBernsteinPSize();
-
-        // Fire glow alpha
-        fireGlowMesh->doAlphaOverLTCurve(true);
-        float alphaCPArray[4] = {0.0f, 0.7f, 1.0f, 0.0f};
-        fireGlowMesh->bezierControlPointAlpha(alphaCPArray);
-        float alphaSEArray[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-        fireGlowMesh->bezierStartEndPointAlpha(alphaSEArray);
-        fireGlowMesh->generateBernsteinPAlpha();
-
-        // Fire glow color
-        fireGlowMesh->doColorOverLT(true);
+        fireGlowMesh->doSizeOverLT(false);
+        fireGlowMesh->doAlphaOverLT(false);
+        fireGlowMesh->doColorOverLT(false);
         fireGlowMesh->doBlendBrightness(true);
-        fireGlowMesh->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
-
-        // Fire glow color gradient
-        fireGlowMesh->colorPoints().clear();
-        fireGlowMesh->colorPoints().push_back(SLColorLUTPoint(SLCol3f(103.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f), 0.0f));
-        fireGlowMesh->colorPoints().push_back(SLColorLUTPoint(SLCol3f(79.0f / 255.0f, 62.0f / 255.0f, 12.0f / 255.0f), 0.37f));
-        fireGlowMesh->colorPoints().push_back(SLColorLUTPoint(SLCol3f::WHITE, 1.0f));
-        ImGradient gradient;
-        gradient.getMarks().clear();
-        for (auto cp : fireGlowMesh->colorPoints())
-            gradient.addMark(cp.pos, ImColor(cp.color.r, cp.color.g, cp.color.b));
-        fireGlowMesh->colorArr(gradient.cachedValues());
-
-        // Fire glow acceleration
-        fireGlowMesh->doAcceleration(true);
-        fireGlowMesh->doAccDiffDir(true);
-        fireGlowMesh->acceleration(0.0f, 0.02f, 0.0f);
-
-        fireComplex->addChild(new SLNode(fireGlowMesh, "Fire glow node"));
+        fireGlowMesh->color(SLCol4f(0.925f, 0.5f, 0.097f, 0.199f));
+        fireGlowMesh->doAcceleration(false);
+        SLNode* flameGlowNode = new SLNode(fireGlowMesh, "Fire glow node");
+        flameGlowNode->translate(0,0.15f,0);
+        fireComplex->addChild(flameGlowNode);
     }
 
     // Fire flame mesh
@@ -686,6 +646,80 @@ SLNode* createComplexFire(SLAssetManager* am,
     }
 
     return fireComplex;
+}
+//-----------------------------------------------------------------------------
+SLNode* createTorchFire(SLAssetManager* am,
+                        SLScene*        s,
+                        SLbool          withLight,
+                        SLGLTexture*    texFireCld,
+                        SLGLTexture*    texFireFlm,
+                        SLint           flipbookCols,
+                        SLint           flipbookRows)
+{
+
+    SLNode* torchFire = new SLNode("Fire torch node");
+
+    // Fire light node
+    if (withLight)
+    {
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f, 180.0f, false);
+        light1->name("Fire light node");
+        light1->translate(0, 0, 0);
+        light1->diffuseColor(SLCol4f(1, 0.4f, 0.0f));
+        light1->diffusePower(2);
+        light1->attenuation(0, 0, 1);
+        torchFire->addChild(light1);
+    }
+
+    // Fire glow mesh
+    {
+        SLParticleSystem* fireGlow = new SLParticleSystem(am,
+                                                       40,
+                                                       SLVec3f(-0.1f, 0.0f, -0.1f),
+                                                       SLVec3f(0.1f, 0.0f, 0.1f),
+                                                       1.5f,
+                                                       texFireCld,
+                                                       "Torch Glow PS",
+                                                       texFireFlm);
+        fireGlow->color(SLCol4f(0.9f, 0.5f, 0, 0.63f));
+        fireGlow->doBlendBrightness(true);
+        fireGlow->radiusW(0.15f);
+        fireGlow->radiusH(0.15f);
+        fireGlow->doSizeOverLT(false);
+        SLNode* fireGlowNode = new SLNode(fireGlow, "Torch Glow Node");
+        fireGlowNode->translate(0, -0.4f, 0);
+        torchFire->addChild(fireGlowNode);
+    }
+
+    // Fire torches
+    {
+        SLParticleSystem* torchFlame = new SLParticleSystem(am,
+                                                            1,
+                                                            SLVec3f(0.0f, 0.0f, 0.0f),
+                                                            SLVec3f(0.0f, 0.0f, 0.0f),
+                                                            4.0f,
+                                                            texFireCld,
+                                                            "Torch Flame PS",
+                                                            texFireFlm);
+        torchFlame->flipbookColumns(flipbookCols);
+        torchFlame->flipbookRows(flipbookRows);
+        torchFlame->doFlipBookTexture(true);
+        torchFlame->doCounterGap(false); // We don't want to have flickering
+        torchFlame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
+        torchFlame->doAlphaOverLT(false);
+        torchFlame->doSizeOverLT(false);
+        torchFlame->doRotation(false);
+        torchFlame->doColor(false);
+        torchFlame->frameRateFB(64);
+        torchFlame->radiusW(0.3f);
+        torchFlame->radiusH(0.8f);
+        torchFlame->billboardType(BT_Vertical);
+        SLNode* torchFlameNode = new SLNode(torchFlame, "Torch Flame Node");
+        torchFlameNode->translate(0,0.3f,0);
+        torchFire->addChild(torchFlameNode);
+    }
+
+    return torchFire;
 }
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
@@ -5760,69 +5794,60 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create meshes and nodes
         // Flame particle system
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    1,
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Particle System Fire1",
-                                                    texFlipbook);
-        ps->flipbookColumns(16);
-        ps->flipbookRows(4);
-        ps->doFlipBookTexture(true);
-        ps->doCounterGap(false); // We don't want to have flickering
-        ps->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
-        ps->doAlphaOverLT(false);
-        ps->doSizeOverLT(false);
-        ps->doRotation(false);
-        ps->doColor(false);
-        ps->frameRateFB(64);
-        ps->radiusW(0.4f);
-        ps->radiusH(1.0f);
-        ps->billboardType(BT_Vertical);
-
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
-
-        scene->addChild(pSNode);
+        SLParticleSystem* fire1 = new SLParticleSystem(am,
+                                                       1,
+                                                       SLVec3f(0.0f, 0.0f, 0.0f),
+                                                       SLVec3f(0.0f, 0.0f, 0.0f),
+                                                       4.0f,
+                                                       texC,
+                                                       "Particle System Fire1",
+                                                       texFlipbook);
+        fire1->flipbookColumns(16);
+        fire1->flipbookRows(4);
+        fire1->doFlipBookTexture(true);
+        fire1->doCounterGap(false); // We don't want to have flickering
+        fire1->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
+        fire1->doAlphaOverLT(false);
+        fire1->doSizeOverLT(false);
+        fire1->doRotation(false);
+        fire1->doColor(false);
+        fire1->frameRateFB(64);
+        fire1->radiusW(0.4f);
+        fire1->radiusH(1.0f);
+        fire1->billboardType(BT_Vertical);
+        SLNode* fire1Node = new SLNode(fire1, "Particle system node fire1");
+        scene->addChild(fire1Node);
 
         // Smoke particle system
-        SLParticleSystem* ps2 = new SLParticleSystem(am,
-                                                     20,
-                                                     SLVec3f(-0.05f, 0.6f, -0.05f),
-                                                     SLVec3f(0.05f, 0.8f, 0.05f),
-                                                     3.0f,
-                                                     texC,
-                                                     "Particle System Smoke1",
-                                                     texFlipbook);
-        ps2->color(SLCol4f(0.42f, 0.42f, 0.42f, 0.117f));
-        ps2->doSizeOverLT(false);
+        SLParticleSystem* smoke1 = new SLParticleSystem(am,
+                                                        20,
+                                                        SLVec3f(-0.05f, 0.6f, -0.05f),
+                                                        SLVec3f(0.05f, 0.8f, 0.05f),
+                                                        3.0f,
+                                                        texC,
+                                                        "Particle System Smoke1",
+                                                        texFlipbook);
+        smoke1->color(SLCol4f(0.42f, 0.42f, 0.42f, 0.117f));
+        smoke1->doSizeOverLT(false);
+        SLNode* smoke1Node = new SLNode(smoke1, "Particle system node smoke1");
+        smoke1Node->translate(0.0f, -0.5f, 0.0f, TS_object);
+        fire1Node->addChild(smoke1Node);
 
-        SLMesh* pSMesh2 = ps2;
-        SLNode* pSNode2 = new SLNode(pSMesh2, "Particle system node smoke1");
-        pSNode2->translate(0.0f, -0.5f, 0.0f, TS_object);
-
-        pSNode->addChild(pSNode2);
-
-        // Fire 2 (with lot of particles
-        SLParticleSystem* ps3 = new SLParticleSystem(am,
-                                                     128,
-                                                     SLVec3f(-0.1f, 0.4f, -0.1f),
-                                                     SLVec3f(0.1f, 1.0f, 0.1f),
-                                                     1.5f,
-                                                     texC,
-                                                     "Particle System fire2",
-                                                     texFlipbookSmoke);
-        ps3->color(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
-        ps3->doBlendBrightness(true);
-        ps3->frameRateFB(16);
-
-        SLMesh* pSMesh3 = ps3;
-        SLNode* pSNode3 = new SLNode(pSMesh3, "Particle system node fire2");
-        pSNode3->translate(3.0f, -0.8f, 0.0f, TS_object);
-
-        scene->addChild(pSNode3);
+        // Fire 2 with lots of particles
+        SLParticleSystem* fire2 = new SLParticleSystem(am,
+                                                       128,
+                                                       SLVec3f(-0.1f, 0.4f, -0.1f),
+                                                       SLVec3f(0.1f, 1.0f, 0.1f),
+                                                       1.5f,
+                                                       texC,
+                                                       "Particle System fire2",
+                                                       texFlipbookSmoke);
+        fire2->color(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
+        fire2->doBlendBrightness(true);
+        fire2->frameRateFB(16);
+        SLNode* fire2Node = new SLNode(fire2, "Particle system node fire2");
+        fire2Node->translate(3.0f, -0.8f, 0.0f, TS_object);
+        scene->addChild(fire2Node);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.3f, 0.3f, 0.3f),
@@ -6076,17 +6101,18 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
 
         // Create textures and materials
-        SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
-        // SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
-        SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
-        SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
-        SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
-        SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+        SLGLTexture* texFireCld  = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+        SLGLTexture* texFireFlm  = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
+        SLGLTexture* texCircle   = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+        SLGLTexture* texSmokeB   = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+        SLGLTexture* texSmokeW   = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+        SLGLTexture* texTorchFlm = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
+        SLGLTexture* texTorchSmk = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
 
         SLNode* complexFire = createComplexFire(am,
                                                 s,
                                                 true,
-                                                texFireCld,
+                                                texTorchSmk,
                                                 texFireFlm,
                                                 8,
                                                 8,
@@ -6095,49 +6121,55 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                 texSmokeW);
         scene->addChild(complexFire);
 
-        // Room parent node
-        SLNode* room = new SLNode("Room");
-        scene->addChild(room);
+        // Room around
+        {
+            // Room parent node
+            SLNode* room = new SLNode("Room");
+            scene->addChild(room);
 
-        // Back wall material
-        SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-        SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-        SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
-        matWall->specular(SLCol4f::BLACK);
+            // Back wall material
+            SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
+            matWall->specular(SLCol4f::BLACK);
+            matWall->metalness(0);
+            matWall->roughness(1);
+            matWall->reflectionModel(RM_CookTorrance);
 
-        // Room dimensions
-        SLfloat pL = -2.0f, pR = 2.0f;  // left/right
-        SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
-        SLfloat pN = 2.0f, pF = -2.0f;  // near/far
+            // Room dimensions
+            SLfloat pL = -2.0f, pR = 2.0f;  // left/right
+            SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
+            SLfloat pN = 2.0f, pF = -2.0f;  // near/far
 
-        // bottom rectangle
-        SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
-        b->rotate(90, -1, 0, 0);
-        b->translate(0, 0, pB, TS_object);
-        room->addChild(b);
+            // bottom rectangle
+            SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
+            b->rotate(90, -1, 0, 0);
+            b->translate(0, 0, pB, TS_object);
+            room->addChild(b);
 
-        // far rectangle
-        SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
-        f->translate(0, 0, pF, TS_object);
-        room->addChild(f);
+            // far rectangle
+            SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
+            f->translate(0, 0, pF, TS_object);
+            room->addChild(f);
 
-        // near rectangle
-        SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
-        n->rotate(180, 0, 1, 0);
-        n->translate(0, 0, pF, TS_object);
-        room->addChild(n);
+            // near rectangle
+            SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
+            n->rotate(180, 0, 1, 0);
+            n->translate(0, 0, pF, TS_object);
+            room->addChild(n);
 
-        // left rectangle
-        SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
-        l->rotate(90, 0, 1, 0);
-        l->translate(0, 0, pL, TS_object);
-        room->addChild(l);
+            // left rectangle
+            SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
+            l->rotate(90, 0, 1, 0);
+            l->translate(0, 0, pL, TS_object);
+            room->addChild(l);
 
-        // right rectangle
-        SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
-        r->rotate(90, 0, -1, 0);
-        r->translate(0, 0, -pR, TS_object);
-        room->addChild(r);
+            // right rectangle
+            SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
+            r->rotate(90, 0, -1, 0);
+            r->translate(0, 0, -pR, TS_object);
+            room->addChild(r);
+        }
 
         // Firewood
         SLAssimpImporter importer;
@@ -6146,12 +6178,60 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                          modelPath + "GLTF/Firewood/Firewood1.gltf",
                                          texPath,
                                          nullptr,
-                                         false,   // delete tex images after build
-                                         true,    // load meshes only
-                                         nullptr, // override material
-                                         0.3f);
+                                         false,
+                                         true,
+                                         nullptr,
+                                         0.3f,
+                                         true);
         firewood->scale(2);
         scene->addChild(firewood);
+
+        // Torch
+        SLNode* torchL = importer.load(s->animManager(),
+                                      am,
+                                      modelPath + "GLTF/Torch/Torch.gltf",
+                                      texPath,
+                                      nullptr,
+                                      false,
+                                      true,
+                                      nullptr,
+                                      0.3f,
+                                      true);
+        torchL->name("Torch Left");
+        SLNode* torchR = torchL->copyRec();
+        torchR->name("Torch Right");
+        torchL->translate(-2, 1.5f, 0);
+        torchL->rotate(90, 0, 1, 0);
+        torchL->scale(2);
+        scene->addChild(torchL);
+        torchR->translate(2, 1.5f, 0);
+        torchR->rotate(-90, 0, 1, 0);
+        torchR->scale(2);
+        scene->addChild(torchR);
+
+        // Torch flame left
+        SLNode* torchFlameNodeL = createTorchFire(am,
+                                                 s,
+                                                 true,
+                                                 texTorchSmk,
+                                                 texTorchFlm,
+                                                 16,
+                                                 4);
+        torchFlameNodeL->translate(-1.6f, 2.25f, 0);
+        torchFlameNodeL->name("Torch Fire Left");
+        scene->addChild(torchFlameNodeL);
+
+        // Torch flame right
+        SLNode* torchFlameNodeR = createTorchFire(am,
+                                                  s,
+                                                  true,
+                                                  texTorchSmk,
+                                                  texTorchFlm,
+                                                  16,
+                                                  4);
+        torchFlameNodeR->translate(1.6f, 2.25f, 0);
+        torchFlameNodeR->name("Torch Fire Right");
+        scene->addChild(torchFlameNodeR);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
@@ -6196,6 +6276,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                          true,
                                          diffuseMat,
                                          0.2f,
+                                         false,
                                          nullptr,
                                          SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
