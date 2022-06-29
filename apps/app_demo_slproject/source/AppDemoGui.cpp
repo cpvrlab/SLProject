@@ -3806,7 +3806,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
                     else if (m->reflectionModel() == RM_Particle)
                     {
-                        if (ImGui::TreeNode("Particle System, Config"))
+                        if (ImGui::TreeNode("Particle System"))
                         {
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);

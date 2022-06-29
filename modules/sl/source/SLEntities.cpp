@@ -122,7 +122,7 @@ SLEntity* SLEntities::getParent(SLint id)
  */
 SLint SLEntities::getParentID(SLNode* node)
 {
-    for (SLEntity entity : _graph)
+    for (SLEntity& entity : _graph)
         if (entity.node == node)
             return entity.parentID;
     return INT32_MIN;
@@ -204,7 +204,7 @@ void SLEntities::dump(SLbool doTreeDump)
             }
 
             string tabs;
-            for (int d = 1; d < depth; ++d)
+            for (int d = 1; d < (int)depth; ++d)
                 tabs += "|  ";
             if (depth > 0)
                 tabs += "+--";
