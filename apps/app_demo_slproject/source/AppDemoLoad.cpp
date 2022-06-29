@@ -447,7 +447,7 @@ SLNode* createComplexFire(SLAssetManager* am,
         light1->name("Fire light node");
         light1->translate(0, 1.0f, 0);
         light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
-        light1->diffusePower(18);
+        light1->diffusePower(15);
         light1->attenuation(0, 0, 1);
         fireComplex->addChild(light1);
     }
@@ -476,7 +476,7 @@ SLNode* createComplexFire(SLAssetManager* am,
         fireGlowMesh->color(SLCol4f(0.925f, 0.5f, 0.097f, 0.199f));
         fireGlowMesh->doAcceleration(false);
         SLNode* flameGlowNode = new SLNode(fireGlowMesh, "Fire glow node");
-        flameGlowNode->translate(0,0.15f,0);
+        flameGlowNode->translate(0, 0.15f, 0);
         fireComplex->addChild(flameGlowNode);
     }
 
@@ -674,13 +674,13 @@ SLNode* createTorchFire(SLAssetManager* am,
     // Fire glow mesh
     {
         SLParticleSystem* fireGlow = new SLParticleSystem(am,
-                                                       40,
-                                                       SLVec3f(-0.1f, 0.0f, -0.1f),
-                                                       SLVec3f(0.1f, 0.0f, 0.1f),
-                                                       1.5f,
-                                                       texFireCld,
-                                                       "Torch Glow PS",
-                                                       texFireFlm);
+                                                          40,
+                                                          SLVec3f(-0.1f, 0.0f, -0.1f),
+                                                          SLVec3f(0.1f, 0.0f, 0.1f),
+                                                          1.5f,
+                                                          texFireCld,
+                                                          "Torch Glow PS",
+                                                          texFireFlm);
         fireGlow->color(SLCol4f(0.9f, 0.5f, 0, 0.63f));
         fireGlow->doBlendBrightness(true);
         fireGlow->radiusW(0.15f);
@@ -715,7 +715,7 @@ SLNode* createTorchFire(SLAssetManager* am,
         torchFlame->radiusH(0.8f);
         torchFlame->billboardType(BT_Vertical);
         SLNode* torchFlameNode = new SLNode(torchFlame, "Torch Flame Node");
-        torchFlameNode->translate(0,0.3f,0);
+        torchFlameNode->translate(0, 0.3f, 0);
         torchFire->addChild(torchFlameNode);
     }
 
@@ -5777,89 +5777,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_ParticleSystem_FireEffects) //.........................................
-    {
-        // Set scene name and info string
-        s->name("Fire effects particle system");
-        s->info("Create fires visual effects");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create textures and materials
-        SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook      = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
-        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create meshes and nodes
-        // Flame particle system
-        SLParticleSystem* fire1 = new SLParticleSystem(am,
-                                                       1,
-                                                       SLVec3f(0.0f, 0.0f, 0.0f),
-                                                       SLVec3f(0.0f, 0.0f, 0.0f),
-                                                       4.0f,
-                                                       texC,
-                                                       "Particle System Fire1",
-                                                       texFlipbook);
-        fire1->flipbookColumns(16);
-        fire1->flipbookRows(4);
-        fire1->doFlipBookTexture(true);
-        fire1->doCounterGap(false); // We don't want to have flickering
-        fire1->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
-        fire1->doAlphaOverLT(false);
-        fire1->doSizeOverLT(false);
-        fire1->doRotation(false);
-        fire1->doColor(false);
-        fire1->frameRateFB(64);
-        fire1->radiusW(0.4f);
-        fire1->radiusH(1.0f);
-        fire1->billboardType(BT_Vertical);
-        SLNode* fire1Node = new SLNode(fire1, "Particle system node fire1");
-        scene->addChild(fire1Node);
-
-        // Smoke particle system
-        SLParticleSystem* smoke1 = new SLParticleSystem(am,
-                                                        20,
-                                                        SLVec3f(-0.05f, 0.6f, -0.05f),
-                                                        SLVec3f(0.05f, 0.8f, 0.05f),
-                                                        3.0f,
-                                                        texC,
-                                                        "Particle System Smoke1",
-                                                        texFlipbook);
-        smoke1->color(SLCol4f(0.42f, 0.42f, 0.42f, 0.117f));
-        smoke1->doSizeOverLT(false);
-        SLNode* smoke1Node = new SLNode(smoke1, "Particle system node smoke1");
-        smoke1Node->translate(0.0f, -0.5f, 0.0f, TS_object);
-        fire1Node->addChild(smoke1Node);
-
-        // Fire 2 with lots of particles
-        SLParticleSystem* fire2 = new SLParticleSystem(am,
-                                                       128,
-                                                       SLVec3f(-0.1f, 0.4f, -0.1f),
-                                                       SLVec3f(0.1f, 1.0f, 0.1f),
-                                                       1.5f,
-                                                       texC,
-                                                       "Particle System fire2",
-                                                       texFlipbookSmoke);
-        fire2->color(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
-        fire2->doBlendBrightness(true);
-        fire2->frameRateFB(16);
-        SLNode* fire2Node = new SLNode(fire2, "Particle system node fire2");
-        fire2Node->translate(3.0f, -0.8f, 0.0f, TS_object);
-        scene->addChild(fire2Node);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.3f, 0.3f, 0.3f),
-                                                   SLCol4f(0.1f, 0.1f, 0.1f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
     else if (sceneID == SID_ParticleSystem_Demo) //................................................
     {
         // Set scene name and info string
-        s->name("Demo particle system");
-        s->info("Scene for of particle system");
+        s->name("Simple Demo Particle System");
+        s->info("This most simple single particle system is meant to be improved by adding more and more features in the properties list.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -5898,11 +5820,20 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("Dust storm particle system");
-        s->info("Create dust storm visual effects");
+        s->info("This dust storm particle system uses the box shape type for distribution.\n"
+                "See the properties window for the detailed settings of the particles system");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
         s->root3D(scene);
+
+        // Create and add camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 55);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(55);
+        scene->addChild(cam1);
+        sv->camera(cam1);
 
         // Create textures and materials
         SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
@@ -5950,7 +5881,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("Fountain particle system");
-        s->info("Create fountain effect in scene with a particle system");
+        s->info("This fountain particle system uses acceleration and gravity.\n"
+                "See the properties window for the detailed settings of the particles system");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -6002,7 +5934,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("Sun particle system");
-        s->info("Create sun effects particle system");
+        s->info("This sun particle system uses the sphere shape type for distribution.\n"
+                "See the properties window for the detailed settings of the particles system");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -6042,7 +5975,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("Ring of fire particle system");
-        s->info("Create ring of fire effect particle system");
+        s->info("This ring particle system uses the cone shape type for distribution.\n"
+                "See the properties window for the settings of the particles system");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -6085,7 +6019,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("Fire Complex particle system");
-        s->info("Create fireGlowMesh complex effects particle system");
+        s->info("The fire particle systems contain each multiple sub particle systems.\n"
+                "See the scenegraph window for the sub particles systems. "
+                "See the properties window for the settings of the particles systems");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -6093,8 +6029,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create and add camera
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1.5f, 4.5f);
-        cam1->lookAt(0, 1.5f, 0);
+        cam1->translation(0, 1.2f, 4.5f);
+        cam1->lookAt(0, 1.2f, 0);
         cam1->focalDist(4.5f);
         cam1->setInitialState();
         scene->addChild(cam1);
@@ -6188,15 +6124,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Torch
         SLNode* torchL = importer.load(s->animManager(),
-                                      am,
-                                      modelPath + "GLTF/Torch/Torch.gltf",
-                                      texPath,
-                                      nullptr,
-                                      false,
-                                      true,
-                                      nullptr,
-                                      0.3f,
-                                      true);
+                                       am,
+                                       modelPath + "GLTF/Torch/Torch.gltf",
+                                       texPath,
+                                       nullptr,
+                                       false,
+                                       true,
+                                       nullptr,
+                                       0.3f,
+                                       true);
         torchL->name("Torch Left");
         SLNode* torchR = torchL->copyRec();
         torchR->name("Torch Right");
@@ -6211,12 +6147,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Torch flame left
         SLNode* torchFlameNodeL = createTorchFire(am,
-                                                 s,
-                                                 true,
-                                                 texTorchSmk,
-                                                 texTorchFlm,
-                                                 16,
-                                                 4);
+                                                  s,
+                                                  true,
+                                                  texTorchSmk,
+                                                  texTorchFlm,
+                                                  16,
+                                                  4);
         torchFlameNodeL->translate(-1.6f, 2.25f, 0);
         torchFlameNodeL->name("Torch Fire Left");
         scene->addChild(torchFlameNodeL);

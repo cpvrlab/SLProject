@@ -1779,8 +1779,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
                         s->onLoad(am, s, sv, SID_ParticleSystem_First);
-                    if (ImGui::MenuItem("Simple Fire Particle System", nullptr, sid == SID_ParticleSystem_FireEffects))
-                        s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
                     if (ImGui::MenuItem("Demo Particle System", nullptr, sid == SID_ParticleSystem_Demo))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
                     if (ImGui::MenuItem("Dust Storm Particle System", nullptr, sid == SID_ParticleSystem_DustStorm))
