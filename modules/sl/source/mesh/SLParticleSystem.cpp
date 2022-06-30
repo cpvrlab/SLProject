@@ -505,15 +505,15 @@ void SLParticleSystem::changeTexture()
     }
 }
 //-----------------------------------------------------------------------------
-/*!
-Function called inside SLNode cull3DRec(..) which set a boolean and a time for the next
-draw call to update the start time of the particles.
+/*! Function called inside SLNode cull3DRec(..) which flags the particle system
+ to be not visible in the view frustum. This is needed to correct later the
+ start time of the PS when it reappears again.
 */
-void SLParticleSystem::notVisibleFrustumCulling()
+void SLParticleSystem::setNotVisibleInFrustum()
 {
-    if (_isViFrustumCulling)
+    if (_isVisibleInFrustum)
     {
-        _isViFrustumCulling = false;
+        _isVisibleInFrustum = false;
         _notVisibleTimeS    = GlobalTimer::timeS();
     }
 }
@@ -567,18 +567,18 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual delta time
 
     // Calculate time difference for frustum culling and paused
-    if (!_isViFrustumCulling && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
+    if (!_isVisibleInFrustum && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
     {
-        _isViFrustumCulling = true;
+        _isVisibleInFrustum = true;
         difTime             = GlobalTimer::timeS() - min(_lastTimeBeforePauseS, _notVisibleTimeS); // Paused was set before not visible (will take _lastTimeBeforePauseS), if set after (will take _notVisibleTimeS)
         // maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
         deltaTime             = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
         _notVisibleTimeS      = 0.0f;              // No more culling, the difference time has been applied, no further need
         _lastTimeBeforePauseS = 0.0f;              // No more paused, the difference time has been applied, no further need
     }
-    else if (!_isViFrustumCulling) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
+    else if (!_isVisibleInFrustum) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
     {
-        _isViFrustumCulling = true;
+        _isVisibleInFrustum = true;
         difTime             = GlobalTimer::timeS() - _notVisibleTimeS; // Use time since the particle system was not visible
         // maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
         deltaTime = _deltaTimeUpdateS;                // Last delta time, because when culled draw is not called therefore the actual delta time will be too big

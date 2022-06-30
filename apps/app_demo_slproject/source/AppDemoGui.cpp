@@ -3811,7 +3811,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
-                            // Pause and Resume ??? Is there a global list of all particle systems
+                            // Pause and Resume
                             bool isPaused = ps->isPaused();
                             if (isPaused)
                             {

@@ -41,7 +41,7 @@ public:
     void generateBernsteinPAlpha();
     void generateBernsteinPSize();
     void changeTexture();
-    void notVisibleFrustumCulling();
+    void setNotVisibleInFrustum();
     void pauseOrResume();
 
     // Getters
@@ -275,9 +275,9 @@ private:
     float   _bezierStartEndPointSize[4]  = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
 
     // Acceleration
-    SLVec3f _acceleration      = SLVec3f(1.0f, 1.0f, 1.0f);   //!< Vector for acceleration (different direction as the velocity)
+    SLVec3f _acceleration      = SLVec3f(1, 1, 1);            //!< Vector for acceleration (different direction as the velocity)
     SLfloat _accelerationConst = 0.0f;                        //!< Acceleration constant (same direction as the velocity)
-    SLVec3f _gravity           = SLVec3f(0.0f, -9.81f, 0.0f); //!< Vector for gravity (??? Is there a use for gravity AND acceleration?
+    SLVec3f _gravity           = SLVec3f(0.0f, -9.81f, 0.0f); //!< Vector for gravity (2nd. acceleration vector)
 
     // Velocity
     SLVec3f _velocityConst  = SLVec3f(0, 1, 0);    //!< Velocity constant (go in xyz direction)
@@ -285,9 +285,9 @@ private:
     SLVec3f _velocityRndMax = SLVec3f(1, 1, 1);    //!< Max. random velocity
 
     // Direction speed
-    SLVec3f _direction  = SLVec3f(0.0f, 1.0f, 0.0f); //!< Direction of particle
-    SLfloat _speed      = 1.0f;                      //!< Speed of particle
-    SLVec2f _speedRange = SLVec2f(1.0f, 2.0f);       //!< Speed random between two value
+    SLVec3f _direction  = SLVec3f(0, 0, 0); //!< Direction of particle
+    SLfloat _speed      = 1.0f;             //!< Speed of particle
+    SLVec2f _speedRange = SLVec2f(1, 2);    //!< Speed random between two value
 
     // Color
     SLCol4f          _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
@@ -329,20 +329,20 @@ private:
     SLVec2f _angularVelocityRange = SLVec2f(-30.0f, 30.0f); //!< Rotation rate range (change in angular rotation divide by change in time)
 
     // Type of selected feature
-    SLBillboardType _billboardType = BT_Camera; //!< Billboard type
-    SLShapeType     _shapeType     = ST_Sphere; //!< Shape type
+    SLBillboardType _billboardType = BT_Camera; //!< Billboard type (BT_Camera, BT_Vertical, BT_Horizontal
+    SLShapeType     _shapeType     = ST_Sphere; //!< Shape type (ST_)
     SLint           _velocityType  = 0;         //!< Velocity type
 
     // Textures
-    SLGLTexture* _textureFirst;    //!< ???
-    SLGLTexture* _textureFlipbook; //!< ???
+    SLGLTexture* _textureFirst;    //!< Main texture of PS (non flipbook)
+    SLGLTexture* _textureFlipbook; //!< Flipbook texture with e.g. multiple flames at subsequent frames
 
     // VAOs
     SLGLVertexArray _vao1; //!< First OpenGL Vertex Array Object for swapping between updating/drawing
     SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
     // Boolean for generation/resume
-    SLbool _isViFrustumCulling = true;  //!< Boolean to set time since node not visible
+    SLbool _isVisibleInFrustum = true;  //!< Boolean to set time since node not visible
     SLbool _isPaused           = false; //!< Boolean to stop updating
     SLbool _isGenerated        = false; //!< Boolean to generate particle system and load it on the GPU
 

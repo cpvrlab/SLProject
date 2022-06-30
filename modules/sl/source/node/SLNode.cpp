@@ -399,7 +399,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
         // For particle system updating (Break, no update, setup to resume)
         SLParticleSystem* tempPS = dynamic_cast<SLParticleSystem*>(this->mesh());
         if (tempPS && !_aabb.isVisible())
-            tempPS->notVisibleFrustumCulling();
+            tempPS->setNotVisibleInFrustum();
 
         // Cull the group nodes recursively
         if (_aabb.isVisible())
