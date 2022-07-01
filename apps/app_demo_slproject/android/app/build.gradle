@@ -24,7 +24,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 abiFilters 'arm64-v8a'
-                arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA", "-DAPP_USES_GLES", "-DSL_BUILD_WAI=ON"
+                arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA=TRUE", "-DAPP_USES_GLES=TRUE", "-DSL_BUILD_WAI=ON"
             }
         }
     }
@@ -32,12 +32,6 @@ android {
         main {
             assets.srcDirs = ['src/main/assets']
         }
-    }
-    lintOptions {
-        checkReleaseBuilds false
-        // Or, if you prefer, you can continue to check for errors in release builds,
-        // but continue the build even when errors are found:
-        abortOnError false
     }
     buildTypes {
         release {
@@ -59,7 +53,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
-    //buildToolsVersion '29.0.1'
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+    ndkVersion "21.4.7075529"
 }
 
 dependencies {
