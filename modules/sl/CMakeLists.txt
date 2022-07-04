@@ -114,10 +114,6 @@ file(GLOB sources
         source/cv/CVTrackedFeatures.h
         source/cv/CVTypedefs.h
         source/cv/CVTypes.h
-        source/gl/SLGLConetracer.cpp
-        source/gl/SLGLConetracer.h
-        source/gl/SLGLConetracerTex3D.cpp
-        source/gl/SLGLConetracerTex3D.h
         source/gl/SLGLDepthBuffer.cpp
         source/gl/SLGLDepthBuffer.h
         source/gl/SLGLEnums.h

@@ -18,7 +18,6 @@
 #include <SLNode.h>
 #include <SLPathtracer.h>
 #include <SLRaytracer.h>
-#include <SLGLConetracer.h>
 #include <SLScene.h>
 #include <SLOptixRaytracer.h>
 #include <SLOptixPathtracer.h>
@@ -128,11 +127,9 @@ public:
     void     printStats() { _stats3D.print(); }
     void     startRaytracing(SLint maxDepth);
     void     startPathtracing(SLint maxDepth, SLint samples);
-    void     startConetracing();
     void     setViewportFromRatio(const SLVec2i&  vpRatio,
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
-    void     initConeTracer(SLstring shaderDir);
     void     saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize = cv::Size(-1, -1));
 
     // Callback routines
@@ -191,7 +188,6 @@ public:
     SLVNode&        nodesOverdrawn() { return _nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
-    SLGLConetracer* conetracer() { return _conetracer.get(); }
     SLRenderType    renderType() const { return _renderType; }
     SLGLOculusFB*   oculusFB() { return &_oculusFB; }
     SLDrawBits*     drawBits() { return &_drawBits; }
@@ -262,7 +258,7 @@ protected:
     SLViewportAlign _viewportAlign;            //!< alignment of viewport
     SLRecti         _viewportRect;             //!< rectangle of viewport
     SLbool          _viewportSameAsVideo;      //!< Adapt viewport aspect to the input video
-    SLbool          _screenCaptureIsRequested; //! Flag if screen capture is requested
+    SLbool          _screenCaptureIsRequested; //!< Flag if screen capture is requested
     SLint           _screenCaptureWaitFrames;  //!< Frames to delay the screen capture
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
@@ -270,17 +266,16 @@ protected:
     std::unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
     std::unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
 
-    SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes rendered in 2D
-    SLVNode _nodesBlended2D; //!< Vector of visible blended nodes rendered in 2D
-    SLVNode _nodesOpaque3D;  //!< Vector of visible opaque nodes rendered in 3D
-    SLVNode _nodesBlended3D; //!< Vector of visible blended nodes rendered in 3D
+    SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes not in _visibleMaterials2D rendered in 2D
+    SLVNode _nodesBlended2D; //!< Vector of visible blended nodes not in _visibleMaterials2D rendered in 2D
+    SLVNode _nodesOpaque3D;  //!< Vector of visible opaque nodes not in _visibleMaterials3D rendered in 3D
+    SLVNode _nodesBlended3D; //!< Vector of visible blended nodes not in _visibleMaterials3D rendered in 3D
     SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
     SLRaytracer                     _raytracer;  //!< Whitted style raytracer
     SLbool                          _stopRT;     //!< Flag to stop the RT
     SLPathtracer                    _pathtracer; //!< Pathtracer
     SLbool                          _stopPT;     //!< Flag to stop the PT
-    std::unique_ptr<SLGLConetracer> _conetracer; //!< Conetracer CT
 
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix

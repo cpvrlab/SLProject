@@ -269,7 +269,7 @@ SLMaterial::SLMaterial(SLAssetManager*   am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! Constructor for materials used within the cone tracer (SLGLConetracer).
+/*! Constructor for materials with only a shader program.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.

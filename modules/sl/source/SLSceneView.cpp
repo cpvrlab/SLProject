@@ -431,16 +431,6 @@ void SLSceneView::onInitialize()
 
     initSceneViewCamera();
 
-    // init conetracer if possible:
-#ifdef GL_VERSION_4_4
-    if (gl3wIsSupported(4, 4))
-    {
-        // The world's bounding box should not change during runtime.
-        if (_s && _s->root3D() && _conetracer)
-            _conetracer->init(_scrW, _scrH, _s->root3D()->aabb()->minWS(), _s->root3D()->aabb()->maxWS());
-    }
-#endif
-
     if (_gui)
         _gui->onResize(_viewportRect.width, _viewportRect.height);
 }
@@ -538,7 +528,6 @@ SLbool SLSceneView::onPaint()
             case RT_gl: camUpdated = draw3DGL(_s->elapsedTimeMS()); break;
             case RT_rt: camUpdated = draw3DRT(); break;
             case RT_pt: camUpdated = draw3DPT(); break;
-            case RT_ct: camUpdated = draw3DCT(); break;
 #ifdef SL_HAS_OPTIX
             case RT_optix_rt: camUpdated = draw3DOptixRT(); break;
             case RT_optix_pt: camUpdated = draw3DOptixPT(); break;
@@ -2005,34 +1994,6 @@ SLbool SLSceneView::draw3DOptixPT()
     return updated;
 }
 #endif
-//-----------------------------------------------------------------------------
-/*!
-Starts the voxel cone tracing
-*/
-void SLSceneView::startConetracing()
-{
-    _renderType = RT_ct;
-}
-//-----------------------------------------------------------------------------
-/*!
-SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
-*/
-SLbool SLSceneView::draw3DCT()
-{
-    // SL_LOG("Rendering VXC ");
-    SLfloat startMS = GlobalTimer::timeMS();
-
-    SLbool rendered = _conetracer->render(this);
-
-    _draw3DTimeMS = GlobalTimer::timeMS() - startMS;
-
-    return true;
-}
-//-----------------------------------------------------------------------------
-void SLSceneView::initConeTracer(SLstring shaderDir)
-{
-    _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
-}
 //-----------------------------------------------------------------------------
 //! Saves after n wait frames the front frame buffer as a PNG image.
 /* Due to the fact that ImGui needs several frame the render its UI we have to

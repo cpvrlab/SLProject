@@ -128,7 +128,7 @@ SLint slCreateSceneView(SLAssetManager* am,
 {
     assert(scene && "No valid scene!");
 
-    // Use our own sceneview creator callback or the the passed one.
+    // Use our own sceneview creator callback or the passed one.
     cbOnNewSceneView newSVCallback;
     if (onNewSceneViewCallback == nullptr)
         newSVCallback = &slNewSceneView;
@@ -137,7 +137,6 @@ SLint slCreateSceneView(SLAssetManager* am,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, AppDemo::inputManager);
-    sv->initConeTracer(AppDemo::shaderPath);
 
     // maintain multiple scene views in AppDemo
     AppDemo::sceneViews.push_back(sv);

@@ -102,7 +102,7 @@ public:
                         const SLCol4f&  uniformColor,
                         const SLchar*   name = (const char*)"Uniform color");
 
-    //! Ctor for cone tracer
+    //! Ctor for only a program
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLProgram*    program);

@@ -525,39 +525,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "---------------------------\n");
                 }
-                else if (rType == RT_ct)
-                {
-                    // Get averages from average variables (see Averaged)
-                    SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
-                    SLfloat updateTime     = s->updateTimesMS().average();
-                    SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                    SLfloat cullTime       = sv->cullTimesMS().average();
-                    SLfloat draw3DTime     = sv->draw3DTimesMS().average();
-                    SLfloat draw2DTime     = sv->draw2DTimesMS().average();
-
-                    // Calculate percentage from frame time
-                    SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
-
-                    sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
-                    sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
-                    sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                    sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                    sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
-                    sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                    sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                    sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                    sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                    sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                    sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                    sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
-                }
 
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
                 ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
@@ -1533,10 +1500,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(am, s, sv, SID_ShaderEarth);
-#if defined(GL_VERSION_4_4)
-                    if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
-                        s->onLoad(am, s, sv, SID_ShaderVoxelConeDemo);
-#endif
                     ImGui::EndMenu();
                 }
 
@@ -2376,16 +2339,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
             ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
 #endif
-#ifdef GL_VERSION_4_4
-            if (gl3wIsSupported(4, 4))
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
-                    sv->startConetracing();
-            }
-            else
-#endif
-                ImGui::MenuItem("Cone Tracing (GL>4.4)", nullptr, false, false);
-
             ImGui::EndMenu();
         }
 
@@ -2650,48 +2603,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     sv->startPathtracing(5, 1);
                 }
                 ImGui::PopItemWidth();
-
-                ImGui::EndMenu();
-            }
-        }
-        else if (rType == RT_ct)
-        {
-            if (ImGui::BeginMenu("CT-Setting"))
-            {
-                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->showVoxels()))
-                    sv->conetracer()->toggleVoxels();
-
-                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->doDirectIllum()))
-                    sv->conetracer()->toggleDirectIllum();
-
-                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->doDiffuseIllum()))
-                    sv->conetracer()->toggleDiffuseIllum();
-
-                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->doSpecularIllum()))
-                    sv->conetracer()->toggleSpecIllumination();
-
-                if (ImGui::MenuItem("Shadows", nullptr, sv->conetracer()->shadows()))
-                    sv->conetracer()->toggleShadows();
-
-                SLfloat angle = sv->conetracer()->diffuseConeAngle();
-                if (ImGui::SliderFloat("Diffuse cone angle (rad)", &angle, 0.f, 1.5f))
-                    sv->conetracer()->diffuseConeAngle(angle);
-
-                SLfloat specAngle = sv->conetracer()->specularConeAngle();
-                if (ImGui::SliderFloat("Specular cone angle (rad)", &specAngle, 0.004f, 0.5f))
-                    sv->conetracer()->specularConeAngle(specAngle);
-
-                SLfloat shadowAngle = sv->conetracer()->shadowConeAngle();
-                if (ImGui::SliderFloat("Shadow cone angle (rad)", &shadowAngle, 0.f, 1.5f))
-                    sv->conetracer()->shadowConeAngle(shadowAngle);
-
-                SLfloat lightSize = sv->conetracer()->lightMeshSize();
-                if (ImGui::SliderFloat("Max. size of a lightsource mesh", &lightSize, 0.0f, 100.0f))
-                    sv->conetracer()->lightMeshSize(lightSize);
-
-                SLfloat gamma = sv->conetracer()->gamma();
-                if (ImGui::SliderFloat("Gamma", &gamma, 1.0f, 3.0f))
-                    sv->conetracer()->gamma(gamma);
 
                 ImGui::EndMenu();
             }
