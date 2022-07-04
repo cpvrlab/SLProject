@@ -148,11 +148,9 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         case ST_vertex:
             _shaderID = glCreateShader(GL_VERTEX_SHADER);
             break;
-#if defined(GL_VERSION_4_0) || defined(GL_ES_VERSION_3_2)
         case ST_geometry:
             _shaderID = glCreateShader(GL_GEOMETRY_SHADER);
             break;
-#endif
         case ST_fragment:
             _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
             break;
