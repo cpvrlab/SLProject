@@ -27,6 +27,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
 			${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
 			${SL_PROJECT_ROOT}/data/images/textures/MuttenzerBox*.png
+			${SL_PROJECT_ROOT}/data/images/textures/Particle*.png
 			${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
 			${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png

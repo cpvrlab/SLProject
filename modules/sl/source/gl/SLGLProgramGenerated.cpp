@@ -67,7 +67,9 @@ uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees)"
 //-----------------------------------------------------------------------------
 const string vertConstant_PS_pi = R"(
 
-#define PI 3.1415926538)";
+#define PI 3.1415926538
+#define TWOPI 6.2831853076
+)";
 //-----------------------------------------------------------------------------
 const string vertInput_PS_u_time               = R"(
 
@@ -122,7 +124,7 @@ const string vertFunction_PS_ColorOverLT = R"(
 
 vec3 colorByAge(float age)
 {
-    int  cachePos = int(clamp(age, 0.0, 1.0) * 255) * 3;
+    int  cachePos = int(clamp(age, 0.0, 1.0) * 255.0) * 3;
     vec3 color    = vec3(u_colorArr[cachePos], u_colorArr[cachePos + 1], u_colorArr[cachePos + 2]);
     return color;
 })";
@@ -227,8 +229,8 @@ const string vertMain_PS_v_t_begin       = R"(
 const string vertMain_PS_v_t_linear      = R"(
         vert.transparency = 1.0 - vert.transparency;  // Linear)";
 const string vertMain_PS_v_t_curve       = R"(
-        vert.transparency = pow(vert.transparency,3) * u_al_bernstein.x +
-                            pow(vert.transparency,2) * u_al_bernstein.y +
+        vert.transparency = pow(vert.transparency,3.0) * u_al_bernstein.x +
+                            pow(vert.transparency,2.0) * u_al_bernstein.y +
                             vert.transparency * u_al_bernstein.z +
                             u_al_bernstein.w;  // Get transparency by bezier curve)";
 const string vertMain_PS_v_t_end         = R"(
@@ -238,8 +240,8 @@ const string vertMain_PS_v_r             = R"(
 const string vertMain_PS_v_s             = R"(
     vert.size = age / u_tTL;)";
 const string vertMain_PS_v_s_curve       = R"(
-    vert.size = pow(vert.size,3) * u_si_bernstein.x +
-                pow(vert.size,2) * u_si_bernstein.y +
+    vert.size = pow(vert.size,3.0) * u_si_bernstein.x +
+                pow(vert.size,2.0) * u_si_bernstein.y +
                 vert.size * u_si_bernstein.z +
                 u_si_bernstein.w;  // Get transparency by bezier curve)";
 const string vertMain_PS_v_doColorOverLT = R"(
@@ -315,9 +317,9 @@ const string vertMain_PS_U_alive_p             = R"(
             // The particle is alive, update.
             tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the delta time)";
 const string vertMain_PS_U_v_rConst            = R"(
-            tf_rotation = mod(tf_rotation + (u_angularVelo*u_deltaTime), 2 * PI);)";
+            tf_rotation = mod(tf_rotation + (u_angularVelo*u_deltaTime), TWOPI);)";
 const string vertMain_PS_U_v_rRange            = R"(
-            tf_rotation = mod(tf_rotation + (tf_angularVelo*u_deltaTime), 2 * PI);)";
+            tf_rotation = mod(tf_rotation + (tf_angularVelo*u_deltaTime), TWOPI);)";
 const string vertMain_PS_U_alive_a_const       = R"(
             tf_velocity += tf_initialVelocity * u_deltaTime * u_accConst;  // Amplify the velocity)";
 const string vertMain_PS_U_alive_a_diffDir     = R"(
@@ -328,7 +330,7 @@ const string vertMain_PS_U_alive_texNum        = R"(
             if(u_condFB == 1)
             {
                 tf_texNum++;  // Increment to draw next texture (flipbook)
-                tf_texNum = uint(tf_texNum % (u_col*u_row));  // Modulo to not exceed the max and reset
+                tf_texNum = uint(mod(float(tf_texNum), float(u_col * u_row))); // Modulo to not exceed the max and reset
             })";
 const string vertMain_PS_U_EndAll              = R"(
         }
@@ -495,7 +497,7 @@ const string geomMain_PS_fourCorners_horizBillboard          = R"(
     v_particleColor = color;
     EmitVertex();  )";
 const string geomMain_PS_Flipbook_fourCorners                = R"(
-    uint actCI = uint(vert[0].texNum % u_col);
+    uint actCI = uint(mod(float(uint(vert[0].texNum), float(u_col)));
     uint actRI = (vert[0].texNum - actCI) / u_col;
     float actC = float(actCI);
     float actR = float(actRI);
@@ -528,8 +530,8 @@ const string geomMain_PS_Flipbook_fourCorners                = R"(
     v_particleColor = color;
     EmitVertex();  )";
 const string geomMain_PS_Flipbook_fourCorners_horizBillboard = R"(
-    uint actCI = uint(vert[0].texNum % u_col);
-    uint actRI = (vert[0].texNum - actCI) / u_col;
+    uint actCI = uint(mod(float(vert[0].texNum), float(u_col)));
+    uint actRI = uint((float(vert[0].texNum) - float(actCI)) / float(u_col));
     float actC = float(actCI);
     float actR = float(actRI);
 
@@ -565,36 +567,36 @@ const string geomMain_PS_Flipbook_fourCorners_horizBillboard = R"(
     v_particleColor = color;
     EmitVertex();  )";
 const string geomMain_PS_Flipbook_fourCorners_vertBillboard  = R"(
-    uint actCI = uint(vert[0].texNum % u_col);
-    uint actRI = (vert[0].texNum - actCI) / u_col;
+    uint actCI = uint(mod(float(vert[0].texNum), float(u_col)));
+    uint actRI = uint((float(vert[0].texNum) - float(actCI)) / float(u_col));
     float actC = float(actCI);
     float actR = float(actRI);
 
     //BOTTOM LEFT
     vec4 va = vec4(P.xy + (rot * vec2(-radiusW, -radiusH)), P.z, 1); //Position in view space
     gl_Position = u_pMatrix * (u_vYawPMatrix * va); // Calculate position in clip space
-    v_texCoord = vec2(actC/u_col, 1.0-((actR+1.0)/u_row));  // Texture coordinate
+    v_texCoord = vec2(actC/float(u_col), 1.0-((actR+1.0)/float(u_row)));  // Texture coordinate
     v_particleColor = color;
     EmitVertex();
 
     //BOTTOM RIGHT
     vec4 vd = vec4(P.xy + (rot * vec2(radiusW, -radiusH)), P.z,1);
     gl_Position = u_pMatrix * (u_vYawPMatrix * vd);
-    v_texCoord = vec2((actC+1.0)/u_col, 1.0-((actR+1.0)/u_row)); // Texture coordinate
+    v_texCoord = vec2((actC+1.0)/float(u_col), 1.0-((actR+1.0)/float(u_row))); // Texture coordinate
     v_particleColor = color;
     EmitVertex();
 
     //TOP LEFT
     vec4 vb = vec4(P.xy + (rot * vec2(-radiusW,radiusH)) , P.z,1);
     gl_Position = u_pMatrix * (u_vYawPMatrix * vb);
-    v_texCoord = vec2(actC/u_col, 1.0-(actR/u_row)); // Texture coordinate
+    v_texCoord = vec2(actC/float(u_col), 1.0-(actR/float(u_row))); // Texture coordinate
     v_particleColor = color;
     EmitVertex();
 
     //TOP RIGHT
     vec4 vc = vec4(P.xy + (rot *vec2(radiusW, radiusH)), P.z,1);
     gl_Position =u_pMatrix * (u_vYawPMatrix * vc);
-    v_texCoord = vec2((actC+1.0)/u_col, 1.0-(actR/u_row)); // Texture coordinate
+    v_texCoord = vec2((actC+1.0)/float(u_col), 1.0-(actR/float(u_row))); // Texture coordinate
     v_particleColor = color;
     EmitVertex();  )";
 

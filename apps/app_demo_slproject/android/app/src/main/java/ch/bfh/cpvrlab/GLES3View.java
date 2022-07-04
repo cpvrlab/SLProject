@@ -33,11 +33,11 @@ public class GLES3View extends GLSurfaceView
         super(context);
 
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
-        //More detailed: Configer context with ConfigChooser class
+        //More detailed: Configure context with ConfigChooser class
         //setEGLConfigChooser(new ConfigChooser(8, 8, 8, 0, 16, 0));
 
         setEGLContextClientVersion(3);
-        //More detailed: Creatext context with ContextFactory class
+        //More detailed: Create context with ContextFactory class
         //setEGLContextFactory(new ContextFactory());
 
         // Set the renderer responsible for frame rendering
