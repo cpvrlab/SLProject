@@ -68,7 +68,6 @@ public:
     void deleteDataGpu();
     void addShader(SLGLShader* shader);
     void init(SLVLight* lights);
-    void initRaw();
     void initTF(const char* writeBackAttrib[], int size);
 
     virtual void beginShader(SLCamera*   cam,

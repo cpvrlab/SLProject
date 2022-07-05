@@ -12,10 +12,6 @@
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 
-#ifdef SL_GLES3
-#include <GLES3/gl32.h>
-#endif
-
 //-----------------------------------------------------------------------------
 // Error Strings
 const SLchar* aGLSLErrorString[] = {(const SLchar*)"(e0000) GLSL not enabled",
@@ -76,61 +72,6 @@ SLGLShader::~SLGLShader()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-SLbool SLGLShader::createAndCompileSimple()
-{
-    // delete if object already exits
-    if (_shaderID) glDeleteShader(_shaderID);
-
-    if (!_code.empty())
-    {
-        switch (_type)
-        {
-            case ST_vertex:
-                _shaderID = glCreateShader(GL_VERTEX_SHADER);
-                break;
-            case ST_fragment:
-                _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
-                break;
-#if defined(GL_VERSION_4_0) || defined(GL_ES_VERSION_3_2)
-            case ST_geometry:
-                _shaderID = glCreateShader(GL_GEOMETRY_SHADER);
-                break;
-#endif
-            default:
-                SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
-        }
-    }
-
-    // Build version string as the first statement
-    SLGLState* state      = SLGLState::instance();
-    SLstring   verGLSL    = state->glSLVersionNO();
-    SLstring   srcVersion = "#version " + verGLSL;
-    if (state->glIsES3()) srcVersion += " es";
-    srcVersion += "\n";
-
-    // Concatenate final code string
-    _code = srcVersion + _code;
-
-    const char* src = _code.c_str();
-    glShaderSource(_shaderID, 1, &src, nullptr);
-    glCompileShader(_shaderID);
-
-    // Check compiler log
-    SLint compileSuccess = 0;
-    glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
-    if (compileSuccess == GL_FALSE)
-    {
-        GLchar log[256];
-        glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
-        SL_LOG("*** COMPILER ERROR ***");
-        SL_LOG("Source file: %s", _file.c_str());
-        SL_LOG("%s\n---", log);
-        SL_LOG("%s", src);
-        return false;
-    }
-    return true;
-}
-//-----------------------------------------------------------------------------
 //! SLGLShader::createAndCompile creates & compiles the OpenGL shader object
 /*!
 @return true if compilation was successful
@@ -152,11 +93,16 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         case ST_vertex:
             _shaderID = glCreateShader(GL_VERTEX_SHADER);
             break;
-#if defined(GL_VERSION_4_0) || defined(GL_ES_VERSION_3_2)
         case ST_geometry:
-            _shaderID = glCreateShader(GL_GEOMETRY_SHADER);
+            /*
+             * 0x8DD9 == GL_GEOMETRY_SHADER would be defined in <GLES3/gl32.h>
+             * So far this header is not included by default in Android SDK and therefore
+             * it is not guaranteed that an Android device hat OpenGL ES 3.2 and this header.
+             * The app knows the OpenGL version when it is running. App that are below OpenGL ES 3.2
+             * should not try to create geometry shaders as used for particles.
+             */
+            _shaderID = glCreateShader(0x8DD9);
             break;
-#endif
         case ST_fragment:
             _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
             break;

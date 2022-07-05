@@ -121,54 +121,6 @@ void SLGLProgram::addShader(SLGLShader* shader)
     _shaders.push_back(shader);
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::initRaw() does not replace any code from the shader and
-assumes valid syntax for the shader used. Used in SLGLConetracer
-*/
-void SLGLProgram::initRaw()
-{
-    // create program object if it doesn't exist
-    if (!_progID)
-        _progID = glCreateProgram();
-
-    for (auto* shader : _shaders)
-        shader->createAndCompileSimple();
-
-    for (auto* shader : _shaders)
-        glAttachShader(_progID, shader->_shaderID);
-
-    GET_GL_ERROR;
-
-    glLinkProgram(_progID);
-
-    GLint success = 0;
-    glGetProgramiv(_progID, GL_LINK_STATUS, &success);
-
-    if (success)
-    {
-        _isLinked = true;
-
-        // if name is empty concatenate shader names
-        if (_name.empty())
-            for (auto* shader : _shaders)
-                _name += shader->name() + ", ";
-    }
-
-    if (!success)
-    {
-        GLchar log[1024];
-        glGetProgramInfoLog(_progID, 1024, nullptr, log);
-        std::cerr << "- Failed to link program (" << _progID << ")." << std::endl;
-        std::cerr << "LOG: " << std::endl
-                  << log << std::endl;
-    }
-
-    for (auto* shader : _shaders)
-    {
-        glDeleteShader(shader->_shaderID);
-        GET_GL_ERROR;
-    }
-}
-//-----------------------------------------------------------------------------
 /*! SLGLProgram::initTF() initializes shader for transform feedback.
  * Does not replace any code from the shader and assumes valid syntax for the
  * shader used. Used for particle systems

@@ -128,8 +128,10 @@ public:
     SLstring glRenderer() { return _glRenderer; }
     SLstring glSLVersion() { return _glSLVersion; }
     SLstring glSLVersionNO() { return _glSLVersionNO; }
+    SLbool   glIsES() const { return _glIsES2 || _glIsES3; }
     SLbool   glIsES2() const { return _glIsES2; }
     SLbool   glIsES3() const { return _glIsES3; }
+    SLbool   glHasGeometryShaders() const { return (_glIsES3 && _glVersionNOf > 3.1f) || (!glIsES() && _glVersionNOf >= 4.1f); }
     SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
     SLVec4i  viewport() { return _viewport; }
     SLMat4f  viewportMatrix()

@@ -752,7 +752,8 @@ void appDemoLoadScene(SLAssetManager* am,
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
 
-    AppDemo::sceneID = sceneID;
+    AppDemo::sceneID   = sceneID;
+    SLGLState* stateGL = SLGLState::instance();
 
     SLstring texPath    = AppDemo::texturePath;
     SLstring dataPath   = AppDemo::dataPath;
@@ -5612,448 +5613,450 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
     }
-
-    else if (sceneID == SID_ParticleSystem_First) //...............................................
+    else if (stateGL->glHasGeometryShaders())
     {
-        // Set scene name and info string
-        s->name("First particle system");
-        s->info("First scene with a particle system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create and add camera
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1.5f, 4);
-        cam1->lookAt(0, 1.5f, 0);
-        scene->addChild(cam1);
-
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
-        light1->translation(5, 5, 5);
-        light1->name("light node");
-        scene->addChild(light1);
-
-        // Create meshes and nodes
-        SLParticleSystem* ps     = new SLParticleSystem(am,
-                                                    50,
-                                                    SLVec3f(0.04f, 0.4f, 0.1f),
-                                                    SLVec3f(-0.11f, 0.7f, -0.1f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Particle System",
-                                                    texFlipbook);
-        SLNode*           pSNode = new SLNode(ps, "Particle system node");
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        sv->camera(cam1);
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_Demo) //................................................
-    {
-        // Set scene name and info string
-        s->name("Simple Demo Particle System");
-        s->info("This most simple single particle system is meant to be improved by adding more and more features in the properties list.");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    1,
-                                                    SLVec3f(0.04f, 0.4f, 0.1f),
-                                                    SLVec3f(-0.11f, 0.7f, -0.1f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Particle System",
-                                                    texFlipbook);
-        ps->doAlphaOverLT(false);
-        ps->doSizeOverLT(false);
-        ps->doRotation(false);
-        ps->doColor(false);
-        ps->acceleration(-0.5, 0.0, 0.0);
-        ps->timeToLive(2.0f);
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
-    {
-        // Set scene name and info string
-        s->name("Dust storm particle system");
-        s->info("This dust storm particle system uses the box shape type for distribution.\n"
-                "See the properties window for the detailed settings of the particles system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create and add camera
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 55);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(55);
-        scene->addChild(cam1);
-        sv->camera(cam1);
-
-        // Create textures and materials
-        SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create meshes and nodes
-        // Dust storm
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    500,
-                                                    SLVec3f(-0.1f, -0.5f, -5.0f),
-                                                    SLVec3f(0.1f, 0.5f, -2.5f),
-                                                    3.5f,
-                                                    texC,
-                                                    "DustStorm",
-                                                    texFlipbookSmoke);
-        ps->doShape(true);
-        ps->shapeType(ST_Box);
-        ps->shapeScale(50.0f, 1.0f, 50.0f);
-        ps->scale(15.0f);
-        ps->doSizeOverLT(false);
-        ps->doAlphaOverLT(true);
-        ps->doAlphaOverLTCurve(true);
-        ps->bezierStartEndPointAlpha()[1] = 0.0f;
-        ps->bezierControlPointAlpha()[1]  = 0.5f;
-        ps->bezierControlPointAlpha()[2]  = 0.5f;
-        ps->generateBernsteinPAlpha();
-        ps->doRotRange(true);
-        ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
-        ps->doBlendBrightness(false);
-        ps->frameRateFB(16);
-
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire2");
-        pSNode->translate(3.0f, -0.8f, 0.0f, TS_object);
-
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_Fountain) //............................................
-    {
-        // Set scene name and info string
-        s->name("Fountain particle system");
-        s->info("This fountain particle system uses acceleration and gravity.\n"
-                "See the properties window for the detailed settings of the particles system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create and add camera
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, -1, 55);
-        cam1->lookAt(0, -1, 0);
-        cam1->focalDist(55);
-        scene->addChild(cam1);
-        sv->camera(cam1);
-
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_04_8x8_C.png");
-
-        // Create a light source node
-        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
-        light1->translation(0, -1, 2);
-        light1->name("light node");
-        scene->addChild(light1);
-
-        // Create meshes and nodes
-        SLParticleSystem* ps     = new SLParticleSystem(am,
-                                                    5000,
-                                                    SLVec3f(5.0f, 15.0f, 5.0f),
-                                                    SLVec3f(-5.0f, 17.0f, -5.0f),
-                                                    5.0f,
-                                                    texC,
-                                                    "Fountain",
-                                                    texFlipbook);
-        SLMesh*           pSMesh = ps;
-        ps->doGravity(true);
-        ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
-        ps->doSizeOverLT(false);
-        ps->doAlphaOverLT(false);
-        SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_Sun) //.................................................
-    {
-        // Set scene name and info string
-        s->name("Sun particle system");
-        s->info("This sun particle system uses the sphere shape type for distribution.\n"
-                "See the properties window for the detailed settings of the particles system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    10000,
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Sun Particle System",
-                                                    texFlipbook);
-
-        ps->doShape(true);
-        ps->shapeType(ST_Sphere);
-        ps->shapeRadius(3.0f);
-        ps->doBlendBrightness(true);
-        ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
-
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle Sun node");
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
-    {
-        // Set scene name and info string
-        s->name("Ring of fire particle system");
-        s->info("This ring particle system uses the cone shape type for distribution.\n"
-                "See the properties window for the settings of the particles system");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
-
-        // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    1000,
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    SLVec3f(0.0f, 0.0f, 0.0f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Ring of fire Particle System",
-                                                    texFlipbook);
-
-        ps->doShape(true);
-        ps->shapeType(ST_Cone);
-        ps->doShapeSpawnBase(true);
-        ps->doShapeSurface(true);
-        ps->shapeRadius(1.0f);
-        ps->doBlendBrightness(true);
-        ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
-
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle Ring Fire node");
-        pSNode->rotate(90, 1, 0, 0);
-        scene->addChild(pSNode);
-
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
-    {
-        // Set scene name and info string
-        s->name("Fire Complex particle system");
-        s->info("The fire particle systems contain each multiple sub particle systems.\n"
-                "See the scenegraph window for the sub particles systems. "
-                "See the properties window for the settings of the particles systems");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-        s->root3D(scene);
-
-        // Create and add camera
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 1.2f, 4.5f);
-        cam1->lookAt(0, 1.2f, 0);
-        cam1->focalDist(4.5f);
-        cam1->setInitialState();
-        scene->addChild(cam1);
-        sv->camera(cam1);
-
-        // Create textures and materials
-        SLGLTexture* texFireCld  = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
-        SLGLTexture* texFireFlm  = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
-        SLGLTexture* texCircle   = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
-        SLGLTexture* texSmokeB   = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
-        SLGLTexture* texSmokeW   = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
-        SLGLTexture* texTorchFlm = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
-        SLGLTexture* texTorchSmk = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-
-        SLNode* complexFire = createComplexFire(am,
-                                                s,
-                                                true,
-                                                texTorchSmk,
-                                                texFireFlm,
-                                                8,
-                                                8,
-                                                texCircle,
-                                                texSmokeB,
-                                                texSmokeW);
-        scene->addChild(complexFire);
-
-        // Room around
+        if (sceneID == SID_ParticleSystem_First) //...............................................
         {
-            // Room parent node
-            SLNode* room = new SLNode("Room");
-            scene->addChild(room);
+            // Set scene name and info string
+            s->name("First particle system");
+            s->info("First scene with a particle system");
 
-            // Back wall material
-            SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-            SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-            SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
-            matWall->specular(SLCol4f::BLACK);
-            matWall->metalness(0);
-            matWall->roughness(1);
-            matWall->reflectionModel(RM_CookTorrance);
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
 
-            // Room dimensions
-            SLfloat pL = -2.0f, pR = 2.0f;  // left/right
-            SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
-            SLfloat pN = 2.0f, pF = -2.0f;  // near/far
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 1.5f, 4);
+            cam1->lookAt(0, 1.5f, 0);
+            scene->addChild(cam1);
 
-            // bottom rectangle
-            SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
-            b->rotate(90, -1, 0, 0);
-            b->translate(0, 0, pB, TS_object);
-            room->addChild(b);
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
 
-            // far rectangle
-            SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
-            f->translate(0, 0, pF, TS_object);
-            room->addChild(f);
+            // Create a light source node
+            SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+            light1->translation(5, 5, 5);
+            light1->name("light node");
+            scene->addChild(light1);
 
-            // near rectangle
-            SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
-            n->rotate(180, 0, 1, 0);
-            n->translate(0, 0, pF, TS_object);
-            room->addChild(n);
+            // Create meshes and nodes
+            SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                        50,
+                                                        SLVec3f(0.04f, 0.4f, 0.1f),
+                                                        SLVec3f(-0.11f, 0.7f, -0.1f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            SLNode*           pSNode = new SLNode(ps, "Particle system node");
+            scene->addChild(pSNode);
 
-            // left rectangle
-            SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
-            l->rotate(90, 0, 1, 0);
-            l->translate(0, 0, pL, TS_object);
-            room->addChild(l);
-
-            // right rectangle
-            SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
-            r->rotate(90, 0, -1, 0);
-            r->translate(0, 0, -pR, TS_object);
-            room->addChild(r);
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
         }
+        else if (sceneID == SID_ParticleSystem_Demo) //................................................
+        {
+            // Set scene name and info string
+            s->name("Simple Demo Particle System");
+            s->info("This most simple single particle system is meant to be improved by adding more and more features in the properties list.");
 
-        // Firewood
-        SLAssimpImporter importer;
-        SLNode*          firewood = importer.load(s->animManager(),
-                                         am,
-                                         modelPath + "GLTF/Firewood/Firewood1.gltf",
-                                         texPath,
-                                         nullptr,
-                                         false,
-                                         true,
-                                         nullptr,
-                                         0.3f,
-                                         true);
-        firewood->scale(2);
-        scene->addChild(firewood);
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
 
-        // Torch
-        SLNode* torchL = importer.load(s->animManager(),
-                                       am,
-                                       modelPath + "GLTF/Torch/Torch.gltf",
-                                       texPath,
-                                       nullptr,
-                                       false,
-                                       true,
-                                       nullptr,
-                                       0.3f,
-                                       true);
-        torchL->name("Torch Left");
-        SLNode* torchR = torchL->copyRec();
-        torchR->name("Torch Right");
-        torchL->translate(-2, 1.5f, 0);
-        torchL->rotate(90, 0, 1, 0);
-        torchL->scale(2);
-        scene->addChild(torchL);
-        torchR->translate(2, 1.5f, 0);
-        torchR->rotate(-90, 0, 1, 0);
-        torchR->scale(2);
-        scene->addChild(torchR);
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
 
-        // Torch flame left
-        SLNode* torchFlameNodeL = createTorchFire(am,
-                                                  s,
-                                                  true,
-                                                  texTorchSmk,
-                                                  texTorchFlm,
-                                                  16,
-                                                  4);
-        torchFlameNodeL->translate(-1.6f, 2.25f, 0);
-        torchFlameNodeL->name("Torch Fire Left");
-        scene->addChild(torchFlameNodeL);
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1,
+                                                        SLVec3f(0.04f, 0.4f, 0.1f),
+                                                        SLVec3f(-0.11f, 0.7f, -0.1f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            ps->doAlphaOverLT(false);
+            ps->doSizeOverLT(false);
+            ps->doRotation(false);
+            ps->doColor(false);
+            ps->acceleration(-0.5, 0.0, 0.0);
+            ps->timeToLive(2.0f);
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            scene->addChild(pSNode);
 
-        // Torch flame right
-        SLNode* torchFlameNodeR = createTorchFire(am,
-                                                  s,
-                                                  true,
-                                                  texTorchSmk,
-                                                  texTorchFlm,
-                                                  16,
-                                                  4);
-        torchFlameNodeR->translate(1.6f, 2.25f, 0);
-        torchFlameNodeR->name("Torch Fire Right");
-        scene->addChild(torchFlameNodeR);
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+        {
+            // Set scene name and info string
+            s->name("Dust storm particle system");
+            s->info("This dust storm particle system uses the box shape type for distribution.\n"
+                    "See the properties window for the detailed settings of the particles system");
 
-        // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        // Save energy
-        sv->doWaitOnIdle(false);
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0, 55);
+            cam1->lookAt(0, 0, 0);
+            cam1->focalDist(55);
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            // Dust storm
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        500,
+                                                        SLVec3f(-0.1f, -0.5f, -5.0f),
+                                                        SLVec3f(0.1f, 0.5f, -2.5f),
+                                                        3.5f,
+                                                        texC,
+                                                        "DustStorm",
+                                                        texFlipbookSmoke);
+            ps->doShape(true);
+            ps->shapeType(ST_Box);
+            ps->shapeScale(50.0f, 1.0f, 50.0f);
+            ps->scale(15.0f);
+            ps->doSizeOverLT(false);
+            ps->doAlphaOverLT(true);
+            ps->doAlphaOverLTCurve(true);
+            ps->bezierStartEndPointAlpha()[1] = 0.0f;
+            ps->bezierControlPointAlpha()[1]  = 0.5f;
+            ps->bezierControlPointAlpha()[2]  = 0.5f;
+            ps->generateBernsteinPAlpha();
+            ps->doRotRange(true);
+            ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+            ps->doBlendBrightness(false);
+            ps->frameRateFB(16);
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire2");
+            pSNode->translate(3.0f, -0.8f, 0.0f, TS_object);
+
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+        {
+            // Set scene name and info string
+            s->name("Fountain particle system");
+            s->info("This fountain particle system uses acceleration and gravity.\n"
+                    "See the properties window for the detailed settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, -1, 55);
+            cam1->lookAt(0, -1, 0);
+            cam1->focalDist(55);
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+            // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_04_8x8_C.png");
+
+            // Create a light source node
+            SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+            light1->translation(0, -1, 2);
+            light1->name("light node");
+            scene->addChild(light1);
+
+            // Create meshes and nodes
+            SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                        5000,
+                                                        SLVec3f(5.0f, 15.0f, 5.0f),
+                                                        SLVec3f(-5.0f, 17.0f, -5.0f),
+                                                        5.0f,
+                                                        texC,
+                                                        "Fountain",
+                                                        texFlipbook);
+            SLMesh*           pSMesh = ps;
+            ps->doGravity(true);
+            ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
+            ps->doSizeOverLT(false);
+            ps->doAlphaOverLT(false);
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+        {
+            // Set scene name and info string
+            s->name("Sun particle system");
+            s->info("This sun particle system uses the sphere shape type for distribution.\n"
+                    "See the properties window for the detailed settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        10000,
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Sun Particle System",
+                                                        texFlipbook);
+
+            ps->doShape(true);
+            ps->shapeType(ST_Sphere);
+            ps->shapeRadius(3.0f);
+            ps->doBlendBrightness(true);
+            ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle Sun node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+        {
+            // Set scene name and info string
+            s->name("Ring of fire particle system");
+            s->info("This ring particle system uses the cone shape type for distribution.\n"
+                    "See the properties window for the settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1000,
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Ring of fire Particle System",
+                                                        texFlipbook);
+
+            ps->doShape(true);
+            ps->shapeType(ST_Cone);
+            ps->doShapeSpawnBase(true);
+            ps->doShapeSurface(true);
+            ps->shapeRadius(1.0f);
+            ps->doBlendBrightness(true);
+            ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle Ring Fire node");
+            pSNode->rotate(90, 1, 0, 0);
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+        {
+            // Set scene name and info string
+            s->name("Fire Complex particle system");
+            s->info("The fire particle systems contain each multiple sub particle systems.\n"
+                    "See the scenegraph window for the sub particles systems. "
+                    "See the properties window for the settings of the particles systems");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 1.2f, 4.5f);
+            cam1->lookAt(0, 1.2f, 0);
+            cam1->focalDist(4.5f);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texFireCld  = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+            SLGLTexture* texFireFlm  = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
+            SLGLTexture* texCircle   = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texSmokeB   = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+            SLGLTexture* texSmokeW   = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+            SLGLTexture* texTorchFlm = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
+            SLGLTexture* texTorchSmk = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+
+            SLNode* complexFire = createComplexFire(am,
+                                                    s,
+                                                    true,
+                                                    texTorchSmk,
+                                                    texFireFlm,
+                                                    8,
+                                                    8,
+                                                    texCircle,
+                                                    texSmokeB,
+                                                    texSmokeW);
+            scene->addChild(complexFire);
+
+            // Room around
+            {
+                // Room parent node
+                SLNode* room = new SLNode("Room");
+                scene->addChild(room);
+
+                // Back wall material
+                SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+                SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+                SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
+                matWall->specular(SLCol4f::BLACK);
+                matWall->metalness(0);
+                matWall->roughness(1);
+                matWall->reflectionModel(RM_CookTorrance);
+
+                // Room dimensions
+                SLfloat pL = -2.0f, pR = 2.0f;  // left/right
+                SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
+                SLfloat pN = 2.0f, pF = -2.0f;  // near/far
+
+                // bottom rectangle
+                SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
+                b->rotate(90, -1, 0, 0);
+                b->translate(0, 0, pB, TS_object);
+                room->addChild(b);
+
+                // far rectangle
+                SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
+                f->translate(0, 0, pF, TS_object);
+                room->addChild(f);
+
+                // near rectangle
+                SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
+                n->rotate(180, 0, 1, 0);
+                n->translate(0, 0, pF, TS_object);
+                room->addChild(n);
+
+                // left rectangle
+                SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
+                l->rotate(90, 0, 1, 0);
+                l->translate(0, 0, pL, TS_object);
+                room->addChild(l);
+
+                // right rectangle
+                SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
+                r->rotate(90, 0, -1, 0);
+                r->translate(0, 0, -pR, TS_object);
+                room->addChild(r);
+            }
+
+            // Firewood
+            SLAssimpImporter importer;
+            SLNode*          firewood = importer.load(s->animManager(),
+                                             am,
+                                             modelPath + "GLTF/Firewood/Firewood1.gltf",
+                                             texPath,
+                                             nullptr,
+                                             false,
+                                             true,
+                                             nullptr,
+                                             0.3f,
+                                             true);
+            firewood->scale(2);
+            scene->addChild(firewood);
+
+            // Torch
+            SLNode* torchL = importer.load(s->animManager(),
+                                           am,
+                                           modelPath + "GLTF/Torch/Torch.gltf",
+                                           texPath,
+                                           nullptr,
+                                           false,
+                                           true,
+                                           nullptr,
+                                           0.3f,
+                                           true);
+            torchL->name("Torch Left");
+            SLNode* torchR = torchL->copyRec();
+            torchR->name("Torch Right");
+            torchL->translate(-2, 1.5f, 0);
+            torchL->rotate(90, 0, 1, 0);
+            torchL->scale(2);
+            scene->addChild(torchL);
+            torchR->translate(2, 1.5f, 0);
+            torchR->rotate(-90, 0, 1, 0);
+            torchR->scale(2);
+            scene->addChild(torchR);
+
+            // Torch flame left
+            SLNode* torchFlameNodeL = createTorchFire(am,
+                                                      s,
+                                                      true,
+                                                      texTorchSmk,
+                                                      texTorchFlm,
+                                                      16,
+                                                      4);
+            torchFlameNodeL->translate(-1.6f, 2.25f, 0);
+            torchFlameNodeL->name("Torch Fire Left");
+            scene->addChild(torchFlameNodeL);
+
+            // Torch flame right
+            SLNode* torchFlameNodeR = createTorchFire(am,
+                                                      s,
+                                                      true,
+                                                      texTorchSmk,
+                                                      texTorchFlm,
+                                                      16,
+                                                      4);
+            torchFlameNodeR->translate(1.6f, 2.25f, 0);
+            torchFlameNodeR->name("Torch Fire Right");
+            scene->addChild(torchFlameNodeR);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
     }
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
@@ -6501,105 +6504,108 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
+    else if (stateGL->glHasGeometryShaders())
     {
-        s->name("Fire Complex Test Scene");
-        s->info(s->name());
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000);
-        cam1->translation(0, 10, 40);
-        cam1->focalDist(100);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
-        cam1->setInitialState();
-
-        // Root scene node
-        SLNode* root = new SLNode;
-        s->root3D(root);
-        root->addChild(cam1);
-        const int NUM_NODES = 250;
-
-        // Create textures and materials
-        SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
-        SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
-        SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
-        SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
-        SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
-
-        SLVNode nodes(NUM_NODES);
-        for (int i = 0; i < NUM_NODES; ++i)
+        if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
         {
-            SLNode* fireComplex = createComplexFire(am,
-                                                    s,
-                                                    false,
-                                                    texFireCld,
-                                                    texFireFlm,
-                                                    8,
-                                                    4,
-                                                    texCircle,
-                                                    texSmokeB,
-                                                    texSmokeW);
-            fireComplex->translate(-20.0 + (float)(i % 20) * 2,
-                                   0.0f,
-                                   -(float)((i - (i % 20)) / 20) * 4,
-                                   TS_object);
-            root->addChild(fireComplex);
+            s->name("Fire Complex Test Scene");
+            s->info(s->name());
+
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->clipNear(0.1f);
+            cam1->clipFar(1000);
+            cam1->translation(0, 10, 40);
+            cam1->focalDist(100);
+            cam1->lookAt(0, 0, 0);
+            cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
+            cam1->setInitialState();
+
+            // Root scene node
+            SLNode* root = new SLNode;
+            s->root3D(root);
+            root->addChild(cam1);
+            const int NUM_NODES = 250;
+
+            // Create textures and materials
+            SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+            SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
+            SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+            SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+
+            SLVNode nodes(NUM_NODES);
+            for (int i = 0; i < NUM_NODES; ++i)
+            {
+                SLNode* fireComplex = createComplexFire(am,
+                                                        s,
+                                                        false,
+                                                        texFireCld,
+                                                        texFireFlm,
+                                                        8,
+                                                        4,
+                                                        texCircle,
+                                                        texSmokeB,
+                                                        texSmokeW);
+                fireComplex->translate(-20.0 + (float)(i % 20) * 2,
+                                       0.0f,
+                                       -(float)((i - (i % 20)) / 20) * 4,
+                                       TS_object);
+                root->addChild(fireComplex);
+            }
+
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
         }
+        else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+        {
+            s->name("Particle System number Scene");
+            s->info(s->name());
 
-        sv->camera(cam1);
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
-    {
-        s->name("Particle System number Scene");
-        s->info(s->name());
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->clipNear(0.1f);
+            cam1->clipFar(1000);
+            cam1->translation(0, 0, 400);
+            cam1->focalDist(400);
+            cam1->lookAt(0, 0, 0);
+            cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
+            cam1->setInitialState();
 
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000);
-        cam1->translation(0, 0, 400);
-        cam1->focalDist(400);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
-        cam1->setInitialState();
+            // Root scene node
+            SLNode* root = new SLNode;
+            root->addChild(cam1);
 
-        // Root scene node
-        SLNode* root = new SLNode;
-        root->addChild(cam1);
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
 
-        // Create textures and materials
-        SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1000000,
+                                                        SLVec3f(-10.0f, -10.0f, -10.0f),
+                                                        SLVec3f(10.0f, 10.0f, 10.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            ps->doAlphaOverLT(false);
+            ps->doSizeOverLT(false);
+            ps->doRotation(false);
+            ps->doShape(true);
+            ps->shapeType(ST_Box);
+            ps->shapeScale(100.0f, 100.0f, 100.0f);
+            ps->doDirectionSpeed(true);
+            ps->doBlendBrightness(true);
+            ps->doColor(true);
+            ps->color(SLCol4f(0.875f, 0.156f, 0.875f, 1.0f));
+            ps->speed(0.0f);
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            root->addChild(pSNode);
 
-        // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am,
-                                                    1000000,
-                                                    SLVec3f(-10.0f, -10.0f, -10.0f),
-                                                    SLVec3f(10.0f, 10.0f, 10.0f),
-                                                    4.0f,
-                                                    texC,
-                                                    "Particle System",
-                                                    texFlipbook);
-        ps->doAlphaOverLT(false);
-        ps->doSizeOverLT(false);
-        ps->doRotation(false);
-        ps->doShape(true);
-        ps->shapeType(ST_Box);
-        ps->shapeScale(100.0f, 100.0f, 100.0f);
-        ps->doDirectionSpeed(true);
-        ps->doBlendBrightness(true);
-        ps->doColor(true);
-        ps->color(SLCol4f(0.875f, 0.156f, 0.875f, 1.0f));
-        ps->speed(0.0f);
-        SLMesh* pSMesh = ps;
-        SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
-        root->addChild(pSNode);
-
-        sv->camera(cam1);
-        sv->doWaitOnIdle(false);
-        s->root3D(root);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+            s->root3D(root);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
