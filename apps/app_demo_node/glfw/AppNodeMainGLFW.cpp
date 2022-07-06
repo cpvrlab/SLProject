@@ -24,7 +24,7 @@ extern void appNodeLoadScene(SLAssetManager* am,
                              SLSceneID       sid);
 
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 GLFWwindow* window;                     //!< The global GLFW window handle.
 SLint       svIndex;                    //!< SceneView index
 SLint       scrWidth;                   //!< Window width at start up

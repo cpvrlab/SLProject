@@ -1,20 +1,18 @@
-//#############################################################################
-//  File:      DiffuseSphere.cpp
-//  Purpose:   Core profile OpenGL application with diffuse lighted sphere with
-//             GLFW as the OS GUI interface (http://www.glfw.org/).
-//  Date:      December 2015 (HS15)
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      DiffuseSphere.cpp
+//   Purpose:   Core profile OpenGL application with diffuse lighted sphere with
+//              GLFW as the OS GUI interface (http://www.glfw.org/).
+//   Date:      December 2015 (HS15)
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
-#include "stdafx.h"
-#include "modules/sl/source/gl/glUtils.h" // Basics for OpenGL shaders, buffers & textures
-#include "modules/sl/source/SL.h"         // Basic SL type definitions
-#include "SLImage.h"                      // Image class for image loading
-#include "modules/math/source/SLVec3.h"   // 3D vector class
-#include "modules/math/source/SLMat4.h"   // 4x4 matrix class
-#include <GL/gl3w.h>                      // OpenGL headers
+#include <GL/gl3w.h>    // OpenGL headers
+#include <GLFW/glfw3.h> // GLFW GUI library
+#include <SLMat4.h>     // 4x4 matrix class
+#include <SLVec3.h>     // 3D vector class
+#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes
@@ -32,9 +30,10 @@ struct VertexPN
 };
 //-----------------------------------------------------------------------------
 // Global application variables
-GLFWwindow* window;     //!< The global glfw window handle
-SLint       _scrWidth;  //!< Window width at start up
-SLint       _scrHeight; //!< Window height at start up
+GLFWwindow*     window;       //!< The global glfw window handle
+static SLstring _projectRoot; //!< Directory of executable
+SLint           _scrWidth;    //!< Window width at start up
+SLint           _scrHeight;   //!< Window height at start up
 
 SLMat4f _viewMatrix;       //!< 4x4 view matrix
 SLMat4f _modelMatrix;      //!< 4x4 model matrix
@@ -68,9 +67,9 @@ GLuint _shaderProgID = 0; //! shader program id
 // Attribute & uniform variable location indexes
 GLint _pLoc;            //!< attribute location for vertex position
 GLint _nLoc;            //!< attribute location for vertex normal
-GLint _mvpLoc;          //!< uniform location for modelview-projection matrix
-GLint _mvLoc;           //!< uniform location for modelview matrix
-GLint _nmLoc;           //!< uniform location for normal matrix
+GLint _pmLoc;           //!< uniform location for projection matrix
+GLint _vmLoc;           //!< uniform location for view matrix
+GLint _mmLoc;           //!< uniform location for model matrix
 GLint _lightDirVSLoc;   //!< uniform location for light direction in VS
 GLint _lightDiffuseLoc; //!< uniform location for diffuse light intensity
 GLint _matDiffuseLoc;   //!< uniform location for diffuse light reflection
@@ -151,8 +150,9 @@ void onInit()
     // Get the variable locations (identifiers) within the program
     _pLoc            = glGetAttribLocation(_shaderProgID, "a_position");
     _nLoc            = glGetAttribLocation(_shaderProgID, "a_normal");
-    _mvpLoc          = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nmLoc           = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _pmLoc           = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc           = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc           = glGetUniformLocation(_shaderProgID, "u_mMatrix");
     _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
     _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiff");
     _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiff");
@@ -171,7 +171,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -202,20 +202,11 @@ bool onPaint()
 
     // Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
-    //_modelMatrix.translate(-2.0f, -0.5f, -0.5f);
-
-    // Build the combined modelview-projection matrix
-    SLMat4f mvp(_projectionMatrix);
-    SLMat4f mv(_viewMatrix);
-    mv.multiply(_modelMatrix);
-    mvp.multiply(mv);
-
-    // Build normal matrix
-    SLMat3f nm(mv.inverseTransposed());
 
     // Pass the uniform variables to the shader
-    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
-    glUniformMatrix3fv(_nmLoc, 1, 0, (float*)&nm);
+    glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
+    glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);         // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity (RGBA)
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection (RGBA)
@@ -255,7 +246,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     double w = (double)width;
     double h = (double)height;
@@ -272,7 +263,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -303,7 +294,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -319,7 +310,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera foreward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -331,7 +322,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -378,8 +369,11 @@ void onGLFWError(int error, const char* description)
 /*!
 The C main procedure running the GLFW GUI application.
 */
-int main()
+int main(int argc, char* argv[])
 {
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
+
+    // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -391,10 +385,30 @@ int main()
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
+    // You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
+#else
+    // glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
     _scrWidth  = 640;
     _scrHeight = 480;
 
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", NULL, NULL);
+    // Create the GLFW window
+    window = glfwCreateWindow(_scrWidth,
+                              _scrHeight,
+                              "Diffuse Sphere",
+                              nullptr,
+                              nullptr);
+
     if (!window)
     {
         glfwTerminate();
@@ -407,20 +421,22 @@ int main()
     // Init OpenGL access library gl3w
     if (gl3wInit() != 0)
     {
-        cerr << "Failed to initialize OpenGL" << endl;
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
         exit(-1);
     }
+
     // Check errors before we start
     GETGLERROR;
 
     glUtils::printGLInfo();
 
-    glfwSetWindowTitle(window, "Diffuse Spheres");
-
     // Set number of monitor refreshes between 2 buffer swaps
     glfwSwapInterval(1);
 
+    // Prepare all OpenGL stuff
     onInit();
+
+    // Call resize once for correct projection
     onResize(window, _scrWidth, _scrHeight);
 
     // Set GLFW callback functions
@@ -434,7 +450,7 @@ int main()
     // Event loop
     while (!glfwWindowShouldClose(window))
     {
-        // if no updated occured wait for the next event (power saving)
+        // if no updated occurred wait for the next event (power saving)
         if (!onPaint())
             glfwWaitEvents();
         else

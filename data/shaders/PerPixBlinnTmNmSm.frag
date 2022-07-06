@@ -51,7 +51,7 @@ uniform sampler2D   u_matTexture0;      // Color map
 uniform sampler2D   u_matTexture1;      // Normal map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 
-uniform int         u_camProjection;    // type of stereo
+uniform int         u_camProjType;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
@@ -132,7 +132,7 @@ void main()
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
 
     // Apply stereo eye separation
-    if (u_camProjection > 1)
+    if (u_camProjType > 1)
         doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

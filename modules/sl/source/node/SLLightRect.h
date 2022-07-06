@@ -47,7 +47,6 @@ public:
     ~SLLightRect() override;
 
     void    init(SLScene* s);
-    void    drawRec(SLSceneView* sv) override;
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMesh(SLSceneView* sv) override;

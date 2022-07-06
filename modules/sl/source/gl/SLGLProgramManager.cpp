@@ -66,12 +66,6 @@ void SLGLProgramManager::makeProgram(SLStdShaderProg id)
         case SP_fontTex:
             _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "FontTex.vert", shaderPath + "FontTex.frag")});
             break;
-        case SP_stereoOculus:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "StereoOculus.vert", shaderPath + "StereoOculus.frag")});
-            break;
-        case SP_stereoOculusDistortion:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "StereoOculusDistortionMesh.vert", shaderPath + "StereoOculusDistortionMesh.frag")});
-            break;
         case SP_errorTex:
             _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "ErrorTex.vert", shaderPath + "ErrorTex.frag")});
             break;

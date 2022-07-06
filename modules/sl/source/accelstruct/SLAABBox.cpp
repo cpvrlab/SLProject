@@ -90,8 +90,6 @@ void SLAABBox::fromOStoWS(const SLVec3f& minOS,
 
     // Delete OpenGL vertex array
     if (_vao.vaoID()) _vao.clearAttribs();
-
-    setCenterAndRadius();
 }
 //-----------------------------------------------------------------------------
 //! Recalculate min and max before transformation in object coords
@@ -133,7 +131,10 @@ void SLAABBox::fromWStoOS(const SLVec3f& minWS,
     // Delete OpenGL vertex array
     if (_vao.vaoID()) _vao.clearAttribs();
 
-    setCenterAndRadius();
+    // Set center & radius of the bounding sphere around the AABB
+    _centerOS.set((_minOS + _maxOS) * 0.5f);
+    SLVec3f extent(_maxOS - _centerOS);
+    _radiusOS = extent.length();
 }
 //-----------------------------------------------------------------------------
 //! Updates the axis of the owning node
@@ -200,19 +201,11 @@ void SLAABBox::updateBoneWS(const SLMat4f& parentWM,
 }
 //-----------------------------------------------------------------------------
 //! Calculates center & radius of the bounding sphere around the AABB
-void SLAABBox::setCenterAndRadius()
+void SLAABBox::setCenterAndRadiusWS()
 {
-    _centerWS = _minWS;
-    _centerWS += _maxWS;
-    _centerWS *= 0.5f;
+    _centerWS.set((_minWS + _maxWS) * 0.5f);
     SLVec3f ext(_maxWS - _centerWS);
     _radiusWS = ext.length();
-
-    _centerOS = _minOS;
-    _centerOS += _maxOS;
-    _centerOS *= 0.5f;
-    ext.set(_maxOS - _centerOS);
-    _radiusOS = ext.length();
 }
 //-----------------------------------------------------------------------------
 //! Generates the vertex buffer for the line visualization

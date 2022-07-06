@@ -70,9 +70,8 @@ enum SLRenderType
     RT_gl       = 0, //!< OpenGL
     RT_rt       = 1, //!< Ray Tracing
     RT_pt       = 2, //!< Path Tracing
-    RT_ct       = 3, //!< Voxel Cone Tracing
-    RT_optix_rt = 4, //!< Ray Tracing with OptiX
-    RT_optix_pt = 5  //!< Path Tracing with OptiX
+    RT_optix_rt = 3, //!< Ray Tracing with OptiX
+    RT_optix_pt = 4  //!< Path Tracing with OptiX
 };
 //-----------------------------------------------------------------------------
 //! Coordinate axis enumeration
@@ -110,7 +109,6 @@ enum SLSceneID
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
     SID_ShaderEarth,
-    SID_ShaderVoxelConeDemo,
     SID_ShadowMappingBasicScene,
     SID_ShadowMappingLightTypes,
     SID_ShadowMappingPointLights,
@@ -180,6 +178,14 @@ enum SLSceneID
     SID_ErlebARAventicumTheatre,
     SID_ErlebARSutzKirchrain18,
 
+    SID_ParticleSystem_First,
+    SID_ParticleSystem_Demo,
+    SID_ParticleSystem_DustStorm,
+    SID_ParticleSystem_Fountain,
+    SID_ParticleSystem_Sun,
+    SID_ParticleSystem_RingOfFire,
+    SID_ParticleSystem_FireComplex,
+
     SID_Benchmark1_LargeModel,
     SID_Benchmark2_MassiveNodes,
     SID_Benchmark3_NodeAnimations,
@@ -187,6 +193,8 @@ enum SLSceneID
     SID_Benchmark5_ColumnsNoLOD,
     SID_Benchmark6_ColumnsLOD,
     SID_Benchmark7_JansUniverse,
+    SID_Benchmark8_ParticleSystemFireComplex,
+    SID_Benchmark9_ParticleSystemManyParticles,
 
     SID_Maximal
 };
@@ -228,7 +236,7 @@ enum SLCamAnim
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
-enum SLProjection
+enum SLProjType
 {
     P_monoPerspective = 0,  //!< standard mono pinhole perspective projection
     P_monoIntrinsic,        //!< standard mono pinhole perspective projection from intrinsic calibration
@@ -365,11 +373,29 @@ enum SLFogMode
     FM_exp2
 };
 //-----------------------------------------------------------------------------
+//! Billboard type for its orientation used in SLParticleSystem
+enum SLBillboardType
+{
+    BT_Camera= 0,
+    BT_Vertical,
+    BT_Horizontal
+};
+//-----------------------------------------------------------------------------
+//! Particle system shape type
+enum SLShapeType
+{
+    ST_Sphere = 0,
+    ST_Box,
+    ST_Cone,
+    ST_Pyramid
+};
+//-----------------------------------------------------------------------------
 //! Light Reflection Models for shader generation usd in SLMaterial
 enum SLReflectionModel
 {
     RM_BlinnPhong = 0,
     RM_CookTorrance,
+    RM_Particle,
     RM_Custom
 };
 //-----------------------------------------------------------------------------

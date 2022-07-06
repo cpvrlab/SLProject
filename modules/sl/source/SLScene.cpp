@@ -14,10 +14,15 @@
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <Profiler.h>
+#include <SLEntities.h>
 
 //-----------------------------------------------------------------------------
+// Global static instances
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
+#ifdef SL_USE_ENTITIES
+SLEntities                       SLScene::entities;
+#endif
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
@@ -37,7 +42,8 @@ SLScene::SLScene(const SLstring& name,
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
-    _updateAnimTimesMS(60, 0.0f)
+    _updateAnimTimesMS(60, 0.0f),
+    _updateDODTimesMS(60, 0.0f)
 {
     onLoad = onSceneLoadCallback;
 
@@ -88,6 +94,7 @@ void SLScene::init(SLAssetManager* am)
     _updateTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);
+    _updateDODTimesMS.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 /*! The scene uninitializing clears the scenegraph (_root3D) and all global
@@ -163,12 +170,13 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     if (_root2D)
         _root2D->updateRec();
 
+    // Update node animations
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
 
     // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
     if (_root3D)
     {
-        // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
+        // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we don't have to transfer the root node)
         sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh)
                                                     {
             SLVNode nodes = _root3D->findChildren(mesh, true);
@@ -188,12 +196,21 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLfloat startAAABBUpdateMS = GlobalTimer::timeMS();
     SLNode::numWMUpdates       = 0;
-    SLGLState::instance()->modelViewMatrix.identity();
     if (_root3D)
-        _root3D->updateAABBRec();
+        _root3D->updateAABBRec(renderTypeIsRT);
     if (_root2D)
-        _root2D->updateAABBRec();
+        _root2D->updateAABBRec(renderTypeIsRT);
     _updateAABBTimesMS.set(GlobalTimer::timeMS() - startAAABBUpdateMS);
+
+#ifdef SL_USE_ENTITIES
+    SLfloat startDODUpdateMS = GlobalTimer::timeMS();
+    if (entities.size())
+    {
+        SLMat4f root;
+        entities.updateWMRec(0, root);
+    }
+    _updateDODTimesMS.set(GlobalTimer::timeMS() - startDODUpdateMS);
+#endif
 
     // Finish total updateRec time
     SLfloat updateTimeMS = GlobalTimer::timeMS() - startUpdateMS;
@@ -339,7 +356,7 @@ void SLScene::deselectAllNodesAndMeshes()
 SLint SLScene::numSceneCameras()
 {
     if (!_root3D) return 0;
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    deque<SLCamera*> cams = _root3D->findChildren<SLCamera>();
     return (SLint)cams.size();
 }
 //-----------------------------------------------------------------------------
@@ -348,7 +365,7 @@ SLCamera* SLScene::nextCameraInScene(SLCamera* activeSVCam)
 {
     if (!_root3D) return nullptr;
 
-    vector<SLCamera*> cams = _root3D->findChildren<SLCamera>();
+    deque<SLCamera*> cams = _root3D->findChildren<SLCamera>();
 
     if (cams.empty()) return nullptr;
     if (cams.size() == 1) return cams[0];

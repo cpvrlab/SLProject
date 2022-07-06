@@ -66,6 +66,14 @@ public:
     static GLuint buildProgram(GLuint vertShaderID,
                                GLuint fragShaderID);
 
+    //! Builds an GLSL-Shader program for transform feedback and returns the program id
+    static GLuint buildProgramTF(GLuint vertShaderID, GLuint fragShaderID);
+
+    //! Builds an GLSL-Shader program and returns the program id
+    static GLuint buildProgram(GLuint vertShaderID,
+                               GLuint geomShaderID,
+                               GLuint fragShaderID);
+
     //! Builds an OpenGL Vertex Buffer Object
     static void buildVBO(GLuint& vboID,
                          void*   dataPointer,

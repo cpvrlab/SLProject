@@ -41,7 +41,7 @@ uniform float       u_matShin;          // shininess exponent
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture2;      // ambient occlusion map
 
-uniform int         u_camProjection;    // type of stereo
+uniform int         u_camProjType;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
@@ -110,7 +110,7 @@ void main()
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
-    if (u_camProjection > 1)
+    if (u_camProjType > 1)
         doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

@@ -384,7 +384,7 @@ public class SLMat4f
    /// <param name="f">Distance from the eye to far clipping plane of the view frustum</param>
    public void Perspective(float fov, float aspect, float n, float f)
    {  
-      float t = (float)(Math.Tan(fovV * SLUtils.DEG2RAD * 0.5) * n);
+      float t = (float)(Math.Tan(fov * SLUtils.DEG2RAD * 0.5) * n);
       float b = -t;
       float r = t*aspect;
       float l = -r;

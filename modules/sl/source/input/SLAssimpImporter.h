@@ -53,6 +53,7 @@ public:
                  SLbool             loadMeshesOnly         = true,
                  SLMaterial*        overrideMat            = nullptr,
                  float              ambientFactor          = 0.0f,
+                 SLbool             forceCookTorranceRM    = false,
                  SLProgressHandler* progressHandler        = nullptr,
                  SLuint             flags =
                    SLProcess_Triangulate |
@@ -120,6 +121,7 @@ protected:
                                      const SLstring& texturePath,
                                      SLSkybox*       skybox                 = nullptr,
                                      float           ambientFactor          = 0.0f,
+                                     SLbool          forceCookTorranceLM    = false,
                                      SLbool          deleteTexImgAfterBuild = false);
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
                                     SLstring&       path,

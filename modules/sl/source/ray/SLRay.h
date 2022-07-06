@@ -82,8 +82,9 @@ public:
     //! Total NO. of rays shot during RT
     static SLuint totalNumRays() { return SLRay::primaryRays +
                                           SLRay::reflectedRays +
-                                          SLRay::subsampledRays +
                                           SLRay::refractedRays +
+                                          SLRay::tirRays +
+                                          SLRay::subsampledRays +
                                           SLRay::shadowRays; }
 
     // Additional info for intersection

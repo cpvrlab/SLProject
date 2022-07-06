@@ -13,14 +13,19 @@ precision highp float;
 layout (location = 0) in vec4 a_position;        // Vertex position attribute
 layout (location = 4) in vec4 a_color;           // Vertex color attribute
 
-uniform mat4     u_mvpMatrix;       // modelview-projection matrix = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalized device coords.)
 
-out     vec4     v_color;           // Resulting color per vertex
+out     vec4  v_color;      // Resulting color per vertex
 //-----------------------------------------------------------------------------
 void main(void)
 {    
-    v_color = a_color;                        // pass color for interpolation
+    v_color = a_color;      // Pass the color attribute to the output color
 
-    gl_Position = u_mvpMatrix * a_position;   // transform vertex position
+    // Multiply the model-view-projection matrix that transforms then vertex
+    // from the local into the world and then into the camera and the into the
+    // normalized devive space.
+    gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

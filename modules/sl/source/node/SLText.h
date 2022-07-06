@@ -39,7 +39,7 @@ public:
 
     void      drawText(SLSceneView* sv);
     void      statsRec(SLNodeStats& stats) override;
-    SLAABBox& updateAABBRec() override;
+    SLAABBox& updateAABBRec(SLbool updateAlsoAABBinOS) override;
     SLbool    hitRec(SLRay* ray) override { return false; }
     void      drawMesh(SLSceneView* sv) override { drawText(sv); };
     void      preShade(SLRay* ray) { ; }
@@ -62,4 +62,4 @@ protected:
     SLGLVertexArray _vao;   //!< Vertex array for rendering
 };
 //-----------------------------------------------------------------------------
-#endif // SLSPHERE_H
+#endif

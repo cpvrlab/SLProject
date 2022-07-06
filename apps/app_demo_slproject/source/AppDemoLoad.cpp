@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      AppDemoSceneLoad.cpp
-//  Date:      Februar 2018
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoSceneLoad.cpp
+//   Date:      February 2018
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <GlobalTimer.h>
 
@@ -32,6 +32,7 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
+#include <SLParticleSystem.h>
 #include <SLPoints.h>
 #include <SLPolygon.h>
 #include <SLRectangle.h>
@@ -46,10 +47,13 @@
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
+#include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
+#include <SLEntities.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
 #endif
+
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
 extern SLGLTexture* videoTexture;
@@ -134,13 +138,13 @@ SLNode* RotatingSphereGroup(SLAssetManager* am,
     assert(resolution > 0 && resolution < 64);
 
     // Choose the material index randomly
-    SLint iMat = (SLint)Utils::random(0, (int)mat.size() - 1);
+    SLint iMat = Utils::random(0, (int)mat.size() - 1);
 
     // Generate unique names for meshes, nodes and animations
     static int sphereNum = 0;
     string     meshName  = "Mesh" + std::to_string(sphereNum);
-    string     nodeName  = "Node" + std::to_string(sphereNum);
     string     animName  = "Anim" + std::to_string(sphereNum);
+    string     nodeName  = "Node" + std::to_string(sphereNum);
     sphereNum++;
 
     SLAnimation* nodeAnim = s->animManager().createNodeAnimation(animName,
@@ -330,6 +334,7 @@ SLNode* BuildFigureGroup(SLAssetManager* am,
 void addUniverseLevel(SLAssetManager* am,
                       SLScene*        s,
                       SLNode*         parent,
+                      SLint           parentID,
                       SLuint          currentLevel,
                       SLuint          levels,
                       SLuint          childCount,
@@ -337,10 +342,12 @@ void addUniverseLevel(SLAssetManager* am,
                       SLVMesh&        meshes,
                       SLuint&         numNodes)
 {
-    if (currentLevel >= levels) return;
+    if (currentLevel >= levels)
+        return;
 
     const float degPerChild = 360.0f / childCount;
     SLuint      mod         = currentLevel % 3;
+
     float scaleFactor = 0.25f;
 
     for (SLuint i = 0; i < childCount; i++)
@@ -369,6 +376,7 @@ void addUniverseLevel(SLAssetManager* am,
         addUniverseLevel(am,
                          s,
                          child,
+                         parentID,
                          currentLevel + 1,
                          levels,
                          childCount,
@@ -382,6 +390,7 @@ void addUniverseLevel(SLAssetManager* am,
 void generateUniverse(SLAssetManager* am,
                       SLScene*        s,
                       SLNode*         parent,
+                      SLint           parentID,
                       SLuint          levels,
                       SLuint          childCount,
                       SLVMaterial&    materials,
@@ -400,6 +409,7 @@ void generateUniverse(SLAssetManager* am,
                                                                   EC_linear,
                                                                   AL_loop);
     lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+
     parent->addChild(light);
 
     SLuint numNodes = 1;
@@ -407,12 +417,309 @@ void generateUniverse(SLAssetManager* am,
     addUniverseLevel(am,
                      s,
                      light,
+                     parentID,
                      1,
                      levels,
                      childCount,
                      materials,
                      meshes,
                      numNodes);
+}
+//-----------------------------------------------------------------------------
+//! Creates a complex fire group node
+SLNode* createComplexFire(SLAssetManager* am,
+                          SLScene*        s,
+                          SLbool          withLight,
+                          SLGLTexture*    texFireCld,
+                          SLGLTexture*    texFireFlm,
+                          SLint           flipbookCols,
+                          SLint           flipbookRows,
+                          SLGLTexture*    texCircle,
+                          SLGLTexture*    texSmokeB,
+                          SLGLTexture*    texSmokeW)
+{
+    SLNode* fireComplex = new SLNode("Fire complex node");
+
+    // Fire light node
+    if (withLight)
+    {
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f, 180.0f, false);
+        light1->name("Fire light node");
+        light1->translate(0, 1.0f, 0);
+        light1->diffuseColor(SLCol4f(1, 0.7f, 0.2f));
+        light1->diffusePower(15);
+        light1->attenuation(0, 0, 1);
+        fireComplex->addChild(light1);
+    }
+
+    // Fire glow mesh
+    {
+        SLParticleSystem* fireGlowMesh = new SLParticleSystem(am,
+                                                              24,
+                                                              SLVec3f(-0.1f, 0.0f, -0.1f),
+                                                              SLVec3f(0.1f, 0.0f, 0.1f),
+                                                              4.0f,
+                                                              texFireCld,
+                                                              "Fire glow PS",
+                                                              texFireFlm);
+        fireGlowMesh->timeToLive(2.0f);
+        fireGlowMesh->billboardType(BT_Camera);
+        fireGlowMesh->radiusW(0.4f);
+        fireGlowMesh->radiusH(0.4f);
+        fireGlowMesh->doShape(false);
+        fireGlowMesh->doRotation(true);
+        fireGlowMesh->doRotRange(true);
+        fireGlowMesh->doSizeOverLT(false);
+        fireGlowMesh->doAlphaOverLT(false);
+        fireGlowMesh->doColorOverLT(false);
+        fireGlowMesh->doBlendBrightness(true);
+        fireGlowMesh->color(SLCol4f(0.925f, 0.5f, 0.097f, 0.199f));
+        fireGlowMesh->doAcceleration(false);
+        SLNode* flameGlowNode = new SLNode(fireGlowMesh, "Fire glow node");
+        flameGlowNode->translate(0, 0.15f, 0);
+        fireComplex->addChild(flameGlowNode);
+    }
+
+    // Fire flame mesh
+    {
+        SLParticleSystem* fireFlameMesh = new SLParticleSystem(am,
+                                                               1,
+                                                               SLVec3f(0.0f, 0.0f, 0.0f),
+                                                               SLVec3f(0.0f, 0.0f, 0.0f),
+
+                                                               1.0f,
+                                                               texFireCld,
+                                                               "Fire flame PS",
+                                                               texFireFlm);
+        // Fire flame flipbook settings
+        fireFlameMesh->flipbookColumns(flipbookCols);
+        fireFlameMesh->flipbookRows(flipbookRows);
+        fireFlameMesh->doFlipBookTexture(true);
+        fireFlameMesh->doCounterGap(false); // We don't want to have flickering
+        fireFlameMesh->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
+
+        fireFlameMesh->doAlphaOverLT(false);
+        fireFlameMesh->doSizeOverLT(false);
+        fireFlameMesh->doRotation(false);
+
+        fireFlameMesh->frameRateFB(64);
+        fireFlameMesh->radiusW(0.6f);
+        fireFlameMesh->radiusH(0.6f);
+        fireFlameMesh->scale(1.2f);
+        fireFlameMesh->billboardType(BT_Vertical);
+
+        // Fire flame color
+        fireFlameMesh->doColor(true);
+        fireFlameMesh->color(SLCol4f(0.52f, 0.47f, 0.32f, 1.0f));
+        fireFlameMesh->doBlendBrightness(true);
+
+        // Fire flame size
+        fireFlameMesh->doSizeOverLTCurve(true);
+        float sizeCPArrayFl[4] = {0.0f, 1.25f, 0.0f, 1.0f};
+        fireFlameMesh->bezierControlPointSize(sizeCPArrayFl);
+        float sizeSEArrayFl[4] = {0.0f, 1.0f, 1.0f, 1.0f};
+        fireFlameMesh->bezierStartEndPointSize(sizeSEArrayFl);
+        fireFlameMesh->generateBernsteinPSize();
+
+        // Fire flame node
+        SLNode* fireFlameNode = new SLNode(fireFlameMesh, "Fire flame node");
+        fireFlameNode->translate(0.0f, 0.7f, 0.0f, TS_object);
+        fireComplex->addChild(fireFlameNode);
+    }
+
+    // Fire smoke black mesh
+    {
+        SLParticleSystem* fireSmokeB = new SLParticleSystem(am,
+                                                            8,
+                                                            SLVec3f(0.0f, 1.0f, 0.0f),
+                                                            SLVec3f(0.0f, 0.7f, 0.0f),
+                                                            2.0f,
+                                                            texSmokeB,
+                                                            "Fire smoke black PS",
+                                                            texFireFlm);
+        fireSmokeB->doColor(false);
+
+        // Fire smoke black size
+        fireSmokeB->doSizeOverLT(true);
+        fireSmokeB->doSizeOverLTCurve(true);
+        float sizeCPArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
+        fireSmokeB->bezierControlPointSize(sizeCPArraySB);
+        float sizeSEArraySB[4] = {0.0f, 1.0f, 1.0f, 2.0f};
+        fireSmokeB->bezierStartEndPointSize(sizeSEArraySB);
+        fireSmokeB->generateBernsteinPSize();
+
+        // Fire smoke black alpha
+        fireSmokeB->doAlphaOverLT(true);
+        fireSmokeB->doAlphaOverLTCurve(true);
+        float alphaCPArraySB[4] = {0.0f, 0.4f, 1.0f, 0.4f};
+        fireSmokeB->bezierControlPointAlpha(alphaCPArraySB);
+        float alphaSEArraySB[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+        fireSmokeB->bezierStartEndPointAlpha(alphaSEArraySB);
+        fireSmokeB->generateBernsteinPAlpha();
+
+        // Fire smoke black acceleration
+        fireSmokeB->doAcceleration(true);
+        fireSmokeB->doAccDiffDir(true);
+        fireSmokeB->acceleration(0.0f, 0.25f, 0.3f);
+
+        SLNode* fireSmokeBlackNode = new SLNode(fireSmokeB, "Fire smoke black node");
+        fireSmokeBlackNode->translate(0.0f, 0.9f, 0.0f, TS_object);
+        fireComplex->addChild(fireSmokeBlackNode);
+    }
+
+    // Fire smoke white mesh
+    {
+        SLParticleSystem* fireSmokeW = new SLParticleSystem(am,
+                                                            40,
+                                                            SLVec3f(0.0f, 0.8f, 0.0f),
+                                                            SLVec3f(0.0f, 0.6f, 0.0f),
+                                                            4.0f,
+                                                            texSmokeW,
+                                                            "Fire smoke white PS",
+                                                            texFireFlm);
+
+        fireSmokeW->doColor(false);
+
+        // Size
+        fireSmokeW->doSizeOverLT(true);
+        fireSmokeW->doSizeOverLTCurve(true);
+        float sizeCPArraySW[4] = {0.0f, 0.5f, 1.0f, 2.0f};
+        fireSmokeW->bezierControlPointSize(sizeCPArraySW);
+        float sizeSEArraySW[4] = {0.0f, 0.5f, 1.0f, 2.0f};
+        fireSmokeW->bezierStartEndPointSize(sizeSEArraySW);
+        fireSmokeW->generateBernsteinPSize();
+
+        // Alpha
+        fireSmokeW->doAlphaOverLT(true);
+        fireSmokeW->doAlphaOverLTCurve(true);
+        float alphaCPArraySW[4] = {0.0f, 0.018f, 1.0f, 0.018f};
+        fireSmokeW->bezierControlPointAlpha(alphaCPArraySW);
+        float alphaSEArraySW[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+        fireSmokeW->bezierStartEndPointAlpha(alphaSEArraySW);
+        fireSmokeW->generateBernsteinPAlpha();
+
+        // Acceleration
+        fireSmokeW->doAcceleration(true);
+        fireSmokeW->doAccDiffDir(true);
+        fireSmokeW->acceleration(0.0f, 0.25f, 0.3f);
+
+        SLNode* fireSmokeWNode = new SLNode(fireSmokeW, "Fire smoke white node");
+        fireSmokeWNode->translate(0.0f, 0.9f, 0.0f, TS_object);
+        fireComplex->addChild(fireSmokeWNode);
+    }
+
+    // Fire sparks rising mesh
+    {
+        SLParticleSystem* fireSparksRising = new SLParticleSystem(am,
+                                                                  30,
+                                                                  SLVec3f(-0.5f, 1, -0.5f),
+                                                                  SLVec3f(0.5f, 2, 0.5f),
+                                                                  1.2f,
+                                                                  texCircle,
+                                                                  "Fire sparks rising PS",
+                                                                  texFireFlm);
+        fireSparksRising->scale(0.05f);
+        fireSparksRising->radiusH(0.8f);
+        fireSparksRising->radiusW(0.3f);
+        fireSparksRising->doShape(true);
+        fireSparksRising->doRotation(false);
+        fireSparksRising->shapeType(ST_Sphere);
+        fireSparksRising->shapeRadius(0.05f);
+        fireSparksRising->doAcceleration(true);
+        fireSparksRising->acceleration(0, 1.5f, 0);
+        fireSparksRising->doColor(true);
+        fireSparksRising->doColorOverLT(true);
+        fireSparksRising->doBlendBrightness(true);
+        fireSparksRising->colorPoints().clear();
+        fireSparksRising->colorPoints().push_back(SLColorLUTPoint(SLCol3f::WHITE, 0.0f));
+        fireSparksRising->colorPoints().push_back(SLColorLUTPoint(SLCol3f::YELLOW, 0.5f));
+        fireSparksRising->colorPoints().push_back(SLColorLUTPoint(SLCol3f::RED, 1.0f));
+        ImGradient gradient;
+        gradient.getMarks().clear();
+        for (auto cp : fireSparksRising->colorPoints())
+            gradient.addMark(cp.pos, ImColor(cp.color.r, cp.color.g, cp.color.b));
+        fireSparksRising->colorArr(gradient.cachedValues());
+        fireSparksRising->doSizeOverLT(false);
+        fireSparksRising->doAlphaOverLT(false);
+        fireSparksRising->doGravity(false);
+        fireComplex->addChild(new SLNode(fireSparksRising, "Fire sparks rising node"));
+    }
+
+    return fireComplex;
+}
+//-----------------------------------------------------------------------------
+SLNode* createTorchFire(SLAssetManager* am,
+                        SLScene*        s,
+                        SLbool          withLight,
+                        SLGLTexture*    texFireCld,
+                        SLGLTexture*    texFireFlm,
+                        SLint           flipbookCols,
+                        SLint           flipbookRows)
+{
+
+    SLNode* torchFire = new SLNode("Fire torch node");
+
+    // Fire light node
+    if (withLight)
+    {
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f, 180.0f, false);
+        light1->name("Fire light node");
+        light1->translate(0, 0, 0);
+        light1->diffuseColor(SLCol4f(1, 0.4f, 0.0f));
+        light1->diffusePower(2);
+        light1->attenuation(0, 0, 1);
+        torchFire->addChild(light1);
+    }
+
+    // Fire glow mesh
+    {
+        SLParticleSystem* fireGlow = new SLParticleSystem(am,
+                                                          40,
+                                                          SLVec3f(-0.1f, 0.0f, -0.1f),
+                                                          SLVec3f(0.1f, 0.0f, 0.1f),
+                                                          1.5f,
+                                                          texFireCld,
+                                                          "Torch Glow PS",
+                                                          texFireFlm);
+        fireGlow->color(SLCol4f(0.9f, 0.5f, 0, 0.63f));
+        fireGlow->doBlendBrightness(true);
+        fireGlow->radiusW(0.15f);
+        fireGlow->radiusH(0.15f);
+        fireGlow->doSizeOverLT(false);
+        SLNode* fireGlowNode = new SLNode(fireGlow, "Torch Glow Node");
+        fireGlowNode->translate(0, -0.4f, 0);
+        torchFire->addChild(fireGlowNode);
+    }
+
+    // Fire torches
+    {
+        SLParticleSystem* torchFlame = new SLParticleSystem(am,
+                                                            1,
+                                                            SLVec3f(0.0f, 0.0f, 0.0f),
+                                                            SLVec3f(0.0f, 0.0f, 0.0f),
+                                                            4.0f,
+                                                            texFireCld,
+                                                            "Torch Flame PS",
+                                                            texFireFlm);
+        torchFlame->flipbookColumns(flipbookCols);
+        torchFlame->flipbookRows(flipbookRows);
+        torchFlame->doFlipBookTexture(true);
+        torchFlame->doCounterGap(false); // We don't want to have flickering
+        torchFlame->changeTexture();     // Switch texture, need to be done, to have flipbook texture as active
+        torchFlame->doAlphaOverLT(false);
+        torchFlame->doSizeOverLT(false);
+        torchFlame->doRotation(false);
+        torchFlame->doColor(false);
+        torchFlame->frameRateFB(64);
+        torchFlame->radiusW(0.3f);
+        torchFlame->radiusH(0.8f);
+        torchFlame->billboardType(BT_Vertical);
+        SLNode* torchFlameNode = new SLNode(torchFlame, "Torch Flame Node");
+        torchFlameNode->translate(0, 0.3f, 0);
+        torchFire->addChild(torchFlameNode);
+    }
+
+    return torchFire;
 }
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
@@ -445,7 +752,8 @@ void appDemoLoadScene(SLAssetManager* am,
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
 
-    AppDemo::sceneID = sceneID;
+    AppDemo::sceneID   = sceneID;
+    SLGLState* stateGL = SLGLState::instance();
 
     SLstring texPath    = AppDemo::texturePath;
     SLstring dataPath   = AppDemo::dataPath;
@@ -457,6 +765,9 @@ void appDemoLoadScene(SLAssetManager* am,
     for (auto* sceneview : AppDemo::sceneViews)
         sceneview->unInit();
 
+    // Clear all data in the asset manager
+    am->clear();
+
     // Initialize all preloaded stuff from SLScene
     s->init(am);
 
@@ -466,6 +777,10 @@ void appDemoLoadScene(SLAssetManager* am,
     // Deactivate in general the device sensors
     AppDemo::devRot.init();
     AppDemo::devLoc.init();
+
+#ifdef SL_USE_ENTITIES_DEBUG
+    SLScene::entities.dump(true);
+#endif
 
     if (sceneID == SID_Empty) //...................................................................
     {
@@ -490,6 +805,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
@@ -502,17 +818,19 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(am,
+                                           SLVec2f(-5, -5),
+                                           SLVec2f(5, 5),
+                                           25,
+                                           25,
+                                           "rectangle mesh",
+                                           m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(true);
     }
@@ -550,14 +868,13 @@ void appDemoLoadScene(SLAssetManager* am,
         SLNode* figure = BuildFigureGroup(am, s, m1, true);
 
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(floorRect);
         scene->addChild(figure);
 
-        // Set background color, active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_MeshLoad) //...........................................................
     {
@@ -646,6 +963,7 @@ void appDemoLoadScene(SLAssetManager* am,
         rt->translate(0, 0, -b, TS_object);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(rb);
@@ -659,7 +977,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Revolver) //...........................................................
     {
@@ -783,7 +1100,7 @@ void appDemoLoadScene(SLAssetManager* am,
         SLfloat pB = -3.5f, pT = 14.5f; // bottom/top
         SLfloat pN = 9.0f, pF = -9.0f;  // near/far
 
-        //// bottom rectangle
+        // bottom rectangle
         SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "PolygonFloor", mat2));
         b->rotate(90, -1, 0, 0);
         b->translate(0, 0, pB, TS_object);
@@ -808,6 +1125,7 @@ void appDemoLoadScene(SLAssetManager* am,
         r->translate(0, 0, -pR, TS_object);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(glass);
         scene->addChild(wine);
@@ -823,7 +1141,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_TextureBlend) //.......................................................
     {
@@ -867,7 +1184,7 @@ void appDemoLoadScene(SLAssetManager* am,
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
 
-        // Build arrays for polygon vertices and texcoords for tree
+        // Build arrays for polygon vertices and texture coordinates for tree
         SLVVec3f pNW, pSE;
         SLVVec2f tNW, tSE;
         pNW.push_back(SLVec3f(0, 0, 0));
@@ -922,6 +1239,7 @@ void appDemoLoadScene(SLAssetManager* am,
         tG.push_back(SLVec2f(0, 30));
 
         SLNode* scene = new SLNode("grScene");
+        s->root3D(scene);
         scene->addChild(light);
         scene->addChild(tree);
         scene->addChild(new SLNode(new SLPolygon(am, pG, tG, "Ground", m2)));
@@ -939,7 +1257,7 @@ void appDemoLoadScene(SLAssetManager* am,
                                  0,
                                  float(iZ) * 2 + Utils::random(0.7f, 1.4f),
                                  TS_object);
-                    t->rotate(Utils::random(0, 90), 0, 1, 0);
+                    t->rotate(Utils::random(0.f, 90.f), 0, 1, 0);
                     t->scale(Utils::random(0.5f, 1.0f));
                     scene->addChild(t);
                 }
@@ -949,7 +1267,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_TextureFilter) //......................................................
     {
@@ -1034,6 +1351,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* scene = new SLNode();
+        s->root3D(scene);
         scene->addChild(polyB);
         scene->addChild(polyL);
         scene->addChild(polyT);
@@ -1041,7 +1359,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(sphere);
         scene->addChild(cam1);
         sv->camera(cam1);
-        s->root3D(scene);
     }
 #ifdef SL_BUILD_WITH_KTX
     else if (sceneID == SID_TextureCompression) //.................................................
@@ -1052,6 +1369,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f);
@@ -1147,9 +1465,6 @@ void appDemoLoadScene(SLAssetManager* am,
         rectNodeKtxUastc0->translate(-1.05f, -1.05f, 0);
         scene->addChild(rectNodeKtxUastc0);
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Add active camera
         sv->camera(cam1);
 
@@ -1182,6 +1497,7 @@ void appDemoLoadScene(SLAssetManager* am,
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -1213,7 +1529,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_2Dand3DText) //........................................................
     {
@@ -1277,6 +1592,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Assemble 3D scene as usual with camera and light
         SLNode* scene3D = new SLNode("root3D");
+        s->root3D(scene3D);
         scene3D->addChild(cam1);
         scene3D->addChild(light1);
         scene3D->addChild(new SLNode(new SLSphere(am, 0.5f, 32, 32, "Sphere", m1)));
@@ -1288,13 +1604,11 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Assemble 2D scene
         SLNode* scene2D = new SLNode("root2D");
+        s->root2D(scene2D);
         scene2D->addChild(t2D16);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(true);
-
-        s->root3D(scene3D);
-        s->root2D(scene2D);
     }
     else if (sceneID == SID_PointClouds) //........................................................
     {
@@ -1336,6 +1650,7 @@ void appDemoLoadScene(SLAssetManager* am,
         pc2->translate(5, 0, 0);
 
         SLNode* scene = new SLNode("scene");
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
         scene->addChild(pc1);
@@ -1343,7 +1658,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
@@ -1395,6 +1709,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 7);
@@ -1475,7 +1790,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(sphereM);
         scene->addChild(sphereR);
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderPerPixelCook) //.................................................
     {
@@ -1487,6 +1801,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 30);
@@ -1576,7 +1891,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(light4);
         scene->addChild(light5);
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderIBL) //..........................................................
     {
@@ -1594,6 +1908,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera and initialize its parameters
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1677,7 +1992,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         s->skybox(skybox);
-        s->root3D(scene);
 
         // Save energy
         sv->doWaitOnIdle(true);
@@ -1720,13 +2034,13 @@ void appDemoLoadScene(SLAssetManager* am,
         light0->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light0);
         scene->addChild(wave);
         scene->addChild(new SLNode(new SLSphere(am, 1, 32, 32, "Red Sphere", matRed)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
     else if (sceneID == SID_ShaderBumpNormal) //...................................................
@@ -1766,13 +2080,13 @@ void appDemoLoadScene(SLAssetManager* am,
         anim->createNodeAnimTrackForEllipse(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderBumpParallax) //.................................................
     {
@@ -1826,13 +2140,13 @@ void appDemoLoadScene(SLAssetManager* am,
         anim->createNodeAnimTrackForEllipse(light1, 2.0f, A_x, 2.0f, A_Y);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", m1)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShaderSkyBox) //.......................................................
     {
@@ -1865,6 +2179,7 @@ void appDemoLoadScene(SLAssetManager* am,
                                              shaderPath + "RefractReflect.frag"));
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1913,9 +2228,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
         sv->camera(cam1);
         s->skybox(skybox);
-
-        // pass the scene group as root node
-        s->root3D(scene);
 
         // Save energy
         sv->doWaitOnIdle(true);
@@ -1976,132 +2288,12 @@ void appDemoLoadScene(SLAssetManager* am,
         earth->rotate(90, -1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(sun);
         scene->addChild(earth);
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else if (sceneID == SID_ShaderVoxelConeDemo) //................................................
-    {
-        s->name("Voxelization Test");
-        s->info("Voxelizing a Scnene and Display result");
-
-        // Base root group node for the scene
-        SLNode* scene = new SLNode;
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 1.8f);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->fov(75.0f);
-        cam1->focalDist(1.8f);
-        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
-
-        scene->addChild(cam1);
-
-        SLCol4f grayRGB(0.75f, 0.75f, 0.75f);
-        SLCol4f redRGB(0.75f, 0.25f, 0.25f);
-        SLCol4f yellowRGB(1.0f, 1.0f, 0.0);
-        SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
-        SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
-
-        SLMaterial* cream     = new SLMaterial(am, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
-        SLMaterial* teapotMat = new SLMaterial(am, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f);
-
-        SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(),
-                                       am,
-                                       modelPath + "FBX/Teapot/Teapot.fbx",
-                                       texPath,
-                                       nullptr,
-                                       false,
-                                       true,
-                                       teapotMat);
-
-        teapot->scale(0.5);
-        teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
-        scene->addChild(teapot);
-
-        SLMaterial* red    = new SLMaterial(am, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
-        SLMaterial* yellow = new SLMaterial(am, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
-        SLMaterial* refl   = new SLMaterial(am, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
-
-        SLNode* sphere = new SLNode(new SLSphere(am, 0.3f, 32, 32, "Sphere1", refl));
-        scene->addChild(sphere);
-
-        SLNode* box = new SLNode(new SLBox(am, 0, 0, 0, 0.6f, 0.8f, 0.8f, "Box", yellow));
-        box->translation(SLVec3f(-0.9f, -1, -0.7f));
-        scene->addChild(box);
-
-        // animate teapot
-        SLAnimation*     light2Anim = s->animManager().createNodeAnimation("sphere_anim",
-                                                                       5.0f,
-                                                                       true,
-                                                                       EC_linear,
-                                                                       AL_loop);
-        SLNodeAnimTrack* track      = light2Anim->createNodeAnimTrack();
-        track->animatedNode(sphere);
-        SLTransformKeyframe* k1 = track->createNodeKeyframe(0.0f);
-        k1->translation(SLVec3f(0.3f, 0.2f, -0.3f));
-        SLTransformKeyframe* k2 = track->createNodeKeyframe(2.5f);
-        k2->translation(SLVec3f(0.3f, -0.65f, -0.3f));
-        SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
-        k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
-
-        SLMaterial* pink = new SLMaterial(am, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
-
-        // create wall polygons
-        SLfloat pL = -0.99f, pR = 0.99f; // left/right
-        SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
-        SLfloat pN = 0.99f, pF = -0.99f; // near/far
-
-        SLMaterial* blue = new SLMaterial(am, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
-
-        // bottom plane
-        SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
-        b->rotate(90, -1, 0, 0);
-        b->translate(0, 0, pB, TS_object);
-        scene->addChild(b);
-
-        // top plane
-        SLNode* t = new SLNode(new SLRectangle(am, SLVec2f(pL, pF), SLVec2f(pR, pN), 6, 6, "top", cream));
-        t->rotate(90, 1, 0, 0);
-        t->translate(0, 0, -pT, TS_object);
-        scene->addChild(t);
-
-        // far plane
-        SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 6, 6, "far", cream));
-        f->translate(0, 0, pF, TS_object);
-        scene->addChild(f);
-
-        // left plane
-        SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", red));
-        l->rotate(90, 0, 1, 0);
-        l->translate(0, 0, pL, TS_object);
-        scene->addChild(l);
-
-        // right plane
-        SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 6, 6, "right", blue));
-        r->rotate(90, 0, -1, 0);
-        r->translate(0, 0, -pR, TS_object);
-        scene->addChild(r);
-
-        // Rectangular light
-        SLLightRect* light0 = new SLLightRect(am, s, 0.9f, 0.6f, true);
-        // SLLightRect *light0 = new SLLightRect(0.9, 0.6f, true);
-        light0->rotate(90, -1.0f, 0.0f, 0.0f);
-        light0->translate(0.0f, 0.f, 0.95f, TS_object);
-        // light0->init();
-        light0->spotCutOffDEG(170);
-        light0->spotExponent(1.0);
-        light0->powers(0.3f, 2.0f, 1.0f);
-        light0->attenuation(0, 0, 1);
-        scene->addChild(light0);
-
-        sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingBasicScene) //............................................
     {
@@ -2112,6 +2304,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 7, 12);
@@ -2150,7 +2343,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingLightTypes) //............................................
     {
@@ -2161,6 +2353,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 20);
@@ -2181,7 +2374,7 @@ void appDemoLoadScene(SLAssetManager* am,
         {
             SLLight* light = lights[i];
             SLNode*  node  = dynamic_cast<SLNode*>(light);
-            SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
+            SLfloat  x     = ((float)i - ((SLfloat)lights.size() - 1.0f) / 2.0f) * 5;
 
             if (i == 0) // Make direct light less bright
             {
@@ -2253,7 +2446,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingSpotLights) //............................................
     {
@@ -2261,13 +2453,11 @@ void appDemoLoadScene(SLAssetManager* am,
         s->info("8 Spot lights use a perspective projection for their light space.");
 
         // Setup shadow mapping material
-        // SLGLProgram* progPerPixSM = new SLGLProgramGeneric(am,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(am, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 5, 13);
@@ -2310,7 +2500,6 @@ void appDemoLoadScene(SLAssetManager* am,
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingPointLights) //...........................................
     {
@@ -2318,13 +2507,11 @@ void appDemoLoadScene(SLAssetManager* am,
         s->info("Point lights use cubemaps to store shadow maps.");
 
         // Setup shadow mapping material
-        // SLGLProgram* progPerPixSM = new SLGLProgramGeneric(am,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(am, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         // Create camera
         SLCamera* cam1 = new SLCamera;
@@ -2344,7 +2531,7 @@ void appDemoLoadScene(SLAssetManager* am,
             SLLightSpot* light = new SLLightSpot(am, s, 0.1f);
             light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
             light->attenuation(0, 0, 1);
-            light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
+            light->translate((float)i - 1.0f, (float)i - 1.0f, (float)i - 1.0f);
             light->createsShadows(true);
             light->createShadowMap();
             light->shadowMap()->rayCount(SLVec2i(16, 16));
@@ -2409,7 +2596,6 @@ void appDemoLoadScene(SLAssetManager* am,
         }
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ShadowMappingCascaded) //..............................................
     {
@@ -2422,6 +2608,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 7, 12);
@@ -2460,7 +2647,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID >= SID_SuzannePerPixBlinn &&
              sceneID <= SID_SuzannePerPixBlinnTmNmAoSm) //.........................................
@@ -2489,6 +2675,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2636,14 +2823,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
         // Save energy
         sv->doWaitOnIdle(true);
     }
 
-    else if ( // sceneID == SID_glTF_ClearCoatTest ||
+    else if (
       sceneID == SID_glTF_DamagedHelmet ||
       sceneID == SID_glTF_FlightHelmet ||
       sceneID == SID_glTF_Sponza ||
@@ -2667,14 +2851,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             switch (sceneID)
             {
-                /*case SID_glTF_ClearCoatTest: {
-                    s->name("glTF-Sample-Model: Clear Coat Test");
-                    modelFile = clearCoatTest;
-                    camPos.set(0, 0, 18);
-                    lookAt.set(0, camPos.y, 0);
-                    camClipFar = 100;
-                    break;
-                }*/
                 case SID_glTF_DamagedHelmet:
                 {
                     s->name("glTF-Sample-Model: Damaged Helmet");
@@ -2720,16 +2896,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                             configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
-
             // Create a scene group node
             SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
 
             // Create camera and initialize its parameters
             SLCamera* cam1 = new SLCamera("Camera 1");
             cam1->translation(camPos);
             cam1->lookAt(lookAt);
             cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(camPos.z);
+            cam1->focalDist(camPos.length());
             cam1->clipFar(camClipFar);
             cam1->setInitialState();
             scene->addChild(cam1);
@@ -2762,7 +2938,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(pbrGroup);
 
             s->skybox(skybox);
-            s->root3D(scene);
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy
         }
@@ -2827,12 +3002,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene with box node
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(new SLNode(new SLBox(am, -1, -1, -1, 1, 1, 1, "Box", matVR)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_VolumeRayCastLighted) //...............................................
     {
@@ -2904,12 +3079,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene with box node
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(new SLNode(new SLBox(am, -1, -1, -1, 1, 1, 1, "Box", matVR)));
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_AnimationSkeletal) //..................................................
@@ -2921,6 +3096,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Root scene node
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
 
         // camera
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -2998,9 +3174,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cube3Anim->playForward();
         scene->addChild(cube3);
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_AnimationNode) //......................................................
     {
@@ -3091,6 +3265,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* figure = BuildFigureGroup(am, s, m2, true);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(cam1);
@@ -3104,30 +3279,39 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(ball5);
         scene->addChild(figure);
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_AnimationMass) //......................................................
     {
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
 
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
+
+        // Create and add camera
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 20, 40);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(42);
+        scene->addChild(cam1);
+        sv->camera(cam1);
+
+        // Add spotlight
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.1f);
         light1->translate(0, 10, 0);
+        scene->addChild(light1);
 
-        // build a basic scene to have a reference for the occuring rotations
+        // build a basic scene to have a reference for the occurring rotations
         SLMaterial* genericMat = new SLMaterial(am, "some material");
 
-        // we use the same mesh to viasualize all the nodes
+        // we use the same mesh to visualize all the nodes
         SLBox* box = new SLBox(am, -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, "box", genericMat);
 
-        s->root3D(new SLNode);
-        s->root3D()->addChild(light1);
-
-        // we build a stack of levels, each level has a grid of boxes on it
-        // each box on this grid has an other grid above it with child nodes
-        // best results are achieved if gridSize is an uneven number.
+        // We build a stack of levels, each level has a grid of boxes on it
+        // each box on this grid has another grid above it with child nodes.
+        // Best results are achieved if gridSize is an uneven number.
         // (gridSize^2)^levels = num nodes. handle with care.
         const SLint levels      = 3;
         const SLint gridSize    = 3;
@@ -3146,7 +3330,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         vector<SLNode*> curParentsVector;
 
         // first parent is the scene root
-        parents.push_back(s->root3D());
+        parents.push_back(scene);
 
         SLint nodeIndex = 0;
         for (float lvl : nodeSpacing)
@@ -3223,6 +3407,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(rect);
         scene->addChild(center);
@@ -3246,9 +3431,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             }
         }
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_VideoTextureLive ||
@@ -3277,6 +3460,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a root scene group for all nodes
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3308,9 +3492,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->name("light node");
         scene->addChild(light1);
 
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
@@ -3458,6 +3639,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3493,9 +3675,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tracker = new CVTrackedAruco(9, AppDemo::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
-
-        // pass the scene group as root node
-        s->root3D(scene);
 
         // Set active camera
         sv->camera(cam1);
@@ -3553,6 +3732,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(light3);
@@ -3568,8 +3748,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-
-        s->root3D(scene);
         AppDemo::devRot.isUsed(true);
     }
     else if (sceneID == SID_VideoTrackFaceMain ||
@@ -3629,6 +3807,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(glasses);
@@ -3643,8 +3822,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-
-        s->root3D(scene);
     }
 #ifdef SL_BUILD_WAI
     else if (sceneID == SID_VideoTrackWAI) //......................................................
@@ -3662,6 +3839,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -3705,10 +3883,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tracker->drawDetection(true);
         trackedNode = cam1;
 
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
 
         // Turn on constant redraw
@@ -3756,14 +3930,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Scene structure
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(light);
         scene->addChild(cam1);
         scene->addChild(box);
         scene->addChild(axis);
 
         sv->camera(cam1);
-
-        s->root3D(scene);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         // activate rotation and gps sensor
@@ -3894,6 +4067,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         gateAnim->createNodeAnimTrackForTranslation(gate, SLVec3f(0.0f, -3.6f, 0.0f));
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(bern);
@@ -3941,7 +4115,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARBielBFH) //.....................................................
     {
@@ -4016,6 +4189,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(bfh);
@@ -4054,7 +4228,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
         sv->drawBits()->on(SL_DB_ONLYEDGES);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTmp) //...........................................
     {
@@ -4157,6 +4330,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4200,7 +4374,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTht) //...........................................
     {
@@ -4303,6 +4476,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4346,7 +4520,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAugustaRauricaTmpTht) //........................................
     {
@@ -4450,6 +4623,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                  { m->ambient(SLCol4f(.25f, .25f, .25f)); },
                                  true);
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(thtAndTmp);
@@ -4529,7 +4703,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumAmphiteatre) //........................................
     {
@@ -4609,6 +4782,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(amphiTheatre);
@@ -4652,7 +4826,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumCigognier) //..........................................
     {
@@ -4731,6 +4904,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(cigognier);
@@ -4772,7 +4946,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARAventicumTheatre) //............................................
     {
@@ -4853,6 +5026,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(theatre);
@@ -4896,7 +5070,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_ErlebARSutzKirchrain18) //.............................................
     {
@@ -4976,6 +5149,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
         scene->addChild(sunLight);
         scene->addChild(axis);
         scene->addChild(sutzK18);
@@ -5021,13 +5195,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        s->root3D(scene);
     }
 
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
-        s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        s->info("Muttenzer Box with environment mapped reflective sphere and transparent refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLProgramGeneric(am, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
@@ -5100,6 +5273,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // assemble scene
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(lightRect);
 
@@ -5125,11 +5299,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         f->translate(0, 0, pF, TS_object);
         scene->addChild(f);
 
-        // // near plane
-        // SLNode* n = new SLNode(new SLRectangle(SLVec2f(pL, pT), SLVec2f(pR, pB), 6, 6, "near", cream));
-        // n->translate(0, 0, pN, TS_object);
-        // scene->addChild(n);
-
         // left plane
         SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 6, 6, "left", red));
         l->rotate(90, 0, 1, 0);
@@ -5145,7 +5314,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(balls);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTSpheres) //..........................................................
     {
@@ -5178,6 +5346,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light2->attenuation(0, 0, 1);
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(SphereGroupRT(am, 3, 0, 0, 0, 1, 30, matGla, matRed));
@@ -5185,7 +5354,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         s->root3D(scene);
-        sv->camera(cam1);
     }
     else if (sceneID == SID_RTSoftShadows) //......................................................
     {
@@ -5224,6 +5392,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light2->createShadowMap();
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(light2);
         scene->addChild(SphereGroupRT(am, 1, 0, 0, 0, 1, 32, matBlk, matRed));
@@ -5231,7 +5400,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTDoF) //..............................................................
     {
@@ -5251,7 +5419,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 4;
+        SLuint       numSamples   = 4;
 #endif
 
         stringstream ss;
@@ -5313,13 +5481,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         balls->addChild(sp);
 
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         scene->addChild(light1);
         scene->addChild(balls);
         scene->addChild(rect);
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTLens) //.............................................................
     {
@@ -5342,7 +5510,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 6;
+        SLuint       numSamples   = 6;
 #endif
 
         // Scene
@@ -5395,6 +5563,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Node
         SLNode* scene = new SLNode;
+        sv->camera(cam1);
         // scene->addChild(lensA);
         // scene->addChild(lensB);
         // scene->addChild(lensC);
@@ -5404,7 +5573,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(cam1);
 
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_RTTest) //.............................................................
     {
@@ -5437,15 +5605,458 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create a scene group and add all nodes
         SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(boxNode1);
         scene->addChild(boxNode2);
 
-        s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
+    }
+    else if (stateGL->glHasGeometryShaders())
+    {
+        if (sceneID == SID_ParticleSystem_First) //...............................................
+        {
+            // Set scene name and info string
+            s->name("First particle system");
+            s->info("First scene with a particle system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 1.5f, 4);
+            cam1->lookAt(0, 1.5f, 0);
+            scene->addChild(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create a light source node
+            SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+            light1->translation(5, 5, 5);
+            light1->name("light node");
+            scene->addChild(light1);
+
+            // Create meshes and nodes
+            SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                        50,
+                                                        SLVec3f(0.04f, 0.4f, 0.1f),
+                                                        SLVec3f(-0.11f, 0.7f, -0.1f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            SLNode*           pSNode = new SLNode(ps, "Particle system node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_Demo) //................................................
+        {
+            // Set scene name and info string
+            s->name("Simple Demo Particle System");
+            s->info("This most simple single particle system is meant to be improved by adding more and more features in the properties list.");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1,
+                                                        SLVec3f(0.04f, 0.4f, 0.1f),
+                                                        SLVec3f(-0.11f, 0.7f, -0.1f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            ps->doAlphaOverLT(false);
+            ps->doSizeOverLT(false);
+            ps->doRotation(false);
+            ps->doColor(false);
+            ps->acceleration(-0.5, 0.0, 0.0);
+            ps->timeToLive(2.0f);
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+        {
+            // Set scene name and info string
+            s->name("Dust storm particle system");
+            s->info("This dust storm particle system uses the box shape type for distribution.\n"
+                    "See the properties window for the detailed settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0, 55);
+            cam1->lookAt(0, 0, 0);
+            cam1->focalDist(55);
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC             = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            // Dust storm
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        500,
+                                                        SLVec3f(-0.1f, -0.5f, -5.0f),
+                                                        SLVec3f(0.1f, 0.5f, -2.5f),
+                                                        3.5f,
+                                                        texC,
+                                                        "DustStorm",
+                                                        texFlipbookSmoke);
+            ps->doShape(true);
+            ps->shapeType(ST_Box);
+            ps->shapeScale(50.0f, 1.0f, 50.0f);
+            ps->scale(15.0f);
+            ps->doSizeOverLT(false);
+            ps->doAlphaOverLT(true);
+            ps->doAlphaOverLTCurve(true);
+            ps->bezierStartEndPointAlpha()[1] = 0.0f;
+            ps->bezierControlPointAlpha()[1]  = 0.5f;
+            ps->bezierControlPointAlpha()[2]  = 0.5f;
+            ps->generateBernsteinPAlpha();
+            ps->doRotRange(true);
+            ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+            ps->doBlendBrightness(false);
+            ps->frameRateFB(16);
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire2");
+            pSNode->translate(3.0f, -0.8f, 0.0f, TS_object);
+
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+        {
+            // Set scene name and info string
+            s->name("Fountain particle system");
+            s->info("This fountain particle system uses acceleration and gravity.\n"
+                    "See the properties window for the detailed settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, -1, 55);
+            cam1->lookAt(0, -1, 0);
+            cam1->focalDist(55);
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+            // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_04_8x8_C.png");
+
+            // Create a light source node
+            SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+            light1->translation(0, -1, 2);
+            light1->name("light node");
+            scene->addChild(light1);
+
+            // Create meshes and nodes
+            SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                        5000,
+                                                        SLVec3f(5.0f, 15.0f, 5.0f),
+                                                        SLVec3f(-5.0f, 17.0f, -5.0f),
+                                                        5.0f,
+                                                        texC,
+                                                        "Fountain",
+                                                        texFlipbook);
+            SLMesh*           pSMesh = ps;
+            ps->doGravity(true);
+            ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
+            ps->doSizeOverLT(false);
+            ps->doAlphaOverLT(false);
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+        {
+            // Set scene name and info string
+            s->name("Sun particle system");
+            s->info("This sun particle system uses the sphere shape type for distribution.\n"
+                    "See the properties window for the detailed settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        10000,
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Sun Particle System",
+                                                        texFlipbook);
+
+            ps->doShape(true);
+            ps->shapeType(ST_Sphere);
+            ps->shapeRadius(3.0f);
+            ps->doBlendBrightness(true);
+            ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle Sun node");
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+        {
+            // Set scene name and info string
+            s->name("Ring of fire particle system");
+            s->info("This ring particle system uses the cone shape type for distribution.\n"
+                    "See the properties window for the settings of the particles system");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1000,
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        SLVec3f(0.0f, 0.0f, 0.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Ring of fire Particle System",
+                                                        texFlipbook);
+
+            ps->doShape(true);
+            ps->shapeType(ST_Cone);
+            ps->doShapeSpawnBase(true);
+            ps->doShapeSurface(true);
+            ps->shapeRadius(1.0f);
+            ps->doBlendBrightness(true);
+            ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.503f));
+
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle Ring Fire node");
+            pSNode->rotate(90, 1, 0, 0);
+            scene->addChild(pSNode);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+        {
+            // Set scene name and info string
+            s->name("Fire Complex particle system");
+            s->info("The fire particle systems contain each multiple sub particle systems.\n"
+                    "See the scenegraph window for the sub particles systems. "
+                    "See the properties window for the settings of the particles systems");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create and add camera
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 1.2f, 4.0f);
+            cam1->lookAt(0, 1.2f, 0);
+            cam1->focalDist(4.5f);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+            sv->camera(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texFireCld  = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+            SLGLTexture* texFireFlm  = new SLGLTexture(am, texPath + "ParticleFlames_06_8x8_C.png");
+            SLGLTexture* texCircle   = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texSmokeB   = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+            SLGLTexture* texSmokeW   = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+            SLGLTexture* texTorchFlm = new SLGLTexture(am, texPath + "ParticleFlames_04_16x4_C.png");
+            SLGLTexture* texTorchSmk = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+
+            SLNode* complexFire = createComplexFire(am,
+                                                    s,
+                                                    true,
+                                                    texTorchSmk,
+                                                    texFireFlm,
+                                                    8,
+                                                    8,
+                                                    texCircle,
+                                                    texSmokeB,
+                                                    texSmokeW);
+            scene->addChild(complexFire);
+
+            // Room around
+            {
+                // Room parent node
+                SLNode* room = new SLNode("Room");
+                scene->addChild(room);
+
+                // Back wall material
+                SLGLTexture* texWallDIF = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+                SLGLTexture* texWallNRM = new SLGLTexture(am, texPath + "BrickLimestoneGray_1K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
+                SLMaterial*  matWall    = new SLMaterial(am, "mat3", texWallDIF, texWallNRM);
+                matWall->specular(SLCol4f::BLACK);
+                matWall->metalness(0);
+                matWall->roughness(1);
+                matWall->reflectionModel(RM_CookTorrance);
+
+                // Room dimensions
+                SLfloat pL = -2.0f, pR = 2.0f;  // left/right
+                SLfloat pB = -0.01f, pT = 4.0f; // bottom/top
+                SLfloat pN = 2.0f, pF = -2.0f;  // near/far
+
+                // bottom rectangle
+                SLNode* b = new SLNode(new SLRectangle(am, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 10, 10, "Floor", matWall));
+                b->rotate(90, -1, 0, 0);
+                b->translate(0, 0, pB, TS_object);
+                room->addChild(b);
+
+                // far rectangle
+                SLNode* f = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall far", matWall));
+                f->translate(0, 0, pF, TS_object);
+                room->addChild(f);
+
+                // near rectangle
+                SLNode* n = new SLNode(new SLRectangle(am, SLVec2f(pL, pB), SLVec2f(pR, pT), 10, 10, "Wall near", matWall));
+                n->rotate(180, 0, 1, 0);
+                n->translate(0, 0, pF, TS_object);
+                room->addChild(n);
+
+                // left rectangle
+                SLNode* l = new SLNode(new SLRectangle(am, SLVec2f(-pN, pB), SLVec2f(-pF, pT), 10, 10, "Wall left", matWall));
+                l->rotate(90, 0, 1, 0);
+                l->translate(0, 0, pL, TS_object);
+                room->addChild(l);
+
+                // right rectangle
+                SLNode* r = new SLNode(new SLRectangle(am, SLVec2f(pF, pB), SLVec2f(pN, pT), 10, 10, "Wall right", matWall));
+                r->rotate(90, 0, -1, 0);
+                r->translate(0, 0, -pR, TS_object);
+                room->addChild(r);
+            }
+
+            // Firewood
+            SLAssimpImporter importer;
+            SLNode*          firewood = importer.load(s->animManager(),
+                                             am,
+                                             modelPath + "GLTF/Firewood/Firewood1.gltf",
+                                             texPath,
+                                             nullptr,
+                                             false,
+                                             true,
+                                             nullptr,
+                                             0.3f,
+                                             true);
+            firewood->scale(2);
+            scene->addChild(firewood);
+
+            // Torch
+            SLNode* torchL = importer.load(s->animManager(),
+                                           am,
+                                           modelPath + "GLTF/Torch/Torch.gltf",
+                                           texPath,
+                                           nullptr,
+                                           false,
+                                           true,
+                                           nullptr,
+                                           0.3f,
+                                           true);
+            torchL->name("Torch Left");
+            SLNode* torchR = torchL->copyRec();
+            torchR->name("Torch Right");
+            torchL->translate(-2, 1.5f, 0);
+            torchL->rotate(90, 0, 1, 0);
+            torchL->scale(2);
+            scene->addChild(torchL);
+            torchR->translate(2, 1.5f, 0);
+            torchR->rotate(-90, 0, 1, 0);
+            torchR->scale(2);
+            scene->addChild(torchR);
+
+            // Torch flame left
+            SLNode* torchFlameNodeL = createTorchFire(am,
+                                                      s,
+                                                      true,
+                                                      texTorchSmk,
+                                                      texTorchFlm,
+                                                      16,
+                                                      4);
+            torchFlameNodeL->translate(-1.6f, 2.25f, 0);
+            torchFlameNodeL->name("Torch Fire Left");
+            scene->addChild(torchFlameNodeL);
+
+            // Torch flame right
+            SLNode* torchFlameNodeR = createTorchFire(am,
+                                                      s,
+                                                      true,
+                                                      texTorchSmk,
+                                                      texTorchFlm,
+                                                      16,
+                                                      4);
+            torchFlameNodeR->translate(1.6f, 2.25f, 0);
+            torchFlameNodeR->name("Torch Fire Right");
+            scene->addChild(torchFlameNodeR);
+
+            // Set background color and the root scene node
+            sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                       SLCol4f(0.2f, 0.2f, 0.2f));
+            // Save energy
+            sv->doWaitOnIdle(false);
+        }
     }
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
@@ -5484,16 +6095,17 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                          true,
                                          diffuseMat,
                                          0.2f,
+                                         false,
                                          nullptr,
                                          SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
             SLNode* scene = new SLNode("Scene");
+            s->root3D(scene);
             scene->addChild(light1);
             scene->addChild(gDragonModel);
             scene->addChild(cam1);
 
             sv->camera(cam1);
-            s->root3D(scene);
         }
     }
     else if (sceneID == SID_Benchmark2_MassiveNodes) //............................................
@@ -5515,6 +6127,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -5558,7 +6171,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark3_NodeAnimations) //..........................................
     {
@@ -5579,6 +6191,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light1->attenuation(1, 0, 0);
 
         SLNode* scene = new SLNode;
+        s->root3D(scene);
         scene->addChild(cam1);
         scene->addChild(light1);
 
@@ -5611,7 +6224,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark4_SkinnedAnimations) //.......................................
     {
@@ -5656,6 +6268,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
+        s->root3D(scene);
         scene->addChild(light1);
         scene->addChild(rect);
         scene->addChild(cam1);
@@ -5684,9 +6297,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             z -= offset;
         }
 
-        // Set active camera & the root pointer
         sv->camera(cam1);
-        s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
              sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
@@ -5781,6 +6392,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             // Assemble scene
             SLNode* scene = new SLNode("Scene");
+            s->root3D(scene);
             scene->addChild(sunLight);
             scene->addChild(rect);
             scene->addChild(cam1);
@@ -5825,7 +6437,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Set active camera & the root pointer
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
-            s->root3D(scene);
         }
     }
     else if (sceneID == SID_Benchmark7_JansUniverse) //............................................
@@ -5836,26 +6447,29 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
-        cam1->translation(0, 0, 100);
-        cam1->focalDist(100);
+        cam1->translation(0, 0, 75);
+        cam1->focalDist(75);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
 
         // Root scene node
-        SLNode* root = new SLNode;
-        root->addChild(cam1);
+        SLNode* scene = new SLNode;
+        s->root3D(scene);
+        scene->addChild(cam1);
 
         // Generate NUM_MAT cook-torrance materials
 #ifndef SL_GLES
-        const int NUM_MAT  = 100;
-        const int NUM_MESH = 100;
+        const int    NUM_MAT_MESH = 100;
+        SLuint const levels       = 6;
+        SLuint const childCount   = 8;
 #else
-        const int NUM_MAT    = 20;
-        const int NUM_MESH   = 20;
+        const int    NUM_MAT_MESH = 20;
+        SLuint const levels       = 6;
+        SLuint const childCount   = 8;
 #endif
-        SLVMaterial materials(NUM_MAT);
-        for (int i = 0; i < NUM_MAT; ++i)
+        SLVMaterial materials(NUM_MAT_MESH);
+        for (int i = 0; i < NUM_MAT_MESH; ++i)
         {
             /*
             SLGLProgram* spTex   = new SLGLProgramGeneric(am,
@@ -5872,26 +6486,126 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                           nullptr,
                                           nullptr);
             SLCol4f color;
-            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT_MESH, 1.0f, 1.0f));
             materials[i]->diffuse(color);
         }
 
         // Generate NUM_MESH sphere meshes
-        SLVMesh meshes(NUM_MESH);
-        for (int i = 0; i < NUM_MESH; ++i)
+        SLVMesh meshes(NUM_MAT_MESH);
+        for (int i = 0; i < NUM_MAT_MESH; ++i)
         {
             SLstring meshName = "mesh-" + std::to_string(i);
-            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
+            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT_MESH]);
         }
 
         // Create universe
-        SLuint const levels     = 6;
-        SLuint const childCount = 8;
-        generateUniverse(am, s, root, levels, childCount, materials, meshes);
+        generateUniverse(am, s, scene, 0, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(root);
+    }
+    else if (stateGL->glHasGeometryShaders())
+    {
+        if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
+        {
+            s->name("Fire Complex Test Scene");
+            s->info(s->name());
+
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->clipNear(0.1f);
+            cam1->clipFar(1000);
+            cam1->translation(0, 10, 40);
+            cam1->focalDist(100);
+            cam1->lookAt(0, 0, 0);
+            cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
+            cam1->setInitialState();
+
+            // Root scene node
+            SLNode* root = new SLNode;
+            s->root3D(root);
+            root->addChild(cam1);
+            const int NUM_NODES = 250;
+
+            // Create textures and materials
+            SLGLTexture* texFireCld = new SLGLTexture(am, texPath + "ParticleFirecloudTransparent_C.png");
+            SLGLTexture* texFireFlm = new SLGLTexture(am, texPath + "ParticleFlames_00_8x4_C.png");
+            SLGLTexture* texCircle  = new SLGLTexture(am, texPath + "ParticleCircle_05_C.png");
+            SLGLTexture* texSmokeB  = new SLGLTexture(am, texPath + "ParticleCloudBlack_C.png");
+            SLGLTexture* texSmokeW  = new SLGLTexture(am, texPath + "ParticleCloudWhite_C.png");
+
+            SLVNode nodes(NUM_NODES);
+            for (int i = 0; i < NUM_NODES; ++i)
+            {
+                SLNode* fireComplex = createComplexFire(am,
+                                                        s,
+                                                        false,
+                                                        texFireCld,
+                                                        texFireFlm,
+                                                        8,
+                                                        4,
+                                                        texCircle,
+                                                        texSmokeB,
+                                                        texSmokeW);
+                fireComplex->translate(-20.0f + (float)(i % 20) * 2,
+                                       0.0f,
+                                       -(float)((i - (i % 20)) / 20) * 4,
+                                       TS_object);
+                root->addChild(fireComplex);
+            }
+
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+        }
+        else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+        {
+            s->name("Particle System number Scene");
+            s->info(s->name());
+
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->clipNear(0.1f);
+            cam1->clipFar(1000);
+            cam1->translation(0, 0, 400);
+            cam1->focalDist(400);
+            cam1->lookAt(0, 0, 0);
+            cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
+            cam1->setInitialState();
+
+            // Root scene node
+            SLNode* root = new SLNode;
+            root->addChild(cam1);
+
+            // Create textures and materials
+            SLGLTexture* texC        = new SLGLTexture(am, texPath + "ParticleSmoke_08_C.png");
+            SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "ParticleSmoke_03_8x8_C.png");
+
+            // Create meshes and nodes
+            SLParticleSystem* ps = new SLParticleSystem(am,
+                                                        1000000,
+                                                        SLVec3f(-10.0f, -10.0f, -10.0f),
+                                                        SLVec3f(10.0f, 10.0f, 10.0f),
+                                                        4.0f,
+                                                        texC,
+                                                        "Particle System",
+                                                        texFlipbook);
+            ps->doAlphaOverLT(false);
+            ps->doSizeOverLT(false);
+            ps->doRotation(false);
+            ps->doShape(true);
+            ps->shapeType(ST_Box);
+            ps->shapeScale(100.0f, 100.0f, 100.0f);
+            ps->doDirectionSpeed(true);
+            ps->doBlendBrightness(true);
+            ps->doColor(true);
+            ps->color(SLCol4f(0.875f, 0.156f, 0.875f, 1.0f));
+            ps->speed(0.0f);
+            SLMesh* pSMesh = ps;
+            SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+            root->addChild(pSNode);
+
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+            s->root3D(root);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -5917,5 +6631,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
             CVCapture::instance()->start(sv->viewportWdivH());
     }
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
+
+#ifdef SL_USE_ENTITIES_DEBUG
+    SLScene::entities.dump(true);
+#endif
 }
 //-----------------------------------------------------------------------------

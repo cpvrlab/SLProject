@@ -22,7 +22,6 @@ SLuint SLGLVertexArray::totalPrimitivesRendered = 0;
 SLGLVertexArray::SLGLVertexArray()
 {
     _vaoID = 0;
-    _VBOf.dataType(BT_float);
     _VBOf.clear();
     _idVBOIndices       = 0;
     _numIndicesElements = 0;
@@ -65,7 +64,8 @@ is called.
 void SLGLVertexArray::setAttrib(SLGLAttributeType type,
                                 SLint             elementSize,
                                 SLint             location,
-                                void*             dataPointer)
+                                void*             dataPointer,
+                                SLGLBufferType    dataType)
 {
     assert(dataPointer);
     assert(elementSize);
@@ -79,6 +79,7 @@ void SLGLVertexArray::setAttrib(SLGLAttributeType type,
     SLGLAttribute va;
     va.type            = type;
     va.elementSize     = elementSize;
+    va.dataType        = dataType;
     va.dataPointer     = dataPointer;
     va.location        = location;
     va.bufferSizeBytes = 0;
@@ -236,6 +237,113 @@ void SLGLVertexArray::generate(SLuint          numVertices,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
+/*! Same as generate but with transform feedback */
+void SLGLVertexArray::generateTF(SLuint          numVertices,
+                                 SLGLBufferUsage usage,
+                                 SLbool          outputInterleaved)
+{
+    assert(numVertices);
+
+    // if buffers exist delete them first
+    deleteGL();
+
+    _numVertices = numVertices;
+
+    // Generate TFO
+    glGenTransformFeedbacks(1, &_tfoID);
+
+    // Generate and bind VAO
+    glGenVertexArrays(1, &_vaoID);
+    glBindVertexArray(_vaoID);
+
+    ///////////////////////////////
+    // Create Vertex Buffer Objects
+    ///////////////////////////////
+
+    // Generate the vertex buffer object for float attributes
+    if (_VBOf.attribs().size())
+        _VBOf.generate(numVertices, usage, outputInterleaved);
+
+    ///////////////////////////////
+    // Bind transform feedback
+    ///////////////////////////////
+
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfoID);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _VBOf.id());
+
+    /////////////////////////////////////////////////////////////////
+    // Create Element Array Buffer for Indices for elements and edges
+    /////////////////////////////////////////////////////////////////
+
+    if (_numIndicesElements && _indexDataElements &&
+        _numIndicesEdges && _indexDataEdges)
+    {
+        // create temp. buffer with both index arrays
+        SLuint   typeSize  = SLGLVertexBuffer::sizeOfType(_indexDataType);
+        SLuint   tmBufSize = (_numIndicesElements + _numIndicesEdges) * (SLuint)typeSize;
+        SLubyte* tmpBuf    = new SLubyte[tmBufSize];
+        memcpy(tmpBuf,
+               _indexDataElements,
+               _numIndicesElements * (SLuint)typeSize);
+        memcpy(tmpBuf + _numIndicesElements * (SLuint)typeSize,
+               _indexDataEdges,
+               _numIndicesEdges * (SLuint)typeSize);
+
+        glGenBuffers(1, &_idVBOIndices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, tmBufSize, tmpBuf, GL_STATIC_DRAW);
+        SLGLVertexBuffer::totalBufferCount++;
+        SLGLVertexBuffer::totalBufferSize += tmBufSize;
+        delete[] tmpBuf;
+    }
+    else if (_numIndicesElements && _indexDataElements) // for elements only
+    {
+        SLuint typeSize = SLGLVertexBuffer::sizeOfType(_indexDataType);
+        glGenBuffers(1, &_idVBOIndices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _idVBOIndices);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     _numIndicesElements * (SLuint)typeSize,
+                     _indexDataElements,
+                     GL_STATIC_DRAW);
+        SLGLVertexBuffer::totalBufferCount++;
+        SLGLVertexBuffer::totalBufferSize += _numIndicesElements * (SLuint)typeSize;
+    }
+
+    glBindVertexArray(0);
+    GET_GL_ERROR;
+}
+//-----------------------------------------------------------------------------
+/*! Discard the rendering because we just compute next position with the
+ * transform feedback. We need to bind a transform feedback object but not the
+ * same from this vao, because we want to read from one vao and write on another.
+ */
+void SLGLVertexArray::beginTF(SLuint tfoID)
+{
+    // Disable rendering
+    glEnable(GL_RASTERIZER_DISCARD);
+
+    // Bind the feedback object for the buffers to be drawn next
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfoID);
+
+    // Draw points from input buffer with transform feedback
+    glBeginTransformFeedback(GL_POINTS);
+}
+
+//-----------------------------------------------------------------------------
+/*! We activate back the rendering and stop the transform feedback.
+ */
+void SLGLVertexArray::endTF()
+{
+    // End transform feedback
+    glEndTransformFeedback();
+
+    // Enable rendering
+    glDisable(GL_RASTERIZER_DISCARD);
+
+    // Un-bind the feedback object.
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+}
+//-----------------------------------------------------------------------------
 /*! Draws the vertex attributes as a specified primitive type by elements with
 the indices from the index buffer defined in setIndices.
 */
@@ -247,7 +355,6 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 
     // From OpenGL 3.0 on we have the OpenGL Vertex Arrays
     // Binding the VAO saves all the commands after the else (per draw call!)
-
     glBindVertexArray(_vaoID);
     GET_GL_ERROR;
 
@@ -336,12 +443,14 @@ void SLGLVertexArray::drawEdges(SLCol4f color,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
-    SLGLState*   state = SLGLState::instance();
+    SLGLProgram* sp      = SLGLProgramManager::get(SP_colorUniform);
+    SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     sp->uniform1f("u_oneOverGamma", 1.0f);
-    state->currentMaterial(nullptr);
+    stateGL->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_matDiff"), 1, (SLfloat*)&color);

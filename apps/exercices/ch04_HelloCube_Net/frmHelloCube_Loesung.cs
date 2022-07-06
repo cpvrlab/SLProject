@@ -8,7 +8,7 @@ public partial class frmHelloCube : Form
 {
    #region Members
    private SLMat4f   m_modelViewMatrix;   // combined model & view matrix
-   private SLMat4f   m_projectionMatrix;  // projection matrix
+   private SLMat4f   m_projectionMatrix;  // Projection matrix (camera to normalize device coords.)
    private SLMat4f   m_viewportMatrix;    // viewport matrix
    private SLVec3f[] m_v;                 // array for vertices for the cube
    private float     m_camZ;              // z-distance of camera

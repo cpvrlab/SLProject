@@ -21,8 +21,8 @@ using namespace Utils;
 
 //-----------------------------------------------------------------------------
 //! 3x3 matrix template class
-/*!  
-Implements a 3 by 3 matrix template. 9 floats were used instead of the normal 
+/*!
+Implements a 3 by 3 matrix template. 9 floats were used instead of the normal
 [3][3] array. The order is columnwise as in OpenGL
 
 | 0  3  6 |

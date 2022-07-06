@@ -51,7 +51,9 @@ void SLText::drawText(SLSceneView* sv)
     SLGLProgram* sp    = _font->fontTexProgram();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (const SLfloat*)&updateAndGetWM());
+    sp->uniformMatrix4fv("u_vMatrix", 1, (const SLfloat*)&state->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (const SLfloat*)&state->projectionMatrix);
     sp->uniform4fv("u_textColor", 1, (float*)&_color);
     sp->uniform1i("u_matTexture0", 0);
 
@@ -72,7 +74,7 @@ void SLText::statsRec(SLNodeStats& stats)
 /*!
 SLText::buildAABB builds and returns the axis-aligned bounding box.
 */
-SLAABBox& SLText::updateAABBRec()
+SLAABBox& SLText::updateAABBRec(SLbool updateAlsoAABBinOS)
 {
     SLVec2f size = _font->calcTextSize(_text);
 
@@ -81,7 +83,8 @@ SLAABBox& SLText::updateAABBRec()
     SLVec3f maxOS(size.x, size.y, 0.01f);
 
     // apply world matrix: this overwrites the AABB of the group
-    _aabb.fromOStoWS(minOS, maxOS, updateAndGetWM());
+    if (updateAlsoAABBinOS)
+        _aabb.fromOStoWS(minOS, maxOS, updateAndGetWM());
 
     return _aabb;
 }

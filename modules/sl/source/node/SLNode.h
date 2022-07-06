@@ -15,6 +15,9 @@
 #include <SLEventHandler.h>
 #include <SLMesh.h>
 #include <SLQuat4.h>
+#include <deque>
+
+using std::deque;
 
 class SLSceneView;
 class SLRay;
@@ -24,7 +27,7 @@ class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! SLVNode typedef for a vector of SLNodes
-typedef vector<SLNode*> SLVNode;
+typedef deque<SLNode*> SLVNode;
 //-----------------------------------------------------------------------------
 //! Struct for scene graph statistics
 /*! The SLNodeStats struct holds some statistics that are set in the recursive
@@ -107,8 +110,8 @@ struct SLNodeStats
  *
  * A node can be transformed and has therefore a object matrix (_om) for its
  * local transform. All other matrices such as the world matrix (_wm), the
- * inverse world matrix (_wmI) and the normal world matrix (_wmN) are derived
- * from the object matrix and automatically generated and updated.\n\n
+ * inverse world matrix (_wmI) are derived from the object matrix and
+ * automatically generated and updated.\n\n
  *
  * A node can be transformed by one of the various transform functions such
  * as translate(). Many of these functions take an additional parameter
@@ -142,18 +145,17 @@ class SLNode
 public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
-    explicit SLNode(SLMesh* mesh, SLVec3f translation, const SLstring& name);
+    explicit SLNode(SLMesh* mesh, const SLVec3f& translation, const SLstring& name);
     ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)
     virtual void      cull3DRec(SLSceneView* sv);
     virtual void      cullChildren3D(SLSceneView* sv);
     virtual void      cull2DRec(SLSceneView* sv);
-    virtual void      drawRec(SLSceneView* sv);
     virtual bool      hitRec(SLRay* ray);
     virtual void      statsRec(SLNodeStats& stats);
     virtual SLNode*   copyRec();
-    virtual SLAABBox& updateAABBRec();
+    virtual SLAABBox& updateAABBRec(SLbool updateAlsoAABBinOS);
     virtual void      dumpRec();
     void              setDrawBitsRec(SLuint bit, SLbool state);
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
@@ -181,13 +183,13 @@ public:
     T* findChild(const SLstring& name          = "",
                  SLbool          findRecursive = true);
     template<typename T>
-    vector<T*>      findChildren(const SLstring& name          = "",
-                                 SLbool          findRecursive = true,
-                                 SLbool          canContain    = false);
-    vector<SLNode*> findChildren(const SLMesh* mesh,
-                                 SLbool        findRecursive = true);
-    vector<SLNode*> findChildren(SLuint drawbit,
-                                 SLbool findRecursive = true);
+    deque<T*>      findChildren(const SLstring& name          = "",
+                                SLbool          findRecursive = true,
+                                SLbool          canContain    = false);
+    deque<SLNode*> findChildren(const SLMesh* mesh,
+                                SLbool        findRecursive = true);
+    deque<SLNode*> findChildren(SLuint drawbit,
+                                SLbool findRecursive = true);
 
     // local direction getter functions
     SLVec3f translationOS() const;
@@ -259,9 +261,10 @@ public:
 
     // Setters (see also members)
     void parent(SLNode* p);
+    void entityID(SLint entityID) { _entityID = entityID; }
     void om(const SLMat4f& mat)
     {
-        _om = mat;
+        _om.setMatrix(mat);
         needUpdate();
     }
     void         animation(SLAnimation* a) { _animation = a; }
@@ -272,15 +275,16 @@ public:
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
     void         minLodCoverage(SLfloat minLodCoverage) { _minLodCoverage = minLodCoverage; }
     void         levelForSM(SLubyte lfsm) { _levelForSM = lfsm; }
+    void         onUpdateCB(function<void()> callbackFunc) { _onUpdateCB = callbackFunc; }
 
     // Getters (see also member)
     SLNode*               parent() { return _parent; }
     SLint                 depth() const { return _depth; }
+    SLint                 entityID() const { return _entityID; }
     const SLMat4f&        om() { return _om; }
     const SLMat4f&        initialOM() { return _initialOM; }
     const SLMat4f&        updateAndGetWM() const;
     const SLMat4f&        updateAndGetWMI() const;
-    const SLMat3f&        updateAndGetWMN() const;
     SLDrawBits*           drawBits() { return &_drawBits; }
     SLbool                drawBit(SLuint bit) { return _drawBits.get(bit); }
     SLAABBox*             aabb() { return &_aabb; }
@@ -300,7 +304,7 @@ public:
     SLfloat               minLodCoverage() { return _minLodCoverage; }
     SLubyte               levelForSM() { return _levelForSM; }
 
-    static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
+    static SLuint numWMUpdates; //!< NO. of calls to updateWMRec per frame
 
     static unsigned int instanceIndex; //!< ???
 
@@ -314,36 +318,38 @@ private:
     void updateWM() const;
     template<typename T>
     void findChildrenHelper(const SLstring& name,
-                            vector<T*>&     list,
+                            deque<T*>&      list,
                             SLbool          findRecursive,
                             SLbool          canContain = false);
-    void findChildrenHelper(const SLMesh*    mesh,
-                            vector<SLNode*>& list,
-                            SLbool           findRecursive);
-    void findChildrenHelper(SLuint           drawbit,
-                            vector<SLNode*>& list,
-                            SLbool           findRecursive);
+    void findChildrenHelper(const SLMesh*   mesh,
+                            deque<SLNode*>& list,
+                            SLbool          findRecursive);
+    void findChildrenHelper(SLuint          drawbit,
+                            deque<SLNode*>& list,
+                            SLbool          findRecursive);
 
 protected:
     SLNode* _parent;   //!< pointer to the parent node
     SLVNode _children; //!< vector of children nodes
     SLMesh* _mesh;     //!< pointer to a single mesh
 
-    SLint           _depth;          //!< depth of the node in a scene tree
-    SLMat4f         _om;             //!< object matrix for local transforms
-    SLMat4f         _initialOM;      //!< the initial om state
-    mutable SLMat4f _wm;             //!< world matrix for world transform
-    mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLMat3f _wmN;            //!< normal world matrix
-    mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
-    mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
-    bool            _castsShadows;   //!< flag if meshes of node should cast shadows
-    bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
-    SLDrawBits      _drawBits;       //!< node level drawing flags
-    SLAABBox        _aabb;           //!< axis aligned bounding box
-    SLAnimation*    _animation;      //!< animation of the node
-    SLfloat         _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
-    SLubyte         _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    SLint            _depth;          //!< depth of the node in a scene tree
+    SLint            _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design
+    SLMat4f          _om;             //!< object matrix for local transforms
+    SLMat4f          _initialOM;      //!< the initial om state
+    mutable SLMat4f  _wm;             //!< world matrix for world transform
+    mutable SLMat4f  _wmI;            //!< inverse world matrix
+    mutable SLbool   _isWMUpToDate;   //!< is the WM of this node still valid
+    mutable SLbool   _isWMIUpToDate;  //!< is the inverse WM of this node still valid
+    mutable SLbool   _isAABBUpToDate; //!< is the saved aabb still valid
+    bool             _castsShadows;   //!< flag if meshes of node should cast shadows
+    bool             _isSelected;     //!< flag if node and one or more of its meshes are selected
+    SLDrawBits       _drawBits;       //!< node level drawing flags
+    SLAABBox         _aabb;           //!< axis aligned bounding box
+    SLAnimation*     _animation;      //!< animation of the node
+    SLfloat          _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
+    SLubyte          _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    function<void()> _onUpdateCB;     //!< Optional lambda callback once per update
 };
 
 ////////////////////////
@@ -394,12 +400,12 @@ SLNode::findChildren<T> finds a list of all children that are of type T or
 subclasses of T. If a name is specified only nodes with that name are included.
 */
 template<typename T>
-vector<T*>
+deque<T*>
 SLNode::findChildren(const SLstring& name,
                      SLbool          findRecursive,
                      SLbool          canContain)
 {
-    vector<T*> list;
+    deque<T*> list;
     findChildrenHelper<T>(name, list, findRecursive);
     return list;
 }
@@ -411,7 +417,7 @@ It appends all newly found children to 'list'.
 */
 template<typename T>
 void SLNode::findChildrenHelper(const SLstring& name,
-                                vector<T*>&     list,
+                                deque<T*>&      list,
                                 SLbool          findRecursive,
                                 SLbool          canContain)
 {

@@ -49,7 +49,6 @@ public:
 
 private:
     SLbool   createAndCompile(SLVLight* lights);
-    SLbool   createAndCompileSimple();
     SLstring preprocessPragmas(SLstring code, SLVLight* lights);
 
 protected:

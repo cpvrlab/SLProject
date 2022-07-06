@@ -46,15 +46,17 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     _exposure           = 1.0f;
 
     // Create texture, material and program
-    _environmentCubemap    = new SLGLTexture(assetMgr,
+    _environmentCubemap = new SLGLTexture(assetMgr,
                                           cubeMapXPos,
                                           cubeMapXNeg,
                                           cubeMapYPos,
                                           cubeMapYNeg,
                                           cubeMapZPos,
                                           cubeMapZNeg);
+
     SLMaterial* matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->addTexture(_environmentCubemap);
+
     SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,
                                              shaderPath + "SkyBox.vert",
                                              shaderPath + "SkyBox.frag");
@@ -94,7 +96,8 @@ SLSkybox::SLSkybox(SLAssetManager* am,
                                                            shaderPath + "PBR_SkyboxHDR.vert",
                                                            shaderPath + "PBR_SkyboxHDR.frag");
 
-    // The HDR texture is only used to create the environment, the irradiance and the roughness cubemaps
+    // The HDR texture is only used to create the environment,
+    // the irradiance and the roughness cubemaps
     _hdrTexture = new SLGLTexture(am,
                                   hdrImage,
                                   GL_LINEAR,
@@ -110,6 +113,7 @@ SLSkybox::SLSkybox(SLAssetManager* am,
                                              resolution,
                                              TT_environmentCubemap,
                                              GL_TEXTURE_CUBE_MAP,
+                                             true,
                                              GL_LINEAR_MIPMAP_LINEAR);
 
     // The irradiance cubemap is used for the ambient indirect light of PBR materials
@@ -176,14 +180,11 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
     if (_isHDR && !_isBuilt)
         build();
 
-    // Set the view transform
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-
     // Put skybox at the cameras position
     translation(sv->camera()->translationWS());
 
     // Apply world transform
-    stateGL->modelViewMatrix.multiply(updateAndGetWM().m());
+    stateGL->modelMatrix = updateAndGetWM();
 
     // Freeze depth buffer
     stateGL->depthMask(false);
@@ -205,13 +206,29 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 //! Returns the color in the skybox at the the specified direction dir
 SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
 {
-    if (_mesh && !_mesh->mat()->textures(TT_diffuse).empty() &&
-        _mesh->mat()->textures(TT_diffuse)[0]->images().size() == 6)
+    if (_mesh && _mesh->mat())
     {
-        SLGLTexture* tex = _mesh->mat()->textures(TT_diffuse)[0];
-        return tex->getTexelf(dir);
+        SLMaterial* mat = _mesh->mat();
+
+        if (!mat->textures(TT_diffuse).empty())
+        {
+            if (mat->textures(TT_diffuse)[0]->images().size() == 6)
+            {
+                SLGLTexture* tex = mat->textures(TT_diffuse)[0];
+                return tex->getTexelf(dir);
+            }
+        }
+
+        if (!mat->textures(TT_environmentCubemap).empty())
+        {
+            if (mat->textures(TT_environmentCubemap)[0]->images().size() == 6)
+            {
+                SLGLTexture* tex = mat->textures(TT_environmentCubemap)[0];
+                return tex->getTexelf(dir);
+            }
+        }
     }
-    else
-        return SLCol4f::BLACK; // Generated skybox texture do not exist in _image
+
+    return SLCol4f::BLACK;
 }
 //-----------------------------------------------------------------------------

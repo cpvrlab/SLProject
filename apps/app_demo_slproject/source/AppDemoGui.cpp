@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      AppDemoGui.cpp
-//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
-//  Date:      Summer 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoGui.cpp
+//   Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
+//   Date:      Summer 2017
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <AppDemoGui.h>
 #include <AppDemo.h>
@@ -27,6 +27,7 @@
 #include <SLShadowMap.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
+#include <SLParticleSystem.h>
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -36,6 +37,8 @@
 #include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
+#include <bezier.hpp>
+#include <imgui_color_gradient.h>
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
@@ -51,7 +54,7 @@ extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
 extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
 extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
-//#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
+// #define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
@@ -137,7 +140,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject
 
 SLstring AppDemoGui::infoCredits = R"(
 Contributors since 2005 in alphabetic order:
-Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marino von Wattenwyl, Marc Wacker, Pascal Zingg
+Marc Affolter, Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marino von Wattenwyl, Marc Wacker, Pascal Zingg
 
 Credits for external libraries:
 - assimp: assimp.sourceforge.net
@@ -216,19 +219,18 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
     SLAssetManager* am = s->assetManager();
 
     if (AppDemoGui::hideUI ||
-        (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD))
+        (sv->camera() && sv->camera()->projType() == P_stereoSideBySideD))
     {
         // So far no UI in distorted stereo projection
         buildMenuContext(s, sv);
     }
     else
     {
-
         ///////////////////////////////////
         // Show modeless fullscreen dialogs
         ///////////////////////////////////
 
-        // if parallel jobs are running show only the progress informations
+        // if parallel jobs are running show only the progress information
         if (AppDemo::jobIsRunning)
         {
             centerNextWindow(sv, 0.9f, 0.5f);
@@ -366,6 +368,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             {
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
+                CVVideoType  vt    = CVCapture::instance()->videoType();
                 SLchar       m[2550]; // message character array
                 m[0] = 0;             // set zero length
 
@@ -382,7 +385,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                    SLfloat updateAABBTime = s->updateAABBTimesMS().average();
+                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -398,6 +402,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
@@ -414,15 +419,35 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                    sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                    sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                    sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                    sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                    sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
-                    sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
-                    sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                    sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                    sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+#ifdef SL_USE_ENTITIES
+                    sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
+#endif
+                    if (!s->animManager().allAnimNames().empty())
+                    {
+                        sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                        sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                    }
+                    if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
+                    {
+                        sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                        sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                        sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                        sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                        sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                        sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                        sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    }
+
+                    // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
+                    /* if (s->singleMeshFullSelected() != nullptr)
+                    {
+                        SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
+                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
+                        {
+                            sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
+                            sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
+                        }
+                    }*/
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
@@ -431,8 +456,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_rt)
                 {
                     SLRaytracer* rt           = sv->raytracer();
-                    SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
-                    SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
+                    SLint        rtWidth      = (SLint)((float)sv->viewportW() * rt->resolutionFactor());
+                    SLint        rtHeight     = (SLint)((float)sv->viewportH() * rt->resolutionFactor());
                     SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
                     SLuint       rayTotal     = SLRay::totalNumRays();
                     SLfloat      renderSec    = rt->renderSec();
@@ -446,17 +471,17 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
                     sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                     sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                    sprintf(m + strlen(m), "---------------------------\n");
-                    sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                    sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                    sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "----------------------------\n");
+                    sprintf(m + strlen(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
+                    sprintf(m + strlen(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Refracted:%9d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
                 }
 #if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
                 else if (rType == RT_optix_rt)
@@ -479,8 +504,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_pt)
                 {
                     SLPathtracer* pt           = sv->pathtracer();
-                    SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
-                    SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
+                    SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
+                    SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
                     SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
                     SLuint        rayTotal     = SLRay::totalNumRays();
 
@@ -499,39 +524,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
                     sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "---------------------------\n");
-                }
-                else if (rType == RT_ct)
-                {
-                    // Get averages from average variables (see Averaged)
-                    SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
-                    SLfloat updateTime     = s->updateTimesMS().average();
-                    SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                    SLfloat cullTime       = sv->cullTimesMS().average();
-                    SLfloat draw3DTime     = sv->draw3DTimesMS().average();
-                    SLfloat draw2DTime     = sv->draw2DTimesMS().average();
-
-                    // Calculate percentage from frame time
-                    SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
-
-                    sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
-                    sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
-                    sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                    sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                    sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
-                    sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                    sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                    sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                    sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                    sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                    sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                    sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
                 }
 
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -553,7 +545,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
                 SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
                 SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
-                SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+                SLint        numVisibleNodes   = (int)(stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes);
                 SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
@@ -566,7 +558,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat cpuMBTexture = 0;
                 for (auto* t : am->textures())
                     for (auto* i : t->images())
-                        cpuMBTexture += i->bytesPerImage();
+                        cpuMBTexture += (float)i->bytesPerImage();
                 cpuMBTexture = cpuMBTexture / 1E6f;
 
                 SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
@@ -614,7 +606,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
                 ImGui::Text("Global Resources:");
 
-                if (am->meshes().size() && ImGui::TreeNode("Meshes"))
+                string label = "Meshes (" + std::to_string(am->meshes().size()) + ")";
+                if (am->meshes().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->meshes().size(); ++i)
                         ImGui::Text("[%d] %s (%u v.)",
@@ -625,7 +618,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (s->lights().size() && ImGui::TreeNode("Lights"))
+                label = "Lights (" + std::to_string(s->lights().size()) + ")";
+                if (s->lights().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < s->lights().size(); ++i)
                     {
@@ -636,7 +630,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
+                label = "Materials (" + std::to_string(sv->visibleMaterials3D().size()) + ")";
+                if (sv->visibleMaterials3D().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (auto* mat : sv->visibleMaterials3D())
                     {
@@ -663,7 +658,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->textures().size() && ImGui::TreeNode("Textures"))
+                label = "Meshes (" + std::to_string(am->textures().size()) + ")";
+                if (am->textures().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->textures().size(); ++i)
                     {
@@ -676,7 +672,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
+                label = "Programs in AM (" + std::to_string(am->programs().size()) + ")";
+                if (am->programs().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->programs().size(); ++i)
                     {
@@ -686,7 +683,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (ImGui::TreeNode("Programs (application)"))
+                label = "Programs in app (" + std::to_string(SLGLProgramManager::size()) + ")";
+                if (ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
                         ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
@@ -813,7 +811,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
-                ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
+                ImGui::SetNextWindowPos(ImVec2(0, (float)sv->scrH() - h));
                 ImGui::SetNextWindowSize(ImVec2(w, h));
                 ImGui::Begin("Scene Information", &showInfosScene, window_flags);
                 ImGui::SetCursorPosX((w - size.x) * 0.5f);
@@ -1502,10 +1500,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(am, s, sv, SID_ShaderEarth);
-#if defined(GL_VERSION_4_4)
-                    if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
-                        s->onLoad(am, s, sv, SID_ShaderVoxelConeDemo);
-#endif
                     ImGui::EndMenu();
                 }
 
@@ -1718,7 +1712,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Ray tracing"))
+                if (ImGui::BeginMenu("Ray Tracing"))
                 {
                     if (ImGui::MenuItem("Spheres", nullptr, sid == SID_RTSpheres))
                         s->onLoad(am, s, sv, SID_RTSpheres);
@@ -1736,12 +1730,101 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Path tracing"))
+                if (ImGui::BeginMenu("Path Tracing"))
                 {
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
                         s->onLoad(am, s, sv, SID_RTMuttenzerBox);
 
                     ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Particle Systems"))
+                {
+                    if (stateGL->glHasGeometryShaders())
+                    {
+                        if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_First);
+                        if (ImGui::MenuItem("Demo Particle System", nullptr, sid == SID_ParticleSystem_Demo))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
+                        if (ImGui::MenuItem("Dust Storm Particle System", nullptr, sid == SID_ParticleSystem_DustStorm))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
+                        if (ImGui::MenuItem("Fountain Particle System", nullptr, sid == SID_ParticleSystem_Fountain))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
+                        if (ImGui::MenuItem("Sun Particle System", nullptr, sid == SID_ParticleSystem_Sun))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
+                        if (ImGui::MenuItem("Ring of Fire Particle System", nullptr, sid == SID_ParticleSystem_RingOfFire))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
+                        if (ImGui::MenuItem("Complex Fire Particle System", nullptr, sid == SID_ParticleSystem_FireComplex))
+                            s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
+                    }
+                    else
+                    {
+                        ImGui::MenuItem("Particles need OpenGL >= 4.0 or OpenGLES >= 3.1", nullptr, false, false);
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
+                SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
+                SLstring modelAR1    = erlebarPath + "augst/augst-thtL1-tmpL2.gltf";
+                SLstring modelAR2    = erlebarPath + "augst/augst-thtL2-tmpL1.gltf";
+                SLstring modelAR3    = erlebarPath + "augst/augst-thtL1L2-tmpL1L2.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
+                SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
+                SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
+                SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
+
+                if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAR2) ||
+                    Utils::fileExists(modelAR3) ||
+                    Utils::fileExists(modelAV3) ||
+                    Utils::fileExists(modelBR2) ||
+                    Utils::fileExists(modelSU1) ||
+                    Utils::fileExists(modelEV1))
+                {
+                    if (ImGui::BeginMenu("Erleb-AR"))
+                    {
+                        if (Utils::fileExists(modelBR2))
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
+                                s->onLoad(am, s, sv, SID_ErlebARBernChristoffel);
+
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(am, s, sv, SID_ErlebARBielBFH);
+
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmp);
+
+                        if (Utils::fileExists(modelAR2))
+                            if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTht);
+
+                        if (Utils::fileExists(modelAR3))
+                            if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmpTht);
+
+                        if (Utils::fileExists(modelAV1_AO))
+                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumAmphiteatre);
+
+                        if (Utils::fileExists(modelAV2_AO))
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumCigognier);
+
+                        if (Utils::fileExists(modelAV3))
+                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumTheatre);
+
+                        if (Utils::fileExists(modelSU1))
+                            if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
+                                s->onLoad(am, s, sv, SID_ErlebARSutzKirchrain18);
+
+                        ImGui::EndMenu();
+                    }
                 }
 
                 if (ImGui::BeginMenu("Benchmarks"))
@@ -1878,70 +1961,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark6_ColumnsLOD);
                         }
                     }
-
-                    ImGui::EndMenu();
-                }
-
-                SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
-                SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
-                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
-                SLstring modelAR1    = erlebarPath + "augst/augst-thtL1-tmpL2.gltf";
-                SLstring modelAR2    = erlebarPath + "augst/augst-thtL2-tmpL1.gltf";
-                SLstring modelAR3    = erlebarPath + "augst/augst-thtL1L2-tmpL1L2.gltf";
-                SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
-                SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
-                SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
-                SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
-
-                if (Utils::fileExists(modelAR1) ||
-                    Utils::fileExists(modelAR2) ||
-                    Utils::fileExists(modelAR3) ||
-                    Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR2) ||
-                    Utils::fileExists(modelSU1) ||
-                    Utils::fileExists(modelEV1))
-                {
-                    if (ImGui::BeginMenu("Erleb-AR"))
+                    if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
+                        s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
+                    if (stateGL->glHasGeometryShaders())
                     {
-                        if (Utils::fileExists(modelBR2))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
-                                s->onLoad(am, s, sv, SID_ErlebARBernChristoffel);
-
-                        if (Utils::fileExists(modelBFH))
-                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
-                                s->onLoad(am, s, sv, SID_ErlebARBielBFH);
-
-                        if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmp);
-
-                        if (Utils::fileExists(modelAR2))
-                            if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTht);
-
-                        if (Utils::fileExists(modelAR3))
-                            if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
-                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmpTht);
-
-                        if (Utils::fileExists(modelAV1_AO))
-                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumAmphiteatre);
-
-                        if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumCigognier);
-
-                        if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
-                                s->onLoad(am, s, sv, SID_ErlebARAventicumTheatre);
-
-                        if (Utils::fileExists(modelSU1))
-                            if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
-                                s->onLoad(am, s, sv, SID_ErlebARSutzKirchrain18);
-
-                        ImGui::EndMenu();
+                        if (ImGui::MenuItem("Particle System lot of fire complex", nullptr, sid == SID_Benchmark8_ParticleSystemFireComplex))
+                            s->onLoad(am, s, sv, SID_Benchmark8_ParticleSystemFireComplex);
+                        if (ImGui::MenuItem("Particle System lot of particle", nullptr, sid == SID_Benchmark9_ParticleSystemManyParticles))
+                            s->onLoad(am, s, sv, SID_Benchmark9_ParticleSystemManyParticles);
                     }
+                    ImGui::EndMenu();
                 }
 
                 ImGui::EndMenu();
@@ -2322,16 +2351,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);
             ImGui::MenuItem("Path Tracing with OptiX", nullptr, false, false);
 #endif
-#ifdef GL_VERSION_4_4
-            if (gl3wIsSupported(4, 4))
-            {
-                if (ImGui::MenuItem("Cone Tracing (CT)", "C", rType == RT_ct))
-                    sv->startConetracing();
-            }
-            else
-#endif
-                ImGui::MenuItem("Cone Tracing (GL>4.4)", nullptr, false, false);
-
             ImGui::EndMenu();
         }
 
@@ -2600,48 +2619,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
         }
-        else if (rType == RT_ct)
-        {
-            if (ImGui::BeginMenu("CT-Setting"))
-            {
-                if (ImGui::MenuItem("Show Voxelization", nullptr, sv->conetracer()->showVoxels()))
-                    sv->conetracer()->toggleVoxels();
-
-                if (ImGui::MenuItem("Direct illumination", nullptr, sv->conetracer()->doDirectIllum()))
-                    sv->conetracer()->toggleDirectIllum();
-
-                if (ImGui::MenuItem("Diffuse indirect illumination", nullptr, sv->conetracer()->doDiffuseIllum()))
-                    sv->conetracer()->toggleDiffuseIllum();
-
-                if (ImGui::MenuItem("Specular indirect illumination", nullptr, sv->conetracer()->doSpecularIllum()))
-                    sv->conetracer()->toggleSpecIllumination();
-
-                if (ImGui::MenuItem("Shadows", nullptr, sv->conetracer()->shadows()))
-                    sv->conetracer()->toggleShadows();
-
-                SLfloat angle = sv->conetracer()->diffuseConeAngle();
-                if (ImGui::SliderFloat("Diffuse cone angle (rad)", &angle, 0.f, 1.5f))
-                    sv->conetracer()->diffuseConeAngle(angle);
-
-                SLfloat specAngle = sv->conetracer()->specularConeAngle();
-                if (ImGui::SliderFloat("Specular cone angle (rad)", &specAngle, 0.004f, 0.5f))
-                    sv->conetracer()->specularConeAngle(specAngle);
-
-                SLfloat shadowAngle = sv->conetracer()->shadowConeAngle();
-                if (ImGui::SliderFloat("Shadow cone angle (rad)", &shadowAngle, 0.f, 1.5f))
-                    sv->conetracer()->shadowConeAngle(shadowAngle);
-
-                SLfloat lightSize = sv->conetracer()->lightMeshSize();
-                if (ImGui::SliderFloat("Max. size of a lightsource mesh", &lightSize, 0.0f, 100.0f))
-                    sv->conetracer()->lightMeshSize(lightSize);
-
-                SLfloat gamma = sv->conetracer()->gamma();
-                if (ImGui::SliderFloat("Gamma", &gamma, 1.0f, 3.0f))
-                    sv->conetracer()->gamma(gamma);
-
-                ImGui::EndMenu();
-            }
-        }
 
 #ifdef SL_HAS_OPTIX
         else if (rType == RT_optix_pt)
@@ -2682,8 +2659,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Camera"))
         {
-            SLCamera*    cam  = sv->camera();
-            SLProjection proj = cam->projection();
+            SLCamera*  cam  = sv->camera();
+            SLProjType proj = cam->projType();
 
             if (ImGui::MenuItem("Reset"))
             {
@@ -2723,7 +2700,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Perspective", "5", proj == P_monoPerspective))
                 {
-                    cam->projection(P_monoPerspective);
+                    cam->projType(P_monoPerspective);
                     if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
                         sv->raytracer()->state() == rtFinished)
                         sv->raytracer()->state(rtReady);
@@ -2731,7 +2708,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Orthographic", "5", proj == P_monoOrthographic))
                 {
-                    cam->projection(P_monoOrthographic);
+                    cam->projType(P_monoOrthographic);
                     if (sv->renderType() == RT_rt && !sv->raytracer()->doContinuous() &&
                         sv->raytracer()->state() == rtFinished)
                         sv->raytracer()->state(rtReady);
@@ -2741,9 +2718,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     for (SLint p = P_stereoSideBySide; p <= P_stereoColorYB; ++p)
                     {
-                        SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
-                        if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjection)p))
-                            cam->projection((SLProjection)p);
+                        SLstring pStr = SLCamera::projTypeToStr((SLProjType)p);
+                        if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjType)p))
+                            cam->projType((SLProjType)p);
                     }
 
                     if (proj >= P_stereoSideBySide)
@@ -2840,7 +2817,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (cam->fogMode() == FM_exp || cam->fogMode() == FM_exp2)
                 {
                     static SLfloat fogDensity = cam->fogDensity();
-                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f))
+                    if (ImGui::SliderFloat("Density", &fogDensity, 0.0f, 0.2f))
                         cam->fogDensity(fogDensity);
                 }
 
@@ -3491,11 +3468,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                          "Stereo Color Red-Blue",
                                                          "Stereo Color Yellow-Blue"};
 
-                            int proj = cam->projection();
+                            int proj = cam->projType();
                             if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))
-                                cam->projection((SLProjection)proj);
+                                cam->projType((SLProjType)proj);
 
-                            if (cam->projection() > P_monoOrthographic)
+                            if (cam->projType() > P_monoOrthographic)
                             {
                                 SLfloat eyeSepar = cam->stereoEyeSeparation();
                                 if (ImGui::SliderFloat("Eye Sep.", &eyeSepar, 0.0f, focalDist / 10.f))
@@ -3577,10 +3554,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     light->specularColor(sC);
                             }
 
-                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, aP * 1.1f, "%.2f"))
                                 light->ambientPower(aP);
 
-                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, dP * 1.1f, "%.2f"))
                                 light->diffusePower(dP);
 
                             float sP = light->specularPower();
@@ -3659,9 +3636,18 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
                     ImGui::Text("Mesh name    : %s", singleFullMesh->name().c_str());
-                    ImGui::Text("# vertices   : %u", v);
-                    ImGui::Text("# triangles  : %u", t);
-                    ImGui::Text("# hard edges : %u", e);
+                    if (m->reflectionModel() == RM_Particle)
+                    {
+                        SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh);
+                        ImGui::Text("# vertices   : %u", ps->amount() * 4);
+                        ImGui::Text("# triangles  : %u", ps->amount() * 2);
+                    }
+                    else
+                    {
+                        ImGui::Text("# vertices   : %u", v);
+                        ImGui::Text("# triangles  : %u", t);
+                        ImGui::Text("# hard edges : %u", e);
+                    }
                     ImGui::Text("Material Name: %s", m->name().c_str());
 
                     if (m->reflectionModel() == RM_BlinnPhong)
@@ -3741,8 +3727,591 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::TreePop();
                         }
                     }
-                    else
+                    else if (m->reflectionModel() == RM_Particle)
                     {
+                        if (ImGui::TreeNode("Particle System"))
+                        {
+                            SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+
+                            // Pause and Resume
+                            bool isPaused = ps->isPaused();
+                            if (isPaused)
+                            {
+                                if (ImGui::Button("Resume"))
+                                    ps->pauseOrResume();
+                            }
+                            else
+                            {
+                                if (ImGui::Button("Pause"))
+                                    ps->pauseOrResume();
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button("Reset"))
+                                ps->isGenerated(false);
+
+                            // Amount
+                            int amount = ps->amount();
+                            if (ImGui::InputInt("Amount of particles", &amount))
+                            {
+                                if (amount <= 0)
+                                    amount = 1;
+                                ps->amount(amount);
+                                ps->isGenerated(false);
+                            }
+
+                            // TTL (Time to live)
+                            if (ImGui::CollapsingHeader("Time to live"))
+                            {
+                                ImGui::Indent();
+                                float timeToLive = ps->timeToLive();
+                                if (ImGui::InputFloat("Time to live (s)", &timeToLive))
+                                {
+                                    ps->timeToLive(timeToLive);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Counter bug lag/gap
+                                bool doCounterGap = ps->doCounterGap();
+                                if (ImGui::Checkbox("Counter lag/gap", &doCounterGap))
+                                {
+                                    ps->doCounterGap(doCounterGap);
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                ImGui::TextWrapped("Need to be enable by default but can create flickering with few particles, recommend to disable if few particles with no velocity ");
+                                ImGui::Unindent();
+                            }
+
+                            // Radius
+                            float radiusW = ps->radiusW();
+                            if (ImGui::InputFloat("Radius width", &radiusW))
+                            {
+                                ps->radiusW(radiusW);
+                                singleNode->needAABBUpdate();
+                            }
+                            float radiusH = ps->radiusH();
+                            if (ImGui::InputFloat("Radius height", &radiusH))
+                            {
+                                ps->radiusH(radiusH);
+                                singleNode->needAABBUpdate();
+                            }
+
+                            // Scale
+                            float scale = ps->scale();
+                            if (ImGui::InputFloat("Scale", &scale))
+                            {
+                                ps->scale(scale);
+                                singleNode->needAABBUpdate();
+                            }
+
+                            // World space
+                            SLbool doWorldSpace = ps->doWorldSpace();
+                            if (ImGui::Checkbox("World space", &doWorldSpace))
+                                ps->doWorldSpace(doWorldSpace);
+
+                            // Gravity
+                            SLbool doGravity = ps->doGravity();
+                            if (ImGui::Checkbox("Gravity", &doGravity))
+                            {
+                                ps->doGravity(doGravity);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Gravity", &doGravity))
+                            {
+                                ImGui::Indent();
+                                float vec3Gravity[3] = {ps->gravity().x, ps->gravity().y, ps->gravity().z};
+                                if (ImGui::InputFloat3("Gravity XYZ", vec3Gravity))
+                                {
+                                    ps->gravity(vec3Gravity[0], vec3Gravity[1], vec3Gravity[2]);
+                                    singleNode->needAABBUpdate();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Billboard
+                            int item_current = ps->billboardType();
+                            if (ImGui::Combo("Billboard Type",
+                                             &item_current,
+                                             "Camera Billboard\0Vertical Billboard\0Horizontal Billboard\0"))
+                            {
+                                ps->billboardType((SLBillboardType)item_current);
+                                m->program(nullptr);
+                                if (item_current == 2)
+                                {
+                                    if (!sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
+                                else
+                                {
+                                    if (sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
+                            }
+
+                            // Velocity
+                            if (ps->doDirectionSpeed())
+                                ImGui::BeginDisabled();
+                            if (ImGui::CollapsingHeader("Velocity"))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->velocityType();
+                                if (ImGui::Combo("Velocity type", &item_current, "Random axes\0Constant axes\0"))
+                                {
+                                    ps->velocityType(item_current);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (item_current == 0)
+                                {
+                                    float vec3fVstart[3] = {ps->velocityRndMin().x, ps->velocityRndMin().y, ps->velocityRndMin().z};
+                                    if (ImGui::InputFloat3("Min. random XYZ", vec3fVstart))
+                                    {
+                                        ps->velocityRndMin(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float vec3fVend[3] = {ps->velocityRndMax().x, ps->velocityRndMax().y, ps->velocityRndMax().z};
+                                    if (ImGui::InputFloat3("Max. random XYZ", vec3fVend))
+                                    {
+                                        ps->velocityRndMax(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else if (item_current == 1)
+                                {
+                                    float vec3fVelocity[3] = {ps->velocityConst().x, ps->velocityConst().y, ps->velocityConst().z};
+                                    if (ImGui::InputFloat3("Constant XYZ", vec3fVelocity))
+                                    {
+                                        ps->velocityConst(vec3fVelocity[0], vec3fVelocity[1], vec3fVelocity[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+                            if (ps->doDirectionSpeed())
+                                ImGui::EndDisabled();
+
+                            // Direction and speed: Add maybe later mix with velocity
+                            SLbool directionSpeed_group = ps->doDirectionSpeed();
+                            if (ImGui::Checkbox("Direction and Speed", &directionSpeed_group))
+                            {
+                                ps->doDirectionSpeed(directionSpeed_group);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Direction and Speed", &directionSpeed_group))
+                            {
+                                ImGui::Indent();
+                                float vec3fDirection[3] = {ps->direction().x, ps->direction().y, ps->direction().z}; // Direction
+                                if (ImGui::InputFloat3("Constant XYZ", vec3fDirection))
+                                {
+                                    ps->direction(vec3fDirection[0], vec3fDirection[1], vec3fDirection[2]);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Speed
+                                item_current = ps->doSpeedRange() ? 1 : 0;
+                                if (ImGui::Combo("Speed value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current == 1)
+                                        ps->doSpeedRange(true);
+                                    else
+                                        ps->doSpeedRange(false);
+
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (!ps->doSpeedRange())
+                                {
+                                    float speed = ps->speed();
+                                    if (ImGui::InputFloat("Constant", &speed))
+                                    {
+                                        ps->speed(speed);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->speedRange().x, ps->speedRange().y};
+                                    if (ImGui::InputFloat2("Random range Speed", vec2fRange))
+                                    {
+                                        ps->speedRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Color checkbox
+                            SLbool color_group = ps->doColor();
+                            if (ImGui::Checkbox("Color", &color_group))
+                            {
+                                ps->doColor(color_group);
+                                m->program(nullptr);
+                            }
+                            if (ImGui::CollapsingHeader("Color", &color_group))
+                            {
+                                ImGui::Indent();
+                                // Color blending brightness/glow
+                                SLbool color_bright = ps->doBlendBrightness();
+                                if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
+                                {
+                                    ps->doBlendBrightness(color_bright);
+                                }
+                                // Color
+                                if (ps->doColorOverLT())
+                                    ImGui::BeginDisabled();
+                                ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                                SLCol4f             c   = ps->color();
+                                if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
+                                    ps->color(c);
+                                if (ps->doColorOverLT())
+                                    ImGui::EndDisabled();
+
+                                // Color over lifetime
+                                SLbool doColorOverLT_group = ps->doColorOverLT();
+
+                                static ImGradient      gradient;
+                                static ImGradientMark* draggingMark = nullptr;
+                                static ImGradientMark* selectedMark = nullptr;
+
+                                static bool once = [ps]()
+                                {
+                                    gradient.getMarks().clear();
+                                    for (auto cp : ps->colorPoints())
+                                        gradient.addMark(cp.pos, ImColor(cp.color.r, cp.color.g, cp.color.b));
+                                    return true;
+                                }();
+
+                                if (ImGui::Checkbox("Color over lifetime", &doColorOverLT_group))
+                                {
+                                    ps->doColorOverLT(doColorOverLT_group);
+                                    ps->colorArr(gradient.cachedValues());
+                                    m->program(nullptr);
+                                }
+
+                                if (ImGui::CollapsingHeader("Color over lifetime", &doColorOverLT_group))
+                                {
+                                    if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
+                                    {
+                                        ps->colorPoints().clear();
+                                        for (auto cp : gradient.getMarks())
+                                            ps->colorPoints().push_back(SLColorLUTPoint(SLCol3f(cp->color), cp->position));
+                                        ps->colorArr(gradient.cachedValues());
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Rotation
+                            SLbool rot_group = ps->doRotation();
+                            if (ImGui::Checkbox("Rotation", &rot_group))
+                            {
+                                ps->doRotation(rot_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Rotation", &rot_group))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->doRotRange() ? 1 : 0;
+                                if (ImGui::Combo("Angular velocity value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current == 1)
+                                        ps->doRotRange(true);
+                                    else
+                                        ps->doRotRange(false);
+
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                if (!ps->doRotRange())
+                                {
+                                    float angularVelocityConst = ps->angularVelocityConst();
+                                    if (ImGui::InputFloat("Constant", &angularVelocityConst))
+                                    {
+                                        ps->angularVelocityConst(angularVelocityConst);
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->angularVelocityRange().x, ps->angularVelocityRange().y};
+                                    if (ImGui::InputFloat2("Random range A.V", vec2fRange))
+                                    {
+                                        ps->angularVelocityRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Shape
+                            SLbool shape_group = ps->doShape();
+                            if (ImGui::Checkbox("Shape", &shape_group))
+                            {
+                                ps->doShape(shape_group);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Shape", &shape_group))
+                            {
+                                ImGui::Indent();
+                                item_current = ps->shapeType();
+                                if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
+                                {
+                                    ps->shapeType((SLShapeType)item_current);
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (item_current == ST_Sphere)
+                                {
+                                    float radiusSphere = ps->shapeRadius();
+                                    if (ImGui::InputFloat("Radius of the sphere", &radiusSphere))
+                                    {
+                                        ps->shapeRadius(radiusSphere);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == ST_Box)
+                                {
+                                    float vec3fScaleBox[3] = {ps->shapeScale().x, ps->shapeScale().y, ps->shapeScale().z};
+                                    if (ImGui::InputFloat3("Scale box XYZ", vec3fScaleBox))
+                                    {
+                                        ps->shapeScale(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == ST_Cone)
+                                {
+                                    float radius = ps->shapeRadius();
+                                    if (ImGui::InputFloat("Radius", &radius))
+                                    {
+                                        ps->shapeRadius(radius);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float angle = ps->shapeAngle();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->shapeAngle(angle);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float height = ps->shapeHeight();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->shapeHeight(height);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                if (item_current == ST_Pyramid)
+                                {
+                                    float halfSide = ps->shapeWidth();
+                                    if (ImGui::InputFloat("Half side", &halfSide))
+                                    {
+                                        ps->shapeWidth(halfSide);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float angle = ps->shapeAngle();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->shapeAngle(angle);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float height = ps->shapeHeight();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->shapeHeight(height);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                // Add surface spawning check box
+                                SLbool shapeSurf = ps->doShapeSurface();
+                                if (ImGui::Checkbox("Spawn surface", &shapeSurf))
+                                {
+                                    ps->doShapeSurface(shapeSurf);
+                                    ps->isGenerated(false);
+                                }
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeSpawnBase = ps->doShapeSpawnBase();
+                                    if (ImGui::Checkbox("Spawn base volume", &shapeSpawnBase))
+                                    {
+                                        ps->doShapeSpawnBase(shapeSpawnBase);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::BeginDisabled();
+                                ImGui::LabelText("Condition", "Need to have direction and speed enabled");
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Follow shape direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else if (item_current == 0 || item_current == 1)
+                                {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Inverse center direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::EndDisabled();
+                                ImGui::Unindent();
+                            }
+
+                            // Acceleration
+                            SLbool acc_group = ps->doAcc();
+                            if (ImGui::Checkbox("Acceleration", &acc_group))
+                            {
+                                ps->doAcceleration(acc_group);
+                                m->programTF(nullptr);
+                                singleNode->needAABBUpdate();
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Acceleration", &acc_group))
+                            {
+                                ImGui::Indent();
+                                if (ps->doAccDiffDir())
+                                    ImGui::BeginDisabled();
+                                float accConst = ps->accelerationConst();
+                                if (ImGui::InputFloat("Accelaration constant", &accConst))
+                                {
+                                    ps->accConst(accConst);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (ps->doAccDiffDir())
+                                    ImGui::EndDisabled();
+                                SLbool accDiffDirection_group = ps->doAccDiffDir();
+                                if (ImGui::Checkbox("Direction vector", &accDiffDirection_group))
+                                {
+                                    ps->doAccDiffDir(accDiffDirection_group);
+                                    m->programTF(nullptr);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (ImGui::CollapsingHeader("Direction vector", &accDiffDirection_group))
+                                {
+                                    float vec3fAcc[3] = {ps->acceleration().x, ps->acceleration().y, ps->acceleration().z};
+                                    ImGui::InputFloat3("input float3", vec3fAcc);
+                                    ps->acceleration(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                    singleNode->needAABBUpdate();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Alpha over lifetime
+                            SLbool doAlphaOverL_group = ps->doAlphaOverLT();
+                            if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group))
+                            {
+                                ps->doAlphaOverLT(doAlphaOverL_group);
+                                m->program(nullptr);
+                            }
+                            if (ImGui::CollapsingHeader("Alpha over lifetime", &doAlphaOverL_group))
+                            {
+                                ImGui::Indent();
+                                SLbool doAlphaOverLCurve_group = ps->doAlphaOverLTCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &doAlphaOverLCurve_group))
+                                {
+                                    ps->doAlphaOverLTCurve(doAlphaOverLCurve_group);
+                                    m->program(nullptr);
+                                }
+                                if (ImGui::CollapsingHeader("Bezier curve alpha", &doAlphaOverLCurve_group))
+                                {
+                                    ImGui::Indent();
+                                    float* vAlpha      = ps->bezierControlPointAlpha();
+                                    float* staEndAlpha = ps->bezierStartEndPointAlpha();
+                                    if (ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha))
+                                        ps->generateBernsteinPAlpha();
+                                    ImGui::Unindent();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Size over lifetime
+                            SLbool doSizeOverLT_group = ps->doSizeOverLT();
+                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLT_group))
+                            {
+                                ps->doSizeOverLT(doSizeOverLT_group);
+                                m->program(nullptr);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Size over lifetime", &doSizeOverLT_group))
+                            {
+                                ImGui::Indent();
+                                SLbool doSizeOverLTCurve_group = ps->doSizeOverLTCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &doSizeOverLTCurve_group))
+                                {
+                                    ps->doSizeOverLTCurve(doSizeOverLTCurve_group);
+                                    m->program(nullptr);
+                                }
+                                if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLTCurve_group))
+                                {
+                                    ImGui::Indent();
+                                    float* vSize      = ps->bezierControlPointSize();
+                                    float* staEndSize = ps->bezierStartEndPointSize();
+                                    if (ImGui::Bezier("easeInExpo", vSize, staEndSize))
+                                        ps->generateBernsteinPSize();
+                                    ImGui::Unindent();
+                                }
+                                ImGui::Unindent();
+                            }
+
+                            // Flipbook texture
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::BeginDisabled();
+                            SLbool flipbookTex_group = ps->doFlipBookTexture();
+                            if (ImGui::Checkbox("Flipbook texture", &flipbookTex_group))
+                            {
+                                ps->doFlipBookTexture(flipbookTex_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr);
+                                ps->changeTexture(); // Switch texture
+                                ps->isGenerated(false);
+                            }
+                            if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
+                            {
+                                ImGui::Indent();
+                                int fR = ps->frameRateFB();
+                                if (ImGui::InputInt("Frame rate (num update by s)", &fR))
+                                {
+                                    ps->frameRateFB(fR);
+                                }
+                                ImGui::Unindent();
+                            }
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::EndDisabled();
+
+                            ImGui::PopItemWidth();
+                            ImGui::TreePop();
+                        }
                     }
 
                     if (m->numTextures() > 0 &&
@@ -3754,24 +4323,44 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         ImGui::TreePop();
                     }
-
-                    for (auto* shd : m->program()->shaders())
+                    if (m->program() != nullptr)
                     {
-                        SLfloat lineH = ImGui::GetTextLineHeight();
-
-                        if (ImGui::TreeNode(shd->name().c_str()))
+                        for (auto* shd : m->program()->shaders())
                         {
-                            SLchar* text = new char[shd->code().length() + 1];
-                            strcpy(text, shd->code().c_str());
-                            ImGui::InputTextMultiline(shd->name().c_str(),
-                                                      text,
-                                                      shd->code().length() + 1,
-                                                      ImVec2(-1.0f, -1.0f));
-                            ImGui::TreePop();
-                            delete[] text;
+                            SLfloat lineH = ImGui::GetTextLineHeight();
+
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
                         }
                     }
+                    if (m->programTF() != nullptr)
+                    {
+                        for (auto* shd : m->programTF()->shaders())
+                        {
+                            SLfloat lineH = ImGui::GetTextLineHeight();
 
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
+                        }
+                    }
                     ImGui::TreePop();
                 }
             }
@@ -3977,8 +4566,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
 
         // Scale for proportional and fixed size fonts
-        SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-        SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+        SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+        SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
         // Default settings for the first time
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
@@ -4075,8 +4664,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLGLImGui::fontFixedDots < 13.1)
         {
             // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-            SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+            SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+            SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
             // Default settings for the first time
             SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
@@ -4286,7 +4875,10 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
         if (HttpUtils::download(fileToDownload, dstFolder, progressCallback) != 0)
+        {
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
+            SL_LOG("*** PLEASE RETRY DOWNLOAD ***", fileToDownload.c_str());
+        }
         AppDemo::jobIsRunning = false;
     };
 

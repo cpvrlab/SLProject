@@ -47,7 +47,8 @@ public class TextureMapping
 	@SuppressWarnings("serial")
 	private static class JOGLCanvas extends GLCanvas implements GLEventListener 
 	{  
-		private SLMat4f _modelViewMatrix;  	// 4x4 modelview matrix
+		private SLMat4f _modelMatrix;  	    // 4x4 model matrix
+		private SLMat4f _viewMatrix;  	    // 4x4 view matrix
 		private SLMat4f _projectionMatrix; 	// 4x4 projection matrix
 		
 		private int    	_numI;              // NO. of vertex indexes for triangles
@@ -81,9 +82,9 @@ public class TextureMapping
 		private int    	_pLoc;            	// attribute location for vertex position
 		private int    	_nLoc;            	// attribute location for vertex normal
 		private int    	_tLoc;            	// attribute location for vertex texcoords
-		private int    	_mvpMatrixLoc;    	// uniform location for modelview-projection matrix
-		private int    	_mvMatrixLoc;    	// uniform location for modelview matrix
-		private int    	_nMatrixLoc;      	// uniform location for normal matrix
+		private int    	_pMatrixLoc;    	// uniform location for projection matrix
+		private int    	_vMatrixLoc;    	// uniform location for view matrix
+		private int    	_mMatrixLoc;      	// uniform location for model matrix
 
 		private int    	_globalAmbiLoc;   	// uniform location for global ambient intensity
 		private int    	_lightPosVSLoc;   	// uniform location for light position in VS 
@@ -259,9 +260,9 @@ public class TextureMapping
 			_pLoc            = gl.glGetAttribLocation (_shaderProgID, "a_position");
 			_nLoc            = gl.glGetAttribLocation (_shaderProgID, "a_normal");
 			_tLoc            = gl.glGetAttribLocation (_shaderProgID, "a_texCoord");
-			_mvMatrixLoc     = gl.glGetUniformLocation(_shaderProgID, "u_mvMatrix");
-			_mvpMatrixLoc    = gl.glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-			_nMatrixLoc      = gl.glGetUniformLocation(_shaderProgID, "u_nMatrix");
+			_pMatrixLoc      = gl.glGetUniformLocation(_shaderProgID, "u_pMatrix");
+			_vMatrixLoc      = gl.glGetUniformLocation(_shaderProgID, "u_vMatrix");
+			_mMatrixLoc      = gl.glGetUniformLocation(_shaderProgID, "u_mMatrix");
 			_globalAmbiLoc   = gl.glGetUniformLocation(_shaderProgID, "u_globalAmbi");
 			_lightPosVSLoc   = gl.glGetUniformLocation(_shaderProgID, "u_lightPosVS");
 			_lightDirVSLoc   = gl.glGetUniformLocation(_shaderProgID, "u_lightDirVS");
@@ -319,38 +320,30 @@ public class TextureMapping
 
 			// Set filled or lined polygon mode
 			gl.glPolygonMode(GL2GL3.GL_FRONT_AND_BACK, _polygonMode);
-			
-		   // Start with identity every frame
-		   _modelViewMatrix.identity();
-			
+
+		   _viewMatrix.identity();
+
 		   // View transform: move the coordinate system away from the camera
-		   _modelViewMatrix.translate(0, 0, _camZ);
+		   _viewMatrix.translate(0, 0, _camZ);
 
 		   // View transform: rotate the coordinate system increasingly
-		   _modelViewMatrix.rotate(_rotX + _deltaX, 1f,0f,0f);
-		   _modelViewMatrix.rotate(_rotY + _deltaY, 0f,1f,0f);
+		   _viewMatrix.rotate(_rotX + _deltaX, 1f,0f,0f);
+		   _viewMatrix.rotate(_rotY + _deltaY, 0f,1f,0f);
 		   
 		   // Transform light position & direction into view space
-		   SLVec3f lightPosVS = _modelViewMatrix.multiply(_lightPos);
+		   SLVec3f lightPosVS = _viewMatrix.multiply(_lightPos);
 		   
 		   // The light direction is not a position. We only take the rotation of the mv matrix.
-		   SLMat3f viewRot    = new SLMat3f(_modelViewMatrix.mat3());
+		   SLMat3f viewRot    = new SLMat3f(_viewMatrix.mat3());
 		   SLVec3f lightDirVS = viewRot.multiply(_lightDir);
 		   
 		   // Rotate the model
-		   _modelViewMatrix.rotate(90f, -1f,0f,0f);
-
-		   // Build the combined modelview-projection matrix
-		   SLMat4f mvp = new SLMat4f(_projectionMatrix);
-		   mvp.multiply(_modelViewMatrix);
-		   
-		   // Normal matrix
-		   SLMat3f nm = new SLMat3f(_modelViewMatrix.inverseTransposed());
+		   _modelMatrix.rotate(90f, -1f,0f,0f);
 		   
 		   // Pass the matrix uniform variables
-		   gl.glUniformMatrix4fv(_mvMatrixLoc,  1, false, _modelViewMatrix.toArray(), 0);
-		   gl.glUniformMatrix3fv(_nMatrixLoc,   1, false, nm.toArray(), 0);
-		   gl.glUniformMatrix4fv(_mvpMatrixLoc, 1, false, lightSpace.toArray(), 0);
+		   gl.glUniformMatrix4fv(_mMatrixLoc, 1, false, _modelMatrix.toArray(), 0);
+		   gl.glUniformMatrix3fv(_vMatrixLoc, 1, false, _viewMatrix.toArray(), 0);
+		   gl.glUniformMatrix4fv(_pMatrixLoc, 1, false, _projectionMatrix.toArray(), 0);
 		   
 		   // Pass lighting uniforms variables
 		   gl.glUniform4f(_globalAmbiLoc, _globalAmbi.x, _globalAmbi.y, _globalAmbi.z, _globalAmbi.w);

@@ -23,9 +23,9 @@
 
 //-----------------------------------------------------------------------------
 //! 4x4 matrix template class
-/*!  
+/*!
 Implements a 4 by 4 matrix template class. An array of 16 floats or double is
-used instead of a 2D array [4][4] to be compliant with OpenGL. 
+used instead of a 2D array [4][4] to be compliant with OpenGL.
 The index layout is as follows:
 <PRE>
      | 0  4  8 12 |
@@ -34,16 +34,16 @@ The index layout is as follows:
      | 3  7 11 15 |
 
 </PRE>
-Vectors are interpreted as column vectors when applying matrix multiplications. 
-This means a vector is as a single column, 4-row matrix. The result is that the 
-transformations implemented by the matrices happens right-to-left e.g. if 
-vector V is to be transformed by M1 then M2 then M3, the calculation would 
-be M3 * M2 * M1 * V. The order that matrices are concatenated is vital 
-since matrix multiplication is not commutative, i.e. you can get a different 
+Vectors are interpreted as column vectors when applying matrix multiplications.
+This means a vector is as a single column, 4-row matrix. The result is that the
+transformations implemented by the matrices happens right-to-left e.g. if
+vector V is to be transformed by M1 then M2 then M3, the calculation would
+be M3 * M2 * M1 * V. The order that matrices are concatenated is vital
+since matrix multiplication is not commutative, i.e. you can get a different
 result if you concatenate in the wrong order.
-The use of column vectors and right-to-left ordering is the standard in most 
-mathematical texts, and is the same as used in OpenGL. It is, however, the 
-opposite of Direct3D, which has inexplicably chosen to differ from the 
+The use of column vectors and right-to-left ordering is the standard in most
+mathematical texts, and is the same as used in OpenGL. It is, however, the
+opposite of Direct3D, which has inexplicably chosen to differ from the
 accepted standard and uses row vectors and left-to-right matrix multiplication.
 */
 // clang-format off
@@ -114,6 +114,7 @@ class SLMat4
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
 
+        SLbool      isEqual     (const SLMat4& A, SLfloat epsilon = 0.01f);
         void        multiply    (const SLMat4& A);
         SLVec3<T>   multVec     (SLVec3<T> v) const;
         SLVec4<T>   multVec     (SLVec4<T> v) const;
@@ -513,6 +514,18 @@ SLMat4<T>& SLMat4<T>::operator /=(const T a)
     T invA = 1 / a;
     for (auto & i : _m) i *= invA;
     return *this;
+}
+//-----------------------------------------------------------------------------
+//! Returns true if one element of the matrix differs more than epsilon
+template<class T>
+SLbool SLMat4<T>::isEqual(const SLMat4<T> &A, SLfloat epsilon)
+{
+    for (SLuint i = 0; i < 16; ++i)
+    {
+        if (std::abs(_m[i] - A._m[i]) > epsilon)
+            return false;
+    }
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*!

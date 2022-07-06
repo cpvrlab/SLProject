@@ -1,13 +1,13 @@
-//#############################################################################
-//  File:      TextureMapping.cpp
-//  Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
-//             specular lighting shaders with Textures.
-//  Date:      February 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      TextureMapping.cpp
+//   Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
+//              specular lighting shaders with Textures.
+//   Date:      February 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <Utils.h>
 #include <GL/gl3w.h>    // OpenGL headers
@@ -30,7 +30,7 @@ static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
-// GLobal application variables
+// Global application variables
 static SLMat4f _modelMatrix;      //!< 4x4 view matrix
 static SLMat4f _viewMatrix;       //!< 4x4 model matrix
 static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
@@ -38,7 +38,6 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
 static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
@@ -76,9 +75,9 @@ static GLuint _textureID    = 0; //!< texture id
 static GLint _pLoc;              //!< attribute location for vertex position
 static GLint _nLoc;              //!< attribute location for vertex normal
 static GLint _tLoc;              //!< attribute location for vertex texcoords
-static GLint _mvpMatrixLoc;      //!< uniform location for modelview-projection matrix
-static GLint _mvMatrixLoc;       //!< uniform location for modelview matrix
-static GLint _nMatrixLoc;        //!< uniform location for normal matrix
+static GLint _pmLoc;             //!< uniform location for projection matrix
+static GLint _vmLoc;             //!< uniform location for view matrix
+static GLint _mmLoc;             //!< uniform location for model matrix
 static GLint _globalAmbiLoc;     //!< uniform location for global ambient intensity
 static GLint _lightPosVSLoc;     //!< uniform location for light position in VS
 static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
@@ -306,9 +305,9 @@ void onInit()
     _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
     _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
     _tLoc              = glGetAttribLocation(_shaderProgID, "a_texCoord");
-    _mvMatrixLoc       = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
-    _mvpMatrixLoc      = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _nMatrixLoc        = glGetUniformLocation(_shaderProgID, "u_nMatrix");
+    _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
     _globalAmbiLoc     = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
     _lightPosVSLoc     = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
     _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
@@ -359,40 +358,30 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // View transform: move the coordinate system away from the camera
+    // 2a) View transform 1: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
-    // View transform: rotate the coordinate system increasingly by the mouse
+    // 2b) View transform 2: rotate the coordinate system increasingly
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    // Transform light position & direction into view space
-    SLVec3f lightPosVS = _viewMatrix * _lightPos;
-
-    // The light dir is not a position. We only take the rotation of the mv matrix.
-    SLMat3f viewRot    = _viewMatrix.mat3();
-    SLVec3f lightDirVS = viewRot * _lightDir;
-
-    // Rotate the model so that we see the square from the front side
-    // or the earth from the equator.
+    // 3a) Rotate the model so that we see the square from the front side or the earth from the equator.
     _modelMatrix.identity();
     _modelMatrix.rotate(90, -1, 0, 0);
 
-    // Build the combined model-view and model-view-projection matrix
-    SLMat4f mvp(_projectionMatrix);
-    SLMat4f mv(_viewMatrix * _modelMatrix);
-    mvp.multiply(mv);
+    // 3b) Transform light position & direction into view space
+    SLVec3f lightPosVS = _viewMatrix * _lightPos;
 
-    // Build normal matrix
-    SLMat3f nm(mv.inverseTransposed());
+    // 3a) The light dir is not a position. We only take the rotation of the mv matrix.
+    SLMat3f viewRot    = _viewMatrix.mat3();
+    SLVec3f lightDirVS = viewRot * _lightDir;
 
-    // Pass the matrix uniform variables
-    glUniformMatrix4fv(_mvMatrixLoc, 1, 0, (float*)&mv);
-    glUniformMatrix3fv(_nMatrixLoc, 1, 0, (float*)&nm);
-    glUniformMatrix4fv(_mvpMatrixLoc, 1, 0, (float*)&mvp);
-
-    // Pass lighting uniforms variables
+    // 4) Activate the shader program and pass the uniform variables to the shader
+    glUseProgram(_shaderProgID);
+    glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
+    glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform4fv(_globalAmbiLoc, 1, (float*)&_globalAmbi);
     glUniform3fv(_lightPosVSLoc, 1, (float*)&lightPosVS);
     glUniform3fv(_lightSpotDirVSLoc, 1, (float*)&lightDirVS);
@@ -411,7 +400,7 @@ bool onPaint()
     // Draw with 2 VBOs //
     //////////////////////
 
-    // Enable all of the vertex attribute arrays
+    // Enable all the vertex attribute arrays
     glEnableVertexAttribArray((GLuint)_pLoc);
     glEnableVertexAttribArray((GLuint)_nLoc);
     glEnableVertexAttribArray((GLuint)_tLoc);

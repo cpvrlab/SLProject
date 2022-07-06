@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
 SLCamAnim    SLCamera::currentAnimation   = CA_turntableYUp;
-SLProjection SLCamera::currentProjection  = P_monoPerspective;
+SLProjType   SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ SLCamera::SLCamera(const SLstring& name,
     _unitScaling(1.0f),
     _fogIsOn(false),
     _fogMode(FM_linear),
-    _fogDensity(0.2f),
+    _fogDensity(0.1f),
     _fogStart(1.0f),
     _fogEnd(6.0f),
     _fogColor(SLCol4f::GRAY),
@@ -53,7 +53,7 @@ SLCamera::SLCamera(const SLstring& name,
     _clipNear      = 0.1f;
     _clipFar       = 300.0f;
     _fovV          = 45.0;
-    _projection    = P_monoPerspective;
+    _projType      = P_monoPerspective;
     _camAnim       = CA_turntableYUp;
     _castsShadows  = false;
 
@@ -166,7 +166,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
         // Vertices of the far plane
         SLVec3f farRT, farRB, farLT, farLB;
 
-        if (_projection == P_monoOrthographic)
+        if (_projType == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;
@@ -235,7 +235,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
 
             _vao.generateVertexPos(&P);
         }
-        else if (_projection == P_monoPerspective || _projection == P_monoIntrinsic)
+        else if (_projType == P_monoPerspective || _projType == P_monoIntrinsic)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
@@ -314,7 +314,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
         _vao.drawArrayAsColored(PT_lines, color);
 
         if (!sv->s()->skybox())
-            _background.renderInScene(farLT, farLB, farRT, farRB);
+            _background.renderInScene(updateAndGetWM(), farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ void SLCamera::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
+SLCamera::calcMinMax calculates the axis aligned minimum and maximum point of
 the camera position and the 4 near clipping plane points in object space (OS).
 */
 void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV) const
@@ -365,7 +365,7 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV) const
 /*!
  SLCamera::buildAABB builds the passed axis-aligned bounding box in OS and
  updates the min & max points in WS with the passed WM of the node. The camera
- node has no mesh accociated, so we have to calculate the min and max point
+ node has no mesh associated, so we have to calculate the min and max point
  from the camera frustum.
  */
 void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
@@ -390,9 +390,9 @@ SLVec2f SLCamera::frustumSizeAtDistance(SLfloat distance)
 }
 //-----------------------------------------------------------------------------
 //! Returns the projection type as string
-SLstring SLCamera::projectionToStr(SLProjection p)
+SLstring SLCamera::projTypeToStr(SLProjType pt)
 {
-    switch (p)
+    switch (pt)
     {
         case P_monoPerspective: return "Perspective";
         case P_monoIntrinsic: return "Perspective Intrinsic";
@@ -449,7 +449,7 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
     SLint fbH2 = fbH >> 1;  // fbH/2
     SLint fbH4 = fbH2 >> 1; // fbH2/2
 
-    if (_projection == P_stereoSideBySideD)
+    if (_projType == P_stereoSideBySideD)
     {
         SLint fbOcW2 = sv->oculusFB()->halfWidth();
         SLint fbOcH  = sv->oculusFB()->height();
@@ -458,14 +458,14 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
         else
             stateGL->viewport(fbOcW2, 0, fbOcW2, fbOcH);
     }
-    else if (_projection == P_stereoSideBySide)
+    else if (_projType == P_stereoSideBySide)
     {
         if (eye == ET_left)
             stateGL->viewport(0, 0, fbW2, fbH);
         else
             stateGL->viewport(fbW2, 0, fbW2, fbH);
     }
-    else if (_projection == P_stereoSideBySideP)
+    else if (_projType == P_stereoSideBySideP)
     {
         if (eye == ET_left)
             stateGL->viewport(0, fbH4, fbW2, fbH2);
@@ -498,7 +498,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     SLVec3f pos(vm.translation());
     SLfloat top, bottom, left, right, d; // frustum parameters
 
-    switch (_projection)
+    switch (_projType)
     {
         case P_monoPerspective:
             stateGL->projectionMatrix.perspective(_fovV, _viewportRatio, _clipNear, _clipFar);
@@ -555,11 +555,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     //  Set Color Mask and Filter  //
     /////////////////////////////////
 
-    if (_projection >= P_stereoColorRC)
+    if (_projType >= P_stereoColorRC)
     {
         if (eye == ET_left)
         {
-            switch (_projection)
+            switch (_projType)
             {
                 case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
                 case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
@@ -570,7 +570,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         }
         else
         {
-            switch (_projection)
+            switch (_projType)
             {
                 case P_stereoColorRC: stateGL->colorMask(0, 1, 1, 1); break;
                 case P_stereoColorRB: stateGL->colorMask(0, 0, 1, 1); break;
@@ -581,7 +581,7 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         }
 
         // Set color filter matrix for red-cyan and yello-blue (ColorCode3D)
-        switch (_projection)
+        switch (_projType)
         {
             case P_stereoColorRC:
                 _stereoColorFilter.setMatrix(0.29f,
@@ -879,9 +879,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
 
-    // Initialize the modelview to identity
-    stateGL->modelViewMatrix.identity();
-
     // Single eye projection
     if (eye == ET_center)
     {
@@ -890,7 +887,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     }
     else // stereo viewing
     {
-        if (_projection == P_stereoSideBySideD)
+        if (_projType == P_stereoSideBySideD)
         {
             // half inter-pupilar distance
             SLfloat halfIPD = (SLfloat)eye * _stereoEyeSeparation * -0.5f;
@@ -992,26 +989,16 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     {
         // Start selection rectangle. See also SLMesh::handleRectangleSelection
         if (mod & K_ctrl)
-        {
             _selectRect.tl(_oldTouchPos1);
-            return true;
-        }
 
         // Start deselection rectangle. See also SLMesh::handleRectangleSelection
         if (mod & K_alt)
-        {
             _deselectRect.tl(_oldTouchPos1);
-            return true;
-        }
 
         if (_camAnim == CA_trackball)
-        {
-            // todo anim
             _trackballStartVec = trackballVec(x, y);
-            return true;
-        }
     }
-    return false;
+    return true;
 }
 //-----------------------------------------------------------------------------
 //! Gets called whenever the mouse is moved.
@@ -1499,7 +1486,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
     // get camera vectors eye, lookAt, lookUp from view matrix
     updateAndGetVM().lookAt(&EYE, &LA, &LU, &LR);
 
-    if (_projection == P_monoOrthographic)
+    if (_projType == P_monoOrthographic)
     { /*
         In orthographic projection the top-left vector (TL) points
         from the eye to the center of the TL-left pixel of a plane that
@@ -1601,7 +1588,7 @@ SLVec2f SLCamera::projectWorldToNDC(const SLVec4f& worldPos) const
 the view frustum defined by its 6 planes by simply testing the distance of the
 AABBs center minus its radius. This is faster than the AABB in frustum test but
 not as precise. Please refer to the nice tutorial on frustum culling on:
-http://www.lighthouse3d.com/opengl/viewfrustum/
+https://cgvr.cs.uni-bremen.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/
 */
 SLbool SLCamera::isInFrustum(SLAABBox* aabb)
 {
@@ -1628,7 +1615,7 @@ SLstring SLCamera::toString() const
 {
     SLMat4f            vm = updateAndGetVM();
     std::ostringstream ss;
-    ss << "Projection: " << projectionStr() << endl;
+    ss << "Projection: " << projTypeStr() << endl;
     ss << "FOV: " << _fovV << endl;
     ss << "ClipNear: " << _clipNear << endl;
     ss << "ClipFar: " << _clipFar << endl;
@@ -1670,29 +1657,28 @@ void SLCamera::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLCamera::passToUniforms: No shader program set!");
 
-    SLint loc;
-    loc = program->uniform1i("u_camProjection", _projection);
-    loc = program->uniform1i("u_camStereoEye", _stereoEye);
-    loc = program->uniformMatrix3fv("u_camStereoColors",
-                                    1,
-                                    (SLfloat*)&_stereoColorFilter);
+    program->uniform1i("u_camProjType", _projType);
+    program->uniform1i("u_camStereoEye", _stereoEye);
+    program->uniformMatrix3fv("u_camStereoColors",
+                              1,
+                              (SLfloat*)&_stereoColorFilter);
     // Pass fog parameters
     if (_fogColorIsBack)
         _fogColor = _background.avgColor();
     _fogStart = _clipNear;
     _fogEnd   = _clipFar;
 
-    loc = program->uniform1i("u_camFogIsOn", _fogIsOn);
-    loc = program->uniform1i("u_camFogMode", _fogMode);
-    loc = program->uniform1f("u_camFogDensity", _fogDensity);
-    loc = program->uniform1f("u_camFogStart", _fogStart);
-    loc = program->uniform1f("u_camFogEnd", _fogEnd);
-    loc = program->uniform1f("u_camClipNear", _clipNear);
-    loc = program->uniform1f("u_camClipFar", _clipFar);
-    loc = program->uniform1f("u_camBkgdWidth", _background.rect().width);
-    loc = program->uniform1f("u_camBkgdHeight", _background.rect().height);
-    loc = program->uniform1f("u_camBkgdLeft", _background.rect().x);
-    loc = program->uniform1f("u_camBkgdBottom", _background.rect().y);
-    loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
+    program->uniform1i("u_camFogIsOn", _fogIsOn);
+    program->uniform1i("u_camFogMode", _fogMode);
+    program->uniform1f("u_camFogDensity", _fogDensity);
+    program->uniform1f("u_camFogStart", _fogStart);
+    program->uniform1f("u_camFogEnd", _fogEnd);
+    program->uniform1f("u_camClipNear", _clipNear);
+    program->uniform1f("u_camClipFar", _clipFar);
+    program->uniform1f("u_camBkgdWidth", _background.rect().width);
+    program->uniform1f("u_camBkgdHeight", _background.rect().height);
+    program->uniform1f("u_camBkgdLeft", _background.rect().x);
+    program->uniform1f("u_camBkgdBottom", _background.rect().y);
+    program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
 }
 //-----------------------------------------------------------------------------

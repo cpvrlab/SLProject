@@ -34,7 +34,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
         // Vertices of the near plane
         SLVec3f nearRT, nearRB, nearLT, nearLB;
 
-        if (_projection == P_monoOrthographic)
+        if (_projType == P_monoOrthographic)
         {
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;
@@ -111,7 +111,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
         _vao.drawArrayAsColored(PT_lines, color);
 
         if (renderBackground())
-            _background.renderInScene(nearLT, nearLB, nearRT, nearRB);
+            _background.renderInScene(updateAndGetWM(), nearLT, nearLB, nearRT, nearRB);
     }
 }
 

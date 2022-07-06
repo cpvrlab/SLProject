@@ -140,8 +140,8 @@ public:
     SLbool       hit(SLRay* ray, SLNode* node);
     virtual void preShade(SLRay* ray);
 
-    void         deleteData();
-    void         deleteDataGpu();
+    virtual void deleteData();
+    virtual void deleteDataGpu();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
     static void  calcTex3DMatrix(SLNode* node);
@@ -149,7 +149,7 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO(SLGLVertexArray& vao);
+    virtual void generateVAO(SLGLVertexArray& vao);
     void         computeHardEdgesIndices(float angleRAD, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();
@@ -177,6 +177,7 @@ public:
     SLCol4f               edgeColor() const { return _edgeColor; }
     SLVec3f               finalP(SLuint i) { return _finalP->operator[](i); }
     SLVec3f               finalN(SLuint i) { return _finalN->operator[](i); }
+    SLbool                accelStructIsOutOfDate() { return _accelStructIsOutOfDate; }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -225,11 +226,11 @@ protected:
     SLGLVertexArrayExt _vaoN;             //!< OpenGL VAO for optional normal drawing
     SLGLVertexArrayExt _vaoT;             //!< OpenGL VAO for optional tangent drawing
     SLGLVertexArrayExt _vaoS;             //!< OpenGL VAO for optional selection drawing
-    SLbool             _isSelected;       //!< flag if mesh is partially of fully selected
-    SLfloat            _edgeAngleDEG;     //!< edge crease angle in degrees between face normals (30 deg. default)
-    SLfloat            _edgeWidth;        //!< line width for hard edge drawing
-    SLCol4f            _edgeColor;        //!< color for hard edge drawing
-    SLfloat            _vertexPosEpsilon; //!< vertex position epsilon used in computeHardEdgesIndices
+    SLbool             _isSelected;       //!< Flag if mesh is partially of fully selected
+    SLfloat            _edgeAngleDEG;     //!< Edge crease angle in degrees between face normals (30 deg. default)
+    SLfloat            _edgeWidth;        //!< Line width for hard edge drawing
+    SLCol4f            _edgeColor;        //!< Color for hard edge drawing
+    SLfloat            _vertexPosEpsilon; //!< Vertex position epsilon used in computeHardEdgesIndices
 
 #ifdef SL_HAS_OPTIX
     SLOptixCudaBuffer<SLVec3f>  _vertexBuffer;
@@ -240,13 +241,13 @@ protected:
     unsigned int                _sbtIndex;
 #endif
 
-    SLbool          _isVolume;             //!< Flag for RT if mesh is a closed volume
-    SLAccelStruct*  _accelStruct;          //!< KD-tree or uniform grid
-    SLbool          _accelStructOutOfDate; //!< flag id accel.struct needs update
-    SLAnimSkeleton* _skeleton;             //!< the skeleton this mesh is bound to
-    SLVMat4f        _jointMatrices;        //!< joint matrix vector for this mesh
-    SLVVec3f*       _finalP;               //!< Pointer to final vertex position vector
-    SLVVec3f*       _finalN;               //!< pointer to final vertex normal vector
+    SLbool          _isVolume;               //!< Flag for RT if mesh is a closed volume
+    SLAccelStruct*  _accelStruct;            //!< KD-tree or uniform grid
+    SLbool          _accelStructIsOutOfDate; //!< Flag id accel.struct needs update
+    SLAnimSkeleton* _skeleton;               //!< The skeleton this mesh is bound to
+    SLVMat4f        _jointMatrices;          //!< Joint matrix vector for this mesh
+    SLVVec3f*       _finalP;                 //!< Pointer to final vertex position vector
+    SLVVec3f*       _finalN;                 //!< pointer to final vertex normal vector
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;

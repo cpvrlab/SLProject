@@ -18,4 +18,6 @@ To move right and left, use the D and A keys, drag the trace with your mouse, or
 wheel. To zoom in and out, use the W and S keys or scroll with your mouse wheel. To speed up moving and zooming, hold
 CTRL. Details for a particular scope will be displayed in the panel at the bottom when clicked.
 
-**Important**: This application requires a Java installation to be run
+**Important**: The resulting trace gets written into the data folder of SLProject and can
+be opened using the trace viewer located at /externals/trace-viewer/trace-viewer.jar.
+Note that a Java Runtime Environment is required to launch this JAR archive.

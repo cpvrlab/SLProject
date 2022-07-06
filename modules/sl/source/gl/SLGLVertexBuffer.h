@@ -22,6 +22,7 @@ struct SLGLAttribute
 {
     SLGLAttributeType type;            //!< type of vertex attribute
     SLint             elementSize;     //!< size of attribute element (SLVec3f has 3)
+    SLGLBufferType    dataType;       //! Data Type (BT_float, BT_ubyte,...)
     SLuint            offsetBytes;     //!< offset of the attribute data in the buffer
     SLuint            bufferSizeBytes; //!< size of the attribute part in the buffer
     void*             dataPointer;     //!< pointer to the attributes source data
@@ -62,6 +63,10 @@ public:
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,
+                      SLVuint&         data) { updateAttrib(type, 1, (void*)&data[0]);}
+
+    //! Updates a specific vertex attribute in the VBO
+    void updateAttrib(SLGLAttributeType type,
                       SLVfloat&         data) { updateAttrib(type, 1, (void*)&data[0]); }
 
     //! Updates a specific vertex attribute in the VBO
@@ -89,11 +94,11 @@ public:
 
     // Getters
     SLuint           id() const { return _id; }
+    SLuint           size() const { return _id; }
     SLVVertexAttrib& attribs() { return _attribs; }
     SLbool           outputInterleaved() const { return _outputInterleaved; }
 
     // Setters
-    void dataType(SLGLBufferType dt) { _dataType = dt; }
 
     // Some statistics
     static SLuint totalBufferCount; //! static total no. of buffers in use
@@ -105,7 +110,6 @@ public:
 protected:
     SLuint          _id;                //! OpenGL id of vertex buffer object
     SLuint          _numVertices;       //! NO. of vertices in array
-    SLGLBufferType  _dataType;          //! Data Type (BT_float or BT_half)
     SLVVertexAttrib _attribs;           //! Vector of vertex attributes
     SLbool          _outputInterleaved; //! Flag if VBO should be generated interleaved
     SLuint          _strideBytes;       //! Distance for interleaved attributes in bytes

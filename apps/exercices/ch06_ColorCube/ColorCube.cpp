@@ -34,7 +34,7 @@ struct VertexPC
     }
 };
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
 static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
@@ -47,7 +47,6 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
 static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
@@ -68,10 +67,12 @@ static GLuint _shaderFragID = 0; //! fragment shader id
 static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-static GLint _pLoc;   //!< attribute location for vertex position
-static GLint _cLoc;   //!< attribute location for vertex color
-static GLint _gLoc;   //!< uniform location for gamma value
-static GLint _mvpLoc; //!< uniform location for modelview-projection matrix
+static GLint _pLoc;  //!< attribute location for vertex position
+static GLint _cLoc;  //!< attribute location for vertex color
+static GLint _gLoc;  //!< uniform location for gamma value
+static GLint _pmLoc; //!< uniform location for projection matrix
+static GLint _vmLoc; //!< uniform location for view matrix
+static GLint _mmLoc; //!< uniform location for model matrix
 
 //-----------------------------------------------------------------------------
 void buildBox()
@@ -173,10 +174,12 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
-    _cLoc   = glGetAttribLocation(_shaderProgID, "a_color");
-    _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
-    _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
+    _pLoc  = glGetAttribLocation(_shaderProgID, "a_position");
+    _cLoc  = glGetAttribLocation(_shaderProgID, "a_color");
+    _gLoc  = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
+    _pmLoc = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc = glGetUniformLocation(_shaderProgID, "u_mMatrix");
 
     buildBox();
 
@@ -190,7 +193,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -223,27 +226,23 @@ bool onPaint()
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Build the combined modelview-projection matrix
-    SLMat4f mvp(_projectionMatrix);
-    SLMat4f mv(_viewMatrix);
-    mv.multiply(_modelMatrix);
-    mvp.multiply(mv);
-
-    // 6) Activate the shader program and pass the uniform variables to the shader
+    // 4) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
+    glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform1f(_gLoc, 1.0f);
 
-    // 7a) Activate the vertex array
+    // 5a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 7b) Activate the index buffer
+    // 5b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 7c) Draw cube with triangles by indexes
+    // 6) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 
@@ -256,7 +255,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     float w = (float)width;
     float h = (float)height;
@@ -275,7 +274,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -306,7 +305,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -322,7 +321,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera forward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -334,7 +333,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {

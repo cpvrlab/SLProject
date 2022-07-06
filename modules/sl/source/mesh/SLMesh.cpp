@@ -47,15 +47,15 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     minP.set(FLT_MAX, FLT_MAX, FLT_MAX);
     maxP.set(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-    _skeleton             = nullptr;
-    _isVolume             = true;    // is used for RT to decide inside/outside
-    _accelStruct          = nullptr; // no initial acceleration structure
-    _accelStructOutOfDate = true;
-    _isSelected           = false;
-    _edgeAngleDEG         = 30.0f;
-    _edgeWidth            = 2.0f;
-    _edgeColor            = SLCol4f::WHITE;
-    _vertexPosEpsilon     = 0.001f;
+    _skeleton               = nullptr;
+    _isVolume               = true;    // is used for RT to decide inside/outside
+    _accelStruct            = nullptr; // no initial acceleration structure
+    _accelStructIsOutOfDate = true;
+    _isSelected             = false;
+    _edgeAngleDEG           = 30.0f;
+    _edgeWidth              = 2.0f;
+    _edgeColor              = SLCol4f::WHITE;
+    _vertexPosEpsilon       = 0.001f;
 
     // Add this mesh to the global resource vector for deallocation
     if (assetMgr)
@@ -226,7 +226,7 @@ void SLMesh::deleteSelected(SLNode* node)
 
     // flag aabb and aceleration structure to be updated
     node->needAABBUpdate();
-    _accelStructOutOfDate = true;
+    _accelStructIsOutOfDate = true;
 }
 //-----------------------------------------------------------------------------
 //! Deletes unused vertices (= vertices that are not indexed in I16 or I32)
@@ -326,8 +326,10 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLstring msg;
     if (P.empty())
         msg = "No vertex positions (P)\n";
+
     if (_primitive == PT_points && I16.empty() && I32.empty())
         msg += "No vertex indices (I16 or I32)\n";
+
     if (msg.length() > 0)
     {
         SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
@@ -336,8 +338,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
 
     // Return if hidden
     if (node->levelForSM() == 0 &&
-        (node->drawBit(SL_DB_HIDDEN) ||
-         _primitive == PT_points))
+        (node->drawBit(SL_DB_HIDDEN) || _primitive == PT_points))
         return;
 
     if (!_vao.vaoID())
@@ -347,9 +348,9 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLGLProgram* sp    = depthMat->program();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix",
-                         1,
-                         (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
     _vao.drawElementsAs(PT_triangles);
 }
@@ -367,9 +368,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 2) Generate Vertex Array Object once<br>
 3) Apply the uniform variables to the shader<br>
 3a) Activate a shader program if it is not yet in use and apply all its material parameters.<br>
-3b) Pass the modelview and modelview-projection matrix to the shader.<br>
-3c) If needed build and pass the inverse modelview and the normal matrix.<br>
-3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
+3b) Pass the standard matrices to the shader program.<br>
 4) Finally do the draw call by calling SLGLVertexArray::drawElementsAs<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
@@ -438,33 +437,13 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3.a) Apply mesh material if exists & differs from current
     _mat->activate(sv->camera(), &sv->s()->lights());
 
-    // 3.b) Pass the matrices to the shader program
+    // 3.b) Pass the standard matrices to the shader program
     SLGLProgram* sp = _mat->program();
-    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
-    sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
-    // 3.c) Build & pass inverse, normal & texture matrix only if needed
-    SLint locIM = sp->getUniformLocation("u_invMvMatrix");
-    SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
-
-    if (locIM >= 0 && locNM >= 0)
-    {
-        stateGL->buildInverseAndNormalMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
-    }
-    else if (locIM >= 0)
-    {
-        stateGL->buildInverseMatrix();
-        sp->uniformMatrix4fv(locIM, 1, (const SLfloat*)stateGL->invModelViewMatrix());
-    }
-    else if (locNM >= 0)
-    {
-        stateGL->buildNormalMatrix();
-        sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
-    }
     if (locTM >= 0)
     {
         if (_mat->has3DTexture() && _mat->textures3d()[0]->autoCalcTM3D())
@@ -509,8 +488,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     if (!N.empty() && (sv->drawBit(SL_DB_NORMALS) || node->drawBit(SL_DB_NORMALS)))
     {
-        // scale factor r 2% from scaled radius for normals & tangents
-        // build array between vertex and normal target point
+        // Scale factor r 2% from scaled radius for normals & tangents
+        // Build array between vertex and normal target point
         float    r = node->aabb()->radiusOS() * 0.02f;
         SLVVec3f V2;
         V2.resize(P.size() * 2);
@@ -536,14 +515,21 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _vaoT.generateVertexPos(&V2);
         }
 
+        // Draw normals
         _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
-        if (!T.empty()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
-        if (blended) stateGL->blend(false);
+
+        // Draw tangents if available
+        if (!T.empty())
+            _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
+        if (blended)
+            stateGL->blend(false);
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.vaoID()) _vaoN.deleteGL();
-        if (_vaoT.vaoID()) _vaoT.deleteGL();
+        if (_vaoN.vaoID())
+            _vaoN.deleteGL();
+        if (_vaoT.vaoID())
+            _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////
@@ -604,7 +590,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
     else // rect selection or deselection is going on
     {
         // Build full viewport-modelview-projection transform matrix
-        SLMat4f mvp = *stateGL->mvpMatrix();
+        SLMat4f mvp(stateGL->projectionMatrix * stateGL->viewMatrix * node->updateAndGetWM());
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
         v.viewport((SLfloat)vp.x,
@@ -727,8 +713,7 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
     vao.setAttrib(AT_position, AT_position, _finalP);
     if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
     if (!UV[0].empty()) vao.setAttrib(AT_uv1, AT_uv1, &UV[0]);
-    if (!UV[1].empty())
-        vao.setAttrib(AT_uv2, AT_uv2, &UV[1]);
+    if (!UV[1].empty()) vao.setAttrib(AT_uv2, AT_uv2, &UV[1]);
     if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
     if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
 
@@ -787,19 +772,19 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
     vector<vector<int>> uE2E;
 
     // fill input matrices
-    V.resize(_finalP->size(), 3);
+    V.resize((Eigen::Index)_finalP->size(), 3);
     for (int i = 0; i < _finalP->size(); i++)
         V.row(i) << finalP(i).x, finalP(i).y, finalP(i).z;
 
     if (!I16.empty())
     {
-        F.resize(I16.size() / 3, 3);
+        F.resize((Eigen::Index)I16.size() / 3, 3);
         for (int j = 0, i = 0; i < I16.size(); j++, i += 3)
             F.row(j) << I16[i], I16[i + 1], I16[i + 2];
     }
     if (!I32.empty())
     {
-        F.resize(I32.size() / 3, 3);
+        F.resize((Eigen::Index)I32.size() / 3, 3);
         for (int j = 0, i = 0; i < I32.size(); j++, i += 3)
             F.row(j) << I32[i], I32[i + 1], I32[i + 2];
     }
@@ -1047,7 +1032,7 @@ the min & max points in WS with the passed WM of the node.
 */
 void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
-    // update acceleration struct and calculate min max
+    // Update acceleration struct and calculate min max
     if (_skeleton)
     {
         minP = _skeleton->minOS();
@@ -1055,9 +1040,10 @@ void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else
     {
-        // for now we just update the acceleration struct for non skinned meshes
+        // For now, we just update the acceleration struct for non-skinned meshes
         // Building the entire voxelization of a mesh every frame is not feasible
-        updateAccelStruct();
+        if (_accelStructIsOutOfDate)
+            updateAccelStruct();
     }
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
@@ -1068,9 +1054,6 @@ flag is set. This can happen for mesh animations.
 */
 void SLMesh::updateAccelStruct()
 {
-    if (!_accelStructOutOfDate)
-        return;
-
     calcMinMax();
 
     // Add half a percent in each direction to avoid zero size dimensions
@@ -1088,7 +1071,7 @@ void SLMesh::updateAccelStruct()
     if (_accelStruct && numI() > 15)
     {
         _accelStruct->build(minP, maxP);
-        _accelStructOutOfDate = false;
+        _accelStructIsOutOfDate = false;
     }
 }
 //-----------------------------------------------------------------------------
@@ -1435,7 +1418,8 @@ void SLMesh::preShade(SLRay* ray)
                        finalN(iC) * ray->hitV);
 
     // transform normal back to world space
-    ray->hitNormal.set(ray->hitNode->updateAndGetWMN() * ray->hitNormal);
+    SLMat3f wmN(ray->hitNode->updateAndGetWM().mat3());
+    ray->hitNormal.set(wmN * ray->hitNormal);
 
     // for shading the normal is expected to be unit length
     ray->hitNormal.normalize();
@@ -1463,13 +1447,13 @@ void SLMesh::preShade(SLRay* ray)
                              T[iB] * ray->hitU +
                              T[iC] * ray->hitV);
 
-                SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
-                T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y);   // slope of bump-map at tc
-                SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
-                SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
-                B *= T[iA].w;                                 // correct handedness
-                SLVec3f D(d.x * T3 + d.y * B);                // perturbation vector D
+                SLVec3f T3(hitT.x, hitT.y, hitT.z);         // tangent with 3 components
+                T3.set(wmN * T3);                           // transform tangent back to world space
+                SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y); // slope of bump-map at tc
+                SLVec3f Nrm = ray->hitNormal;               // unperturbated normal
+                SLVec3f B(Nrm ^ T3);                        // bi-normal tangent B
+                B *= T[iA].w;                               // correct handedness
+                SLVec3f D(d.x * T3 + d.y * B);              // perturbation vector D
                 Nrm += D;
                 Nrm.normalize();
                 ray->hitNormal.set(Nrm);
@@ -1542,7 +1526,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     _finalN = &skinnedN;
 
     // flag acceleration structure to be rebuilt
-    _accelStructOutOfDate = true;
+    _accelStructIsOutOfDate = true;
 
     // iterate over all vertices and write to new buffers
     for (SLulong i = 0; i < P.size(); ++i)
@@ -1645,7 +1629,7 @@ void SLMesh::createMeshAccelerationStructure()
 //-----------------------------------------------------------------------------
 void SLMesh::updateMeshAccelerationStructure()
 {
-    if (!_accelStructOutOfDate)
+    if (!_accelStructIsOutOfDate)
         return;
 
     uploadData();

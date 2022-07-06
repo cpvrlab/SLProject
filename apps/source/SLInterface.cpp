@@ -93,7 +93,8 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SL_LOG("Path to Documents: %s", AppDemo::externalPath.c_str());
     SL_LOG("OpenCV Version   : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
     SL_LOG("OpenCV has OpenCL: %s", cv::ocl::haveOpenCL() ? "yes" : "no");
-    SL_LOG("OpenGL Version   : %s", stateGL->glVersion().c_str());
+    SL_LOG("OpenGL Ver. Str. : %s", stateGL->glVersion().c_str());
+    SL_LOG("OpenGL Ver. No.  : %s", stateGL->glVersionNO().c_str());
     SL_LOG("OpenGL Vendor    : %s", stateGL->glVendor().c_str());
     SL_LOG("OpenGL Renderer  : %s", stateGL->glRenderer().c_str());
     SL_LOG("OpenGL GLSL Ver. : %s (%s) ", stateGL->glSLVersion().c_str(), stateGL->getSLVersionNO().c_str());
@@ -128,7 +129,7 @@ SLint slCreateSceneView(SLAssetManager* am,
 {
     assert(scene && "No valid scene!");
 
-    // Use our own sceneview creator callback or the the passed one.
+    // Use our own sceneview creator callback or the passed one.
     cbOnNewSceneView newSVCallback;
     if (onNewSceneViewCallback == nullptr)
         newSVCallback = &slNewSceneView;
@@ -137,7 +138,6 @@ SLint slCreateSceneView(SLAssetManager* am,
 
     // Create the sceneview & get the pointer with the sceneview index
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, AppDemo::inputManager);
-    sv->initConeTracer(AppDemo::shaderPath);
 
     // maintain multiple scene views in AppDemo
     AppDemo::sceneViews.push_back(sv);

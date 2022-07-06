@@ -73,7 +73,7 @@ public:
     void cascadesFactor(float factor) { _cascadesFactor = factor; }
 
     // Getters
-    SLProjection     projection() { return _projection; }
+    SLProjType       projection() { return _projection; }
     SLbool           useCubemap() const { return _useCubemap; }
     SLbool           useCascaded() const { return _useCascaded; }
     SLMat4f*         lightSpace() { return _lightSpace; }
@@ -111,7 +111,7 @@ private:
 
 private:
     SLLight*            _light;          //!< The light which uses this shadow map
-    SLProjection        _projection;     //!< Projection to use to create shadow map
+    SLProjType          _projection;     //!< Projection to use to create shadow map
     SLbool              _useCubemap;     //!< Flag if cubemap should be used for perspective projections
     SLbool              _useCascaded;    //!< Flag if cascaded shadow maps should be used
     SLint               _numCascades;    //!< Number of cascades for directional light shadow mapping

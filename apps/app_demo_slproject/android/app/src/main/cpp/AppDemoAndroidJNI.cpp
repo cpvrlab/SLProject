@@ -135,7 +135,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onInit(JNIEnv* en
                                 0,
                                 (void*)createAppDemoSceneView,
                                 (void*)AppDemoGui::build,
-								(void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::loadConfig,
                                 (void*)AppDemoGui::saveConfig);
     ////////////////////////////////////////////////////////////////////
 

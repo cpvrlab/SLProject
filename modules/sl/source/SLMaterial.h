@@ -15,6 +15,7 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLNode.h>
+#include <SLParticleSystem.h>
 
 class SLSkybox;
 class SLSceneView;
@@ -87,19 +88,27 @@ public:
                SLGLTexture*    texture5 = nullptr,
                SLGLProgram*    program  = nullptr);
 
+    //! Ctor for Particle System material with one texture (Draw and update)
+    SLMaterial(SLAssetManager*   am,
+               const SLchar*     name,
+               SLParticleSystem* ps,
+               SLGLTexture*      texture,
+               SLGLProgram*      program   = nullptr,
+               SLGLProgram*      programTF = nullptr);
+
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
                         const SLCol4f&  uniformColor,
                         const SLchar*   name = (const char*)"Uniform color");
 
-    //! Ctor for cone tracer
+    //! Ctor for only a program
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLProgram*    program);
 
     ~SLMaterial() override;
-
+    void  generateProgramPS();
     void  activate(SLCamera* cam,
                    SLVLight* lights,
                    SLSkybox* skybox = nullptr);
@@ -187,7 +196,9 @@ public:
     }
     void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
+    void programTF(SLGLProgram* sp) { _programTF = sp; }
     void skybox(SLSkybox* sb) { _skybox = sb; }
+    void ps(SLParticleSystem* ps) { _ps = ps; }
 
     // Getters
     SLAssetManager*   assetManager() { return _assetManager; }
@@ -207,7 +218,9 @@ public:
     SLbool            getsShadows() const { return _getsShadows; }
     SLuint            numTextures() { return _numTextures; }
     SLGLProgram*      program() { return _program; }
+    SLGLProgram*      programTF() { return _programTF; }
     SLSkybox*         skybox() { return _skybox; }
+    SLParticleSystem* ps() { return _ps; }
     SLVNode&          nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&          nodesVisible3D() { return _nodesVisible3D; }
     SLVGLTexture&     textures(SLTextureType type) { return _textures[type]; }
@@ -234,8 +247,12 @@ protected:
     SLfloat           _kn{};            //!< refraction index
     SLbool            _getsShadows;     //!< true if shadows are visible on this material
     SLGLProgram*      _program{};       //!< pointer to a GLSL shader program
+    SLGLProgram*      _programTF{};     //!< pointer to a GLSL shader program for transformFeedback
     SLint             _numTextures;     //!< number of textures in all _textures vectors array
     SLSkybox*         _skybox;          //!< pointer to the skybox
+
+    // For particle system
+    SLParticleSystem* _ps; //!< pointer to a particle system
 
     SLVGLTexture _textures[TT_numTextureType]; //!< array of texture vectors one for each type
     SLVGLTexture _textures3d;                  //!< texture vector for diffuse 3D textures

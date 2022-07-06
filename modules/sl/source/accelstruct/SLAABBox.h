@@ -73,7 +73,7 @@ public:
     void    drawWS(const SLCol4f& color);
     void    drawAxisWS();
     void    drawBoneWS();
-    void    setCenterAndRadius();
+    void    setCenterAndRadiusWS();
     void    generateVAO();
     SLbool  isHitInOS(SLRay* ray);
     SLbool  isHitInWS(SLRay* ray);

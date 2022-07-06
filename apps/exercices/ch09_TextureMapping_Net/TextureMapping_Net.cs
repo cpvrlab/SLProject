@@ -22,7 +22,7 @@ using OpenTK.Input;
 public class TextureMapping_Net : GameWindow
 {  
     #region Private Members
-    // GLobal application variables
+    // Global application variables
     SLMat4f  _modelMatrix;              //!< 4x4 view matrix
     SLMat4f  _viewMatrix;               //!< 4x4 model matrix
     SLMat4f  _projectionMatrix;         //!< 4x4 projection matrix
