@@ -2,7 +2,7 @@
 //  File:      SLParticleSystem.cpp
 //  Date:      February 2022
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Affolter Marc
+//  Authors:   Affolter Marc in his bachelor thesis in spring 2022
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -410,10 +410,9 @@ void SLParticleSystem::generate()
             tempInitP[i] = tempP[i];
     }
 
-    // Need to have two VAo for transform feedback swapping
+    // Need to have two VAO for transform feedback swapping
+    // Configure first VAO
     _vao1.deleteGL();
-    _vao2.deleteGL();
-
     _vao1.setAttrib(AT_position, AT_position, &tempP);
     _vao1.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao1.setAttrib(AT_startTime, AT_startTime, &tempST);
@@ -430,6 +429,8 @@ void SLParticleSystem::generate()
         _vao1.setAttrib(AT_initialPosition, AT_initialPosition, &tempInitP);
     _vao1.generateTF((SLuint)tempP.size());
 
+    // Configure second VAO
+    _vao2.deleteGL();
     _vao2.setAttrib(AT_position, AT_position, &tempP);
     _vao2.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao2.setAttrib(AT_startTime, AT_startTime, &tempST);
@@ -445,6 +446,8 @@ void SLParticleSystem::generate()
     if (_doShape)
         _vao2.setAttrib(AT_initialPosition, AT_initialPosition, &tempInitP);
     _vao2.generateTF((SLuint)tempP.size());
+
+    _isGenerated = true;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -533,11 +536,11 @@ void SLParticleSystem::pauseOrResume()
         _isPaused = false;
 }
 //-----------------------------------------------------------------------------
-/*!
-Draw function override from SLMesh. In this function I start by generate the
-particle and programs if they are not, then I check if the particle have been culled
-by the frstum culling or if they have been resumed by the user. After I update
-the particle in the update pass, then and finally I draw them.
+/*! Draw function override from SLMesh. In this function I start by generate
+ * the particle and programs if they are not, then I check if the particle
+ * have been culled by the frustum culling or if they have been resumed by the
+ * user. After I update the particle in the update pass, then and finally I
+ * draw them.
 */
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
@@ -546,15 +549,11 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////////////
 
     if (!_isGenerated)
-    {
-        // emitterPos(node->translationWS()); //To init first position
         generate();
-        _isGenerated = true;
-    }
 
-    /////////////////////////////
+    ////////////////////
     // Generate programs
-    /////////////////////////////
+    ////////////////////
 
     if (!_mat->program() || !_mat->programTF())
         _mat->generateProgramPS();
@@ -603,17 +602,17 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     if (!_isPaused) // The updating is paused, therefore no need to send uniforms
     {
-        /////////////////////////////
+        ///////////
         // UPDATING
-        /////////////////////////////
+        ///////////
 
         // Now use the updating program
         SLGLProgram* spTF = _mat->programTF();
         spTF->useProgram();
 
-        /////////////////////////////
+        //////////////////////////
         // Apply Uniform Variables
-        /////////////////////////////
+        //////////////////////////
 
         // Time difference, between when the particle system was culled or paused or both
         spTF->uniform1f("u_difTime", difTime);
@@ -672,9 +671,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         if (_doRotation && !_doRotRange)
             spTF->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
 
-        /////////////////////////////
+        //////////////////////
         // Draw call to update
-        /////////////////////////////
+        //////////////////////
 
         if (_drawBuf == 0)
         {
@@ -693,9 +692,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _updateTime.set(GlobalTimer::timeMS() - _startUpdateTimeMS);
     }
 
-    /////////////////////////////
+    //////////
     // DRAWING
-    /////////////////////////////
+    //////////
 
     // Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
@@ -1052,7 +1051,6 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else // If acceleration and gravity is not enable
     {
-
         if (!_doDirectionSpeed)
         {
             if (_velocityType == 0)

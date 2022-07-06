@@ -2374,7 +2374,7 @@ void appDemoLoadScene(SLAssetManager* am,
         {
             SLLight* light = lights[i];
             SLNode*  node  = dynamic_cast<SLNode*>(light);
-            SLfloat  x     = (i - (lights.size() - 1.0f) / 2.0f) * 5;
+            SLfloat  x     = ((float)i - ((SLfloat)lights.size() - 1.0f) / 2.0f) * 5;
 
             if (i == 0) // Make direct light less bright
             {
@@ -2531,7 +2531,7 @@ void appDemoLoadScene(SLAssetManager* am,
             SLLightSpot* light = new SLLightSpot(am, s, 0.1f);
             light->powers(0.2f, 1.5f, 1.0f, SLCol4f(i == 0, i == 1, i == 2));
             light->attenuation(0, 0, 1);
-            light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
+            light->translate((float)i - 1.0f, (float)i - 1.0f, (float)i - 1.0f);
             light->createsShadows(true);
             light->createShadowMap();
             light->shadowMap()->rayCount(SLVec2i(16, 16));
@@ -5911,7 +5911,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             // Create and add camera
             SLCamera* cam1 = new SLCamera("Camera 1");
-            cam1->translation(0, 1.2f, 4.5f);
+            cam1->translation(0, 1.2f, 4.0f);
             cam1->lookAt(0, 1.2f, 0);
             cam1->focalDist(4.5f);
             cam1->setInitialState();
@@ -6546,7 +6546,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                         texCircle,
                                                         texSmokeB,
                                                         texSmokeW);
-                fireComplex->translate(-20.0 + (float)(i % 20) * 2,
+                fireComplex->translate(-20.0f + (float)(i % 20) * 2,
                                        0.0f,
                                        -(float)((i - (i % 20)) / 20) * 4,
                                        TS_object);

@@ -2,7 +2,7 @@
 //  File:      SLParticleSystem.h
 //  Date:      February 2022
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Affolter Marc
+//  Authors:   Affolter Marc in his bachelor thesis in spring 2022
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -17,13 +17,22 @@
 #include <SLTexColorLUT.h>
 
 //-----------------------------------------------------------------------------
-//! SLParticleSystem creates
+//! SLParticleSystem creates a particle meshes from a point primitive buffer.
 /*! The SLParticleSystem mesh object of witch the vertices are drawn as points.
+ * An OpenGL transform feedback buffer is used to update the particle positions
+ * on the GPU and a geometry shader is used the create two triangles per
+ * particle vertex and orient them as a billboard to the viewer. Geometry
+ * shaders are only supported under OpenGL  >= 4.0 and OpenGL ES >= 3.2. This is
+ * the case on most desktop systems and on Android SDK > 24 but not on iOS that
+ * has only OpenGL ES 3.0.\n.
+ * The particle system supports many options of which many can be turned on the
+ * do* methods. All options can also be modified in the UI when the mesh is
+ * selected. See the different demo scenes in the app_demo_slproject under the
+ * demo scene group Particle Systems.
  */
 class SLParticleSystem : public SLMesh
 {
 public:
-    //! Ctor for a given vector of points
     SLParticleSystem(SLAssetManager* assetMgr,
                      const SLint     amount,
                      const SLVec3f&  velocityRandomStart,
@@ -347,7 +356,7 @@ private:
     SLbool _isGenerated        = false; //!< Boolean to generate particle system and load it on the GPU
 
     // Boolean for features
-    SLbool _doBlendBrightness  = false; //!< Blending for glow/brightness on pixel with many particle
+    SLbool _doBlendBrightness  = false; //!< Boolean for glow/brightness on pixel with many particle
     SLbool _doDirectionSpeed   = false; //!< Boolean for direction and speed (override velocity)
     SLbool _doSpeedRange       = false; //!< Boolean for speed range
     SLbool _doCounterGap       = true;  //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
