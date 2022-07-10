@@ -18,12 +18,12 @@
 
 //-----------------------------------------------------------------------------
 //! SLParticleSystem creates a particle meshes from a point primitive buffer.
-/*! The SLParticleSystem mesh object of witch the vertices are drawn as points.
+/*! The SLParticleSystem mesh object of which the vertices are drawn as points.
  * An OpenGL transform feedback buffer is used to update the particle positions
  * on the GPU and a geometry shader is used the create two triangles per
  * particle vertex and orient them as a billboard to the viewer. Geometry
  * shaders are only supported under OpenGL  >= 4.0 and OpenGL ES >= 3.2. This is
- * the case on most desktop systems and on Android SDK > 24 but not on iOS that
+ * the case on most desktop systems and on Android SDK > 24 but not on iOS which
  * has only OpenGL ES 3.0.\n.
  * The particle system supports many options of which many can be turned on the
  * do* methods. All options can also be modified in the UI when the mesh is

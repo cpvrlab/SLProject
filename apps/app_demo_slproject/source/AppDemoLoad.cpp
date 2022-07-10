@@ -5360,6 +5360,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         s->name("Ray tracing soft shadows");
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
+        // Create root node
+        SLNode* scene = new SLNode;
+        s->root3D(scene);
+
         // define materials
         SLCol4f     spec(0.8f, 0.8f, 0.8f);
         SLMaterial* matBlk = new SLMaterial(am, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
@@ -5373,37 +5377,39 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+        scene->addChild(cam1);
 
         SLNode* rect = new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f);
         rect->castsShadows(false);
+        scene->addChild(rect);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 2, 2, 2, 0.3f);
         light1->samples(8, 8);
         light1->attenuation(0, 0, 1);
         light1->createsShadows(true);
         light1->createShadowMap();
+        scene->addChild(light1);
 
         SLLightSpot* light2 = new SLLightSpot(am, s, 2, 2, -2, 0.3f);
         light2->samples(8, 8);
         light2->attenuation(0, 0, 1);
         light2->createsShadows(true);
         light2->createShadowMap();
-
-        SLNode* scene = new SLNode;
-        sv->camera(cam1);
-        scene->addChild(light1);
         scene->addChild(light2);
+
         scene->addChild(SphereGroupRT(am, 1, 0, 0, 0, 1, 32, matBlk, matRed));
-        scene->addChild(rect);
-        scene->addChild(cam1);
 
         sv->camera(cam1);
     }
     else if (sceneID == SID_RTDoF) //..............................................................
     {
         s->name("Ray tracing depth of field");
+
+        // Create root node
+        SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
@@ -5438,6 +5444,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->fogIsOn(true);
         cam1->fogMode(FM_exp);
         cam1->fogDensity(0.04f);
+        scene->addChild(cam1);
 
         SLuint  res  = 36;
         SLNode* rect = new SLNode(new SLRectangle(am,
@@ -5451,10 +5458,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                   mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f, TS_object);
+        scene->addChild(rect);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 2, 2, 0, 0.1f);
         light1->ambiDiffPowers(0.1f, 1);
         light1->attenuation(1, 0, 0);
+        scene->addChild(light1);
 
         SLNode* balls = new SLNode;
         SLNode* sp;
@@ -5479,13 +5488,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sp = new SLNode(new SLSphere(am, 0.5f, res, res, "S7", mW));
         sp->translate(-1.0, 0, 2, TS_object);
         balls->addChild(sp);
-
-        SLNode* scene = new SLNode;
-        sv->camera(cam1);
-        scene->addChild(light1);
         scene->addChild(balls);
-        scene->addChild(rect);
-        scene->addChild(cam1);
 
         sv->camera(cam1);
     }
@@ -5493,6 +5496,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         s->name("Ray tracing lens test");
         s->info("Ray tracing lens test scene.");
+
+        // Create root node
+        SLNode* scene = new SLNode;
+        s->root3D(scene);
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "VisionExample.jpg");
@@ -5523,10 +5530,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
-
-        // Light
-        // SLLightSpot* light1 = new SLLightSpot(am,s,15, 20, 15, 0.1f);
-        // light1->attenuation(0, 0, 1);
+        scene->addChild(cam1);
 
         // Plane
         // SLNode* rect = new SLNode(new SLRectangle(SLVec2f(-20, -20), SLVec2f(20, 20), 50, 20, "Rect", mT));
@@ -5535,21 +5539,28 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 1, 6, 1, 0.1f);
         light1->attenuation(0, 0, 1);
+        scene->addChild(light1);
 
         SLuint  res  = 20;
         SLNode* rect = new SLNode(new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "Rect", mT));
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.0f, TS_object);
+        scene->addChild(rect);
 
         // Lens from eye prescription card
         // SLNode* lensA = new SLNode(new SLLens(s, 0.50f, -0.50f, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));   // Weitsichtig
         // lensA->translate(-2, 1, -2);
+        // scene->addChild(lensA);
+
         // SLNode* lensB = new SLNode(new SLLens(s, -0.65f, -0.10f, 4.0f, 0.0f, 32, 32, "myopic", matLens));      // Kurzsichtig
         // lensB->translate(2, 1, -2);
+        // scene->addChild(lensB);
 
         // Lens with radius
         // SLNode* lensC = new SLNode(new SLLens(s, 5.0, 4.0, 4.0f, 0.0f, 32, 32, "presbyopic", matLens));        // Weitsichtig
         // lensC->translate(-2, 1, 2);
+        // scene->addChild(lensC);
+
         SLNode* lensD = new SLNode(new SLLens(am,
                                               -15.0f,
                                               -15.0f,
@@ -5560,17 +5571,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                               "myopic",
                                               matLens)); // Kurzsichtig
         lensD->translate(0, 6, 0);
-
-        // Node
-        SLNode* scene = new SLNode;
-        sv->camera(cam1);
-        // scene->addChild(lensA);
-        // scene->addChild(lensB);
-        // scene->addChild(lensC);
         scene->addChild(lensD);
-        scene->addChild(rect);
-        scene->addChild(light1);
-        scene->addChild(cam1);
 
         sv->camera(cam1);
     }

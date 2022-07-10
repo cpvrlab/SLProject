@@ -541,7 +541,7 @@ void SLParticleSystem::pauseOrResume()
  * have been culled by the frustum culling or if they have been resumed by the
  * user. After I update the particle in the update pass, then and finally I
  * draw them.
-*/
+ */
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
     /////////////////////////////////////
