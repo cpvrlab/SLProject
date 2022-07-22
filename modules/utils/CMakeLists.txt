@@ -13,7 +13,7 @@ set(UTILS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 include(${SL_PROJECT_ROOT}/cmake/CompileOptions.cmake)
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
-if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS" AND NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 	add_subdirectory(externals/zlib)
 endif()
 
