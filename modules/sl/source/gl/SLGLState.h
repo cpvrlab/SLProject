@@ -31,6 +31,8 @@
 #    include <GL/gl3w.h>
 #elif defined(SL_OS_LINUX)
 #    include <GL/gl3w.h>
+#elif defined(SL_EMSCRIPTEN)
+#    include <GLES3/gl3.h>
 #else
 #    error "SL has not been ported to this OS"
 #endif

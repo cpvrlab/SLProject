@@ -1489,7 +1489,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         )
 
     set(ktx_LIBS KTX::ktx)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    #########################
+    # OpenCV for Emscripten #
+    #########################
 
+    set(OpenCV_VERSION "4.6.0")
+    set(OpenCV_DIR "${PREBUILT_PATH}/emscripten_opencv_${OpenCV_VERSION}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
+    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+
+    # new include directory structure for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
+    endif()
+
+    list(REMOVE_ITEM OpenCV_LINK_LIBS "opencv_highgui" "opencv_imgcodecs" "opencv_videoio")
+
+    set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
+
+    #########################
+    # Assimp for Emscripten #
+    #########################
+
+    set(assimp_VERSION "5.0")
+    set(assimp_DIR ${PREBUILT_PATH}/win64_assimp_${assimp_VERSION})
+    set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
+    set(assimp_LINK_DIR ${assimp_DIR}/lib)
+    set(assimp_LIBS)
 endif()
 #==============================================================================
 

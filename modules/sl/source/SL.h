@@ -56,6 +56,11 @@ SL_USE_DISCARD_STEREOMODES: The discard stereo modes can be used (SLCamera)
 #    define SL_USE_DISCARD_STEREOMODES
 #    ifdef _DEBUG
 #    endif
+#elif defined(__EMSCRIPTEN__)
+#    define SL_EMSCRIPTEN
+#    define SL_USE_DISCARD_STEREOMODES
+#    define SL_GLES
+#    define SL_GLES3
 #else
 #    error "SL has not been ported to this OS"
 #endif
@@ -109,6 +114,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #    include <sstream>
 #    include <sys/time.h>
 #    include <thread>
+#elif defined(SL_EMSCRIPTEN)
+#    include <random>
 #else
 #    error "SL has not been ported to this OS"
 #endif
@@ -221,7 +228,7 @@ SL_sizeOfVector(const T& vector)
 //-----------------------------------------------------------------------------
 // Some debugging and error handling macros
 #define SL_LOG(...) Utils::log("SLProject", __VA_ARGS__)
-#define SL_EXIT_MSG(message) Utils::exitMsg("SLProject", (message), __LINE__, __FILE__)
+#define SL_EXIT_MSG(message) Utils::log("SLProject Error", (message))
 #define SL_WARN_MSG(message) Utils::warnMsg("SLProject", (message), __LINE__, __FILE__)
 //-----------------------------------------------------------------------------
 #endif

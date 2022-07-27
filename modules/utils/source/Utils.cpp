@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <cstdarg>
@@ -19,8 +20,11 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <asio.hpp>
-#include <asio/ip/tcp.hpp>
+
+#ifndef __EMSCRIPTEN__
+#    include <asio.hpp>
+#    include <asio/ip/tcp.hpp>
+#endif
 
 #if defined(_WIN32)
 #    if _MSC_VER >= 1912
@@ -50,9 +54,17 @@ namespace fs = std::experimental::filesystem;
 #    include <unistd.h> //getcwd
 #    include <sys/types.h>
 #    include <sys/stat.h>
+#elif defined(__EMSCRIPTEN__)
+#    define  _LIBCPP_NO_EXPERIMENTAL_DEPRECATION_WARNING_FILESYSTEM
+#    include <experimental/filesystem>
+#    define USE_STD_FILESYSTEM
+namespace fs = std::experimental::filesystem;
 #endif
 
+#ifndef __EMSCRIPTEN__
 using asio::ip::tcp;
+#endif
+
 using std::fstream;
 
 namespace Utils
@@ -286,7 +298,11 @@ string getDateTime2String()
 // Returns the hostname from boost asio
 string getHostName()
 {
+#ifndef __EMSCRIPTEN__
     return asio::ip::host_name();
+#else
+    return "0.0.0.0";
+#endif
 }
 //-----------------------------------------------------------------------------
 // Returns a formatted string as sprintf
@@ -938,6 +954,8 @@ string getAppsWritableDir(string appName)
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
     return configDir + "/";
+#elif defined(__EMSCRIPTEN__)
+    return "?";
 #else
 #    error "No port to this OS"
 #endif
@@ -962,7 +980,7 @@ string getCurrentWorkingDir()
     free(buffer);
     return "";
 #    endif
-#else
+#elif !defined(__EMSCRIPTEN__)
     size_t size   = 256;
     char*  buffer = (char*)malloc(size);
     if (getcwd(buffer, size) == buffer)
@@ -970,6 +988,8 @@ string getCurrentWorkingDir()
 
     free(buffer);
     return "";
+#else
+    return "/";
 #endif
 }
 //-----------------------------------------------------------------------------

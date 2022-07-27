@@ -89,7 +89,7 @@ void SLGLOculusFB::generateFBO()
     // generate the renderbuffer for the depth component
     glGenRenderbuffers(1, &_depthRbID);
     glBindRenderbuffer(GL_RENDERBUFFER, _depthRbID);
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID) || defined(SL_EMSCRIPTEN)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _width, _height);
 #else
     glRenderbufferStorage(GL_RENDERBUFFER,
@@ -146,7 +146,7 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
         // Resize the depth render buffer
         glBindRenderbuffer(GL_RENDERBUFFER, _depthRbID);
 
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID) || defined(SL_EMSCRIPTEN)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _width, _height);
 #else
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, _width, _height);

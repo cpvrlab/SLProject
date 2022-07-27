@@ -14,6 +14,7 @@
 #include <SLCamera.h>
 #include <SLLight.h>
 #include <SLGLDepthBuffer.h>
+#include <SLAssetStore.h>
 
 using std::string;
 using std::to_string;
@@ -2604,10 +2605,10 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
 
     // Check if generatedShaderPath folder exists
     generatedShaderPath = SLGLProgramManager::configPath + "generatedShaders/";
-    if (!Utils::dirExists(SLGLProgramManager::configPath))
+    if (!SLAssetStore::dirExists(SLGLProgramManager::configPath))
         SL_EXIT_MSG("SLGLProgramGenerated::addCodeToShader: SLGLProgramManager::configPath not existing");
 
-    if (!Utils::dirExists(generatedShaderPath))
+    if (!SLAssetStore::dirExists(generatedShaderPath))
     {
         bool dirCreated = Utils::makeDir(generatedShaderPath);
         if (!dirCreated)

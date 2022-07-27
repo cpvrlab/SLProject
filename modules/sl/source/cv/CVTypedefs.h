@@ -27,6 +27,10 @@ for a good top down information.
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#ifdef __EMSCRIPTEN__
+#include <list>
+#endif
+
 using std::vector;
 
 //-----------------------------------------------------------------------------
@@ -58,7 +62,9 @@ typedef cv::DMatch            CVDMatch;
 typedef cv::InputArray        CVInputArray;
 typedef cv::OutputArray       CVOutputArray;
 typedef cv::Feature2D         CVFeature2D;
+#ifndef __EMSCRIPTEN__
 typedef cv::VideoCapture      CVVideoCapture;
+#endif
 typedef cv::CascadeClassifier CVCascadeClassifier;
 typedef cv::face::Facemark    CVFacemark;
 

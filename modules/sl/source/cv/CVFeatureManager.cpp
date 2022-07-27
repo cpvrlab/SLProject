@@ -35,6 +35,7 @@ CVFeatureManager::~CVFeatureManager()
 //! Creates a detector and decriptor to the passed type
 void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
 {
+#ifndef __EMSCRIPTEN__
     switch (type)
     {
         case DDT_FAST_BRIEF:
@@ -95,6 +96,7 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
     }
 
     _type = type;
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones

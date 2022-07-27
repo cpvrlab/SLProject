@@ -535,8 +535,10 @@ SLbool SLSceneView::onPaint()
         }
     }
 
+#ifndef SL_EMSCRIPTEN
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
+#endif
 
     SLGLState::instance()->unbindAnythingAndFlush();
 
@@ -2002,6 +2004,7 @@ SLbool SLSceneView::draw3DOptixPT()
  */
 void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
 {
+#ifndef SL_EMSCRIPTEN
     if (_screenCaptureWaitFrames == 0)
     {
         SLint fbW = _viewportRect.width;
@@ -2045,5 +2048,6 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
     }
     else
         _screenCaptureWaitFrames--;
+#endif
 }
 //-----------------------------------------------------------------------------

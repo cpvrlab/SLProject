@@ -374,6 +374,7 @@ void CVImage::load(const string& filename,
                    bool          flipVertical,
                    bool          loadGrayscaleIntoAlpha)
 {
+#ifndef __EMSCRIPTEN__
     string ext   = Utils::getFileExt(filename);
     _name        = Utils::getFileName(filename);
     _path        = Utils::getPath(filename);
@@ -444,6 +445,7 @@ void CVImage::load(const string& filename,
     // OpenCV loads top-left but OpenGL is bottom left
     if (flipVertical)
         flipY();
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
@@ -567,6 +569,7 @@ void CVImage::savePNG(const string& filename,
                       const bool    flipY,
                       const bool    convertToRGB)
 {
+#ifndef __EMSCRIPTEN__
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(compressionLevel);
@@ -588,6 +591,7 @@ void CVImage::savePNG(const string& filename,
         msg += ex.what();
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -603,6 +607,7 @@ void CVImage::saveJPG(const string& filename,
                       const bool    flipY,
                       const bool    convertBGR2RGB)
 {
+#ifndef __EMSCRIPTEN__
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
@@ -625,6 +630,7 @@ void CVImage::saveJPG(const string& filename,
         msg += ex.what();
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
+#endif
 }
 //-----------------------------------------------------------------------------
 //! getPixeli returns the pixel color at the integer pixel coordinate x, y

@@ -28,6 +28,7 @@ CVImageGeoTiff::~CVImageGeoTiff()
 //! Loads a GEOTiff file into the OpenCV image matrix
 void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
 {
+#ifndef __EMSCRIPTEN__
     string msg;
 
     // check if the GEOTiff file exists
@@ -111,6 +112,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
     _lowerRightLatLonAlt[0] = lowerRight[1];          // we store first latitude in degrees! (S)
     _lowerRightLatLonAlt[1] = lowerRight[0];          // and then longitude in degrees (E)
     _lowerRightLatLonAlt[2] = _cvMat.at<float>(_cvMat.rows - 1, _cvMat.cols - 1);
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Returns the altitude in m at the given position in WGS84 latitude-longitude
