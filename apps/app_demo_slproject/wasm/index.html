@@ -18,10 +18,10 @@
     </style>
 </head>
 <body>
-    <canvas oncontextmenu="e.preventDefault()"></canvas>
+    <canvas oncontextmenu="event.preventDefault();" style="cursor: none;"></canvas>
     <script type="text/javascript">
         var Module = {
-            canvas: document.querySelector("canvas"),
+            canvas: document.querySelector("canvas")
         };
     </script>
     <script src="app-Demo-SLProject.js"></script>

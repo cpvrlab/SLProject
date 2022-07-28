@@ -5,6 +5,7 @@
 #include <SLAssetStore.h>
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
+#include <AppDemoGui.h>
 
 #include <GLFW/glfw3.h>
 
@@ -180,6 +181,8 @@ void appDemoLoadSceneEmscripten(SLAssetManager* am,
 {
     std::cout << "loading scene..." << std::endl;
 
+    s->init(am);
+
     // Set scene name and info string
     s->name("Minimal Scene Test");
     s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
@@ -225,7 +228,23 @@ SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& 
     return new AppDemoSceneView(scene, curDPI, inputManager);
 }
 
+EM_JS(int, getViewportWidth, (), {
+    return window.innerWidth;
+});
+
+EM_JS(int, getViewportHeight, (), {
+    return window.innerHeight;
+});
+
 SLbool onPaint() {
+    int width;
+    int height;
+    glfwGetWindowSize(window, &width, &height);
+
+    int newWidth = getViewportWidth();
+    int newHeight = getViewportHeight();
+    if(newWidth != width || newHeight != height) glfwSetWindowSize(window, newWidth, newHeight);
+
     slPaintAllViews();
     glfwSwapBuffers(window);
     return true;
@@ -246,6 +265,8 @@ void runApp()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     window = glfwCreateWindow(windowWidth, windowHeight, "SLProject", NULL, NULL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSwapInterval(1);
 
     SLVstring args;
 
@@ -272,12 +293,11 @@ void runApp()
         (void*)&onPaint,
         nullptr,
         (void*)createAppDemoSceneView,
-        (void*)nullptr,
-        (void*)nullptr,
-        (void*)nullptr
+        (void*)AppDemoGui::build,
+        (void*)AppDemoGui::loadConfig,
+        (void*)AppDemoGui::saveConfig
     );
 
-    // Set GLFW callback functions
     glfwSetWindowSizeCallback(window, onResize);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
@@ -298,8 +318,11 @@ int main(void)
         "data/shaders/TextureOnly.frag",
         "data/shaders/ColorAttribute.vert",
         "data/shaders/Color.frag",
+        "data/shaders/ColorUniform.vert",
         "data/shaders/StereoOculusDistortionMesh.vert",
         "data/shaders/StereoOculusDistortionMesh.frag",
+        "data/images/fonts/DroidSans.ttf",
+        "data/images/fonts/ProggyClean.ttf"
     }, [](){ runApp(); });
 
     return 0;

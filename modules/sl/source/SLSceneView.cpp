@@ -535,10 +535,8 @@ SLbool SLSceneView::onPaint()
         }
     }
 
-#ifndef SL_EMSCRIPTEN
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
-#endif
 
     SLGLState::instance()->unbindAnythingAndFlush();
 

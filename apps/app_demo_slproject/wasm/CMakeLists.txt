@@ -3,6 +3,7 @@ set(target app-Demo-SLProject)
 file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoSceneView.h
+    ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoGui.h
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     ${SL_PROJECT_ROOT}/apps/source/Scene.h
 )
@@ -10,6 +11,7 @@ file(GLOB headers
 file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoSceneView.cpp
+    ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoGui.cpp
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainWASM.cpp
 )

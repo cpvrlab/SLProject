@@ -10,7 +10,12 @@
 
 #include <AppDemoGui.h>
 #include <AppDemo.h>
-#include <CVCapture.h>
+#include <SL.h>
+
+#ifndef SL_EMSCRIPTEN
+#    include <CVCapture.h>
+#endif
+
 #include <cv/CVImage.h>
 #include <cv/CVTrackedFeatures.h>
 #include <SLAssetManager.h>
@@ -39,9 +44,13 @@
 #include <imgui.h>
 #include <bezier.hpp>
 #include <imgui_color_gradient.h>
-#include <ftplib.h>
-#include <HttpUtils.h>
-#include <ZipUtils.h>
+
+#ifndef SL_EMSCRIPTEN
+#    include <ftplib.h>
+#    include <HttpUtils.h>
+#    include <ZipUtils.h>
+#endif
+
 #include <Profiler.h>
 
 #ifdef SL_BUILD_WAI
@@ -364,6 +373,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             buildMenuContext(s, sv);
 
+#ifndef SL_EMSCRIPTEN
             if (showStatsTiming)
             {
                 SLRenderType rType = sv->renderType();
@@ -532,6 +542,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
+#endif
 
             if (showStatsScene)
             {
@@ -696,6 +707,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 
+#ifndef SL_EMSCRIPTEN
             if (showStatsVideo)
             {
                 SLchar m[2550]; // message character array
@@ -770,6 +782,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
+#endif
 #ifdef SL_BUILD_WAI
             if (showStatsWAI && AppDemo::sceneID == SID_VideoTrackWAI)
             {
@@ -1391,6 +1404,7 @@ CVCalibration guessCalibration(bool         mirroredH,
                                bool         mirroredV,
                                CVCameraType camType)
 {
+#ifndef SL_EMSCRIPTEN
     // Try to read device lens and sensor information
     string strF = AppDemo::deviceParameter["DeviceLensFocalLength"];
     string strW = AppDemo::deviceParameter["DeviceSensorPhysicalSizeW"];
@@ -1423,6 +1437,14 @@ CVCalibration guessCalibration(bool         mirroredH,
                              camType,
                              Utils::ComputerInfos::get());
     }
+#else
+    return CVCalibration(cv::Size(0, 0),
+                         60.0,
+                         mirroredH,
+                         mirroredV,
+                         camType,
+                         Utils::ComputerInfos::get());
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1436,7 +1458,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
     SLSceneID    sid           = AppDemo::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
+#ifndef SL_EMSCRIPTEN
     CVCapture*   capture       = CVCapture::instance();
+#endif
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
@@ -1683,6 +1707,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("Video"))
                 {
                     if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
@@ -1711,6 +1736,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
                     ImGui::EndMenu();
                 }
+#endif
 
                 if (ImGui::BeginMenu("Ray Tracing"))
                 {
@@ -1829,6 +1855,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
@@ -1921,6 +1948,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark1_LargeModel);
                         }
                     }
+#endif
+
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
@@ -2072,9 +2101,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             ImGui::Separator();
 
+#ifndef SL_EMSCRIPTEN
             if (ImGui::BeginMenu("Viewport Aspect"))
             {
-
                 SLVec2i videoAspect(0, 0);
                 if (capture->videoType() != VT_NONE)
                 {
@@ -2112,6 +2141,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
+#endif
 
             // Rotation and Location Sensor
 #if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
@@ -2188,6 +2218,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 #endif
 
+#ifndef SL_EMSCRIPTEN
             if (ImGui::BeginMenu("Video Sensor"))
             {
                 CVCamera* ac = capture->activeCamera;
@@ -2304,6 +2335,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
+#endif
 
             ImGui::Separator();
 
@@ -4574,8 +4606,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
-        AppDemoGui::showAbout        = true;
-        AppDemoGui::showInfosScene   = true;
+        AppDemoGui::showAbout        = false;
+        AppDemoGui::showInfosScene   = false;
         AppDemoGui::showStatsTiming  = false;
         AppDemoGui::showStatsScene   = false;
         AppDemoGui::showStatsVideo   = false;
@@ -4851,6 +4883,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
                                            string       pathAndFileToLoad,
                                            SLSceneID    sceneIDToLoad)
 {
+#ifndef SL_EMSCRIPTEN
     assert(s->assetManager() && "No asset manager assigned to scene!");
     SLAssetManager* am = s->assetManager();
 
@@ -4915,6 +4948,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
     AppDemo::jobsToBeThreaded.emplace_back(downloadJobHTTP);
     AppDemo::jobsToBeThreaded.emplace_back(unzipJob);
     AppDemo::jobsToFollowInMain.push_back(followUpJob1);
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Set the a new active named location from SLDeviceLocation

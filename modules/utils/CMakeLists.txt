@@ -182,4 +182,6 @@ target_link_libraries(${target}
 # Emscripten provides its own implementation of zlib
 if (NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     target_link_libraries(${target} PUBLIC zlib)
+else()
+    target_link_options(${target} PUBLIC "-sUSE_ZLIB=1")
 endif()

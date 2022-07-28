@@ -448,6 +448,5 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
-    target_compile_options(${target} PUBLIC "-sUSE_ZLIB=1")
     target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH")
 endif()

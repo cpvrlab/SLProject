@@ -3,20 +3,22 @@
 #include <iostream>
 
 #ifdef SL_ASSET_STORE_REMOTE
-    struct SLAssetDownload
-    {
-        SLAssetStore::DownloadCallback callback;
-    };
-
-    struct SLBundleDownload
-    {
-        int numAssets;
-        int numAssetsDownloaded;
-        SLAssetStore::DownloadCallback callback;
-    };
-
-    std::unordered_map<SLstring, SLstring> assets;
+    std::unordered_map<SLstring, SLAsset> assets;
 #endif
+
+SLAsset SLAssetStore::loadAsset(SLstring path) {
+#if defined(SL_ASSET_STORE_FS)
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    size_t size = (size_t) file.tellg();
+    file.seekg(0, std::ios::beg);
+    char* data = new char[size]; 
+    file.read(data, size);
+    return SLAsset{data, size};
+#elif defined(SL_ASSET_STORE_REMOTE)
+    std::cout << "loading binary asset '" << path << "'" << std::endl;
+    return assets[path];
+#endif
+}
 
 SLstring SLAssetStore::loadTextAsset(SLstring path)
 {
@@ -29,7 +31,8 @@ SLstring SLAssetStore::loadTextAsset(SLstring path)
         std::cerr << "error: asset does not exist" << std::endl;
     }
 
-    return assets[path];
+    SLAsset& asset = assets[path];
+    return SLstring(asset.data, asset.data + asset.size);
 #endif
 }
 
@@ -38,13 +41,14 @@ void SLAssetStore::saveTextAsset(SLstring path, SLstring content) {
     Utils::writeStringIntoTextFile("SLProject", content, path);
 #elif defined(SL_ASSET_STORE_REMOTE)
     std::cout << "saving text asset '" << path << "'" << std::endl;
-    assets.insert({path, content});
+    SLAsset asset(content.c_str(), content.size());
+    assets.insert({path, asset});
 #endif
 }
 
 bool SLAssetStore::assetExists(SLstring path) {
 #if defined(SL_ASSET_STORE_FS)
-    return Utils::fileExists(dir);
+    return Utils::fileExists(path);
 #elif defined(SL_ASSET_STORE_REMOTE)
     return assets.count(path);
 #endif
@@ -63,7 +67,7 @@ bool SLAssetStore::dirExists(SLstring dir) {
 void downloadSucceeded(emscripten_fetch_t* fetch)
 {
     std::cout << "download done: " << fetch->url << std::endl;
-    SLstring asset(fetch->data, fetch->data + fetch->numBytes);
+    SLAsset asset(fetch->data, fetch->numBytes);
     assets.insert({fetch->url, asset});
  
     SLAssetDownload* download = (SLAssetDownload*) fetch->userData;

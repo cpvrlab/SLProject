@@ -14,6 +14,7 @@
 #include <SLGLImGui.h>
 #include <SLScene.h>
 #include <GlobalTimer.h>
+#include <SLAssetStore.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLGLImGui::fontPropDots  = 16.0f;
@@ -146,15 +147,23 @@ void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = fontDir + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
+    if (SLAssetStore::assetExists(DroidSans))
+    {
+        SLAsset asset = SLAssetStore::loadAsset(DroidSans);
+        io.Fonts->AddFontFromMemoryTTF((void*) asset.data, asset.size, fontPropDotsToLoad);
+        asset.drop(); // ImGui takes ownership of the data
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontDir + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
+    if (SLAssetStore::assetExists(ProggyClean))
+    {
+        SLAsset asset = SLAssetStore::loadAsset(ProggyClean);
+        io.Fonts->AddFontFromMemoryTTF((void*) asset.data, asset.size, fontFixedDotsToLoad);
+        asset.drop(); // ImGui takes ownership of the data
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 
