@@ -2,6 +2,7 @@
 #define SLASSETSTORE_H
 
 #include <SL.h>
+#include <CVTypedefs.h>
 #include <unordered_map>
 #include <functional>
 
@@ -77,6 +78,7 @@ namespace SLAssetStore
 {
     SLAsset loadAsset(SLstring path);
     SLstring loadTextAsset(SLstring path);
+    CVMat loadCVImageAsset(SLstring path);
     void saveTextAsset(SLstring path, SLstring content);
     bool assetExists(SLstring path);
     bool dirExists(SLstring dir);

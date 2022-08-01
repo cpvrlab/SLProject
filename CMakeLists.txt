@@ -69,6 +69,9 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 		SL_APP_ALL)
 endif()
 
+add_compile_options("-sALLOW_MEMORY_GROWTH=1")
+add_link_options("-sALLOW_MEMORY_GROWTH=1")
+
 add_subdirectory(modules/sens)
 add_subdirectory(modules/sl)
 add_subdirectory(modules/math)

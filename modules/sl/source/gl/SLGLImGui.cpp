@@ -148,22 +148,14 @@ void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
     // Load proportional font for menue and text displays
     SLstring DroidSans = fontDir + "DroidSans.ttf";
     if (SLAssetStore::assetExists(DroidSans))
-    {
-        SLAsset asset = SLAssetStore::loadAsset(DroidSans);
-        io.Fonts->AddFontFromMemoryTTF((void*) asset.data, asset.size, fontPropDotsToLoad);
-        asset.drop(); // ImGui takes ownership of the data
-    }
+        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontDir + "ProggyClean.ttf";
     if (SLAssetStore::assetExists(ProggyClean))
-    {
-        SLAsset asset = SLAssetStore::loadAsset(ProggyClean);
-        io.Fonts->AddFontFromMemoryTTF((void*) asset.data, asset.size, fontFixedDotsToLoad);
-        asset.drop(); // ImGui takes ownership of the data
-    }
+        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 

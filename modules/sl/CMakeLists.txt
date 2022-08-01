@@ -448,5 +448,6 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
-    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH")
+    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH" "-sUSE_SDL=2" "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG" "-sSDL2_IMAGE_FORMATS=[\"PNG\"]")
+    target_link_options(${target} PUBLIC "--preload-file" "data/" "--use-preload-plugins")
 endif()

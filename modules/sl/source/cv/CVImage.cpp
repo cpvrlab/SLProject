@@ -10,6 +10,7 @@
 #include <cv/CVImage.h>
 #include <Utils.h>
 #include <algorithm> // std::max
+#include <SLAssetStore.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -374,14 +375,13 @@ void CVImage::load(const string& filename,
                    bool          flipVertical,
                    bool          loadGrayscaleIntoAlpha)
 {
-#ifndef __EMSCRIPTEN__
     string ext   = Utils::getFileExt(filename);
     _name        = Utils::getFileName(filename);
     _path        = Utils::getPath(filename);
     _bytesInFile = Utils::getFileSize(filename);
 
     // load the image format as stored in the file
-    _cvMat = cv::imread(filename, -1);
+    _cvMat = SLAssetStore::loadCVImageAsset(filename);
 
     if (!_cvMat.data)
     {
@@ -445,7 +445,6 @@ void CVImage::load(const string& filename,
     // OpenCV loads top-left but OpenGL is bottom left
     if (flipVertical)
         flipY();
-#endif
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
@@ -456,7 +455,11 @@ CVPixelFormatGL CVImage::cvType2glPixelFormat(int cvType)
         case CV_8UC1: return PF_red;
         case CV_8UC2: return PF_rg;
         case CV_8UC3: return PF_bgr;
+#ifndef __EMSCRIPTEN__
         case CV_8UC4: return PF_bgra;
+#else
+        case CV_8UC4: return PF_rgba;
+#endif
         case CV_16FC1: return PF_r16f;
         case CV_16FC2: return PF_rg16f;
         case CV_16FC3: return PF_rgb16f;

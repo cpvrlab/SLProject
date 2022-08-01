@@ -53,8 +53,6 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    //_code = Utils::readTextFileIntoString("SLProject", filename);
-
     _code = SLAssetStore::loadTextAsset(filename);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments

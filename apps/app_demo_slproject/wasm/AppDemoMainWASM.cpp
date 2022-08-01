@@ -2,12 +2,14 @@
 #include <SLScene.h>
 #include <SLLightSpot.h>
 #include <SLBox.h>
+#include <SLRectangle.h>
 #include <SLAssetStore.h>
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
 
 #include <GLFW/glfw3.h>
+#include <GLES3/gl3.h>
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
@@ -37,6 +39,11 @@ static SLint       lastHeight;                 //!< Last window height in pixels
 static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
 static SLKey       modifiers         = K_none; //!< last modifier keys
 static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+
+extern void appDemoLoadScene(SLAssetManager* am,
+                             SLScene*        s,
+                             SLSceneView*    sv,
+                             SLSceneID       sceneID);
 
 static void onResize(GLFWwindow* myWindow, int width, int height)
 {
@@ -197,7 +204,8 @@ void appDemoLoadSceneEmscripten(SLAssetManager* am,
     s->root3D(scene);
 
     // Create textures and materials
-    SLMaterial* material = new SLMaterial(am, "m1", SLCol4f(1, 0, 0, 1));
+    SLGLTexture* texC = new SLGLTexture(am, AppDemo::texturePath + "earth2048_C.png");
+    SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
 
     // Create a light source node
     SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
@@ -206,21 +214,21 @@ void appDemoLoadSceneEmscripten(SLAssetManager* am,
     scene->addChild(light1);
 
     // Create meshes and nodes
-    SLMesh* boxMesh = new SLBox(am, -1, -1, -1, 1, 1, 1, "Box", material);
-    SLNode* boxNode = new SLNode(boxMesh, "Box Node");
-    boxNode->rotation(35, SLVec3f(0, 1, 0));
-    scene->addChild(boxNode);
+    SLMesh* rectMesh = new SLRectangle(am,
+                                        SLVec2f(-5, -5),
+                                        SLVec2f(5, 5),
+                                        25,
+                                        25,
+                                        "rectangle mesh",
+                                        m1);
+    SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
+    scene->addChild(rectNode);
 
     // Set background color and the root scene node
-    sv->sceneViewCamera()->translation(0, 4, 5);
-    sv->sceneViewCamera()->lookAt(SLVec3f(0, 0, 0));
-    sv->sceneViewCamera()->focalDist(sv->sceneViewCamera()->translationWS().length());
     sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                                 SLCol4f(0.2f, 0.2f, 0.2f));
     // Save energy
     sv->doWaitOnIdle(true);
-
-    std::cout << "scene loaded." << std::endl;
 }
 
 SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
@@ -280,7 +288,7 @@ void runApp()
         "data/videos/",
         "config/",
         "AppDemoEmscripten",
-        (void*)appDemoLoadSceneEmscripten
+        (void*)appDemoLoadScene
     );
 
     slCreateSceneView(
@@ -289,7 +297,7 @@ void runApp()
         windowWidth,
         windowHeight,
         1,
-        (SLSceneID)0,
+        (SLSceneID)SID_Minimal,
         (void*)&onPaint,
         nullptr,
         (void*)createAppDemoSceneView,
@@ -303,6 +311,8 @@ void runApp()
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
 
+    glEnable(GL_DEPTH_TEST);
+
     // We cannot loop ourselves because that would block the page,
     // but we can register an update function to be called in every iteration
     // of the JavaScript event loop.
@@ -313,17 +323,6 @@ void runApp()
 
 int main(void)
 {
-    SLAssetStore::downloadAssetBundle({
-        "data/shaders/TextureOnly.vert",
-        "data/shaders/TextureOnly.frag",
-        "data/shaders/ColorAttribute.vert",
-        "data/shaders/Color.frag",
-        "data/shaders/ColorUniform.vert",
-        "data/shaders/StereoOculusDistortionMesh.vert",
-        "data/shaders/StereoOculusDistortionMesh.frag",
-        "data/images/fonts/DroidSans.ttf",
-        "data/images/fonts/ProggyClean.ttf"
-    }, [](){ runApp(); });
-
+    runApp();
     return 0;
 }

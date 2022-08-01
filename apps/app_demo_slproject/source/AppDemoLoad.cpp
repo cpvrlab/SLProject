@@ -7,9 +7,13 @@
 //              Please visit: http://opensource.org/licenses/GPL-3.0
 // #############################################################################
 
+#include <SL.h>
 #include <GlobalTimer.h>
 
-#include <CVCapture.h>
+#ifndef SL_EMSCRIPTEN
+#    include <CVCapture.h>
+#endif
+
 #include <cv/CVTrackedAruco.h>
 #include <cv/CVTrackedChessboard.h>
 #include <cv/CVTrackedFaces.h>
@@ -740,6 +744,7 @@ void appDemoLoadScene(SLAssetManager* am,
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
+#ifndef SL_EMSCRIPTEN
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
@@ -752,6 +757,14 @@ void appDemoLoadScene(SLAssetManager* am,
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
 
+    // reset existing sceneviews
+    for (auto* sceneview : AppDemo::sceneViews)
+        sceneview->unInit();
+
+    // Clear all data in the asset manager
+    am->clear();
+#endif
+
     AppDemo::sceneID   = sceneID;
     SLGLState* stateGL = SLGLState::instance();
 
@@ -760,13 +773,6 @@ void appDemoLoadScene(SLAssetManager* am,
     SLstring modelPath  = AppDemo::modelPath;
     SLstring shaderPath = AppDemo::shaderPath;
     SLstring configPath = AppDemo::configPath;
-
-    // reset existing sceneviews
-    for (auto* sceneview : AppDemo::sceneViews)
-        sceneview->unInit();
-
-    // Clear all data in the asset manager
-    am->clear();
 
     // Initialize all preloaded stuff from SLScene
     s->init(am);
@@ -3434,6 +3440,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
     }
 
+#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTextureLive ||
              sceneID == SID_VideoTextureFile) //...................................................
     {
@@ -5196,7 +5203,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
-
+#endif
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
@@ -6615,6 +6622,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (sceneView != nullptr)
             sceneView->onInitialize();
 
+#ifndef SL_EMSCRIPTEN
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
         if (sv->viewportSameAsVideo())
@@ -6631,6 +6639,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         else
             CVCapture::instance()->start(sv->viewportWdivH());
     }
+#endif
+
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 
 #ifdef SL_USE_ENTITIES_DEBUG

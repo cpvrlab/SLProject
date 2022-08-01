@@ -845,6 +845,11 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     stateGL->blend(alphaBlended);
     stateGL->depthMask(!alphaBlended);
 
+#ifdef SL_EMSCRIPTEN
+    stateGL->depthMask(true);
+    stateGL->depthTest(true);
+#endif
+
     // Important and expensive step for blended nodes with alpha meshes
     // Depth sort with lambda function by their view distance
     if (depthSorted)

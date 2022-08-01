@@ -1508,15 +1508,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
 
-    #########################
-    # Assimp for Emscripten #
-    #########################
+    ####################
+    # Assimp for Linux #
+    ####################
 
-    set(assimp_VERSION "5.0")
-    set(assimp_DIR ${PREBUILT_PATH}/win64_assimp_${assimp_VERSION})
-    set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/lib)
-    set(assimp_LIBS)
+    set(assimp_VERSION "v5.0.0")
+    set(assimp_DIR "${PREBUILT_PATH}/emscripten_assimp_${assimp_VERSION}")
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_LINK_DIR "${assimp_DIR}/lib")
+    set(assimp_LIBS assimp IrrXML)
 endif()
 #==============================================================================
 
