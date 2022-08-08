@@ -345,7 +345,7 @@ void addUniverseLevel(SLAssetManager* am,
     if (currentLevel >= levels)
         return;
 
-    const float degPerChild = 360.0f / childCount;
+    const float degPerChild = 360.0f / (float)childCount;
     SLuint      mod         = currentLevel % 3;
 
     float scaleFactor = 0.25f;
@@ -358,7 +358,7 @@ void addUniverseLevel(SLAssetManager* am,
                            "-C" + std::to_string(i);
         SLNode* child = new SLNode(meshes[numNodes % meshes.size()], childName);
 
-        child->rotate(i * degPerChild, 0, 0, 1);
+        child->rotate((float)i * degPerChild, 0, 0, 1);
         child->translate(2, 0, 0);
         child->scale(scaleFactor);
 
@@ -1937,8 +1937,8 @@ void appDemoLoadScene(SLAssetManager* am,
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (nrCols / 2) * spacing;
-        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     maxX    = (float)((int)(nrCols / 2) * spacing);
+        SLfloat     maxY    = (float)((int)(nrRows / 2) * spacing);
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -5614,9 +5614,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
     }
-    else if (stateGL->glHasGeometryShaders())
+    if (sceneID == SID_ParticleSystem_First) //...............................................
     {
-        if (sceneID == SID_ParticleSystem_First) //...............................................
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("First particle system");
@@ -5660,7 +5660,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Demo) //................................................
+    }
+    else if (sceneID == SID_ParticleSystem_Demo) //................................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Simple Demo Particle System");
@@ -5699,7 +5702,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+    }
+    else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Dust storm particle system");
@@ -5760,7 +5766,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+    }
+    else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Fountain particle system");
@@ -5813,7 +5822,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+    }
+    else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Sun particle system");
@@ -5854,7 +5866,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+    }
+    else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Ring of fire particle system");
@@ -5898,7 +5913,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+    }
+    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Fire Complex particle system");
@@ -6505,9 +6523,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (stateGL->glHasGeometryShaders())
+    else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
     {
-        if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
+        if (stateGL->glHasGeometryShaders())
         {
             s->name("Fire Complex Test Scene");
             s->info(s->name());
@@ -6557,7 +6575,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+    }
+    else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             s->name("Particle System number Scene");
             s->info(s->name());
