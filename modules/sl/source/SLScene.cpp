@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLScene.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLScene.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLScene.h>
 #include <Utils.h>
@@ -21,7 +21,7 @@
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
 #ifdef SL_USE_ENTITIES
-SLEntities                       SLScene::entities;
+SLEntities SLScene::entities;
 #endif
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.

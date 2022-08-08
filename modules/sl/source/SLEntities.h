@@ -7,8 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLSCENEDOD_H
-#define SLSCENEDOD_H
+#ifndef SLENTITIES_H
+#define SLENTITIES_H
 
 #include <SLMat4.h>
 #include <SLMesh.h>
@@ -56,7 +56,7 @@ public:
     void deleteChildren(SLint id);
 
     //! Updates all world matrices and returns no. of updated
-    SLuint updateWMRec(SLint id, SLMat4f& parentWM);
+    SLint updateWMRec(SLint id, SLMat4f& parentWM);
 
     //! Returns the pointer to a node if id is valid else a nullptr
     SLEntity* getEntity(SLint id);
@@ -83,4 +83,4 @@ private:
     SLVEntity _graph; //!< Vector of SLEntity of entire scenegraph
 };
 //-----------------------------------------------------------------------------
-#endif // SLSCENEDOD_H
+#endif // SLENTITIES_H

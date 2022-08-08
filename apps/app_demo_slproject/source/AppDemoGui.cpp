@@ -438,7 +438,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
 
-                    // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
+                    // Wrong value of displayed, need to use a profiler to measure (can't just measure time before and after the draw call and take the difference, not with the GPU)
                     /* if (s->singleMeshFullSelected() != nullptr)
                     {
                         SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
