@@ -1476,6 +1476,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(am, s, sv, SID_PointClouds);
+                    if (ImGui::MenuItem("Z-Fighting", nullptr, sid == SID_ZFighting))
+                        s->onLoad(am, s, sv, SID_ZFighting);
 
                     ImGui::EndMenu();
                 }
@@ -2663,7 +2665,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Reset"))
             {
                 cam->resetToInitialState();
-                cam->focalDist(cam->translationOS().length());
+                float dist = cam->translationOS().length();
+                cam->focalDist(dist);
             }
 
             if (ImGui::BeginMenu("Look from"))

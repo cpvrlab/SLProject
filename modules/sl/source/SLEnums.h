@@ -99,6 +99,7 @@ enum SLSceneID
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
+    SID_ZFighting,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,

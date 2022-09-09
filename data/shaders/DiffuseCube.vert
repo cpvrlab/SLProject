@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Diffuse.vert
+//  File:      DiffuseCube.vert
 //  Purpose:   GLSL vertex program for simple diffuse per vertex lighting
 //  Date:      September 2012 (HS12)
 //  Authors:   Marcus Hudritsch
@@ -10,12 +10,12 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4 a_position;   // Vertex position attribute
-layout (location = 1) in vec3 a_normal;     // Vertex normal attribute
+in      vec4    a_position;     // Vertex position attribute
+in      vec3    a_normal;       // Vertex normal attribute
 
 uniform mat4    u_mMatrix;      // Model matrix (object to world transform)
 uniform mat4    u_vMatrix;      // View matrix (world to camera transform)
-uniform mat4    u_pMatrix;      // Projection matrix (camera to normalize device coords.)
+uniform mat4    u_pMatrix;      // Proj. matrix (camera to normalized device coords.)
 uniform vec3    u_lightSpotDir; // light direction in view space
 uniform vec4    u_lightDiff;    // diffuse light intensity (Id)
 uniform vec4    u_matDiff;      // diffuse material reflection (kd)
