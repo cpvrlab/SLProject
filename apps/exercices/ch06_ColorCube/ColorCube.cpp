@@ -382,8 +382,6 @@ void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
         exit(EXIT_FAILURE);
     }
 
-    glfwSetErrorCallback(onGLFWError);
-
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -425,6 +423,7 @@ void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
     }
 
     // Set GLFW callback functions
+    glfwSetErrorCallback(onGLFWError);
     glfwSetKeyCallback(window, onKey);
     glfwSetFramebufferSizeCallback(window, onResize);
     glfwSetMouseButtonCallback(window, onMouseButton);

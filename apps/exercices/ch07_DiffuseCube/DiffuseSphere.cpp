@@ -364,15 +364,11 @@ void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
-
 //-----------------------------------------------------------------------------
-/*!
-The C main procedure running the GLFW GUI application.
-*/
-int main(int argc, char* argv[])
+/*! Inits OpenGL and the GLFW window library
+ */
+void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
 {
-    _projectRoot = SLstring(SL_PROJECT_ROOT);
-
     // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {
@@ -399,13 +395,10 @@ int main(int argc, char* argv[])
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    _scrWidth  = 640;
-    _scrHeight = 480;
-
     // Create the GLFW window
-    window = glfwCreateWindow(_scrWidth,
-                              _scrHeight,
-                              "Diffuse Sphere",
+    window = glfwCreateWindow(wndWidth,
+                              wndHeight,
+                              wndTitle,
                               nullptr,
                               nullptr);
 
@@ -425,20 +418,6 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    // Check errors before we start
-    GETGLERROR;
-
-    glUtils::printGLInfo();
-
-    // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
-
-    // Prepare all OpenGL stuff
-    onInit();
-
-    // Call resize once for correct projection
-    onResize(window, _scrWidth, _scrHeight);
-
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);
     glfwSetFramebufferSizeCallback(window, onResize);
@@ -446,6 +425,35 @@ int main(int argc, char* argv[])
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
     glfwSetWindowCloseCallback(window, onClose);
+
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(1);
+}
+//-----------------------------------------------------------------------------
+/*!
+The C main procedure running the GLFW GUI application.
+*/
+int main(int argc, char* argv[])
+{
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
+
+    _scrWidth  = 640;
+    _scrHeight = 480;
+
+    // Init OpenGL and the window library GLFW
+    initGLFW(_scrWidth, _scrHeight, "ColorSphere");
+
+    // Check errors before we start
+    GETGLERROR;
+
+    // Print OpenGL info on console
+    glUtils::printGLInfo();
+
+    // Prepare all our OpenGL stuff
+    onInit();
+
+    // Call once resize to define the projection
+    onResize(window, _scrWidth, _scrHeight);
 
     // Event loop
     while (!glfwWindowShouldClose(window))

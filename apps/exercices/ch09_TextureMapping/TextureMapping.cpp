@@ -603,6 +603,8 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
+/*! Inits OpenGL and the GLFW window library
+*/
 void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
 {
     // Initialize the platform independent GUI-Library GLFW
