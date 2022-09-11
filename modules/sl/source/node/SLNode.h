@@ -502,7 +502,7 @@ inline SLVec3f
 SLNode::forwardWS() const
 {
     updateAndGetWM();
-    return SLVec3f(-_wm.m(8), -_wm.m(9), -_wm.m(10));
+    return -_wm.axisZ();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -512,7 +512,7 @@ inline SLVec3f
 SLNode::rightWS() const
 {
     updateAndGetWM();
-    return SLVec3f(_wm.m(0), _wm.m(1), _wm.m(2));
+    return _wm.axisX();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -522,7 +522,7 @@ inline SLVec3f
 SLNode::upWS() const
 {
     updateAndGetWM();
-    return SLVec3f(_wm.m(4), _wm.m(5), _wm.m(6));
+    return _wm.axisY();
 }
 //-----------------------------------------------------------------------------
 inline void

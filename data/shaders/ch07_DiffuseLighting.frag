@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Diffuse.frag
+//  File:      ch07_DiffuseLighting.frag
 //  Purpose:   GLSL fragment program for simple diffuse per vertex lighting
 //  Date:      September 2012 (HS12)
 //  Authors:   Marcus Hudritsch

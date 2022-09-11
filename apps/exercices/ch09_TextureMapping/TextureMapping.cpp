@@ -294,8 +294,8 @@ void onInit()
     _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth1024_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/TextureMapping.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/TextureMapping.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch09_TextureMapping.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ch09_TextureMapping.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

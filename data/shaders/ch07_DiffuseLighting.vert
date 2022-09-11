@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Diffuse.vert
+//  File:      ch07_DiffuseLighting.vert
 //  Purpose:   GLSL vertex program for simple diffuse per vertex lighting
 //  Date:      September 2012 (HS12)
 //  Authors:   Marcus Hudritsch

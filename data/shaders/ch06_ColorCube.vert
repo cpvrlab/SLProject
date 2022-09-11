@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ColorCube.vert
+//  File:      ch06_ColorCube.vert
 //  Purpose:   GLSL vertex program for simple per vertex attribute color
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch

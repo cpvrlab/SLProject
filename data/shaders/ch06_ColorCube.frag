@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ColorCube.frag
+//  File:      ch06_ColorCube.frag
 //  Purpose:   Simple GLSL fragment program for constant color
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch

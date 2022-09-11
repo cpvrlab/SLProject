@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      TextureMapping.vert
+//  File:      ch09_TextureMapping.vert
 //  Purpose:   GLSL vertex program for ambient, diffuse & specular per vertex 
 //             point lighting with 3D texture mapping.
 //  Date:      February 2014
