@@ -37,7 +37,6 @@ static SLint       _scrHeight;   //!< Window height at start up
 
 static SLMat4f _viewMatrix;       //!< 4x4 view matrix (inv. camera transform)
 static SLMat4f _modelMatrix;      //!< 4x4 matrix for model transform
-static SLMat4f _lightMatrix;      //!< 4x4 matrix for light transform
 static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
@@ -62,6 +61,8 @@ static SLVec4f _globalAmbi;   //!< global ambient intensity
 static SLVec4f _lightAmbi;    //!< Light ambient intensity
 static SLVec4f _lightDiff;    //!< Light diffuse intensity
 static SLVec4f _lightSpec;    //!< Light specular intensity
+static SLVec3f _lightPosWS;   //!< Light position in world space
+static SLVec3f _lightSpotDir; //!< Light spot direction in world space
 static float   _lightSpotDeg; //!< Light spot cutoff angle in degrees
 static float   _lightSpotExp; //!< Light spot exponent
 static SLVec4f _matAmbi;      //!< Material ambient reflection coeff.
@@ -208,10 +209,11 @@ void onInit()
 
     // Set light parameters
     _globalAmbi.set(0.05f, 0.05f, 0.05f);
-    _lightMatrix.translate(0,0,5);
     _lightAmbi.set(0.2f, 0.2f, 0.2f);
     _lightDiff.set(1.0f, 1.0f, 1.0f);
     _lightSpec.set(1.0f, 1.0f, 1.0f);
+    _lightPosWS.set(0.0f,0.0f,5.0f);
+    _lightSpotDir.set(0.0f, 0.0f, -1.0f);
     _lightSpotDeg = 10.0f; // 180.0f; // point light
     _lightSpotExp = 1.0f;
     _matAmbi.set(1.0f, 0.0f, 0.0f);
@@ -305,12 +307,12 @@ bool onPaint()
 
     // Light parameters
     // Transform light position into view space
-    SLVec3f lightPosVS = _viewMatrix * _lightMatrix.translation();
+    SLVec3f lightPosVS = _viewMatrix * _lightPosWS;
 
     // The light direction is not a position. We therefore only take
     // the rotation part of the mv matrix.
     // Without the view rotation the light stays where it is.
-    SLVec3f lightSpotDirVS = _viewMatrix.mat3() * -_lightMatrix.axisZ();
+    SLVec3f lightSpotDirVS = _lightSpotDir;
 
     // Pass lighting uniforms variables
     glUniform4fv(_globalAmbiLoc, 1, (float*)&_globalAmbi);
