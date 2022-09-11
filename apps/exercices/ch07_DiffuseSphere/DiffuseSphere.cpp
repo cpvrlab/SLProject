@@ -87,6 +87,13 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     assert(stacks > 3 && slices > 3);
     assert(primitveType == GL_TRIANGLES || primitveType == GL_TRIANGLE_STRIP);
 
+    //Spherical to cartesian coordinates
+    //dtheta = PI  / stacks;
+    //dphi = 2 * PI / slices;
+    //x = r*sin(theta)*cos(phi);
+    //y = r*sin(theta)*sin(phi);
+    //z = r*cos(theta);
+
     // Create vertex array
     VertexPN* vertices = 0; //!< Array of vertices
     // ???
@@ -95,7 +102,7 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     GLuint* indices = 0;
     // ???
 
-    // Generate the OpenGL vertex array object
+    // Delete arrays on heap. The data for rendering is now on the GPU
     if (vertices && indices)
     {
         glUtils::buildVAO(_vao, _vboV, _vboI, vertices, _numV, sizeof(VertexPN), indices, _numI, sizeof(GL_UNSIGNED_INT), _shaderProgID, _pLoc, _nLoc);
@@ -140,8 +147,8 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

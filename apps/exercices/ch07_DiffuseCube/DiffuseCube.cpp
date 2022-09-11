@@ -73,6 +73,9 @@ static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflect
 static GLint _gLoc;              //!< uniform location for gamma value
 
 //-----------------------------------------------------------------------------
+/*!
+ * Build the vertex and index data for a box and sends it to the GPU
+ */
 void buildBox()
 {
     // create C arrays on heap
@@ -160,7 +163,7 @@ void buildBox()
                       -1,
                       _nLoc);
 
-    // delete data on heap. The VBOs are now on the GPU
+    // Delete arrays on heap. The data for rendering is now on the GPU
     delete[] vertices;
     delete[] indices;
 }
@@ -180,8 +183,8 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/DiffuseCube.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/DiffuseCube.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program

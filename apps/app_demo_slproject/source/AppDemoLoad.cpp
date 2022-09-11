@@ -1933,7 +1933,7 @@ void appDemoLoadScene(SLAssetManager* am,
             y += spacing;
         }
 
-        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spotlight in the center.
         SLLight::gamma      = 2.2f;
         SLLightSpot* light1 = new SLLightSpot(am, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);

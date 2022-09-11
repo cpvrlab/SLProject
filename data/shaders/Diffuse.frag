@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      DiffuseCube.frag
+//  File:      Diffuse.frag
 //  Purpose:   GLSL fragment program for simple diffuse per vertex lighting
 //  Date:      September 2012 (HS12)
 //  Authors:   Marcus Hudritsch

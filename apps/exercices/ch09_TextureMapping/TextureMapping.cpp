@@ -294,8 +294,8 @@ void onInit()
     _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth1024_C.jpg");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/TextureMapping.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/TextureMapping.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -323,7 +323,7 @@ void onInit()
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
-    // buildSphere(1.0f, 30, 30);
+    //buildSphere(1.0f, 72, 72);
     buildSquare();
 
     // Set some OpenGL states

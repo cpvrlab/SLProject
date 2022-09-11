@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ADSTex.vert
+//  File:      TextureMapping.vert
 //  Purpose:   GLSL vertex program for ambient, diffuse & specular per vertex 
 //             point lighting with texture mapping.
 //  Date:      February 2014
