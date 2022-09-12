@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      ch08_BlinnPhongLighting.frag
-//  Purpose:   GLSL per pixel Blinn-Phong lighting
+//  Purpose:   GLSL fragment shader for per pixel Blinn-Phong lighting
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
@@ -31,13 +31,13 @@ uniform float  u_matShin;       // shininess exponent
 
 out     vec4   o_fragColor;     // output fragment color
 //-----------------------------------------------------------------------------
-void pointLightBlinnPhong(in    vec3  N,      // Normalized normal at v_P
-                          in    vec3  E,      // Normalized direction at v_P to the eye
-                          in    vec3  S,      // Normalized light spot direction
-                          in    vec3  L,      // Unnormalized direction at v_P to the light
-                          inout vec4  Ia,     // Ambient light intensity
-                          inout vec4  Id,     // Diffuse light intensity
-                          inout vec4  Is)     // Specular light intensity
+void pointLightBlinnPhong(in    vec3  N,  // Normalized normal at v_P
+                          in    vec3  E,  // Normalized direction at v_P to the eye
+                          in    vec3  S,  // Normalized light spot direction
+                          in    vec3  L,  // Unnormalized direction at v_P to the light
+                          inout vec4  Ia, // Ambient light intensity
+                          inout vec4  Id, // Diffuse light intensity
+                          inout vec4  Is) // Specular light intensity
 {
     float att = 1.0; // no light attenuation
 

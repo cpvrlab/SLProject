@@ -35,9 +35,10 @@ static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
-static SLMat4f _viewMatrix;       //!< 4x4 view matrix
-static SLMat4f _modelMatrix;      //!< 4x4 model matrix
-static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
@@ -70,7 +71,6 @@ static GLint _mmLoc;             //!< uniform location for model matrix
 static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
 static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
 static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
-static GLint _gLoc;              //!< uniform location for gamma value
 
 //-----------------------------------------------------------------------------
 /*!
@@ -174,8 +174,8 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-    // backwards movement of the camera
-    _camZ = -3;
+    // Position of the camera
+    _camZ = 3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -199,7 +199,6 @@ void onInit()
     _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
     _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
     _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
-    _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     buildBox();
 
@@ -234,19 +233,24 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 2a) View transform 1: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2b) Camera transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2b) View transform 2: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2a) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
+
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
 
     // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Activate the shader program and pass the uniform variables to the shader
+    // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
@@ -254,18 +258,17 @@ bool onPaint()
     glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
-    glUniform1f(_gLoc, 1.0f);                              // gamma value
 
-    // 5a) Activate the vertex array
+    // 6a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 5b) Activate the index buffer
+    // 6b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 6) Draw cube with triangles by indexes
+    // 7) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 
@@ -286,11 +289,10 @@ void onResize(GLFWwindow* myWindow, int width, int height)
     // define the projection matrix
     _projectionMatrix.perspective(50, w / h, 0.01f, 10.0f);
 
-    // define the viewport
+    // define the viewport (OpenGL applies it in the background)
     glViewport(0, 0, width, height);
 
     GETGLERROR;
-
     onPaint();
 }
 //-----------------------------------------------------------------------------
@@ -335,8 +337,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)_startX - x;
+        _deltaX = (int)_startY - y;
         onPaint();
     }
 }

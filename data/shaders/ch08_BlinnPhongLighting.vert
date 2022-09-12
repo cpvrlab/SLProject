@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinn.vert
+//  File:      ch08_BlinnPhongLighting.vert
 //  Purpose:   GLSL vertex program for per fragment Blinn-Phong lighting
 //  Date:      July 2014
 //  Authors:   Carlos Arauz, Marcus Hudritsch

@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      ColorCube.cpp
-//  Purpose:   Core profile OpenGL application with a colored cube with
-//             GLFW as the OS GUI interface (http://www.glfw.org/).
-//  Date:      April 2016 (FS16)
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      ColorCube.cpp
+//   Purpose:   Core profile OpenGL application with a colored cube with
+//              GLFW as the OS GUI interface (http://www.glfw.org/).
+//   Date:      April 2016 (FS16)
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
@@ -40,9 +40,10 @@ static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
-static SLMat4f _viewMatrix;       //!< 4x4 view matrix
-static SLMat4f _modelMatrix;      //!< 4x4 model matrix
-static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
@@ -69,7 +70,6 @@ static GLuint _shaderProgID = 0; //! shader program id
 // Attribute & uniform variable location indexes
 static GLint _pLoc;  //!< attribute location for vertex position
 static GLint _cLoc;  //!< attribute location for vertex color
-static GLint _gLoc;  //!< uniform location for gamma value
 static GLint _pmLoc; //!< uniform location for projection matrix
 static GLint _vmLoc; //!< uniform location for view matrix
 static GLint _mmLoc; //!< uniform location for model matrix
@@ -157,8 +157,8 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-    // backwards movement of the camera
-    _camZ = -3;
+    // Position of the camera
+    _camZ = 3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -176,7 +176,6 @@ void onInit()
     // Get the variable locations (identifiers) within the program
     _pLoc  = glGetAttribLocation(_shaderProgID, "a_position");
     _cLoc  = glGetAttribLocation(_shaderProgID, "a_color");
-    _gLoc  = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _pmLoc = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _vmLoc = glGetUniformLocation(_shaderProgID, "u_vMatrix");
     _mmLoc = glGetUniformLocation(_shaderProgID, "u_mMatrix");
@@ -214,32 +213,38 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 2a) View transform: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2b) Camera transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2b) Model transform: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2a) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
+
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
 
     // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Activate the shader program and pass the uniform variables to the shader
+    // 4) Lights get prepared here later on
+
+    // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
-    glUniform1f(_gLoc, 1.0f);
 
-    // 5a) Activate the vertex array
+    // 6a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 5b) Activate the index buffer
+    // 6b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 6) Draw cube with triangles by indexes
+    // 6c) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
     // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
@@ -312,8 +317,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)_startX - x;
+        _deltaX = (int)_startY - y;
         onPaint();
     }
 }

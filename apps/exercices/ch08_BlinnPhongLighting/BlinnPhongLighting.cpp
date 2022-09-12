@@ -35,9 +35,11 @@ static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
-static SLMat4f _viewMatrix;       //!< 4x4 view matrix (inv. camera transform)
-static SLMat4f _modelMatrix;      //!< 4x4 matrix for model transform
-static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _lightMatrix;      //!< 4x4 matrix for light to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
@@ -61,8 +63,6 @@ static SLVec4f _globalAmbi;   //!< global ambient intensity
 static SLVec4f _lightAmbi;    //!< Light ambient intensity
 static SLVec4f _lightDiff;    //!< Light diffuse intensity
 static SLVec4f _lightSpec;    //!< Light specular intensity
-static SLVec3f _lightPosWS;   //!< Light position in world space
-static SLVec3f _lightSpotDir; //!< Light spot direction in world space
 static float   _lightSpotDeg; //!< Light spot cutoff angle in degrees
 static float   _lightSpotExp; //!< Light spot exponent
 static SLVec4f _matAmbi;      //!< Material ambient reflection coeff.
@@ -199,8 +199,8 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-    // backwards movement of the camera
-    _camZ = -3;
+    // Position of the camera
+    _camZ = 3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -212,8 +212,7 @@ void onInit()
     _lightAmbi.set(0.2f, 0.2f, 0.2f);
     _lightDiff.set(1.0f, 1.0f, 1.0f);
     _lightSpec.set(1.0f, 1.0f, 1.0f);
-    _lightPosWS.set(0.0f,0.0f,5.0f);
-    _lightSpotDir.set(0.0f, 0.0f, -1.0f);
+    _lightMatrix.translate(0,0,3);
     _lightSpotDeg = 10.0f; // 180.0f; // point light
     _lightSpotExp = 1.0f;
     _matAmbi.set(1.0f, 0.0f, 0.0f);
@@ -287,36 +286,37 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 2a) View transform 1: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2b) Model transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2b) View transform 2: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2a) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
+
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
 
     // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Activate the shader program and pass the uniform variables to the shader
+    // 4a) Transform light position into view space
+    SLVec4f lightPosVS = _viewMatrix * SLVec4f(_lightMatrix.translation());
+
+    // 4b) The spotlight direction is down the negative z-axis of the light transform
+    SLVec3f lightSpotDirVS = _viewMatrix.mat3() * -_lightMatrix.axisZ();
+
+    // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
 
-    // Light parameters
-    // Transform light position into view space
-    SLVec3f lightPosVS = _viewMatrix * _lightPosWS;
-
-    // The light direction is not a position. We therefore only take
-    // the rotation part of the mv matrix.
-    // Without the view rotation the light stays where it is.
-    SLVec3f lightSpotDirVS = _lightSpotDir;
-
-    // Pass lighting uniforms variables
     glUniform4fv(_globalAmbiLoc, 1, (float*)&_globalAmbi);
-    glUniform3fv(_lightPosVSLoc, 1, (float*)&lightPosVS);
+    glUniform4fv(_lightPosVSLoc, 1, (float*)&lightPosVS);
     glUniform4fv(_lightAmbiLoc, 1, (float*)&_lightAmbi);
     glUniform4fv(_lightDiffLoc, 1, (float*)&_lightDiff);
     glUniform4fv(_lightSpecLoc, 1, (float*)&_lightSpec);
@@ -331,13 +331,13 @@ bool onPaint()
     glUniform4fv(_matEmisLoc, 1, (float*)&_matEmis);
     glUniform1f(_matShinLoc, _matShin);
 
-    // 5a) Activate the vertex array
+    // 6a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 5b) Activate the index buffer
+    // 6b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    // 6) Draw cube with triangles by indexes
+    // 6c) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
     // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
@@ -410,8 +410,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)_startX - x;
+        _deltaX = (int)_startY - y;
         onPaint();
     }
 }

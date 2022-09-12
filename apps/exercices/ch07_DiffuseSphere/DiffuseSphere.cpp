@@ -15,7 +15,7 @@
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
-//! Struct definition for vertex attributes
+//! Struct definition for vertex attributes position and normal
 struct VertexPN
 {
     SLVec3f p; // vertex position [x,y,z]
@@ -35,9 +35,10 @@ static SLstring _projectRoot; //!< Directory of executable
 SLint           _scrWidth;    //!< Window width at start up
 SLint           _scrHeight;   //!< Window height at start up
 
-SLMat4f _viewMatrix;       //!< 4x4 view matrix
-SLMat4f _modelMatrix;      //!< 4x4 model matrix
-SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 GLuint _vao  = 0; //!< ID of the Vertex Array Object (VAO)
 GLuint _vboV = 0; //!< ID of the VBO for vertex array
@@ -76,6 +77,101 @@ GLint _matDiffuseLoc;   //!< uniform location for diffuse light reflection
 
 static const SLfloat PI = 3.14159265358979f;
 
+//-----------------------------------------------------------------------------
+/*!
+ * Build the vertex and index data for a box and sends it to the GPU
+ */
+void buildBox()
+{
+    // create C arrays on heap
+    // Define the vertex pos. and normals as an array of structure
+    _numV              = 24;
+    VertexPN* vertices = new VertexPN[_numV];
+    vertices[0].set(1, 1, 1, 1, 0, 0);
+    vertices[1].set(1, 0, 1, 1, 0, 0);
+    vertices[2].set(1, 0, 0, 1, 0, 0);
+    vertices[3].set(1, 1, 0, 1, 0, 0);
+    vertices[4].set(1, 1, 0, 0, 0, -1);
+    vertices[5].set(1, 0, 0, 0, 0, -1);
+    vertices[6].set(0, 0, 0, 0, 0, -1);
+    vertices[7].set(0, 1, 0, 0, 0, -1);
+    vertices[8].set(0, 0, 1, -1, 0, 0);
+    vertices[9].set(0, 1, 1, -1, 0, 0);
+    vertices[10].set(0, 1, 0, -1, 0, 0);
+    vertices[11].set(0, 0, 0, -1, 0, 0);
+    vertices[12].set(1, 1, 1, 0, 0, 1);
+    vertices[13].set(0, 1, 1, 0, 0, 1);
+    vertices[14].set(0, 0, 1, 0, 0, 1);
+    vertices[15].set(1, 0, 1, 0, 0, 1);
+    vertices[16].set(1, 1, 1, 0, 1, 0);
+    vertices[17].set(1, 1, 0, 0, 1, 0);
+    vertices[18].set(0, 1, 0, 0, 1, 0);
+    vertices[19].set(0, 1, 1, 0, 1, 0);
+    vertices[20].set(0, 0, 0, 0, -1, 0);
+    vertices[21].set(1, 0, 0, 0, -1, 0);
+    vertices[22].set(1, 0, 1, 0, -1, 0);
+    vertices[23].set(0, 0, 1, 0, -1, 0);
+
+    // Define the triangle indexes of the cubes vertices
+    _numI           = 36;
+    GLuint* indices = new GLuint[_numI];
+    int     n       = 0;
+    indices[n++]    = 0;
+    indices[n++]    = 1;
+    indices[n++]    = 2;
+    indices[n++]    = 0;
+    indices[n++]    = 2;
+    indices[n++]    = 3;
+    indices[n++]    = 4;
+    indices[n++]    = 5;
+    indices[n++]    = 6;
+    indices[n++]    = 4;
+    indices[n++]    = 6;
+    indices[n++]    = 7;
+    indices[n++]    = 8;
+    indices[n++]    = 9;
+    indices[n++]    = 10;
+    indices[n++]    = 8;
+    indices[n++]    = 10;
+    indices[n++]    = 11;
+    indices[n++]    = 12;
+    indices[n++]    = 13;
+    indices[n++]    = 14;
+    indices[n++]    = 12;
+    indices[n++]    = 14;
+    indices[n++]    = 15;
+    indices[n++]    = 16;
+    indices[n++]    = 17;
+    indices[n++]    = 18;
+    indices[n++]    = 16;
+    indices[n++]    = 18;
+    indices[n++]    = 19;
+    indices[n++]    = 20;
+    indices[n++]    = 21;
+    indices[n++]    = 22;
+    indices[n++]    = 20;
+    indices[n++]    = 22;
+    indices[n++]    = 23;
+
+    // Generate the OpenGL vertex array object
+    glUtils::buildVAO(_vao,
+                      _vboV,
+                      _vboI,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPN),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _pLoc,
+                      -1,
+                      _nLoc);
+
+    // Delete arrays on heap. The data for rendering is now on the GPU
+    delete[] vertices;
+    delete[] indices;
+}
 //-----------------------------------------------------------------------------
 /*!
 buildSphere creates the vertex attributes for a sphere and creates the VBO
@@ -139,7 +235,7 @@ should be called after a window with a valid OpenGL context is present.
 void onInit()
 {
     // backwards movement of the camera
-    _camZ = -4;
+    _camZ = 3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -167,7 +263,9 @@ void onInit()
     // Create sphere
     _resolution    = 16;
     _primitiveType = GL_TRIANGLE_STRIP;
-    buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+
+    buildBox();
+    //buildSphere(1.0f, _resolution, _resolution, _primitiveType);
 
     glClearColor(0.5f, 0.5f, 0.5f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -199,13 +297,18 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // View transform: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2b) Camera transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // Model transform: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2a) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
+
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
 
     // Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
@@ -308,8 +411,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)_startX - x;
+        _deltaX = (int)_startY - y;
         onPaint();
     }
 }
