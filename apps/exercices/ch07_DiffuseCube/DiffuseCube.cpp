@@ -233,14 +233,14 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* 2b) Camera transform: rotate the coordinate system increasingly
+    /* 2a) Camera transform: rotate the coordinate system increasingly
      * first around the y- and then around the x-axis. This type of camera
      * transform is called turntable animation.*/
     _cameraMatrix.identity();
     _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
     _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2a) Move the camera to its position.
+    // 2b) Move the camera to its position.
     _cameraMatrix.translate(0, 0, _camZ);
 
     // 2c) View transform is world to camera (= inverse of camera matrix)
@@ -249,6 +249,8 @@ bool onPaint()
     // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
+
+    // 4) Lights get prepared here later on
 
     // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
@@ -259,13 +261,10 @@ bool onPaint()
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
 
-    // 6a) Activate the vertex array
+    // 6) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 6b) Activate the index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    // 7) Draw cube with triangles by indexes
+    // 7) Final draw call that draws the cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
     // 8) Fast copy the back buffer to the front buffer. This is OS dependent.

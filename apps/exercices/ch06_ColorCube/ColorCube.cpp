@@ -238,16 +238,13 @@ bool onPaint()
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
 
-    // 6a) Activate the vertex array
+    // 6) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // 6b) Activate the index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    // 6c) Draw cube with triangles by indexes
+    // 7) Final draw call that draws the cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // 7) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 

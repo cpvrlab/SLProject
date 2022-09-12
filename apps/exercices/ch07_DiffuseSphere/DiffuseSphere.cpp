@@ -40,40 +40,40 @@ static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
 static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
 static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
-GLuint _vao  = 0; //!< ID of the Vertex Array Object (VAO)
-GLuint _vboV = 0; //!< ID of the VBO for vertex array
-GLuint _vboI = 0; //!< ID of the VBO for vertex index array
+static GLuint _vao  = 0; //!< ID of the Vertex Array Object (VAO)
+static GLuint _vboV = 0; //!< ID of the VBO for vertex array
+static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
 
-GLuint _numV = 0;      //!< NO. of vertices
-GLuint _numI = 0;      //!< NO. of vertex indexes for triangles
-GLint  _resolution;    //!< resolution of sphere stack & slices
-GLint  _primitiveType; //!< Type of GL primitive to render
+static GLuint _numV = 0;      //!< NO. of vertices
+static GLuint _numI = 0;      //!< NO. of vertex indexes for triangles
+static GLint  _resolution;    //!< resolution of sphere stack & slices
+static GLint  _primitiveType; //!< Type of GL primitive to render
 
-float        _camZ;                   //!< z-distance of camera
-float        _rotX, _rotY;            //!< rotation angles around x & y axis
-int          _deltaX, _deltaY;        //!< delta mouse motion
-int          _startX, _startY;        //!< x,y mouse start positions
-int          _mouseX, _mouseY;        //!< current mouse position
-bool         _mouseLeftDown;          //!< Flag if mouse is down
-GLuint       _modifiers = 0;          //!< modifier bit flags
-const GLuint NONE       = 0;          //!< constant for no modifier
-const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
-const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
-const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
+static float        _camZ;                   //!< z-distance of camera
+static float        _rotX, _rotY;            //!< rotation angles around x & y axis
+static int          _deltaX, _deltaY;        //!< delta mouse motion
+static int          _startX, _startY;        //!< x,y mouse start positions
+static int          _mouseX, _mouseY;        //!< current mouse position
+static bool         _mouseLeftDown;          //!< Flag if mouse is down
+static GLuint       _modifiers = 0;          //!< modifier bit flags
+static const GLuint NONE       = 0;          //!< constant for no modifier
+static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
+static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
+static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-GLuint _shaderVertID = 0; //! vertex shader id
-GLuint _shaderFragID = 0; //! fragment shader id
-GLuint _shaderProgID = 0; //! shader program id
+static GLuint _shaderVertID = 0; //! vertex shader id
+static GLuint _shaderFragID = 0; //! fragment shader id
+static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-GLint _pLoc;            //!< attribute location for vertex position
-GLint _nLoc;            //!< attribute location for vertex normal
-GLint _pmLoc;           //!< uniform location for projection matrix
-GLint _vmLoc;           //!< uniform location for view matrix
-GLint _mmLoc;           //!< uniform location for model matrix
-GLint _lightDirVSLoc;   //!< uniform location for light direction in VS
-GLint _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint _matDiffuseLoc;   //!< uniform location for diffuse light reflection
+static GLint _pLoc;              //!< attribute location for vertex position
+static GLint _nLoc;              //!< attribute location for vertex normal
+static GLint _pmLoc;             //!< uniform location for projection matrix
+static GLint _vmLoc;             //!< uniform location for view matrix
+static GLint _mmLoc;             //!< uniform location for model matrix
+static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
+static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
+static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
 
 static const SLfloat PI = 3.14159265358979f;
 
@@ -152,6 +152,7 @@ void buildBox()
     indices[n++]    = 20;
     indices[n++]    = 22;
     indices[n++]    = 23;
+    _primitiveType  = GL_TRIANGLES;
 
     // Generate the OpenGL vertex array object
     glUtils::buildVAO(_vao,
@@ -183,12 +184,12 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     assert(stacks > 3 && slices > 3);
     assert(primitveType == GL_TRIANGLES || primitveType == GL_TRIANGLE_STRIP);
 
-    //Spherical to cartesian coordinates
-    //dtheta = PI  / stacks;
-    //dphi = 2 * PI / slices;
-    //x = r*sin(theta)*cos(phi);
-    //y = r*sin(theta)*sin(phi);
-    //z = r*cos(theta);
+    // Spherical to cartesian coordinates
+    // dtheta = PI  / stacks;
+    // dphi = 2 * PI / slices;
+    // x = r*sin(theta)*cos(phi);
+    // y = r*sin(theta)*sin(phi);
+    // z = r*cos(theta);
 
     // Create vertex array
     VertexPN* vertices = 0; //!< Array of vertices
@@ -207,6 +208,8 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
         delete[] vertices;
         delete[] indices;
     }
+    else
+        std::cout << "**** You have to define some vertices and indices first in buildSphere! ****" << std::endl;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -251,21 +254,21 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc            = glGetAttribLocation(_shaderProgID, "a_position");
-    _nLoc            = glGetAttribLocation(_shaderProgID, "a_normal");
-    _pmLoc           = glGetUniformLocation(_shaderProgID, "u_pMatrix");
-    _vmLoc           = glGetUniformLocation(_shaderProgID, "u_vMatrix");
-    _mmLoc           = glGetUniformLocation(_shaderProgID, "u_mMatrix");
-    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiff");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
+    _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
+    _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
 
     // Create sphere
     _resolution    = 16;
     _primitiveType = GL_TRIANGLE_STRIP;
 
-    buildBox();
-    //buildSphere(1.0f, _resolution, _resolution, _primitiveType);
+    // buildBox();
+    buildSphere(1.0f, _resolution, _resolution, _primitiveType);
 
     glClearColor(0.5f, 0.5f, 0.5f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -297,44 +300,39 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* 2b) Camera transform: rotate the coordinate system increasingly
+    /* 2a) Camera transform: rotate the coordinate system increasingly
      * first around the y- and then around the x-axis. This type of camera
      * transform is called turntable animation.*/
     _cameraMatrix.identity();
     _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
     _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2a) Move the camera to its position.
+    // 2c) Move the camera to its position.
     _cameraMatrix.translate(0, 0, _camZ);
 
     // 2c) View transform is world to camera (= inverse of camera matrix)
     _viewMatrix = _cameraMatrix.inverted();
 
-    // Model transform: move the cube so that it rotates around its center
+    // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
 
-    // Pass the uniform variables to the shader
+    // 4) Lights get prepared here later on
+
+    // 5) Pass the uniform variables to the shader
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
-    glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);         // light direction in view space
+    glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity (RGBA)
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection (RGBA)
 
-    // Activate
+    // 6) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // Activate index VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    //////////////////////////////////////////////////////////
+    // 7) Final draw call that draws the cube with triangles by indexes
     glDrawElements(_primitiveType, _numI, GL_UNSIGNED_INT, 0);
-    //////////////////////////////////////////////////////////
 
-    // Deactivate VAO
-    glBindVertexArray(_vao);
-
-    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
 
     // Calculate frames per second
