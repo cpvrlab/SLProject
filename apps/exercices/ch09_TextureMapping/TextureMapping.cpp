@@ -63,6 +63,7 @@ static SLVec4f _lightDiffuse;  //!< Light diffuse intensity
 static SLVec4f _lightSpecular; //!< Light specular intensity
 static float   _lightSpotDeg;  //!< Light spot cutoff angle in degrees
 static float   _lightSpotExp;  //!< Light spot exponent
+static SLVec3f _lightAtt;      //!< Light attenuation factors
 static SLVec4f _matAmbient;    //!< Material ambient reflection coeff.
 static SLVec4f _matDiffuse;    //!< Material diffuse reflection coeff.
 static SLVec4f _matSpecular;   //!< Material specular reflection coeff.
@@ -86,6 +87,7 @@ static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
 static GLint _lightAmbientLoc;   //!< uniform location for ambient light intensity
 static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
 static GLint _lightSpecularLoc;  //!< uniform location for specular light intensity
+static GLint _lightAttLoc;       //!< uniform location fpr light attenuation factors
 static GLint _matAmbientLoc;     //!< uniform location for ambient light reflection
 static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
 static GLint _matSpecularLoc;    //!< uniform location for specular light reflection
@@ -273,6 +275,7 @@ void onInit()
     _lightMatrix.translate(0, 0, 3);
     _lightSpotDeg = 180.0f; // point light
     _lightSpotExp = 1.0f;
+    _lightAtt     = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbient.set(1.0f, 1.0f, 1.0f);
     _matDiffuse.set(1.0f, 1.0f, 1.0f);
     _matSpecular.set(1.0f, 1.0f, 1.0f);
@@ -313,6 +316,7 @@ void onInit()
     _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbi");
     _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
     _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpec");
+    _lightAttLoc       = glGetUniformLocation(_shaderProgID, "u_lightAtt");
     _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbi");
     _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
     _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpec");
@@ -356,14 +360,14 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* 2b) Model transform: rotate the coordinate system increasingly
+    /* 2a) Model transform: rotate the coordinate system increasingly
      * first around the y- and then around the x-axis. This type of camera
      * transform is called turntable animation.*/
     _cameraMatrix.identity();
     _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
     _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2a) Move the camera to its position.
+    // 2b) Move the camera to its position.
     _cameraMatrix.translate(0, 0, _camZ);
 
     // 2c) View transform is world to camera (= inverse of camera matrix)
@@ -390,6 +394,7 @@ bool onPaint()
     glUniform4fv(_lightAmbientLoc, 1, (float*)&_lightAmbient);
     glUniform4fv(_lightDiffuseLoc, 1, (float*)&_lightDiffuse);
     glUniform4fv(_lightSpecularLoc, 1, (float*)&_lightSpecular);
+    glUniform3fv(_lightAttLoc, 1, (float*)&_lightAtt);
     glUniform4fv(_matAmbientLoc, 1, (float*)&_matAmbient);
     glUniform4fv(_matDiffuseLoc, 1, (float*)&_matDiffuse);
     glUniform4fv(_matSpecularLoc, 1, (float*)&_matSpecular);
@@ -397,67 +402,17 @@ bool onPaint()
     glUniform1f(_matShininessLoc, _matShininess);
     glUniform1i(_matTexDiffLoc, 0);
 
-    //////////////////////
-    // Draw with 2 VBOs //
-    //////////////////////
+    // 6) Activate the vertex array
+    glBindVertexArray(_vao);
 
-    // Enable all the vertex attribute arrays
-    glEnableVertexAttribArray((GLuint)_pLoc);
-    glEnableVertexAttribArray((GLuint)_nLoc);
-    glEnableVertexAttribArray((GLuint)_uvLoc);
+    // 7) Draw model triangles by indexes
+    glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // Activate VBOs
-    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    // Activate Texture
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-
-    // For VBO only offset instead of data pointer
-    GLsizei stride  = sizeof(VertexPNT);
-    GLsizei offsetN = sizeof(SLVec3f);
-    GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
-    glVertexAttribPointer((GLuint)_pLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          nullptr);
-    glVertexAttribPointer((GLuint)_nLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetN);
-    glVertexAttribPointer((GLuint)_uvLoc,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetT);
-
-    ////////////////////////////////////////////////////////
-    // Draw cube model triangles by indexes
-    glDrawElements(GL_TRIANGLES,
-                   (GLsizei)_numI,
-                   GL_UNSIGNED_INT,
-                   nullptr);
-    ////////////////////////////////////////////////////////
-
-    // Deactivate buffers
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // Disable the vertex arrays
-    glDisableVertexAttribArray((GLuint)_pLoc);
-    glDisableVertexAttribArray((GLuint)_nLoc);
-    glDisableVertexAttribArray((GLuint)_uvLoc);
-
-    // Check for errors from time to time
-    GETGLERROR;
-
-    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
+
+    // 9) Check for OpenGL errors (only in debug done)
+    GETGLERROR;
 
     // Calculate frames per second
     char         title[255];

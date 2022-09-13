@@ -65,6 +65,7 @@ static SLVec4f _lightDiff;    //!< Light diffuse intensity
 static SLVec4f _lightSpec;    //!< Light specular intensity
 static float   _lightSpotDeg; //!< Light spot cutoff angle in degrees
 static float   _lightSpotExp; //!< Light spot exponent
+static SLVec3f _lightAtt;     //!< Light attenuation factors
 static SLVec4f _matAmbi;      //!< Material ambient reflection coeff.
 static SLVec4f _matDiff;      //!< Material diffuse reflection coeff.
 static SLVec4f _matSpec;      //!< Material specular reflection coeff.
@@ -91,6 +92,7 @@ static GLint _lightSpotDirLoc; //!< uniform location for light direction in VS
 static GLint _lightSpotDegLoc; //!< uniform location for spot cutoff angle in degrees
 static GLint _lightSpotCosLoc; //!< uniform location for cosine of spot cutoff angle
 static GLint _lightSpotExpLoc; //!< uniform location for cosine of spot cutoff angle
+static GLint _lightAttLoc;     //!< uniform location fpr light attenuation factors
 static GLint _matAmbiLoc;      //!< uniform location for ambient light reflection
 static GLint _matDiffLoc;      //!< uniform location for diffuse light reflection
 static GLint _matSpecLoc;      //!< uniform location for specular light reflection
@@ -215,6 +217,7 @@ void onInit()
     _lightMatrix.translate(0,0,3);
     _lightSpotDeg = 10.0f; // 180.0f; // point light
     _lightSpotExp = 1.0f;
+    _lightAtt = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbi.set(1.0f, 0.0f, 0.0f);
     _matDiff.set(1.0f, 0.0f, 0.0f);
     _matSpec.set(1.0f, 1.0f, 1.0f);
@@ -245,6 +248,7 @@ void onInit()
     _lightSpotDegLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDeg");
     _lightSpotCosLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotCos");
     _lightSpotExpLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotExp");
+    _lightAttLoc     = glGetUniformLocation(_shaderProgID, "u_lightAtt");
     _globalAmbiLoc   = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
 
     _matAmbiLoc = glGetUniformLocation(_shaderProgID, "u_matAmbi");
@@ -321,6 +325,7 @@ bool onPaint()
     glUniform4fv(_lightDiffLoc, 1, (float*)&_lightDiff);
     glUniform4fv(_lightSpecLoc, 1, (float*)&_lightSpec);
     glUniform3fv(_lightSpotDirLoc, 1, (float*)&lightSpotDirVS);
+    glUniform3fv(_lightAttLoc, 1, (float*)&_lightAtt);
     glUniform1f(_lightSpotDegLoc, _lightSpotDeg);
     glUniform1f(_lightSpotCosLoc, cos(_lightSpotDeg * Utils::DEG2RAD));
     glUniform1f(_lightSpotExpLoc, _lightSpotExp);
