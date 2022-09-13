@@ -3190,6 +3190,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     if (ImGui::TreeNode("Scene Properties"))
     {
+        if (s->lights().size() > 0)
+        {
+            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+            SLCol4f gAC  = s->lights()[0]->globalAmbient;
+            if (ImGui::ColorEdit3("Global Ambient Color", (float*)&gAC, cef))
+                s->lights()[0]->globalAmbient = gAC;
+        }
+
         if (ImGui::TreeNode("Sky", "Skybox"))
         {
             if (s->skybox())
@@ -3555,10 +3563,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     light->specularColor(sC);
                             }
 
-                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, aP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
                                 light->ambientPower(aP);
 
-                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, dP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
                                 light->diffusePower(dP);
 
                             float sP = light->specularPower();
