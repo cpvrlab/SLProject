@@ -433,6 +433,12 @@ void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
         _matShin *= yscroll > 0.0 ? 1.5f : 0.75f;
         onPaint();
     }
+    else if (_modifiers & ALT && _modifiers & CTRL)
+    {
+        _lightSpotExp += yscroll > 0.0 ? 10.0f : -10.0f;
+        _lightSpotExp = Utils::clamp(_lightSpotExp, 0.0f, 200.0f);
+        onPaint();
+    }
     else if (_modifiers == CTRL)
     {
         _lightSpotDeg += yscroll > 0.0 ? 1.0f : -1.0f;
