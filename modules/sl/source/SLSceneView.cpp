@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLSceneView.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marc Wacker, Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLSceneView.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marc Wacker, Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLAnimManager.h>
 #include <SLCamera.h>
@@ -986,8 +986,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 
                 SLMat4f prevProjMat = stateGL->projectionMatrix;
                 SLMat4f prevViewMat = stateGL->viewMatrix;
-                SLfloat w2 = (SLfloat)_scrWdiv2;
-                SLfloat h2 = (SLfloat)_scrHdiv2;
+                SLfloat w2          = (SLfloat)_scrWdiv2;
+                SLfloat h2          = (SLfloat)_scrHdiv2;
                 stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
                 stateGL->viewport(0, 0, _scrW, _scrH);
                 stateGL->viewMatrix.identity();
@@ -1129,7 +1129,7 @@ void SLSceneView::draw2DGLNodes()
         for (auto* node : material->nodesVisible2D())
         {
             // Apply world transform
-            stateGL->modelMatrix =node->updateAndGetWM();
+            stateGL->modelMatrix = node->updateAndGetWM();
 
             // Finally, the nodes meshes
             node->drawMesh(this);
@@ -1141,7 +1141,7 @@ void SLSceneView::draw2DGLNodes()
     for (auto* node : _nodesBlended2D)
     {
         // Apply world transform
-        stateGL->modelMatrix =node->updateAndGetWM();
+        stateGL->modelMatrix = node->updateAndGetWM();
 
         // Finally, the nodes meshes
         node->drawMesh(this);

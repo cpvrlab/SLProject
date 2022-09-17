@@ -986,8 +986,9 @@ void appDemoLoadScene(SLAssetManager* am,
                 "Try ray tracing with key R and come back with the ESC key.");
 
         // Test map material
-        SLGLTexture* tex1 = new SLGLTexture(am, texPath + "Testmap_0512_C.png");
-        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1);
+        SLGLTexture* tex1C = new SLGLTexture(am, texPath + "Testmap_1024_C.jpg");
+        SLGLTexture* tex1N = new SLGLTexture(am, texPath + "Testmap_1024_N.jpg");
+        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1C, tex1N);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture(am, texPath + "wood0_0512_C.jpg");
@@ -1659,6 +1660,68 @@ void appDemoLoadScene(SLAssetManager* am,
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
+    else if (sceneID == SID_ZFighting) //..........................................................
+    {
+        // Set scene name and info string
+        s->name("Z-Fighting Test Scene");
+        s->info("The reason for this depth fighting is that the camera's near clipping distance "
+                "is almost zero and the far clipping distance is too large. The depth buffer only "
+                "has 32-bit precision, which leads to this fighting effect when the distance "
+                "between the near and far clipping planes is too large. You can adjust these "
+                "values over the menu Camera > Projection");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.0001f);
+        cam1->clipFar(1000000);
+        cam1->translation(0, 0, 4);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(4);
+        cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                  SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create materials
+        SLMaterial* matR = new SLMaterial(am, "matR", SLCol4f::RED);
+        SLMaterial* matG = new SLMaterial(am, "matG", SLCol4f::GREEN);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+        light1->translation(5, 0, 5);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Create two squares
+        SLMesh* rectMeshR = new SLRectangle(am,
+                                           SLVec2f(-1, -1),
+                                           SLVec2f(1, 1),
+                                           1,
+                                           1,
+                                           "RectR",
+                                           matR);
+        SLNode* rectNodeR = new SLNode(rectMeshR, "Rect Node Red");
+        scene->addChild(rectNodeR);
+
+        SLMesh* rectMeshG = new SLRectangle(am,
+                                            SLVec2f(-0.8f, -0.8f),
+                                            SLVec2f(0.8f, 0.8f),
+                                            1,
+                                            1,
+                                            "RectG",
+                                            matG);
+        SLNode* rectNodeG = new SLNode(rectMeshG, "Rect Node Green");
+        rectNodeG->rotate(2.0f, 1, 1, 0);
+        scene->addChild(rectNodeG);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+
+        sv->camera(cam1);
+    }
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
              sceneID == SID_ShaderPerVertexBlinn) //...............................................
@@ -1871,7 +1934,7 @@ void appDemoLoadScene(SLAssetManager* am,
             y += spacing;
         }
 
-        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spotlight in the center.
         SLLight::gamma      = 2.2f;
         SLLightSpot* light1 = new SLLightSpot(am, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);
@@ -5200,7 +5263,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
-        s->info("Muttenzer Box with environment mapped reflective sphere and transparent refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        s->info("Muttenzer Box with environment mapped reflective sphere and transparent "
+                "refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLProgramGeneric(am, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
@@ -5254,10 +5318,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
-        lightRect->ambientColor(SLCol4f::BLACK);
+        lightRect->ambientColor(SLCol4f::WHITE);
+        lightRect->ambientPower(0.25f);
         lightRect->diffuseColor(lightEmisRGB);
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
+        lightRect->createsShadows(true);
+        lightRect->createShadowMap();
 
         SLLight::globalAmbient.set(lightEmisRGB * 0.01f);
 

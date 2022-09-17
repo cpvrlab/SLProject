@@ -15,7 +15,7 @@
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
-//! Struct definition for vertex attributes
+//! Struct definition for vertex attributes position and normal
 struct VertexPN
 {
     SLVec3f p; // vertex position [x,y,z]
@@ -35,47 +35,144 @@ static SLstring _projectRoot; //!< Directory of executable
 SLint           _scrWidth;    //!< Window width at start up
 SLint           _scrHeight;   //!< Window height at start up
 
-SLMat4f _viewMatrix;       //!< 4x4 view matrix
-SLMat4f _modelMatrix;      //!< 4x4 model matrix
-SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
-GLuint _vao  = 0; //!< ID of the Vertex Array Object (VAO)
-GLuint _vboV = 0; //!< ID of the VBO for vertex array
-GLuint _vboI = 0; //!< ID of the VBO for vertex index array
+static GLuint _vao  = 0; //!< ID of the Vertex Array Object (VAO)
+static GLuint _vboV = 0; //!< ID of the VBO for vertex array
+static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
 
-GLuint _numV = 0;      //!< NO. of vertices
-GLuint _numI = 0;      //!< NO. of vertex indexes for triangles
-GLint  _resolution;    //!< resolution of sphere stack & slices
-GLint  _primitiveType; //!< Type of GL primitive to render
+static GLuint _numV = 0;      //!< NO. of vertices
+static GLuint _numI = 0;      //!< NO. of vertex indexes for triangles
+static GLint  _resolution;    //!< resolution of sphere stack & slices
+static GLint  _primitiveType; //!< Type of GL primitive to render
 
-float        _camZ;                   //!< z-distance of camera
-float        _rotX, _rotY;            //!< rotation angles around x & y axis
-int          _deltaX, _deltaY;        //!< delta mouse motion
-int          _startX, _startY;        //!< x,y mouse start positions
-int          _mouseX, _mouseY;        //!< current mouse position
-bool         _mouseLeftDown;          //!< Flag if mouse is down
-GLuint       _modifiers = 0;          //!< modifier bit flags
-const GLuint NONE       = 0;          //!< constant for no modifier
-const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
-const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
-const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
+static float        _camZ;                   //!< z-distance of camera
+static float        _rotX, _rotY;            //!< rotation angles around x & y axis
+static int          _deltaX, _deltaY;        //!< delta mouse motion
+static int          _startX, _startY;        //!< x,y mouse start positions
+static int          _mouseX, _mouseY;        //!< current mouse position
+static bool         _mouseLeftDown;          //!< Flag if mouse is down
+static GLuint       _modifiers = 0;          //!< modifier bit flags
+static const GLuint NONE       = 0;          //!< constant for no modifier
+static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifier
+static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
+static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-GLuint _shaderVertID = 0; //! vertex shader id
-GLuint _shaderFragID = 0; //! fragment shader id
-GLuint _shaderProgID = 0; //! shader program id
+static GLuint _shaderVertID = 0; //! vertex shader id
+static GLuint _shaderFragID = 0; //! fragment shader id
+static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-GLint _pLoc;            //!< attribute location for vertex position
-GLint _nLoc;            //!< attribute location for vertex normal
-GLint _pmLoc;           //!< uniform location for projection matrix
-GLint _vmLoc;           //!< uniform location for view matrix
-GLint _mmLoc;           //!< uniform location for model matrix
-GLint _lightDirVSLoc;   //!< uniform location for light direction in VS
-GLint _lightDiffuseLoc; //!< uniform location for diffuse light intensity
-GLint _matDiffuseLoc;   //!< uniform location for diffuse light reflection
+static GLint _pLoc;              //!< attribute location for vertex position
+static GLint _nLoc;              //!< attribute location for vertex normal
+static GLint _pmLoc;             //!< uniform location for projection matrix
+static GLint _vmLoc;             //!< uniform location for view matrix
+static GLint _mmLoc;             //!< uniform location for model matrix
+static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
+static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
+static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
 
 static const SLfloat PI = 3.14159265358979f;
 
+//-----------------------------------------------------------------------------
+/*!
+ * Build the vertex and index data for a box and sends it to the GPU
+ */
+void buildBox()
+{
+    // create C arrays on heap
+    // Define the vertex pos. and normals as an array of structure
+    _numV              = 24;
+    VertexPN* vertices = new VertexPN[_numV];
+    vertices[0].set(1, 1, 1, 1, 0, 0);
+    vertices[1].set(1, 0, 1, 1, 0, 0);
+    vertices[2].set(1, 0, 0, 1, 0, 0);
+    vertices[3].set(1, 1, 0, 1, 0, 0);
+    vertices[4].set(1, 1, 0, 0, 0, -1);
+    vertices[5].set(1, 0, 0, 0, 0, -1);
+    vertices[6].set(0, 0, 0, 0, 0, -1);
+    vertices[7].set(0, 1, 0, 0, 0, -1);
+    vertices[8].set(0, 0, 1, -1, 0, 0);
+    vertices[9].set(0, 1, 1, -1, 0, 0);
+    vertices[10].set(0, 1, 0, -1, 0, 0);
+    vertices[11].set(0, 0, 0, -1, 0, 0);
+    vertices[12].set(1, 1, 1, 0, 0, 1);
+    vertices[13].set(0, 1, 1, 0, 0, 1);
+    vertices[14].set(0, 0, 1, 0, 0, 1);
+    vertices[15].set(1, 0, 1, 0, 0, 1);
+    vertices[16].set(1, 1, 1, 0, 1, 0);
+    vertices[17].set(1, 1, 0, 0, 1, 0);
+    vertices[18].set(0, 1, 0, 0, 1, 0);
+    vertices[19].set(0, 1, 1, 0, 1, 0);
+    vertices[20].set(0, 0, 0, 0, -1, 0);
+    vertices[21].set(1, 0, 0, 0, -1, 0);
+    vertices[22].set(1, 0, 1, 0, -1, 0);
+    vertices[23].set(0, 0, 1, 0, -1, 0);
+
+    // Define the triangle indexes of the cubes vertices
+    _numI           = 36;
+    GLuint* indices = new GLuint[_numI];
+    int     n       = 0;
+    indices[n++]    = 0;
+    indices[n++]    = 1;
+    indices[n++]    = 2;
+    indices[n++]    = 0;
+    indices[n++]    = 2;
+    indices[n++]    = 3;
+    indices[n++]    = 4;
+    indices[n++]    = 5;
+    indices[n++]    = 6;
+    indices[n++]    = 4;
+    indices[n++]    = 6;
+    indices[n++]    = 7;
+    indices[n++]    = 8;
+    indices[n++]    = 9;
+    indices[n++]    = 10;
+    indices[n++]    = 8;
+    indices[n++]    = 10;
+    indices[n++]    = 11;
+    indices[n++]    = 12;
+    indices[n++]    = 13;
+    indices[n++]    = 14;
+    indices[n++]    = 12;
+    indices[n++]    = 14;
+    indices[n++]    = 15;
+    indices[n++]    = 16;
+    indices[n++]    = 17;
+    indices[n++]    = 18;
+    indices[n++]    = 16;
+    indices[n++]    = 18;
+    indices[n++]    = 19;
+    indices[n++]    = 20;
+    indices[n++]    = 21;
+    indices[n++]    = 22;
+    indices[n++]    = 20;
+    indices[n++]    = 22;
+    indices[n++]    = 23;
+    _primitiveType  = GL_TRIANGLES;
+
+    // Generate the OpenGL vertex array object
+    glUtils::buildVAO(_vao,
+                      _vboV,
+                      _vboI,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPN),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _pLoc,
+                      -1,
+                      _nLoc);
+
+    // Delete arrays on heap. The data for rendering is now on the GPU
+    delete[] vertices;
+    delete[] indices;
+}
 //-----------------------------------------------------------------------------
 /*!
 buildSphere creates the vertex attributes for a sphere and creates the VBO
@@ -87,6 +184,13 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     assert(stacks > 3 && slices > 3);
     assert(primitveType == GL_TRIANGLES || primitveType == GL_TRIANGLE_STRIP);
 
+    // Spherical to cartesian coordinates
+    // dtheta = PI  / stacks;
+    // dphi = 2 * PI / slices;
+    // x = r*sin(theta)*cos(phi);
+    // y = r*sin(theta)*sin(phi);
+    // z = r*cos(theta);
+
     // Create vertex array
     VertexPN* vertices = 0; //!< Array of vertices
     // ???
@@ -95,7 +199,7 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
     GLuint* indices = 0;
     // ???
 
-    // Generate the OpenGL vertex array object
+    // Delete arrays on heap. The data for rendering is now on the GPU
     if (vertices && indices)
     {
         glUtils::buildVAO(_vao, _vboV, _vboI, vertices, _numV, sizeof(VertexPN), indices, _numI, sizeof(GL_UNSIGNED_INT), _shaderProgID, _pLoc, _nLoc);
@@ -104,6 +208,8 @@ void buildSphere(float radius, int stacks, int slices, GLuint primitveType)
         delete[] vertices;
         delete[] indices;
     }
+    else
+        std::cout << "**** You have to define some vertices and indices first in buildSphere! ****" << std::endl;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -132,7 +238,7 @@ should be called after a window with a valid OpenGL context is present.
 void onInit()
 {
     // backwards movement of the camera
-    _camZ = -4;
+    _camZ = 3;
 
     // Mouse rotation parameters
     _rotX = _rotY = 0;
@@ -140,26 +246,28 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader("../_data/shaders/Diffuse.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader("../_data/shaders/Diffuse.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch07_DiffuseLighting.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ch07_DiffuseLighting.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc            = glGetAttribLocation(_shaderProgID, "a_position");
-    _nLoc            = glGetAttribLocation(_shaderProgID, "a_normal");
-    _pmLoc           = glGetUniformLocation(_shaderProgID, "u_pMatrix");
-    _vmLoc           = glGetUniformLocation(_shaderProgID, "u_vMatrix");
-    _mmLoc           = glGetUniformLocation(_shaderProgID, "u_mMatrix");
-    _lightDirVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightDirVS");
-    _lightDiffuseLoc = glGetUniformLocation(_shaderProgID, "u_lightDiff");
-    _matDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
+    _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
+    _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
 
     // Create sphere
     _resolution    = 16;
     _primitiveType = GL_TRIANGLE_STRIP;
+
+    // buildBox();
     buildSphere(1.0f, _resolution, _resolution, _primitiveType);
 
     glClearColor(0.5f, 0.5f, 0.5f, 1); // Set the background color
@@ -192,39 +300,39 @@ bool onPaint()
     // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // View transform: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2a) Camera transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // Model transform: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2c) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
 
-    // Model transform: move the cube so that it rotates around its center
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
+
+    // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
 
-    // Pass the uniform variables to the shader
+    // 4) Lights get prepared here later on
+
+    // 5) Pass the uniform variables to the shader
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
-    glUniform3f(_lightDirVSLoc, 0.5f, 1.0f, 1.0f);         // light direction in view space
+    glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
     glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity (RGBA)
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection (RGBA)
 
-    // Activate
+    // 6) Activate the vertex array
     glBindVertexArray(_vao);
 
-    // Activate index VBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    //////////////////////////////////////////////////////////
+    // 7) Final draw call that draws the cube with triangles by indexes
     glDrawElements(_primitiveType, _numI, GL_UNSIGNED_INT, 0);
-    //////////////////////////////////////////////////////////
 
-    // Deactivate VAO
-    glBindVertexArray(_vao);
-
-    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
 
     // Calculate frames per second
@@ -301,8 +409,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)_startX - x;
+        _deltaX = (int)_startY - y;
         onPaint();
     }
 }
@@ -364,15 +472,11 @@ void onGLFWError(int error, const char* description)
 {
     fputs(description, stderr);
 }
-
 //-----------------------------------------------------------------------------
-/*!
-The C main procedure running the GLFW GUI application.
-*/
-int main(int argc, char* argv[])
+/*! Inits OpenGL and the GLFW window library
+ */
+void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
 {
-    _projectRoot = SLstring(SL_PROJECT_ROOT);
-
     // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {
@@ -399,13 +503,10 @@ int main(int argc, char* argv[])
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    _scrWidth  = 640;
-    _scrHeight = 480;
-
     // Create the GLFW window
-    window = glfwCreateWindow(_scrWidth,
-                              _scrHeight,
-                              "Diffuse Sphere",
+    window = glfwCreateWindow(wndWidth,
+                              wndHeight,
+                              wndTitle,
                               nullptr,
                               nullptr);
 
@@ -425,20 +526,6 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    // Check errors before we start
-    GETGLERROR;
-
-    glUtils::printGLInfo();
-
-    // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
-
-    // Prepare all OpenGL stuff
-    onInit();
-
-    // Call resize once for correct projection
-    onResize(window, _scrWidth, _scrHeight);
-
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);
     glfwSetFramebufferSizeCallback(window, onResize);
@@ -446,6 +533,35 @@ int main(int argc, char* argv[])
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
     glfwSetWindowCloseCallback(window, onClose);
+
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(1);
+}
+//-----------------------------------------------------------------------------
+/*!
+The C main procedure running the GLFW GUI application.
+*/
+int main(int argc, char* argv[])
+{
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
+
+    _scrWidth  = 640;
+    _scrHeight = 480;
+
+    // Init OpenGL and the window library GLFW
+    initGLFW(_scrWidth, _scrHeight, "ColorSphere");
+
+    // Check errors before we start
+    GETGLERROR;
+
+    // Print OpenGL info on console
+    glUtils::printGLInfo();
+
+    // Prepare all our OpenGL stuff
+    onInit();
+
+    // Call once resize to define the projection
+    onResize(window, _scrWidth, _scrHeight);
 
     // Event loop
     while (!glfwWindowShouldClose(window))

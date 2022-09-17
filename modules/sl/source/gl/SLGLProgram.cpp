@@ -1,13 +1,13 @@
-//#############################################################################
-//  File:      SLGLProgram.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//             Mainly based on Martin Christens GLSL Tutorial
-//             See http://www.clockworkcoders.com
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLGLProgram.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//              Mainly based on Martin Christens GLSL Tutorial
+//              See http://www.clockworkcoders.com
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLAssetManager.h>
 #include <SLGLDepthBuffer.h>
@@ -440,18 +440,14 @@ SLint SLGLProgram::passLightsToUniforms(SLVLight* lights,
             SLLight*     light     = lights->at(i);
             SLShadowMap* shadowMap = light->shadowMap();
 
-            lightIsOn[i]  = light->isOn();
-            SLVec4f posWS = light->positionWS();
-            lightPosWS[i].set(posWS);
-            SLVec4f posVS = stateGL->viewMatrix * lightPosWS[i];
-            lightPosVS[i].set(posVS);
-            lightAmbient[i].set(light->ambient());
-            lightDiffuse[i].set(light->diffuse());
-            lightSpecular[i].set(light->specular());
-            SLVec3f dirWS = light->spotDirWS();
-            lightSpotDirWS[i].set(dirWS);
-            SLVec3f dirVS = viewRotMat.multVec(lightSpotDirWS[i]);
-            lightSpotDirVS[i].set(dirVS);
+            lightIsOn[i]              = light->isOn();
+            lightPosWS[i]             = light->positionWS();
+            lightPosVS[i]             = stateGL->viewMatrix * light->positionWS();
+            lightAmbient[i]           = light->ambient();
+            lightDiffuse[i]           = light->diffuse();
+            lightSpecular[i]          = light->specular();
+            lightSpotDirWS[i]         = light->spotDirWS();
+            lightSpotDirVS[i]         = stateGL->viewMatrix.mat3() * light->spotDirWS();
             lightSpotCutoff[i]        = light->spotCutOffDEG();
             lightSpotCosCut[i]        = light->spotCosCut();
             lightSpotExp[i]           = light->spotExponent();

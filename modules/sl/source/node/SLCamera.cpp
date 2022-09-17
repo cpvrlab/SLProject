@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLCamera.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marc Wacker, Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLCamera.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marc Wacker, Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLSceneView.h>
 #include <SLDeviceLocation.h>
@@ -15,10 +15,10 @@
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
-SLCamAnim    SLCamera::currentAnimation   = CA_turntableYUp;
-SLProjType   SLCamera::currentProjection  = P_monoPerspective;
-SLfloat      SLCamera::currentFOV         = 45.0f;
-SLint        SLCamera::currentDevRotation = 0;
+SLCamAnim  SLCamera::currentAnimation   = CA_turntableYUp;
+SLProjType SLCamera::currentProjection  = P_monoPerspective;
+SLfloat    SLCamera::currentFOV         = 45.0f;
+SLint      SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
 SLCamera::SLCamera(const SLstring& name,
                    SLStdShaderProg textureOnlyProgramId,
@@ -561,8 +561,8 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
         {
             switch (_projType)
             {
-                case P_stereoColorRC: stateGL->colorMask(1, 0, 0, 1); break;
-                case P_stereoColorRB: stateGL->colorMask(1, 0, 0, 1); break;
+                case P_stereoColorRC:
+                case P_stereoColorRB:
                 case P_stereoColorRG: stateGL->colorMask(1, 0, 0, 1); break;
                 case P_stereoColorYB: stateGL->colorMask(1, 1, 0, 1); break;
                 default: break;
@@ -649,7 +649,7 @@ void SLCamera::updateEnuCorrRenu(SLSceneView*   sv,
 
     /* 4. Apply rotation angles defined in camera plane onto vertical enu axis
     and horizon axis estimate focal length (todo: calculate once when fov is set)*/
-    f = sv->scrH() / (2 * tan(0.5f * fovV() * DEG2RAD));
+    f = (SLfloat)sv->scrH() / (2.0f * tan(0.5f * fovV() * DEG2RAD));
 
     if (_devRot->offsetMode() == ROM_oneFingerXY)
     {
@@ -1032,8 +1032,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
 
         // Determine rot angles around x- & y-axis
-        SLfloat dY = (y - _oldTouchPos1.y) * _mouseRotationFactor;
-        SLfloat dX = (x - _oldTouchPos1.x) * _mouseRotationFactor;
+        SLfloat dY = ((SLfloat)y - _oldTouchPos1.y) * _mouseRotationFactor;
+        SLfloat dX = ((SLfloat)x - _oldTouchPos1.x) * _mouseRotationFactor;
 
         if (_camAnim == CA_turntableYUp) //....................................
         {
@@ -1082,7 +1082,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             // mouse is on the silhouette of the virtual sphere.
             // We calculate therefore an alternative for the angle from the mouse
             // motion length.
-            SLVec2f dMouse(_oldTouchPos1.x - x, _oldTouchPos1.y - y);
+            SLVec2f dMouse(_oldTouchPos1.x - (SLfloat)x,
+                           _oldTouchPos1.y - (SLfloat)y);
             SLfloat dMouseLenght = dMouse.length();
             if (angle > dMouseLenght) angle = dMouseLenght * 0.2f;
 
@@ -1136,8 +1137,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 if (_devRot->offsetMode() == ROM_oneFingerX ||
                     _devRot->offsetMode() == ROM_oneFingerXY)
                 {
-                    _yOffsetPix += (SLint)(y - _oldTouchPos1.y);
-                    _xOffsetPix += (SLint)(x - _oldTouchPos1.x);
+                    _yOffsetPix += (SLint)((SLfloat)y - _oldTouchPos1.y);
+                    _xOffsetPix += (SLint)((SLfloat)x - _oldTouchPos1.x);
                 }
             }
         }
@@ -1151,7 +1152,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _camAnim == CA_trackball)
         {
             // Calculate the fraction delta of the mouse movement
-            SLVec2f dMouse(x - _oldTouchPos1.x, _oldTouchPos1.y - y);
+            SLVec2f dMouse((SLfloat)x - _oldTouchPos1.x,
+                           _oldTouchPos1.y - (SLfloat)y);
             dMouse.x /= (SLfloat)_viewport.width;
             dMouse.y /= (SLfloat)_viewport.height;
 
@@ -1309,8 +1311,8 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
         SLVec2f delta(nowCenter - oldCenter);
 
         // scale to 0-1
-        delta.x /= _viewport.width;
-        delta.y /= _viewport.height;
+        delta.x /= (SLfloat)_viewport.width;
+        delta.y /= (SLfloat)_viewport.height;
 
         // scale to space size
         delta.x *= spaceW;
@@ -1497,7 +1499,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         SLfloat hw = hh * _viewportRatio;
 
         // calculate the size of a pixel in world coords.
-        SLfloat pixel = hw * 2 / _viewport.width;
+        SLfloat pixel = hw * 2 / (SLfloat)_viewport.width;
 
         SLVec3f TL  = EYE - hw * LR + hh * LU + pixel / 2 * LR - pixel / 2 * LU;
         SLVec3f dir = LA;
@@ -1517,7 +1519,7 @@ void SLCamera::eyeToPixelRay(SLfloat x, SLfloat y, SLRay* ray)
         SLfloat hw = hh * _viewportRatio;
 
         // calculate the size of a pixel in world coords.
-        SLfloat pixel = hw * 2 / _viewport.width;
+        SLfloat pixel = hw * 2 / (SLfloat)_viewport.width;
 
         // calculate a vector to the center (C) of the top left (TL) pixel
         SLVec3f C   = LA * _focalDist;
@@ -1635,8 +1637,8 @@ SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
     // Calculate x & y component to the virtual unit sphere
     SLfloat r = (SLfloat)(_viewport.width < _viewport.height ? _viewport.width / 2 : _viewport.height / 2) * _trackballSize;
 
-    SLVec3f vec((SLfloat)(x - _viewport.width * 0.5f) / r,
-                -(SLfloat)(y - _viewport.height * 0.5f) / r);
+    SLVec3f vec((SLfloat)((SLfloat)x - (SLfloat)_viewport.width * 0.5f) / r,
+                -(SLfloat)((SLfloat)y - (SLfloat)_viewport.height * 0.5f) / r);
 
     // d = length of vector x,y
     SLfloat d = sqrt(vec.x * vec.x + vec.y * vec.y);

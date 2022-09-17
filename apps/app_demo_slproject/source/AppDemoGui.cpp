@@ -438,7 +438,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
 
-                    // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
+                    // Wrong value of displayed, need to use a profiler to measure (can't just measure time before and after the draw call and take the difference, not with the GPU)
                     /* if (s->singleMeshFullSelected() != nullptr)
                     {
                         SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
@@ -1476,6 +1476,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(am, s, sv, SID_PointClouds);
+                    if (ImGui::MenuItem("Z-Fighting", nullptr, sid == SID_ZFighting))
+                        s->onLoad(am, s, sv, SID_ZFighting);
 
                     ImGui::EndMenu();
                 }
@@ -2665,7 +2667,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Reset"))
             {
                 cam->resetToInitialState();
-                cam->focalDist(cam->translationOS().length());
+                float dist = cam->translationOS().length();
+                cam->focalDist(dist);
             }
 
             if (ImGui::BeginMenu("Look from"))
@@ -2841,7 +2844,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLAnimPlayback* anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.8f);
-            if (myComboBox("", &curAnimIx, animations))
+            if (myComboBox("##", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
             ImGui::PopItemWidth();
 
@@ -3189,6 +3192,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     if (ImGui::TreeNode("Scene Properties"))
     {
+        if (s->lights().size() > 0)
+        {
+            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+            SLCol4f gAC  = s->lights()[0]->globalAmbient;
+            if (ImGui::ColorEdit3("Global Ambient Color", (float*)&gAC, cef))
+                s->lights()[0]->globalAmbient = gAC;
+        }
+
         if (ImGui::TreeNode("Sky", "Skybox"))
         {
             if (s->skybox())
@@ -3554,10 +3565,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     light->specularColor(sC);
                             }
 
-                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, aP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
                                 light->ambientPower(aP);
 
-                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, dP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
                                 light->diffusePower(dP);
 
                             float sP = light->specularPower();
