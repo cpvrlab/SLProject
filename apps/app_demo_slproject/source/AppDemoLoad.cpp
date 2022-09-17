@@ -986,8 +986,9 @@ void appDemoLoadScene(SLAssetManager* am,
                 "Try ray tracing with key R and come back with the ESC key.");
 
         // Test map material
-        SLGLTexture* tex1 = new SLGLTexture(am, texPath + "Testmap_0512_C.png");
-        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1);
+        SLGLTexture* tex1C = new SLGLTexture(am, texPath + "Testmap_1024_C.jpg");
+        SLGLTexture* tex1N = new SLGLTexture(am, texPath + "Testmap_1024_N.jpg");
+        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1C, tex1N);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture(am, texPath + "wood0_0512_C.jpg");
@@ -5262,7 +5263,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
-        s->info("Muttenzer Box with environment mapped reflective sphere and transparent refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        s->info("Muttenzer Box with environment mapped reflective sphere and transparent "
+                "refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLProgramGeneric(am, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
@@ -5316,10 +5318,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
-        lightRect->ambientColor(SLCol4f::BLACK);
+        lightRect->ambientColor(SLCol4f::WHITE);
+        lightRect->ambientPower(0.25f);
         lightRect->diffuseColor(lightEmisRGB);
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
+        lightRect->createsShadows(true);
+        lightRect->createShadowMap();
 
         SLLight::globalAmbient.set(lightEmisRGB * 0.01f);
 

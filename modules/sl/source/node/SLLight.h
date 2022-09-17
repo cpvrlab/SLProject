@@ -144,7 +144,7 @@ public:
     SLfloat        kl() const { return _kl; }
     SLfloat        kq() const { return _kq; }
     SLbool         isAttenuated() const { return _isAttenuated; }
-    SLfloat        attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLfloat        attenuation(SLfloat dist) const { return std::min(1.0f / (_kc + _kl * dist + _kq * dist * dist), 1.0f); }
     SLbool         createsShadows() const { return _createsShadows; }
     SLShadowMap*   shadowMap() { return _shadowMap; }
     SLbool         doSoftShadows() const { return _doSoftShadows; }

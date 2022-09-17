@@ -52,7 +52,7 @@ void pointLightBlinnPhong(in    vec3  N,  // Normalized normal at v_P
     att_dist.x = 1.0;
     att_dist.z = dot(L, L);// = distance * distance
     att_dist.y = sqrt(att_dist.z);// = distance
-    float att = 1.0 / dot(att_dist, u_lightAtt);
+    float att = min(1.0 / dot(att_dist, u_lightAtt), 1.0);
     L /= att_dist.y; // = normalize(L)
 
     // Calculate diffuse & specular factors

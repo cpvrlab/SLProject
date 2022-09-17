@@ -806,7 +806,7 @@ void pointLightBlinnPhong( in    int   i,
         att_dist.x = 1.0;
         att_dist.z = dot(L, L);// = distance * distance
         att_dist.y = sqrt(att_dist.z);// = distance
-        att = 1.0 / dot(att_dist, u_lightAtt[i]);
+        att = min(1.0 / dot(att_dist, u_lightAtt[i]), 1.0);
         L /= att_dist.y;// = normalize(L)
     }
     else
@@ -820,22 +820,21 @@ void pointLightBlinnPhong( in    int   i,
         specFactor = pow(max(dot(N, H), 0.0), u_matShin); // specular shininess
 
     // Calculate spot attenuation
+    float spotAtt = 1.0;// Spot attenuation
     if (u_lightSpotDeg[i] < 180.0)
     {
         float spotDot;// Cosine of angle between L and spotdir
-        float spotAtt;// Spot attenuation
         spotDot = dot(-L, S);
         if (spotDot < u_lightSpotCos[i])  // if outside spot cone
             spotAtt = 0.0;
         else
             spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
-        att *= spotAtt;
     }
 
     // Accumulate light intensities
     Ia += att * u_lightAmbi[i];
-    Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
-    Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
+    Id += att * spotAtt * u_lightDiff[i] * diffFactor * (1.0 - shadow);
+    Is += att * spotAtt * u_lightSpec[i] * specFactor * (1.0 - shadow);
 })";
 //-----------------------------------------------------------------------------
 const string fragFunctionsLightingCookTorrance = R"(

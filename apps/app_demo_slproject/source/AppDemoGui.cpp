@@ -2842,7 +2842,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLAnimPlayback* anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.8f);
-            if (myComboBox("", &curAnimIx, animations))
+            if (myComboBox("##", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
             ImGui::PopItemWidth();
 
