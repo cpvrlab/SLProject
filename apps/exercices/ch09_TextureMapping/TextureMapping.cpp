@@ -327,8 +327,8 @@ void onInit()
     _matTexDiffLoc     = glGetUniformLocation(_shaderProgID, "u_matTexDiff");
 
     // Build object
-    buildSphere(1.0f, 72, 72);
-    // buildSquare();
+    // buildSphere(1.0f, 72, 72);
+    buildSquare();
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
