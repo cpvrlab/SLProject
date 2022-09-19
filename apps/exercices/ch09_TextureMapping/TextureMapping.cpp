@@ -119,9 +119,9 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     theta  = 0.0f;
     dtheta = Utils::PI / stacks;
     dphi   = 2.0f * Utils::PI / slices;
-    ds     = 1.0f / slices;
-    dt     = 1.0f / stacks;
-    t      = 1.0f;
+    ds     = 0.0f; // ???
+    dt     = 0.0f; // ???
+    t      = 0.0f; // ???
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= (int)stacks; ++i)
@@ -150,14 +150,14 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
             v[iv].t.y = t;
 
             phi += dphi;
-            s += ds;
+            //s = ???
             iv++;
         }
         theta += dtheta;
-        t -= dt;
+        //t = ???
     }
 
-    // create Index array x
+    // create index array for triangles
     _numI           = (GLuint)(slices * stacks * 2 * 3);
     GLuint* indices = new GLuint[_numI];
     GLuint  ii      = 0, iV1, iV2;
@@ -169,7 +169,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
         iV2 = iV1 + slices + 1;
 
         for (j = 0; j < (int)slices; ++j)
-        { // 1st triangle ccw
+        {
+            // 1st triangle ccw
             indices[ii++] = iV1 + j;
             indices[ii++] = iV2 + j;
             indices[ii++] = iV2 + j + 1;
@@ -193,7 +194,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
                       (GLint)_shaderProgID,
                       _pLoc,
                       -1,
-                      _nLoc);
+                      _nLoc,
+                      _uvLoc);
 
     // Delete arrays on heap
     delete[] v;
@@ -280,7 +282,7 @@ void onInit()
     _matDiffuse.set(1.0f, 1.0f, 1.0f);
     _matSpecular.set(1.0f, 1.0f, 1.0f);
     _matEmissive.set(0.0f, 0.0f, 0.0f);
-    _matShininess = 100.0f;
+    _matShininess = 500.0f;
 
     // position of the camera
     _camZ = 3.0f;
@@ -293,7 +295,7 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth1024_C.jpg");
+    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth2048_C.png");
 
     // Load, compile & link shaders
     _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch09_TextureMapping.vert", GL_VERTEX_SHADER);
@@ -325,8 +327,8 @@ void onInit()
     _matTexDiffLoc     = glGetUniformLocation(_shaderProgID, "u_matTexDiff");
 
     // Build object
-    // buildSphere(1.0f, 72, 72);
-    buildSquare();
+    buildSphere(1.0f, 72, 72);
+    // buildSquare();
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
