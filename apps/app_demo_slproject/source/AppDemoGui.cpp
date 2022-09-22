@@ -1608,6 +1608,26 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                /*
+                if (ImGui::BeginMenu("Robotics"))
+                {
+                    SLstring zip     = "glTF-Sample-Models.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
+                        else
+                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_DamagedHelmet);
+                    }
+
+                    ImGui::EndMenu();
+                }
+                 */
+
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
@@ -3193,7 +3213,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         if (s->lights().size() > 0)
         {
             ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-            SLCol4f gAC  = s->lights()[0]->globalAmbient;
+            SLCol4f             gAC = s->lights()[0]->globalAmbient;
             if (ImGui::ColorEdit3("Global Ambient Color", (float*)&gAC, cef))
                 s->lights()[0]->globalAmbient = gAC;
         }

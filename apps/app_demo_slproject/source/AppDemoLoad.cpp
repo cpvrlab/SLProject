@@ -3005,7 +3005,45 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->doWaitOnIdle(true); // Saves energy
         }
     }
+/*
+    else if (sceneID == SID_Robotics_FanucCRX) //..................................................
+    {
+        SLstring modelFile = configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
 
+        if (Utils::fileExists(modelFile))
+        {
+            s->info("Fanuc CRX Robot Arm");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create camera and initialize its parameters
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0,0,5);
+            cam1->lookAt(0,0,0);
+            cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->focalDist(5);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+
+            // Import robot model
+            SLAssimpImporter importer;
+            SLNode*          robot = importer.load(s->animManager(),
+                                             am,
+                                             modelFile,
+                                             Utils::getPath(modelFile),
+                                          nullptr,
+                                             false,   // delete tex images after build
+                                             true,    // only meshes
+                                             nullptr, // no replacement material
+                                             0.4f);   // 40% ambient reflection
+            scene->addChild(robot);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(true); // Saves energy
+        }
+    }
+*/
     else if (sceneID == SID_VolumeRayCast) //......................................................
     {
         s->name("Volume Ray Cast Test");

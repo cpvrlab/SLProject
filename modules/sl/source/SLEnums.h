@@ -137,6 +137,8 @@ enum SLSceneID
     SID_glTF_Sponza,
     SID_glTF_WaterBottle,
 
+    //SID_Robotics_FanucCRX,
+
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
 
