@@ -988,7 +988,7 @@ void appDemoLoadScene(SLAssetManager* am,
         // Test map material
         SLGLTexture* tex1C = new SLGLTexture(am, texPath + "Testmap_1024_C.jpg");
         SLGLTexture* tex1N = new SLGLTexture(am, texPath + "Testmap_1024_N.jpg");
-        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1C, tex1N);
+        SLMaterial*  mat1  = new SLMaterial(am, "mat1", tex1C, tex1N);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture(am, texPath + "wood0_0512_C.jpg");
@@ -1697,12 +1697,12 @@ void appDemoLoadScene(SLAssetManager* am,
 
         // Create two squares
         SLMesh* rectMeshR = new SLRectangle(am,
-                                           SLVec2f(-1, -1),
-                                           SLVec2f(1, 1),
-                                           1,
-                                           1,
-                                           "RectR",
-                                           matR);
+                                            SLVec2f(-1, -1),
+                                            SLVec2f(1, 1),
+                                            1,
+                                            1,
+                                            "RectR",
+                                            matR);
         SLNode* rectNodeR = new SLNode(rectMeshR, "Rect Node Red");
         scene->addChild(rectNodeR);
 
@@ -3001,6 +3001,82 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(pbrGroup);
 
             s->skybox(skybox);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(true); // Saves energy
+        }
+    }
+
+    else if (sceneID == SID_Robotics_FanucCRX_FK) //...............................................
+    {
+        SLstring modelFile = configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+
+        if (Utils::fileExists(modelFile))
+        {
+            s->info("Dancing FANUC CRX Robot with Forward Kinematic");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create camera and initialize its parameters
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0.8f, 2.5f);
+            cam1->lookAt(0, 0.8f, 0);
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                      SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->focalDist(3);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+
+            // Define directional
+            SLLightDirect* light1 = new SLLightDirect(am, s, 2, 2, 2, 0.2f, 1, 1, 1);
+            light1->lookAt(0, 0, 0);
+            light1->attenuation(1, 0, 0);
+            light1->createsShadows(true);
+            light1->createShadowMap(1,7,SLVec2f(5,5),SLVec2i(2048,2048));
+            light1->doSmoothShadows(true);
+            light1->castsShadows(false);
+            scene->addChild(light1);
+
+            SLMaterial* matFloor = new SLMaterial(am, "matFloor", SLCol4f::WHITE*0.5f);
+            matFloor->ambient(SLCol4f::WHITE * 0.3f);
+            SLMesh* rectangle = new SLRectangle(am, SLVec2f(-2, -2), SLVec2f(2, 2), 1, 1, "rectangle", matFloor);
+            SLNode* floorRect = new SLNode(rectangle);
+            floorRect->rotate(90, -1, 0, 0);
+            scene->addChild(floorRect);
+
+            // Import robot model
+            SLAssimpImporter importer;
+            SLNode*          robot = importer.load(s->animManager(),
+                                          am,
+                                          modelFile,
+                                          Utils::getPath(modelFile),
+                                          nullptr,
+                                          false,   // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.2f);   // 40% ambient reflection
+            SLNode* crx_shoulder = robot->findChild<SLNode>("crx_shoulder");
+            SLNode* crx_upperarm = robot->findChild<SLNode>("crx_upperarm");
+            SLNode* crx_forearm = robot->findChild<SLNode>("crx_forearm");
+            SLNode* crx_wrist1 = robot->findChild<SLNode>("crx_wrist1");
+            SLNode* crx_wrist2 = robot->findChild<SLNode>("crx_wrist2");
+            SLNode* crx_wrist3 = robot->findChild<SLNode>("crx_wrist3");
+
+            SLAnimation* shoulderAnim = s->animManager().createNodeAnimation("shoulderAnim", 4.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            shoulderAnim->createNodeAnimTrackForRotation(crx_shoulder, 180, crx_shoulder->upOS());
+            SLAnimation* upperarmAnim = s->animManager().createNodeAnimation("upperarmAnim", 3.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            upperarmAnim->createNodeAnimTrackForRotation(crx_upperarm, -60, crx_upperarm->forwardOS());
+            SLAnimation* forearmAnim = s->animManager().createNodeAnimation("forearmAnim", 3.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            forearmAnim->createNodeAnimTrackForRotation(crx_forearm, 90, crx_forearm->forwardOS());
+            SLAnimation* wrist1Anim = s->animManager().createNodeAnimation("wrist1Anim", 5.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            wrist1Anim->createNodeAnimTrackForRotation(crx_wrist1, 180, crx_wrist1->upOS());
+            SLAnimation* wrist2Anim = s->animManager().createNodeAnimation("wrist2Anim", 9.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            wrist2Anim->createNodeAnimTrackForRotation(crx_wrist2, 180, crx_wrist2->forwardOS());
+            SLAnimation* wrist3Anim = s->animManager().createNodeAnimation("wrist3Anim", 2.0f, true, EC_inOutCubic, AL_pingPongLoop);
+            wrist3Anim->createNodeAnimTrackForRotation(crx_wrist3, 180, crx_wrist3->upOS());
+
+            scene->addChild(robot);
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy
         }

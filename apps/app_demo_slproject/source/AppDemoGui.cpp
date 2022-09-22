@@ -1608,6 +1608,30 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::BeginMenu("Robotics"))
+                {
+                    SLstring zip     = "GLTF-FanucCRX.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        else
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
+                    }
+
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
@@ -1681,6 +1705,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_AnimationSkeletal);
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
                         s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
+
+                    SLstring zip     = "GLTF-FanucCRX.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        else
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -3195,7 +3238,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         if (s->lights().size() > 0)
         {
             ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-            SLCol4f gAC  = s->lights()[0]->globalAmbient;
+            SLCol4f             gAC = s->lights()[0]->globalAmbient;
             if (ImGui::ColorEdit3("Global Ambient Color", (float*)&gAC, cef))
                 s->lights()[0]->globalAmbient = gAC;
         }
