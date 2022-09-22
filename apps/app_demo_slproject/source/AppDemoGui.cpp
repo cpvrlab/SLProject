@@ -1608,25 +1608,29 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                /*
                 if (ImGui::BeginMenu("Robotics"))
                 {
-                    SLstring zip     = "glTF-Sample-Models.zip";
+                    SLstring zip     = "GLTF-FanucCRX.zip";
                     SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
                     SLstring pathDst = AppDemo::configPath + "models/";
 
-                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX))
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
                         else
-                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_DamagedHelmet);
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
                     }
 
                     ImGui::EndMenu();
                 }
-                 */
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
@@ -1701,6 +1705,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_AnimationSkeletal);
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
                         s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
+
+                    SLstring zip     = "GLTF-FanucCRX.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        else
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
+                    }
 
                     ImGui::EndMenu();
                 }
