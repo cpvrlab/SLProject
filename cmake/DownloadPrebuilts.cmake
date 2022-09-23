@@ -1508,9 +1508,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
 
-    ####################
-    # Assimp for Linux #
-    ####################
+    #########################
+    # Assimp for Emscripten #
+    #########################
 
     set(assimp_VERSION "v5.0.0")
     set(assimp_DIR "${PREBUILT_PATH}/emscripten_assimp_${assimp_VERSION}")

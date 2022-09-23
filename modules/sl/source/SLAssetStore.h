@@ -9,6 +9,7 @@
 #ifdef SL_EMSCRIPTEN
 #    define SL_ASSET_STORE_REMOTE
 #    include <emscripten/fetch.h>
+#    include <png.h>
 #else
 #    define SL_ASSET_STORE_FS
 #endif
@@ -16,7 +17,7 @@
 struct SLAsset
 {
 public:
-    char* data;
+    char*  data;
     size_t size;
 
 public:
@@ -28,7 +29,7 @@ public:
 
     SLAsset(const char* data, size_t size)
     {
-        if(!data) return;
+        if (!data) return;
 
         this->data = new char[size];
         std::memcpy(this->data, data, size);
@@ -36,13 +37,13 @@ public:
     }
 
     SLAsset(const SLAsset& other) : SLAsset(other.data, other.size) {}
-    
+
     SLAsset(SLAsset&& other) noexcept : data(std::exchange(other.data, nullptr)), size(other.size) {}
-    
+
     ~SLAsset() { delete[] data; }
-    
+
     SLAsset& operator=(const SLAsset& other) { return *this = SLAsset(other); }
-    
+
     SLAsset& operator=(SLAsset&& other)
     {
         std::swap(data, other.data);
@@ -55,7 +56,6 @@ public:
         data = nullptr;
         size = 0;
     }
-
 };
 
 #ifdef SL_ASSET_STORE_REMOTE
@@ -68,24 +68,27 @@ struct SLAssetDownload
 
 struct SLBundleDownload
 {
-    int numAssets;
-    int numAssetsDownloaded;
+    int              numAssets;
+    int              numAssetsDownloaded;
     DownloadCallback callback;
 };
 #endif
 
 namespace SLAssetStore
 {
-    SLAsset loadAsset(SLstring path);
-    SLstring loadTextAsset(SLstring path);
-    CVMat loadCVImageAsset(SLstring path);
-    void saveTextAsset(SLstring path, SLstring content);
-    bool assetExists(SLstring path);
-    bool dirExists(SLstring dir);
+SLAsset  loadAsset(SLstring path);
+SLstring loadTextAsset(SLstring path);
+CVMat    loadCVImageAsset(SLstring path);
+void     saveTextAsset(SLstring path, SLstring content);
+bool     assetExists(SLstring path);
+bool     dirExists(SLstring dir);
 
 #ifdef SL_ASSET_STORE_REMOTE
-    void downloadAsset(SLstring path, DownloadCallback callback);
-    void downloadAssetBundle(SLVstring paths, DownloadCallback callback);
+CVMat loadPNG(SLstring path);
+CVMat loadJPEG(SLstring path);
+
+void downloadAsset(SLstring path, DownloadCallback callback);
+void downloadAssetBundle(SLVstring paths, DownloadCallback callback);
 #endif
 }
 

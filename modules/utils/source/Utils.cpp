@@ -1191,7 +1191,7 @@ void errorMsg(const char* tag,
 // Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads()
 {
-#if defined(DEBUG) || defined(_DEBUG)
+#if defined(DEBUG) || defined(_DEBUG) || defined(__EMSCRIPTEN__)
     return 1;
 #else
     return std::max(std::thread::hardware_concurrency(), 1U);

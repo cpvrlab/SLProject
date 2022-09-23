@@ -69,8 +69,9 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 		SL_APP_ALL)
 endif()
 
-add_compile_options("-sALLOW_MEMORY_GROWTH=1")
-add_link_options("-sALLOW_MEMORY_GROWTH=1")
+if("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
+	add_link_options("-sALLOW_MEMORY_GROWTH=1" "-sASYNCIFY")
+endif()
 
 add_subdirectory(modules/sens)
 add_subdirectory(modules/sl)

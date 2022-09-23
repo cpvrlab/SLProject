@@ -4,7 +4,7 @@ file(GLOB headers
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoSceneView.h
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoGui.h
-    ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     ${SL_PROJECT_ROOT}/apps/source/Scene.h
 )
 
@@ -28,6 +28,10 @@ set_target_properties(${target} PROPERTIES LINK_FLAGS "-s USE_GLFW=3")
 
 # Copy index.html to output directory
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target}.html" COPYONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/server.py" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/server.py" COPYONLY)
+
+# Link Embind
+target_link_libraries(${target} PUBLIC embind)
 
 message(${OpenCV_INCLUDE_DIR})
 

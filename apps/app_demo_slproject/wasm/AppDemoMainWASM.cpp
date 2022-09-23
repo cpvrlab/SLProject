@@ -14,10 +14,12 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include <emscripten/fetch.h>
+#include <emscripten/val.h>
 
 #include <iostream>
 #include <fstream>
 #include <atomic>
+#include <filesystem>
 
 //-----------------------------------------------------------------------------
 // Global application variables
@@ -44,6 +46,66 @@ extern void appDemoLoadScene(SLAssetManager* am,
                              SLScene*        s,
                              SLSceneView*    sv,
                              SLSceneID       sceneID);
+
+SLKey mapKeyToSLKey(SLint key)
+{
+    switch (key)
+    {
+        case GLFW_KEY_SPACE: return K_space;
+        case GLFW_KEY_ESCAPE: return K_esc;
+        case GLFW_KEY_F1: return K_F1;
+        case GLFW_KEY_F2: return K_F2;
+        case GLFW_KEY_F3: return K_F3;
+        case GLFW_KEY_F4: return K_F4;
+        case GLFW_KEY_F5: return K_F5;
+        case GLFW_KEY_F6: return K_F6;
+        case GLFW_KEY_F7: return K_F7;
+        case GLFW_KEY_F8: return K_F8;
+        case GLFW_KEY_F9: return K_F9;
+        case GLFW_KEY_F10: return K_F10;
+        case GLFW_KEY_F11: return K_F11;
+        case GLFW_KEY_F12: return K_F12;
+        case GLFW_KEY_UP: return K_up;
+        case GLFW_KEY_DOWN: return K_down;
+        case GLFW_KEY_LEFT: return K_left;
+        case GLFW_KEY_RIGHT: return K_right;
+        case GLFW_KEY_LEFT_SHIFT: return K_shift;
+        case GLFW_KEY_RIGHT_SHIFT: return K_shift;
+        case GLFW_KEY_LEFT_CONTROL: return K_ctrl;
+        case GLFW_KEY_RIGHT_CONTROL: return K_ctrl;
+        case GLFW_KEY_LEFT_ALT: return K_alt;
+        case GLFW_KEY_RIGHT_ALT: return K_alt;
+        case GLFW_KEY_LEFT_SUPER: return K_super;  // Apple command key
+        case GLFW_KEY_RIGHT_SUPER: return K_super; // Apple command key
+        case GLFW_KEY_TAB: return K_tab;
+        case GLFW_KEY_ENTER: return K_enter;
+        case GLFW_KEY_BACKSPACE: return K_backspace;
+        case GLFW_KEY_INSERT: return K_insert;
+        case GLFW_KEY_DELETE: return K_delete;
+        case GLFW_KEY_PAGE_UP: return K_pageUp;
+        case GLFW_KEY_PAGE_DOWN: return K_pageDown;
+        case GLFW_KEY_HOME: return K_home;
+        case GLFW_KEY_END: return K_end;
+        case GLFW_KEY_KP_0: return K_NP0;
+        case GLFW_KEY_KP_1: return K_NP1;
+        case GLFW_KEY_KP_2: return K_NP2;
+        case GLFW_KEY_KP_3: return K_NP3;
+        case GLFW_KEY_KP_4: return K_NP4;
+        case GLFW_KEY_KP_5: return K_NP5;
+        case GLFW_KEY_KP_6: return K_NP6;
+        case GLFW_KEY_KP_7: return K_NP7;
+        case GLFW_KEY_KP_8: return K_NP8;
+        case GLFW_KEY_KP_9: return K_NP9;
+        case GLFW_KEY_KP_DIVIDE: return K_NPDivide;
+        case GLFW_KEY_KP_MULTIPLY: return K_NPMultiply;
+        case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
+        case GLFW_KEY_KP_ADD: return K_NPAdd;
+        case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
+        case GLFW_KEY_UNKNOWN: return K_none;
+        default: break;
+    }
+    return (SLKey)key;
+}
 
 static void onResize(GLFWwindow* myWindow, int width, int height)
 {
@@ -173,7 +235,114 @@ static void onMouseWheel(GLFWwindow* myWindow,
     int dY = (int)yscroll;
     if (dY == 0) dY = (int)(Utils::sign(yscroll));
 
-    slMouseWheel(svIndex, -dY, modifiers);
+    slMouseWheel(svIndex, dY, modifiers);
+}
+
+static void onKeyPress(GLFWwindow* myWindow,
+                       int         GLFWKey,
+                       int         scancode,
+                       int         action,
+                       int         mods)
+{
+    SLKey key = mapKeyToSLKey(GLFWKey);
+
+    if (action == GLFW_PRESS)
+    {
+        switch (key)
+        {
+            case K_ctrl: modifiers = (SLKey)(modifiers | K_ctrl); return;
+            case K_alt: modifiers = (SLKey)(modifiers | K_alt); return;
+            case K_shift: modifiers = (SLKey)(modifiers | K_shift); return;
+            default: break;
+        }
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        switch (key)
+        {
+            case K_ctrl: modifiers = (SLKey)(modifiers ^ K_ctrl); return;
+            case K_alt: modifiers = (SLKey)(modifiers ^ K_alt); return;
+            case K_shift: modifiers = (SLKey)(modifiers ^ K_shift); return;
+            default: break;
+        }
+    }
+
+    // Special treatment for ESC key
+    if (key == K_esc && action == GLFW_RELEASE)
+    {
+        if (fullscreen)
+        {
+            fullscreen = !fullscreen;
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
+        }
+        if (AppDemoGui::hideUI)
+            AppDemoGui::hideUI = false;
+    }
+    // Toggle fullscreen mode
+    else if (key == K_F9 && action == GLFW_PRESS)
+    {
+        fullscreen = !fullscreen;
+
+        if (fullscreen)
+        {
+            GLFWmonitor*       primary = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode    = glfwGetVideoMode(primary);
+            glfwSetWindowSize(myWindow, mode->width, mode->height);
+            glfwSetWindowPos(myWindow, 0, 0);
+        }
+        else
+        {
+            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
+            glfwSetWindowPos(myWindow, 10, 30);
+        }
+    }
+    else
+    {
+        // Keyboard shortcuts for next or previous sceneID loading
+        if (modifiers & K_alt && modifiers & K_shift)
+        {
+            SLSceneView* sv = AppDemo::sceneViews[0];
+            if (action == GLFW_PRESS)
+            {
+                if (key == '0' && sv)
+                {
+                    appDemoLoadScene(AppDemo::assetManager,
+                                     AppDemo::scene,
+                                     sv,
+                                     SID_Empty);
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
+                }
+                else if (key == K_left && sv && AppDemo::sceneID > 0)
+                {
+                    appDemoLoadScene(AppDemo::assetManager,
+                                     AppDemo::scene,
+                                     sv,
+                                     (SLSceneID)(AppDemo::sceneID - 1));
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
+                }
+                else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal - 1)
+                {
+                    appDemoLoadScene(AppDemo::assetManager,
+                                     AppDemo::scene,
+                                     sv,
+                                     (SLSceneID)(AppDemo::sceneID + 1));
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
+                }
+            }
+            return;
+        }
+
+        if (action == GLFW_PRESS)
+            slKeyPress(svIndex, key, modifiers);
+        else if (action == GLFW_RELEASE)
+            slKeyRelease(svIndex, key, modifiers);
+    }
+}
+
+void onCharInput(GLFWwindow*, SLuint c)
+{
+    slCharInput(svIndex, c);
 }
 
 void onGLFWError(int error, const char* description)
@@ -215,50 +384,52 @@ void appDemoLoadSceneEmscripten(SLAssetManager* am,
 
     // Create meshes and nodes
     SLMesh* rectMesh = new SLRectangle(am,
-                                        SLVec2f(-5, -5),
-                                        SLVec2f(5, 5),
-                                        25,
-                                        25,
-                                        "rectangle mesh",
-                                        m1);
+                                       SLVec2f(-5, -5),
+                                       SLVec2f(5, 5),
+                                       25,
+                                       25,
+                                       "rectangle mesh",
+                                       m1);
     SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
     scene->addChild(rectNode);
 
     // Set background color and the root scene node
     sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
-                                                SLCol4f(0.2f, 0.2f, 0.2f));
+                                               SLCol4f(0.2f, 0.2f, 0.2f));
     // Save energy
     sv->doWaitOnIdle(true);
 }
 
 SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
 {
-    return new AppDemoSceneView(scene, curDPI, inputManager);
+    return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
 }
 
 EM_JS(int, getViewportWidth, (), {
-    return window.innerWidth;
+    return window.innerWidth - 1;
 });
 
 EM_JS(int, getViewportHeight, (), {
-    return window.innerHeight;
+    return window.innerHeight - 1;
 });
 
-SLbool onPaint() {
+SLbool onPaint()
+{
     int width;
     int height;
     glfwGetWindowSize(window, &width, &height);
 
-    int newWidth = getViewportWidth();
+    int newWidth  = getViewportWidth();
     int newHeight = getViewportHeight();
-    if(newWidth != width || newHeight != height) glfwSetWindowSize(window, newWidth, newHeight);
+    if (width != newWidth || height != newHeight) glfwSetWindowSize(window, newWidth, newHeight);
 
     slPaintAllViews();
     glfwSwapBuffers(window);
     return true;
 }
 
-EM_BOOL onLoop(double time, void* userData) {
+EM_BOOL onLoop(double time, void* userData)
+{
     onPaint();
     return EM_TRUE;
 }
@@ -266,7 +437,7 @@ EM_BOOL onLoop(double time, void* userData) {
 void runApp()
 {
     glfwInit();
-    
+
     int windowWidth = 1080;
     int windowHeight = 720;
 
@@ -286,7 +457,7 @@ void runApp()
         "data/images/textures/",
         "data/images/fonts/",
         "data/videos/",
-        "config/",
+        "data/config/",
         "AppDemoEmscripten",
         (void*)appDemoLoadScene
     );
@@ -306,12 +477,12 @@ void runApp()
         (void*)AppDemoGui::saveConfig
     );
 
+    glfwSetKeyCallback(window, onKeyPress);
+    glfwSetCharCallback(window, onCharInput);
     glfwSetWindowSizeCallback(window, onResize);
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
-
-    glEnable(GL_DEPTH_TEST);
 
     // We cannot loop ourselves because that would block the page,
     // but we can register an update function to be called in every iteration

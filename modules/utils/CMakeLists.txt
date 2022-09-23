@@ -133,7 +133,7 @@ target_include_directories(${target}
     ${platform_specific_include_dirs}
     ${UTILS_ROOT}/externals/asio/include
     ${UTILS_ROOT}/externals/ftplibpp
-    ${UTILS_ROOT}/externals/zlib/contrib
+	${UTILS_ROOT}/externals/zlib/contrib
     ${openssl_INCLUDE_DIR}
     INTERFACE
     )
@@ -183,5 +183,6 @@ target_link_libraries(${target}
 if (NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     target_link_libraries(${target} PUBLIC zlib)
 else()
+    target_compile_options(${target} PUBLIC "-sUSE_ZLIB=1")
     target_link_options(${target} PUBLIC "-sUSE_ZLIB=1")
 endif()

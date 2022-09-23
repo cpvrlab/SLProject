@@ -373,20 +373,24 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
             buildMenuContext(s, sv);
 
-#ifndef SL_EMSCRIPTEN
             if (showStatsTiming)
             {
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
+#ifndef SL_EMSCRIPTEN
                 CVVideoType  vt    = CVCapture::instance()->videoType();
-                SLchar       m[2550]; // message character array
+#endif
+				SLchar       m[2550]; // message character array
                 m[0] = 0;             // set zero length
 
                 if (rType == RT_gl)
                 {
                     // Get averages from average variables (see Averaged)
+#ifndef SL_EMSCRIPTEN
                     SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+#endif
                     SLfloat updateTime     = s->updateTimesMS().average();
+#ifndef SL_EMSCRIPTEN
                     SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
                     SLfloat detectTime     = CVTracked::detectTimesMS.average();
                     SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
@@ -394,6 +398,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat matchTime      = CVTracked::matchTimesMS.average();
                     SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
+#endif
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                     SLfloat updateAABBTime = s->updateAABBTimesMS().average();
                     SLfloat updateDODTime  = s->updateDODTimesMS().average();
@@ -403,14 +408,18 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                     // Calculate percentage from frame time
+#ifndef SL_EMSCRIPTEN
                     SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+#endif
                     SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
+#ifndef SL_EMSCRIPTEN
+					SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat detectTimePC     = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat matchTimePC      = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat optFlowTimePC    = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+#endif
+					SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
@@ -427,7 +436,9 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
                     sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
+#ifndef SL_EMSCRIPTEN
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+#endif
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
                     sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
@@ -437,6 +448,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
                         sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
                     }
+					
+#ifndef SL_EMSCRIPTEN
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {
                         sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
@@ -447,6 +460,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
                         sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
+#endif
 
                     // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
                     /* if (s->singleMeshFullSelected() != nullptr)
@@ -542,7 +556,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
-#endif
 
             if (showStatsScene)
             {
@@ -1496,8 +1509,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(am, s, sv, SID_FrustumCull);
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
                         s->onLoad(am, s, sv, SID_2Dand3DText);
+#endif
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(am, s, sv, SID_PointClouds);
 
@@ -1541,8 +1556,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_RTSoftShadows);
                     if (ImGui::MenuItem("Cascaded Shadows", nullptr, sid == SID_ShadowMappingCascaded))
                         s->onLoad(am, s, sv, SID_ShadowMappingCascaded);
+					
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Columns with Cascaded Sh.", nullptr, sid == SID_Benchmark6_ColumnsLOD))
                         s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
+#endif
 
                     ImGui::EndMenu();
                 }
@@ -1580,6 +1598,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("glTF Sample Models"))
                 {
                     SLstring zip     = "glTF-Sample-Models.zip";
@@ -1629,12 +1648,14 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     ImGui::EndMenu();
                 }
+#endif
 
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
                         s->onLoad(am, s, sv, SID_VolumeRayCast);
 
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
                     {
                         auto loadMRIImages = []()
@@ -1689,6 +1710,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         // AppDemo::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
                         AppDemo::jobsToFollowInMain.push_back(onLoadScene);
                     }
+#endif
 
                     ImGui::EndMenu();
                 }
@@ -1853,9 +1875,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                 }
 
+#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
@@ -1948,7 +1970,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark1_LargeModel);
                         }
                     }
-#endif
 
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
@@ -2001,6 +2022,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndMenu();
                 }
+#endif
 
                 ImGui::EndMenu();
             }
@@ -2019,8 +2041,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                 nullptr,
                                 AppDemo::sceneID > SID_Empty))
                 s->onLoad(am, s, sv, AppDemo::sceneID - 1);
-
-            ImGui::Separator();
+				
+#ifndef SL_EMSCRIPTEN
+			ImGui::Separator();
 
             if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
@@ -2068,6 +2091,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 AppDemo::jobsToFollowInMain.emplace_back(followUpJob1);
                 AppDemo::jobsToFollowInMain.emplace_back(jobToFollow2);
             }
+#endif
 
 #ifndef SL_OS_ANDROID
             ImGui::Separator();
@@ -2098,10 +2122,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Animation off", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
-
-            ImGui::Separator();
-
+			
 #ifndef SL_EMSCRIPTEN
+			ImGui::Separator();
+
             if (ImGui::BeginMenu("Viewport Aspect"))
             {
                 SLVec2i videoAspect(0, 0);
@@ -2873,7 +2897,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             SLAnimPlayback* anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.8f);
-            if (myComboBox("", &curAnimIx, animations))
+            if (myComboBox("##", &curAnimIx, animations))
                 anim = s->animManager().allAnimPlayback((SLuint)curAnimIx);
             ImGui::PopItemWidth();
 

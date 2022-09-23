@@ -10,7 +10,7 @@
 #include <cv/CVImage.h>
 #include <Utils.h>
 #include <algorithm> // std::max
-#include <SLAssetStore.h>
+#include <SLFileIO.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -381,7 +381,7 @@ void CVImage::load(const string& filename,
     _bytesInFile = Utils::getFileSize(filename);
 
     // load the image format as stored in the file
-    _cvMat = SLAssetStore::loadCVImageAsset(filename);
+    _cvMat = SLFileIO::loadImage(filename);
 
     if (!_cvMat.data)
     {

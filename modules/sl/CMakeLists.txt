@@ -69,6 +69,8 @@ file(GLOB sources
         source/SLTexColorLUT.h
         source/SLTexFont.cpp
         source/SLTexFont.h
+        source/SLFileIO.cpp
+        source/SLFileIO.h
         source/accelstruct/SLAABBox.cpp
         source/accelstruct/SLAABBox.h
         source/accelstruct/SLAccelStruct.h
@@ -448,6 +450,6 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
-    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH" "-sUSE_SDL=2" "-sUSE_SDL_IMAGE=2" "-sUSE_LIBPNG" "-sSDL2_IMAGE_FORMATS=[\"PNG\"]")
-    target_link_options(${target} PUBLIC "--preload-file" "data/" "--use-preload-plugins")
+    target_compile_options(${target} PUBLIC "-sUSE_LIBPNG" "-sUSE_LIBJPEG")
+    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH" "-sUSE_LIBPNG" "-sUSE_LIBJPEG" "--preload-file=../data/@data")
 endif()

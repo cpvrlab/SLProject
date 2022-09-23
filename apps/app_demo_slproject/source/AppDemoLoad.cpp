@@ -814,7 +814,7 @@ void appDemoLoadScene(SLAssetManager* am,
         s->root3D(scene);
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "donald_trump.jpg");
         SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
 
         // Create a light source node
