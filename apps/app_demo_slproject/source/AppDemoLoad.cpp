@@ -3022,8 +3022,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLCamera* cam1 = new SLCamera("Camera 1");
             cam1->translation(0, 0.8f, 2.5f);
             cam1->lookAt(0, 0.8f, 0);
-            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
-                                      SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->focalDist(3);
             cam1->setInitialState();
             scene->addChild(cam1);
@@ -3033,12 +3032,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
             light1->lookAt(0, 0, 0);
             light1->attenuation(1, 0, 0);
             light1->createsShadows(true);
-            light1->createShadowMap(1,7,SLVec2f(5,5),SLVec2i(2048,2048));
+            light1->createShadowMap(1, 7, SLVec2f(5, 5), SLVec2i(2048, 2048));
             light1->doSmoothShadows(true);
             light1->castsShadows(false);
             scene->addChild(light1);
 
-            SLMaterial* matFloor = new SLMaterial(am, "matFloor", SLCol4f::WHITE*0.5f);
+            SLMaterial* matFloor = new SLMaterial(am, "matFloor", SLCol4f::WHITE * 0.5f);
             matFloor->ambient(SLCol4f::WHITE * 0.3f);
             SLMesh* rectangle = new SLRectangle(am, SLVec2f(-2, -2), SLVec2f(2, 2), 1, 1, "rectangle", matFloor);
             SLNode* floorRect = new SLNode(rectangle);
@@ -3056,12 +3055,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.2f);   // 40% ambient reflection
+
             SLNode* crx_shoulder = robot->findChild<SLNode>("crx_shoulder");
             SLNode* crx_upperarm = robot->findChild<SLNode>("crx_upperarm");
-            SLNode* crx_forearm = robot->findChild<SLNode>("crx_forearm");
-            SLNode* crx_wrist1 = robot->findChild<SLNode>("crx_wrist1");
-            SLNode* crx_wrist2 = robot->findChild<SLNode>("crx_wrist2");
-            SLNode* crx_wrist3 = robot->findChild<SLNode>("crx_wrist3");
+            SLNode* crx_forearm  = robot->findChild<SLNode>("crx_forearm");
+            SLNode* crx_wrist1   = robot->findChild<SLNode>("crx_wrist1");
+            SLNode* crx_wrist2   = robot->findChild<SLNode>("crx_wrist2");
+            SLNode* crx_wrist3   = robot->findChild<SLNode>("crx_wrist3");
 
             SLAnimation* shoulderAnim = s->animManager().createNodeAnimation("shoulderAnim", 4.0f, true, EC_inOutCubic, AL_pingPongLoop);
             shoulderAnim->createNodeAnimTrackForRotation(crx_shoulder, 180, crx_shoulder->upOS());

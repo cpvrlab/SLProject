@@ -258,8 +258,8 @@ bool onPaint()
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
-    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
-    glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
+    glUniform4f(_lightDiffuseLoc, 0.0f, 1.0f, 0.0f, 1.0f); // diffuse light intensity
+    glUniform4f(_matDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f);   // diffuse material reflection
 
     // 6) Activate the vertex array
     glBindVertexArray(_vao);
