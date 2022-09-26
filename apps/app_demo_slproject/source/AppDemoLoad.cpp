@@ -3012,7 +3012,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         if (Utils::fileExists(modelFile))
         {
-            s->info("Dancing FANUC CRX Robot with Forward Kinematic");
+            s->info("FANUC CRX Robot with Forward Kinematic");
 
             // Create a scene group node
             SLNode* scene = new SLNode("scene node");
@@ -3020,10 +3020,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             // Create camera and initialize its parameters
             SLCamera* cam1 = new SLCamera("Camera 1");
-            cam1->translation(0, 0.8f, 2.5f);
-            cam1->lookAt(0, 0.8f, 0);
+            cam1->translation(0, 0.5f, 2.0f);
+            cam1->lookAt(0, 0.5f, 0);
             cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(3);
+            cam1->focalDist(2);
             cam1->setInitialState();
             scene->addChild(cam1);
 
@@ -3056,27 +3056,37 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                           nullptr, // no replacement material
                                           0.2f);   // 40% ambient reflection
 
-            SLNode* crx_shoulder = robot->findChild<SLNode>("crx_shoulder");
-            SLNode* crx_upperarm = robot->findChild<SLNode>("crx_upperarm");
-            SLNode* crx_forearm  = robot->findChild<SLNode>("crx_forearm");
-            SLNode* crx_wrist1   = robot->findChild<SLNode>("crx_wrist1");
-            SLNode* crx_wrist2   = robot->findChild<SLNode>("crx_wrist2");
-            SLNode* crx_wrist3   = robot->findChild<SLNode>("crx_wrist3");
+            SLNode* crx_j1 = robot->findChild<SLNode>("crx_j1");
+            SLNode* crx_j2 = robot->findChild<SLNode>("crx_j2");
+            SLNode* crx_j3 = robot->findChild<SLNode>("crx_j3");
+            SLNode* crx_j4 = robot->findChild<SLNode>("crx_j4");
+            SLNode* crx_j5 = robot->findChild<SLNode>("crx_j5");
+            SLNode* crx_j6 = robot->findChild<SLNode>("crx_j6");
 
-            SLAnimation* shoulderAnim = s->animManager().createNodeAnimation("shoulderAnim", 4.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            shoulderAnim->createNodeAnimTrackForRotation(crx_shoulder, 180, crx_shoulder->upOS());
-            SLAnimation* upperarmAnim = s->animManager().createNodeAnimation("upperarmAnim", 3.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            upperarmAnim->createNodeAnimTrackForRotation(crx_upperarm, -60, crx_upperarm->forwardOS());
-            SLAnimation* forearmAnim = s->animManager().createNodeAnimation("forearmAnim", 3.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            forearmAnim->createNodeAnimTrackForRotation(crx_forearm, 90, crx_forearm->forwardOS());
-            SLAnimation* wrist1Anim = s->animManager().createNodeAnimation("wrist1Anim", 5.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            wrist1Anim->createNodeAnimTrackForRotation(crx_wrist1, 180, crx_wrist1->upOS());
-            SLAnimation* wrist2Anim = s->animManager().createNodeAnimation("wrist2Anim", 9.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            wrist2Anim->createNodeAnimTrackForRotation(crx_wrist2, 180, crx_wrist2->forwardOS());
-            SLAnimation* wrist3Anim = s->animManager().createNodeAnimation("wrist3Anim", 2.0f, true, EC_inOutCubic, AL_pingPongLoop);
-            wrist3Anim->createNodeAnimTrackForRotation(crx_wrist3, 180, crx_wrist3->upOS());
+            SLfloat angleDEG    = 45;
+            SLfloat durationSEC = 3.0f;
+
+            SLAnimation* j1Anim = s->animManager().createNodeAnimation("j1Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j1Anim->createNodeAnimTrackForRotation3(crx_j1, -angleDEG, 0, angleDEG, crx_j1->axisYOS());
+
+            SLAnimation* j2Anim = s->animManager().createNodeAnimation("j2Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j2Anim->createNodeAnimTrackForRotation3(crx_j2, -angleDEG, 0, angleDEG, -crx_j2->axisZOS());
+
+            SLAnimation* j3Anim = s->animManager().createNodeAnimation("j3Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j3Anim->createNodeAnimTrackForRotation3(crx_j3, angleDEG, 0, -angleDEG, -crx_j3->axisZOS());
+
+            SLAnimation* j4Anim = s->animManager().createNodeAnimation("j4Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j4Anim->createNodeAnimTrackForRotation3(crx_j4, -2 * angleDEG, 0, 2 * angleDEG, crx_j4->axisXOS());
+
+            SLAnimation* j5Anim = s->animManager().createNodeAnimation("j5Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j5Anim->createNodeAnimTrackForRotation3(crx_j5, -2 * angleDEG, 0, 2 * angleDEG, -crx_j5->axisZOS());
+
+            SLAnimation* j6Anim = s->animManager().createNodeAnimation("j6Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j6Anim->createNodeAnimTrackForRotation3(crx_j6, -2 * angleDEG, 0, 2 * angleDEG, crx_j6->axisXOS());
 
             scene->addChild(robot);
+
+
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy
         }
