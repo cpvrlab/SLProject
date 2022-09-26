@@ -196,10 +196,16 @@ public:
     SLVec3f forwardOS() const;
     SLVec3f rightOS() const;
     SLVec3f upOS() const;
+    SLVec3f axisXOS() const;
+    SLVec3f axisYOS() const;
+    SLVec3f axisZOS() const;
     SLVec3f translationWS() const;
     SLVec3f forwardWS() const;
     SLVec3f rightWS() const;
     SLVec3f upWS() const;
+    SLVec3f axisXWS() const;
+    SLVec3f axisYWS() const;
+    SLVec3f axisZWS() const;
 
     // transform setter methods
     void translation(const SLVec3f&   pos,
@@ -459,7 +465,7 @@ SLNode::translationOS() const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLNode::forward returns local forward vector
+Returns the local forward vector (= -z-axis) in a right-hand y-up system
 */
 inline SLVec3f
 SLNode::forwardOS() const
@@ -468,7 +474,7 @@ SLNode::forwardOS() const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLNode::right returns local right vector
+Returns the local right vector (= x-axis) in a right-hand y-up system
 */
 inline SLVec3f
 SLNode::rightOS() const
@@ -477,12 +483,39 @@ SLNode::rightOS() const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLNode::up returns local up vector
+Returns the local up vector in a right-hand y-up system
 */
 inline SLVec3f
 SLNode::upOS() const
 {
     return SLVec3f(_om.m(4), _om.m(5), _om.m(6));
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the x-axis in object space
+*/
+inline SLVec3f
+SLNode::axisXOS() const
+{
+    return _om.axisX();
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the y-axis in object space
+*/
+inline SLVec3f
+SLNode::axisYOS() const
+{
+    return _om.axisY();
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the z-axis in object space
+*/
+inline SLVec3f
+SLNode::axisZOS() const
+{
+    return _om.axisZ();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -523,6 +556,36 @@ SLNode::upWS() const
 {
     updateAndGetWM();
     return _wm.axisY();
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the x-axis in world space
+*/
+inline SLVec3f
+SLNode::axisXWS() const
+{
+    updateAndGetWM();
+    return _wm.axisX();
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the y-axis in world space
+*/
+inline SLVec3f
+SLNode::axisYWS() const
+{
+    updateAndGetWM();
+    return _wm.axisY();
+}
+//-----------------------------------------------------------------------------
+/*!
+Returns the z-axis in world space
+*/
+inline SLVec3f
+SLNode::axisZWS() const
+{
+    updateAndGetWM();
+    return _wm.axisZ();
 }
 //-----------------------------------------------------------------------------
 inline void

@@ -879,10 +879,15 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
 
         if (metalness == -1.0f)
             slMat->metalness(0.0f);
-
     }
     else
+    {
         slMat->reflectionModel(RM_BlinnPhong);
+
+        // Correct specular reflection when totally black
+        if (slMat->specular() == SLCol4f::BLACK)
+            slMat->specular(SLCol4f::WHITE);
+    }
 
     return slMat;
 }

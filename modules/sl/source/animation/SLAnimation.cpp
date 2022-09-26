@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLAnimation.cpp
-//  Date:      Autumn 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marc Wacker, Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLAnimation.cpp
+//   Date:      Autumn 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marc Wacker, Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <math/SLCurveBezier.h>
 #include <SLScene.h>
@@ -173,12 +173,13 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForTranslation(SLNode*        t
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
     track->animatedNode(target);
-    track->createNodeKeyframe(0.0f);                             // create zero kf
-    track->createNodeKeyframe(lengthSec())->translation(endPos); // create end scale keyframe
+    track->createNodeKeyframe(0.0f);
+    track->createNodeKeyframe(lengthSec())->translation(endPos);
     return track;
 }
 //-----------------------------------------------------------------------------
-/*! Specialized SLNodeAnimationTrack creator for a two keyframe rotation animation
+/*! Specialized SLNodeAnimationTrack creator for a two keyframe rotation
+ * animation from 0° to angleDeg.
  */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation(SLNode*        target,
                                                              SLfloat        angleDeg,
@@ -187,12 +188,88 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation(SLNode*        targ
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
     track->animatedNode(target);
-    track->createNodeKeyframe(0.0f);                                            // create zero kf
-    track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis)); // create end rotation keyframe
+    track->createNodeKeyframe(0.0f);
+    track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis));
+    return track;
+}
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for 2 keyframes at angleDeg0 and
+ * angleDeg1.
+ */
+SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation2(SLNode*        target,
+                                                              SLfloat        angleDeg0,
+                                                              SLfloat        angleDeg1,
+                                                              const SLVec3f& axis)
+{
+    SLNodeAnimTrack* track = createNodeAnimTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+
+    SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
+    frame0->rotation(SLQuat4f(angleDeg0, axis));
+
+    SLTransformKeyframe* frame1 = track->createNodeKeyframe(lengthSec());
+    frame1->rotation(SLQuat4f(angleDeg1, axis));
+
+    return track;
+}
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for 3 keyframes at angleDeg0,
+ * angleDeg1 and angleDeg2.
+ */
+SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation3(SLNode*        target,
+                                                              SLfloat        angleDeg0,
+                                                              SLfloat        angleDeg1,
+                                                              SLfloat        angleDeg2,
+                                                              const SLVec3f& axis)
+{
+    SLNodeAnimTrack* track = createNodeAnimTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+
+    SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
+    frame0->rotation(SLQuat4f(angleDeg0, axis));
+
+    SLTransformKeyframe* frame1 = track->createNodeKeyframe(lengthSec() * 0.5f);
+    frame1->rotation(SLQuat4f(angleDeg1, axis));
+
+    SLTransformKeyframe* frame2 = track->createNodeKeyframe(lengthSec());
+    frame2->rotation(SLQuat4f(angleDeg2, axis));
+
+    return track;
+}
+//-----------------------------------------------------------------------------
+/*! Specialized SLNodeAnimationTrack creator for 4 keyframes at angleDeg0,
+ * angleDeg1, angleDeg2 and angleDeg3.
+ */
+SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation4(SLNode*        target,
+                                                              SLfloat        angleDeg0,
+                                                              SLfloat        angleDeg1,
+                                                              SLfloat        angleDeg2,
+                                                              SLfloat        angleDeg3,
+                                                              const SLVec3f& axis)
+{
+    SLNodeAnimTrack* track = createNodeAnimTrack();
+    target->setInitialState();
+    track->animatedNode(target);
+
+    SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
+    frame0->rotation(SLQuat4f(angleDeg0, axis));
+
+    SLTransformKeyframe* frame1 = track->createNodeKeyframe(lengthSec() * 0.3333f);
+    frame1->rotation(SLQuat4f(angleDeg1, axis));
+
+    SLTransformKeyframe* frame2 = track->createNodeKeyframe(lengthSec() * 0.6666f);
+    frame2->rotation(SLQuat4f(angleDeg2, axis));
+
+    SLTransformKeyframe* frame3 = track->createNodeKeyframe(lengthSec());
+    frame3->rotation(SLQuat4f(angleDeg3, axis));
+
     return track;
 }
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a 360 deg. node rotation track
+ * with 3 keyframes from 0° to 180° to 360°.
  */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation360(SLNode*        target,
                                                                 const SLVec3f& axis)
@@ -221,8 +298,8 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForScaling(SLNode*        targe
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
     track->animatedNode(target);
-    track->createNodeKeyframe(0.0f);                         // create zero kf
-    track->createNodeKeyframe(lengthSec())->scale(endScale); // create end scale keyframe
+    track->createNodeKeyframe(0.0f);
+    track->createNodeKeyframe(lengthSec())->scale(endScale);
     return track;
 }
 
