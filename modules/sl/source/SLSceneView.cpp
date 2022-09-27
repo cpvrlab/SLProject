@@ -795,9 +795,10 @@ void SLSceneView::draw3DGLAll()
         draw3DGLLines(material->nodesVisible3D());
     }
 
-    // b) Draw remaining opaque nodes without meshes (SLCameras, needs redesign)
+    // b) Draw remaining opaque nodes without meshes
     _stats3D.numNodesOpaque += (SLuint)_nodesOpaque3D.size();
     draw3DGLNodes(_nodesOpaque3D, false, false);
+    draw3DGLLines(_nodesOpaque3D);
 
     // c) Draw nodes with meshes with blended materials sorted by material and sorted back to front
     for (auto material : _visibleMaterials3D)
@@ -817,6 +818,7 @@ void SLSceneView::draw3DGLAll()
     for (auto material : _visibleMaterials3D)
         draw3DGLLinesOverlay(material->nodesVisible3D());
     draw3DGLLinesOverlay(_nodesOverdrawn);
+    draw3DGLLinesOverlay(_nodesOpaque3D);
 
     // f) Draw visualization lines of animation curves
     _s->animManager().drawVisuals(this);

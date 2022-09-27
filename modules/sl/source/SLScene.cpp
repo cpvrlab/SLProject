@@ -230,10 +230,11 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
  and the fully or partially selected meshes are stored in SLScene::_selectedMeshes.
  The SLNode::isSelected and SLMesh::isSelected show if a node or mesh is
  selected. A node can be selected with or without a mesh. If a mesh is
- selected, its node is always also selected. To avoid a node from selection
- you can set its drawing bit SL_DB_NOTSELECTABLE. You should transform a
- node or mesh and show the properties of a node or mesh if only a single
- node and single full mesh is selected. To get them call
+ selected, its node is always also selected. A node without mesh can only be
+ selected in the scenegraph window.
+ To avoid a node from selection you can set its drawing bit SL_DB_NOTSELECTABLE.
+ You should transform a node or mesh and show the properties of a node or mesh
+ if only a single node and single full mesh is selected. To get them call
  SLScene::singleNodeSelected() or SLScene::singleMeshFullSelected().
  <br>
  For partial mesh selection see SLMesh::handleRectangleSelection.
