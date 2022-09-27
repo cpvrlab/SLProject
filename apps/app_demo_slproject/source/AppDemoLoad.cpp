@@ -3022,13 +3022,22 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLCamera* cam1 = new SLCamera("Camera 1");
             cam1->translation(0, 0.5f, 2.0f);
             cam1->lookAt(0, 0.5f, 0);
-            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                      SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->focalDist(2);
             cam1->setInitialState();
             scene->addChild(cam1);
 
             // Define directional
-            SLLightDirect* light1 = new SLLightDirect(am, s, 2, 2, 2, 0.2f, 1, 1, 1);
+            SLLightDirect* light1 = new SLLightDirect(am,
+                                                      s,
+                                                      2,
+                                                      2,
+                                                      2,
+                                                      0.2f,
+                                                      1,
+                                                      1,
+                                                      1);
             light1->lookAt(0, 0, 0);
             light1->attenuation(1, 0, 0);
             light1->createsShadows(true);
@@ -3039,7 +3048,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             SLMaterial* matFloor = new SLMaterial(am, "matFloor", SLCol4f::WHITE * 0.5f);
             matFloor->ambient(SLCol4f::WHITE * 0.3f);
-            SLMesh* rectangle = new SLRectangle(am, SLVec2f(-2, -2), SLVec2f(2, 2), 1, 1, "rectangle", matFloor);
+            SLMesh* rectangle = new SLRectangle(am,
+                                                SLVec2f(-2, -2),
+                                                SLVec2f(2, 2),
+                                                1,
+                                                1,
+                                                "rectangle",
+                                                matFloor);
             SLNode* floorRect = new SLNode(rectangle);
             floorRect->rotate(90, -1, 0, 0);
             scene->addChild(floorRect);
@@ -3055,6 +3070,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.2f);   // 40% ambient reflection
+
+            // Set missing specular color
+            robot->updateMeshMat([](SLMaterial* m)
+                                 { m->specular(SLCol4f::WHITE); },
+                                 true);
 
             SLNode* crx_j1 = robot->findChild<SLNode>("crx_j1");
             SLNode* crx_j2 = robot->findChild<SLNode>("crx_j2");
@@ -3085,7 +3105,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             j6Anim->createNodeAnimTrackForRotation3(crx_j6, -2 * angleDEG, 0, 2 * angleDEG, crx_j6->axisXOS());
 
             scene->addChild(robot);
-
 
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy

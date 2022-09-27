@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLNode.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marc Wacker, Marcus Hudritsch, Jan Dellsperger
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLNode.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marc Wacker, Marcus Hudritsch, Jan Dellsperger
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
@@ -418,12 +418,16 @@ void SLNode::cull3DRec(SLSceneView* sv)
                     sv->visibleMaterials3D().insert(this->mesh()->mat());
                     this->mesh()->mat()->nodesVisible3D().push_back(this);
                 }
-                // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
-                // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
-                // else if (typeid(*this) == typeid(SLCamera) ||
-                //         typeid(*this) == typeid(SLKeyframeCamera))
+
+                // Add camera node without mesh to opaque vector for line drawing
                 else if (dynamic_cast<SLCamera*>(this))
                     sv->nodesOpaque3D().push_back(this);
+
+                // Add selected nodes without mesh to opaque vector for line drawing
+                else if (this->_isSelected)
+                    sv->nodesOpaque3D().push_back(this);
+
+                // Add special text node to blended vector
                 else if (typeid(*this) == typeid(SLText))
                     sv->nodesBlended3D().push_back(this);
             }
