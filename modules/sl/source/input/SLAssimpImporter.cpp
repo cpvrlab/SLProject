@@ -883,10 +883,6 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     else
     {
         slMat->reflectionModel(RM_BlinnPhong);
-
-        // Correct specular reflection when totally black
-        if (slMat->specular() == SLCol4f::BLACK)
-            slMat->specular(SLCol4f::WHITE);
     }
 
     return slMat;
