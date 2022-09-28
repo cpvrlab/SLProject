@@ -25,7 +25,7 @@ void main(void)
 
     // Multiply the model-view-projection matrix that transforms the vertex
     // from the local into the world and then into the camera and the into the
-    // normalized devive space.
+    // normalized device space.
     gl_Position = u_pMatrix * u_vMatrix * u_mMatrix * a_position;
 }
 //-----------------------------------------------------------------------------
