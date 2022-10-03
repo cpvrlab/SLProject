@@ -133,9 +133,11 @@ static SLTransformNode* transformNode = nullptr;
 
 SLstring AppDemoGui::infoAbout = R"(
 Welcome to the SLProject demo app. It is developed at the Computer Science Department of the Bern University of Applied Sciences.
-The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing. The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. Click to close and use the menu to choose different scenes and view settings.
-For more information please visit: https://github.com/cpvrlab/SLProject
+The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing.
+The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
+Ray tracing and path tracing provide additional high quality transparencies, reflections and soft shadows.
+Click the X to close and use the menu File > Load Demo Scenes to choose other scenes that each show-case a specific feature of SLProject.
+For more information please visit: https://github.com/cpvrlab/SLProject/wiki
 )";
 
 SLstring AppDemoGui::infoCredits = R"(
