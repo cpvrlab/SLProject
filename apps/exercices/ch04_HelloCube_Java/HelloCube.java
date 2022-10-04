@@ -90,6 +90,7 @@ public class HelloCube extends JPanel implements ComponentListener,
         // model transform: rotate the coordinate system increasingly
         m_modelMatrix.identity();
         m_modelMatrix.rotate(m_rotAngle+=0.05f, 0,1,0);
+        m_modelMatrix.scale(2, 2, 2);
         
         // build combined matrix out of viewport, projection, view & model matrix
         SLMat4f m = new SLMat4f();

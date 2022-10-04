@@ -249,8 +249,8 @@ int main(int argc, char** argv)
         video.open(outputFile,
                    VideoWriter::fourcc('M', 'J', 'P', 'G'),
                    28,
-                   Size(cap.get(CAP_PROP_FRAME_WIDTH),
-                        cap.get(CAP_PROP_FRAME_HEIGHT)));
+                   Size((int)cap.get(CAP_PROP_FRAME_WIDTH),
+                        (int)cap.get(CAP_PROP_FRAME_HEIGHT)));
     }
 
     // Create a window

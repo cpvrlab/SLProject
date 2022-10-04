@@ -349,7 +349,7 @@ void addUniverseLevel(SLAssetManager* am,
     if (currentLevel >= levels)
         return;
 
-    const float degPerChild = 360.0f / childCount;
+    const float degPerChild = 360.0f / (float)childCount;
     SLuint      mod         = currentLevel % 3;
 
     float scaleFactor = 0.25f;
@@ -362,7 +362,7 @@ void addUniverseLevel(SLAssetManager* am,
                            "-C" + std::to_string(i);
         SLNode* child = new SLNode(meshes[numNodes % meshes.size()], childName);
 
-        child->rotate(i * degPerChild, 0, 0, 1);
+        child->rotate((float)i * degPerChild, 0, 0, 1);
         child->translate(2, 0, 0);
         child->scale(scaleFactor);
 
@@ -992,8 +992,9 @@ void appDemoLoadScene(SLAssetManager* am,
                 "Try ray tracing with key R and come back with the ESC key.");
 
         // Test map material
-        SLGLTexture* tex1 = new SLGLTexture(am, texPath + "Testmap_0512_C.png");
-        SLMaterial*  mat1 = new SLMaterial(am, "mat1", tex1);
+        SLGLTexture* tex1C = new SLGLTexture(am, texPath + "Testmap_1024_C.jpg");
+        SLGLTexture* tex1N = new SLGLTexture(am, texPath + "Testmap_1024_N.jpg");
+        SLMaterial*  mat1  = new SLMaterial(am, "mat1", tex1C, tex1N);
 
         // floor material
         SLGLTexture* tex2 = new SLGLTexture(am, texPath + "wood0_0512_C.jpg");
@@ -1665,6 +1666,68 @@ void appDemoLoadScene(SLAssetManager* am,
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
+    else if (sceneID == SID_ZFighting) //..........................................................
+    {
+        // Set scene name and info string
+        s->name("Z-Fighting Test Scene");
+        s->info("The reason for this depth fighting is that the camera's near clipping distance "
+                "is almost zero and the far clipping distance is too large. The depth buffer only "
+                "has 32-bit precision, which leads to this fighting effect when the distance "
+                "between the near and far clipping planes is too large. You can adjust these "
+                "values over the menu Camera > Projection");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+        s->root3D(scene);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.0001f);
+        cam1->clipFar(1000000);
+        cam1->translation(0, 0, 4);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(4);
+        cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                  SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create materials
+        SLMaterial* matR = new SLMaterial(am, "matR", SLCol4f::RED);
+        SLMaterial* matG = new SLMaterial(am, "matG", SLCol4f::GREEN);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+        light1->translation(5, 0, 5);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Create two squares
+        SLMesh* rectMeshR = new SLRectangle(am,
+                                            SLVec2f(-1, -1),
+                                            SLVec2f(1, 1),
+                                            1,
+                                            1,
+                                            "RectR",
+                                            matR);
+        SLNode* rectNodeR = new SLNode(rectMeshR, "Rect Node Red");
+        scene->addChild(rectNodeR);
+
+        SLMesh* rectMeshG = new SLRectangle(am,
+                                            SLVec2f(-0.8f, -0.8f),
+                                            SLVec2f(0.8f, 0.8f),
+                                            1,
+                                            1,
+                                            "RectG",
+                                            matG);
+        SLNode* rectNodeG = new SLNode(rectMeshG, "Rect Node Green");
+        rectNodeG->rotate(2.0f, 1, 1, 0);
+        scene->addChild(rectNodeG);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+
+        sv->camera(cam1);
+    }
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
              sceneID == SID_ShaderPerVertexBlinn) //...............................................
@@ -1877,7 +1940,7 @@ void appDemoLoadScene(SLAssetManager* am,
             y += spacing;
         }
 
-        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spotlight in the center.
         SLLight::gamma      = 2.2f;
         SLLightSpot* light1 = new SLLightSpot(am, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);
@@ -1943,8 +2006,8 @@ void appDemoLoadScene(SLAssetManager* am,
         const SLint nrRows  = 7;
         const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (nrCols / 2) * spacing;
-        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     maxX    = (float)((int)(nrCols / 2) * spacing);
+        SLfloat     maxY    = (float)((int)(nrRows / 2) * spacing);
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
@@ -2944,6 +3007,111 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(pbrGroup);
 
             s->skybox(skybox);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(true); // Saves energy
+        }
+    }
+
+    else if (sceneID == SID_Robotics_FanucCRX_FK) //...............................................
+    {
+        SLstring modelFile = configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+
+        if (Utils::fileExists(modelFile))
+        {
+            s->info("FANUC CRX Robot with Forward Kinematic");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+            s->root3D(scene);
+
+            // Create camera and initialize its parameters
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0.5f, 2.0f);
+            cam1->lookAt(0, 0.5f, 0);
+            cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                      SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->focalDist(2);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+
+            // Define directional
+            SLLightDirect* light1 = new SLLightDirect(am,
+                                                      s,
+                                                      2,
+                                                      2,
+                                                      2,
+                                                      0.2f,
+                                                      1,
+                                                      1,
+                                                      1);
+            light1->lookAt(0, 0, 0);
+            light1->attenuation(1, 0, 0);
+            light1->createsShadows(true);
+            light1->createShadowMap(1, 7, SLVec2f(5, 5), SLVec2i(2048, 2048));
+            light1->doSmoothShadows(true);
+            light1->castsShadows(false);
+            scene->addChild(light1);
+
+            SLMaterial* matFloor = new SLMaterial(am, "matFloor", SLCol4f::WHITE * 0.5f);
+            matFloor->ambient(SLCol4f::WHITE * 0.3f);
+            SLMesh* rectangle = new SLRectangle(am,
+                                                SLVec2f(-2, -2),
+                                                SLVec2f(2, 2),
+                                                1,
+                                                1,
+                                                "rectangle",
+                                                matFloor);
+            SLNode* floorRect = new SLNode(rectangle);
+            floorRect->rotate(90, -1, 0, 0);
+            scene->addChild(floorRect);
+
+            // Import robot model
+            SLAssimpImporter importer;
+            SLNode*          robot = importer.load(s->animManager(),
+                                          am,
+                                          modelFile,
+                                          Utils::getPath(modelFile),
+                                          nullptr,
+                                          false,   // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.2f);   // 40% ambient reflection
+
+            // Set missing specular color
+            robot->updateMeshMat([](SLMaterial* m)
+                                 { m->specular(SLCol4f::WHITE); },
+                                 true);
+
+            SLNode* crx_j1 = robot->findChild<SLNode>("crx_j1");
+            SLNode* crx_j2 = robot->findChild<SLNode>("crx_j2");
+            SLNode* crx_j3 = robot->findChild<SLNode>("crx_j3");
+            SLNode* crx_j4 = robot->findChild<SLNode>("crx_j4");
+            SLNode* crx_j5 = robot->findChild<SLNode>("crx_j5");
+            SLNode* crx_j6 = robot->findChild<SLNode>("crx_j6");
+
+            SLfloat angleDEG    = 45;
+            SLfloat durationSEC = 3.0f;
+
+            SLAnimation* j1Anim = s->animManager().createNodeAnimation("j1Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j1Anim->createNodeAnimTrackForRotation3(crx_j1, -angleDEG, 0, angleDEG, crx_j1->axisYOS());
+
+            SLAnimation* j2Anim = s->animManager().createNodeAnimation("j2Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j2Anim->createNodeAnimTrackForRotation3(crx_j2, -angleDEG, 0, angleDEG, -crx_j2->axisZOS());
+
+            SLAnimation* j3Anim = s->animManager().createNodeAnimation("j3Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j3Anim->createNodeAnimTrackForRotation3(crx_j3, angleDEG, 0, -angleDEG, -crx_j3->axisZOS());
+
+            SLAnimation* j4Anim = s->animManager().createNodeAnimation("j4Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j4Anim->createNodeAnimTrackForRotation3(crx_j4, -2 * angleDEG, 0, 2 * angleDEG, crx_j4->axisXOS());
+
+            SLAnimation* j5Anim = s->animManager().createNodeAnimation("j5Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j5Anim->createNodeAnimTrackForRotation3(crx_j5, -2 * angleDEG, 0, 2 * angleDEG, -crx_j5->axisZOS());
+
+            SLAnimation* j6Anim = s->animManager().createNodeAnimation("j6Anim", durationSEC, true, EC_inOutCubic, AL_pingPongLoop);
+            j6Anim->createNodeAnimTrackForRotation3(crx_j6, -2 * angleDEG, 0, 2 * angleDEG, crx_j6->axisXOS());
+
+            scene->addChild(robot);
+
             sv->camera(cam1);
             sv->doWaitOnIdle(true); // Saves energy
         }
@@ -5207,7 +5375,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
-        s->info("Muttenzer Box with environment mapped reflective sphere and transparent refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
+        s->info("Muttenzer Box with environment mapped reflective sphere and transparent "
+                "refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
         SLGLProgram* sp1 = new SLGLProgramGeneric(am, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
@@ -5261,10 +5430,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         lightRect->translate(0.0f, -0.25f, 1.18f, TS_object);
         lightRect->spotCutOffDEG(90);
         lightRect->spotExponent(1.0);
-        lightRect->ambientColor(SLCol4f::BLACK);
+        lightRect->ambientColor(SLCol4f::WHITE);
+        lightRect->ambientPower(0.25f);
         lightRect->diffuseColor(lightEmisRGB);
         lightRect->attenuation(0, 0, 1);
         lightRect->samplesXY(11, 7);
+        lightRect->createsShadows(true);
+        lightRect->createShadowMap();
 
         SLLight::globalAmbient.set(lightEmisRGB * 0.01f);
 
@@ -5621,9 +5793,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
     }
-    else if (stateGL->glHasGeometryShaders())
+    if (sceneID == SID_ParticleSystem_First) //...............................................
     {
-        if (sceneID == SID_ParticleSystem_First) //...............................................
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("First particle system");
@@ -5667,7 +5839,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Demo) //................................................
+    }
+    else if (sceneID == SID_ParticleSystem_Demo) //................................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Simple Demo Particle System");
@@ -5706,7 +5881,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+    }
+    else if (sceneID == SID_ParticleSystem_DustStorm) //...........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Dust storm particle system");
@@ -5767,7 +5945,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+    }
+    else if (sceneID == SID_ParticleSystem_Fountain) //............................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Fountain particle system");
@@ -5820,7 +6001,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+    }
+    else if (sceneID == SID_ParticleSystem_Sun) //.................................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Sun particle system");
@@ -5861,7 +6045,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+    }
+    else if (sceneID == SID_ParticleSystem_RingOfFire) //..........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Ring of fire particle system");
@@ -5905,7 +6092,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Save energy
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+    }
+    else if (sceneID == SID_ParticleSystem_FireComplex) //.........................................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             // Set scene name and info string
             s->name("Fire Complex particle system");
@@ -6512,9 +6702,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (stateGL->glHasGeometryShaders())
+    else if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
     {
-        if (sceneID == SID_Benchmark8_ParticleSystemFireComplex) //...............................
+        if (stateGL->glHasGeometryShaders())
         {
             s->name("Fire Complex Test Scene");
             s->info(s->name());
@@ -6564,7 +6754,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->camera(cam1);
             sv->doWaitOnIdle(false);
         }
-        else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+    }
+    else if (sceneID == SID_Benchmark9_ParticleSystemManyParticles) //.............................
+    {
+        if (stateGL->glHasGeometryShaders())
         {
             s->name("Particle System number Scene");
             s->info(s->name());

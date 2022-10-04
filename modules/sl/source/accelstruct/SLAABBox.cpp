@@ -363,7 +363,7 @@ SLbool SLAABBox::isHitInWS(SLRay* ray)
     // See: "An Efficient and Robust Ray Box Intersection Algorithm"
     // by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
     // This test is about 10% faster than the test from Woo
-    // It need the pre computed values invDir and sign in SLRay
+    // It needs the pre-computed values invDir and sign in SLRay
     SLVec3f params[2] = {_minWS, _maxWS};
     SLfloat tymin, tymax, tzmin, tzmax;
 

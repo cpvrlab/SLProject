@@ -67,7 +67,7 @@ void SLEntities::addChildEntity(SLint    myParentID,
                 _graph[i].parentID++;
 
         // Correct all node->entityIDs
-        for (SLuint i = 0; i < _graph.size(); ++i)
+        for (SLint i = 0; i < _graph.size(); ++i)
             _graph[i].node->entityID(i);
     }
 
@@ -99,7 +99,7 @@ SLEntity* SLEntities::getEntity(SLint id)
  */
 SLint SLEntities::getEntityID(SLNode* node)
 {
-    for (SLuint i = 0; i < _graph.size(); ++i)
+    for (SLint i = 0; i < _graph.size(); ++i)
         if (_graph[i].node == node)
             return i;
     return INT32_MIN;
@@ -133,7 +133,7 @@ SLint SLEntities::getParentID(SLNode* node)
  * @param parentWM World transform matrix of the parent
  * @return The no. of nodes updated
  */
-SLuint SLEntities::updateWMRec(SLint id, SLMat4f& parentWM)
+SLint SLEntities::updateWMRec(SLint id, SLMat4f& parentWM)
 {
     SLEntity* entity = getEntity(id);
 
@@ -255,7 +255,7 @@ void SLEntities::deleteEntity(SLint id)
     else
     {
         // Find the next child with the same parentID
-        SLuint toID;
+        SLint toID;
         SLint  myParentID = _graph[id].parentID;
         for (toID = id + 1; toID < _graph.size(); toID++)
             if (_graph[toID].parentID == myParentID)
@@ -266,7 +266,7 @@ void SLEntities::deleteEntity(SLint id)
         _graph[myParentID].childCount--;
 
         // Decrease parentIDs of following subtrees that are greater
-        SLuint numNodesToErase = toID - id;
+        SLint numNodesToErase = toID - id;
         for (SLuint i = id; i < _graph.size(); i++)
             if (_graph[i].parentID > myParentID)
                 _graph[i].parentID = _graph[i].parentID - numNodesToErase;

@@ -31,9 +31,11 @@ static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
 // Global application variables
-static SLMat4f _modelMatrix;      //!< 4x4 view matrix
-static SLMat4f _viewMatrix;       //!< 4x4 model matrix
-static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _lightMatrix;      //!< 4x4 matrix for light to world transform
+static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
@@ -56,11 +58,12 @@ static const GLuint CTRL       = 0x00400000; //!< constant for control key modif
 static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
 static SLVec4f _globalAmbi;    //!< global ambient intensity
-static SLVec3f _lightPos;      //!< Light position in world space
-static SLVec3f _lightDir;      //!< Light direction in world space
 static SLVec4f _lightAmbient;  //!< Light ambient intensity
 static SLVec4f _lightDiffuse;  //!< Light diffuse intensity
 static SLVec4f _lightSpecular; //!< Light specular intensity
+static float   _lightSpotDeg;  //!< Light spot cutoff angle in degrees
+static float   _lightSpotExp;  //!< Light spot exponent
+static SLVec3f _lightAtt;      //!< Light attenuation factors
 static SLVec4f _matAmbient;    //!< Material ambient reflection coeff.
 static SLVec4f _matDiffuse;    //!< Material diffuse reflection coeff.
 static SLVec4f _matSpecular;   //!< Material specular reflection coeff.
@@ -74,7 +77,7 @@ static GLuint _textureID    = 0; //!< texture id
 
 static GLint _pLoc;              //!< attribute location for vertex position
 static GLint _nLoc;              //!< attribute location for vertex normal
-static GLint _tLoc;              //!< attribute location for vertex texcoords
+static GLint _uvLoc;             //!< attribute location for vertex texcoords
 static GLint _pmLoc;             //!< uniform location for projection matrix
 static GLint _vmLoc;             //!< uniform location for view matrix
 static GLint _mmLoc;             //!< uniform location for model matrix
@@ -84,16 +87,13 @@ static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
 static GLint _lightAmbientLoc;   //!< uniform location for ambient light intensity
 static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
 static GLint _lightSpecularLoc;  //!< uniform location for specular light intensity
+static GLint _lightAttLoc;       //!< uniform location fpr light attenuation factors
 static GLint _matAmbientLoc;     //!< uniform location for ambient light reflection
 static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
 static GLint _matSpecularLoc;    //!< uniform location for specular light reflection
 static GLint _matEmissiveLoc;    //!< uniform location for light emission
 static GLint _matShininessLoc;   //!< uniform location for shininess
-static GLint _gLoc;              //!< uniform location for gamma value
-
-static GLint _texture0Loc; //!< uniform location for texture 0
-
-static const SLfloat PI = 3.14159265358979f;
+static GLint _matTexDiffLoc;     //!< uniform location for texture 0
 
 //-----------------------------------------------------------------------------
 /*!
@@ -119,9 +119,9 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     theta  = 0.0f;
     dtheta = Utils::PI / stacks;
     dphi   = 2.0f * Utils::PI / slices;
-    ds     = 1.0f / slices;
-    dt     = 1.0f / stacks;
-    t      = 1.0f;
+    ds     = 0.0f; // ???
+    dt     = 0.0f; // ???
+    t      = 0.0f; // ???
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= (int)stacks; ++i)
@@ -150,14 +150,14 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
             v[iv].t.y = t;
 
             phi += dphi;
-            s += ds;
+            //s = ???
             iv++;
         }
         theta += dtheta;
-        t -= dt;
+        //t = ???
     }
 
-    // create Index array x
+    // create index array for triangles
     _numI           = (GLuint)(slices * stacks * 2 * 3);
     GLuint* indices = new GLuint[_numI];
     GLuint  ii      = 0, iV1, iV2;
@@ -169,7 +169,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
         iV2 = iV1 + slices + 1;
 
         for (j = 0; j < (int)slices; ++j)
-        { // 1st triangle ccw
+        {
+            // 1st triangle ccw
             indices[ii++] = iV1 + j;
             indices[ii++] = iV2 + j;
             indices[ii++] = iV2 + j + 1;
@@ -193,7 +194,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
                       (GLint)_shaderProgID,
                       _pLoc,
                       -1,
-                      _nLoc);
+                      _nLoc,
+                      _uvLoc);
 
     // Delete arrays on heap
     delete[] v;
@@ -233,7 +235,7 @@ void buildSquare()
                       (GLint)_shaderProgID,
                       _pLoc,
                       _nLoc,
-                      _tLoc);
+                      _uvLoc);
 
     // The vertices and indices are on the stack memory and get deleted at the
     // end of the block.
@@ -269,19 +271,21 @@ void onInit()
 {
     // Set light parameters
     _globalAmbi.set(0.0f, 0.0f, 0.0f);
-    _lightPos.set(0.0f, 0.0f, 100.0f);
-    _lightDir.set(0.0f, 0.0f, -1.0f);
     _lightAmbient.set(0.1f, 0.1f, 0.1f);
     _lightDiffuse.set(1.0f, 1.0f, 1.0f);
     _lightSpecular.set(1.0f, 1.0f, 1.0f);
+    _lightMatrix.translate(0, 0, 3);
+    _lightSpotDeg = 180.0f; // point light
+    _lightSpotExp = 1.0f;
+    _lightAtt     = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbient.set(1.0f, 1.0f, 1.0f);
     _matDiffuse.set(1.0f, 1.0f, 1.0f);
     _matSpecular.set(1.0f, 1.0f, 1.0f);
     _matEmissive.set(0.0f, 0.0f, 0.0f);
-    _matShininess = 100.0f;
+    _matShininess = 500.0f;
 
-    // backwards movement of the camera
-    _camZ = -3.0f;
+    // position of the camera
+    _camZ = 3.0f;
 
     // Mouse rotation parameters
     _rotX          = 0;
@@ -291,11 +295,11 @@ void onInit()
     _mouseLeftDown = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth1024_C.jpg");
+    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/earth2048_C.png");
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ADSTex.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ADSTex.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch09_TextureMapping.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ch09_TextureMapping.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -304,7 +308,7 @@ void onInit()
     // Get the variable locations (identifiers) within the vertex & pixel shader programs
     _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
     _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
-    _tLoc              = glGetAttribLocation(_shaderProgID, "a_texCoord");
+    _uvLoc             = glGetAttribLocation(_shaderProgID, "a_uv");
     _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
     _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
@@ -314,16 +318,16 @@ void onInit()
     _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbi");
     _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
     _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpec");
+    _lightAttLoc       = glGetUniformLocation(_shaderProgID, "u_lightAtt");
     _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbi");
     _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
     _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpec");
     _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmis");
     _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShin");
-    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
-    _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
+    _matTexDiffLoc     = glGetUniformLocation(_shaderProgID, "u_matTexDiff");
 
     // Build object
-    // buildSphere(1.0f, 30, 30);
+    // buildSphere(1.0f, 72, 72);
     buildSquare();
 
     // Set some OpenGL states
@@ -355,108 +359,62 @@ profile).
 */
 bool onPaint()
 {
-    // Clear the color & depth buffer
+    // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 2a) View transform 1: move the coordinate system away from the camera
-    _viewMatrix.identity();
-    _viewMatrix.translate(0, 0, _camZ);
+    /* 2a) Model transform: rotate the coordinate system increasingly
+     * first around the y- and then around the x-axis. This type of camera
+     * transform is called turntable animation.*/
+    _cameraMatrix.identity();
+    _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2b) View transform 2: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    // 2b) Move the camera to its position.
+    _cameraMatrix.translate(0, 0, _camZ);
+
+    // 2c) View transform is world to camera (= inverse of camera matrix)
+    _viewMatrix = _cameraMatrix.inverted();
 
     // 3a) Rotate the model so that we see the square from the front side or the earth from the equator.
     _modelMatrix.identity();
     _modelMatrix.rotate(90, -1, 0, 0);
 
-    // 3b) Transform light position & direction into view space
-    SLVec3f lightPosVS = _viewMatrix * _lightPos;
+    // 4a) Transform light position into view space
+    SLVec4f lightPosVS = _viewMatrix * SLVec4f(_lightMatrix.translation());
 
-    // 3a) The light dir is not a position. We only take the rotation of the mv matrix.
-    SLMat3f viewRot    = _viewMatrix.mat3();
-    SLVec3f lightDirVS = viewRot * _lightDir;
+    // 4b) The spotlight direction is down the negative z-axis of the light transform
+    SLVec3f lightSpotDirVS = _viewMatrix.mat3() * -_lightMatrix.axisZ();
 
-    // 4) Activate the shader program and pass the uniform variables to the shader
+    // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
     glUniform4fv(_globalAmbiLoc, 1, (float*)&_globalAmbi);
     glUniform3fv(_lightPosVSLoc, 1, (float*)&lightPosVS);
-    glUniform3fv(_lightSpotDirVSLoc, 1, (float*)&lightDirVS);
+    glUniform3fv(_lightSpotDirVSLoc, 1, (float*)&lightSpotDirVS);
     glUniform4fv(_lightAmbientLoc, 1, (float*)&_lightAmbient);
     glUniform4fv(_lightDiffuseLoc, 1, (float*)&_lightDiffuse);
     glUniform4fv(_lightSpecularLoc, 1, (float*)&_lightSpecular);
+    glUniform3fv(_lightAttLoc, 1, (float*)&_lightAtt);
     glUniform4fv(_matAmbientLoc, 1, (float*)&_matAmbient);
     glUniform4fv(_matDiffuseLoc, 1, (float*)&_matDiffuse);
     glUniform4fv(_matSpecularLoc, 1, (float*)&_matSpecular);
     glUniform4fv(_matEmissiveLoc, 1, (float*)&_matEmissive);
     glUniform1f(_matShininessLoc, _matShininess);
-    glUniform1i(_texture0Loc, 0);
-    glUniform1f(_gLoc, 1.0f);
+    glUniform1i(_matTexDiffLoc, 0);
 
-    //////////////////////
-    // Draw with 2 VBOs //
-    //////////////////////
+    // 6) Activate the vertex array
+    glBindVertexArray(_vao);
 
-    // Enable all the vertex attribute arrays
-    glEnableVertexAttribArray((GLuint)_pLoc);
-    glEnableVertexAttribArray((GLuint)_nLoc);
-    glEnableVertexAttribArray((GLuint)_tLoc);
+    // 7) Draw model triangles by indexes
+    glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
-    // Activate VBOs
-    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
-    // Activate Texture
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-
-    // For VBO only offset instead of data pointer
-    GLsizei stride  = sizeof(VertexPNT);
-    GLsizei offsetN = sizeof(SLVec3f);
-    GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
-    glVertexAttribPointer((GLuint)_pLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          nullptr);
-    glVertexAttribPointer((GLuint)_nLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetN);
-    glVertexAttribPointer((GLuint)_tLoc,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetT);
-
-    ////////////////////////////////////////////////////////
-    // Draw cube model triangles by indexes
-    glDrawElements(GL_TRIANGLES,
-                   (GLsizei)_numI,
-                   GL_UNSIGNED_INT,
-                   nullptr);
-    ////////////////////////////////////////////////////////
-
-    // Deactivate buffers
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    // Disable the vertex arrays
-    glDisableVertexAttribArray((GLuint)_pLoc);
-    glDisableVertexAttribArray((GLuint)_nLoc);
-    glDisableVertexAttribArray((GLuint)_tLoc);
-
-    // Check for errors from time to time
-    GETGLERROR;
-
-    // Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
+
+    // 9) Check for OpenGL errors (only in debug done)
+    GETGLERROR;
 
     // Calculate frames per second
     char         title[255];
@@ -534,8 +492,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)x - _startX;
-        _deltaX = (int)y - _startY;
+        _deltaY = (int)(_startX - x);
+        _deltaX = (int)(_startY - y);
         onPaint();
     }
 }
@@ -603,13 +561,11 @@ void onGLFWError(int error, const char* description)
     fputs(description, stderr);
 }
 //-----------------------------------------------------------------------------
-/*!
-The C main procedure running the GLFW GUI application.
-*/
-int main(int argc, char* argv[])
+/*! Inits OpenGL and the GLFW window library
+ */
+void initGLFW(int wndWidth, int wndHeight, const char* wndTitle)
 {
-    _projectRoot = SLstring(SL_PROJECT_ROOT);
-
+    // Initialize the platform independent GUI-Library GLFW
     if (!glfwInit())
     {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -635,10 +591,13 @@ int main(int argc, char* argv[])
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    _scrWidth  = 640;
-    _scrHeight = 480;
+    // Create the GLFW window
+    window = glfwCreateWindow(wndWidth,
+                              wndHeight,
+                              wndTitle,
+                              nullptr,
+                              nullptr);
 
-    window = glfwCreateWindow(_scrWidth, _scrHeight, "My Title", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
@@ -655,19 +614,6 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    // Check errors before we start
-    GETGLERROR;
-
-    glUtils::printGLInfo();
-
-    glfwSetWindowTitle(window, "SLProject Test Application");
-
-    // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
-
-    onInit();
-    onResize(window, _scrWidth, _scrHeight);
-
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);
     glfwSetFramebufferSizeCallback(window, onResize);
@@ -675,6 +621,35 @@ int main(int argc, char* argv[])
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
     glfwSetWindowCloseCallback(window, onClose);
+
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(1);
+}
+//-----------------------------------------------------------------------------
+/*!
+The C main procedure running the GLFW GUI application.
+*/
+int main(int argc, char* argv[])
+{
+    _projectRoot = SLstring(SL_PROJECT_ROOT);
+
+    _scrWidth  = 640;
+    _scrHeight = 480;
+
+    // Init OpenGL and the window library GLFW
+    initGLFW(_scrWidth, _scrHeight, "TextureMapping");
+
+    // Check errors before we start
+    GETGLERROR;
+
+    // Print OpenGL info on console
+    glUtils::printGLInfo();
+
+    // Prepare all our OpenGL stuff
+    onInit();
+
+    // Call once resize to define the projection
+    onResize(window, _scrWidth, _scrHeight);
 
     // Event loop
     while (!glfwWindowShouldClose(window))

@@ -99,6 +99,7 @@ enum SLSceneID
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
+    SID_ZFighting,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
@@ -135,6 +136,8 @@ enum SLSceneID
     SID_glTF_FlightHelmet,
     SID_glTF_Sponza,
     SID_glTF_WaterBottle,
+
+    SID_Robotics_FanucCRX_FK,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,

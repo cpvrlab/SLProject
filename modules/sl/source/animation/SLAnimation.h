@@ -56,7 +56,10 @@ public:
     SLNodeAnimTrack* createNodeAnimTrack();
     SLNodeAnimTrack* createNodeAnimTrack(SLuint trackID);
     SLNodeAnimTrack* createNodeAnimTrackForTranslation(SLNode* target, const SLVec3f& endPos);
-    SLNodeAnimTrack* createNodeAnimTrackForRotation(SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation(SLNode* target, SLfloat angleDeg1, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation2(SLNode* target, SLfloat angleDeg0, SLfloat angleDeg1, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation3(SLNode* target, SLfloat angleDeg0, SLfloat angleDeg1, SLfloat angleDeg2, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation4(SLNode* target, SLfloat angleDeg0, SLfloat angleDeg1, SLfloat angleDeg2, SLfloat angleDeg3, const SLVec3f& axis);
     SLNodeAnimTrack* createNodeAnimTrackForRotation360(SLNode* target, const SLVec3f& axis);
     SLNodeAnimTrack* createNodeAnimTrackForScaling(SLNode* target, const SLVec3f& endScale);
     SLNodeAnimTrack* createNodeAnimTrackForEllipse(SLNode* target,

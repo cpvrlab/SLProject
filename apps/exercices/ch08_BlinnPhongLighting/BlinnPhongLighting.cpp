@@ -1,6 +1,6 @@
 // #############################################################################
-//   File:      DiffuseCube.cpp
-//   Purpose:   Core profile OpenGL application with diffuse lighted cube with
+//   File:      PhongLighting.cpp
+//   Purpose:   Core profile OpenGL application with Phong lighted cube with
 //              GLFW as the OS GUI interface (http://www.glfw.org/).
 //   Date:      September 2012 (HS12)
 //   Authors:   Marcus Hudritsch
@@ -28,7 +28,6 @@ struct VertexPN
         n.set(normalX, normalY, normalZ);
     }
 };
-
 //-----------------------------------------------------------------------------
 // Global application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
@@ -39,6 +38,7 @@ static SLint       _scrHeight;   //!< Window height at start up
 static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
 static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
 static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
+static SLMat4f _lightMatrix;      //!< 4x4 matrix for light to world transform
 static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
@@ -59,19 +59,45 @@ static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifie
 static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
 static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
+static SLVec4f _globalAmbi;   //!< global ambient intensity
+static SLVec4f _lightAmbi;    //!< Light ambient intensity
+static SLVec4f _lightDiff;    //!< Light diffuse intensity
+static SLVec4f _lightSpec;    //!< Light specular intensity
+static float   _lightSpotDeg; //!< Light spot cutoff angle in degrees
+static float   _lightSpotExp; //!< Light spot exponent
+static SLVec3f _lightAtt;     //!< Light attenuation factors
+static SLVec4f _matAmbi;      //!< Material ambient reflection coeff.
+static SLVec4f _matDiff;      //!< Material diffuse reflection coeff.
+static SLVec4f _matSpec;      //!< Material specular reflection coeff.
+static SLVec4f _matEmis;      //!< Material emissive coeff.
+static float   _matShin;      //!< Material shininess
+
 static GLuint _shaderVertID = 0; //! vertex shader id
 static GLuint _shaderFragID = 0; //! fragment shader id
 static GLuint _shaderProgID = 0; //! shader program id
 
 // Attribute & uniform variable location indexes
-static GLint _pLoc;              //!< attribute location for vertex position
-static GLint _nLoc;              //!< attribute location for vertex normal
-static GLint _pmLoc;             //!< uniform location for projection matrix
-static GLint _vmLoc;             //!< uniform location for view matrix
-static GLint _mmLoc;             //!< uniform location for model matrix
-static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in view space (VS)
-static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
-static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
+static GLint _pLoc;  //!< attribute location for vertex position
+static GLint _nLoc;  //!< attribute location for vertex normal
+static GLint _pmLoc; //!< uniform location for projection matrix
+static GLint _vmLoc; //!< uniform location for view matrix
+static GLint _mmLoc; //!< uniform location for model matrix
+
+static GLint _globalAmbiLoc;   //!< uniform location for global ambient intensity
+static GLint _lightPosVSLoc;   //!< uniform location for light position in VS
+static GLint _lightAmbiLoc;    //!< uniform location for ambient light intensity
+static GLint _lightDiffLoc;    //!< uniform location for diffuse light intensity
+static GLint _lightSpecLoc;    //!< uniform location for specular light intensity
+static GLint _lightSpotDirLoc; //!< uniform location for light direction in VS
+static GLint _lightSpotDegLoc; //!< uniform location for spot cutoff angle in degrees
+static GLint _lightSpotCosLoc; //!< uniform location for cosine of spot cutoff angle
+static GLint _lightSpotExpLoc; //!< uniform location for cosine of spot cutoff angle
+static GLint _lightAttLoc;     //!< uniform location fpr light attenuation factors
+static GLint _matAmbiLoc;      //!< uniform location for ambient light reflection
+static GLint _matDiffLoc;      //!< uniform location for diffuse light reflection
+static GLint _matSpecLoc;      //!< uniform location for specular light reflection
+static GLint _matEmisLoc;      //!< uniform location for light emission
+static GLint _matShinLoc;      //!< uniform location for shininess
 
 //-----------------------------------------------------------------------------
 /*!
@@ -183,23 +209,53 @@ void onInit()
     _deltaX = _deltaY = 0;
     _mouseLeftDown    = false;
 
+    // Set light parameters
+    _globalAmbi.set(0.05f, 0.05f, 0.05f);
+    _lightAmbi.set(0.2f, 0.2f, 0.2f);
+    _lightDiff.set(1.0f, 1.0f, 1.0f);
+    _lightSpec.set(1.0f, 1.0f, 1.0f);
+    _lightMatrix.translate(0,0,3);
+    _lightSpotDeg = 10.0f; // 180.0f; // point light
+    _lightSpotExp = 1.0f;
+    _lightAtt = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
+    _matAmbi.set(1.0f, 0.0f, 0.0f);
+    _matDiff.set(1.0f, 0.0f, 0.0f);
+    _matSpec.set(1.0f, 1.0f, 1.0f);
+    _matEmis.set(0.0f, 0.0f, 0.0f);
+    _matShin = 1000.0f;
+
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch07_DiffuseLighting.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ch07_DiffuseLighting.frag", GL_FRAGMENT_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ch08_BlinnPhongLighting.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ch08_BlinnPhongLighting.frag", GL_FRAGMENT_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc              = glGetAttribLocation(_shaderProgID, "a_position");
-    _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
-    _pmLoc             = glGetUniformLocation(_shaderProgID, "u_pMatrix");
-    _vmLoc             = glGetUniformLocation(_shaderProgID, "u_vMatrix");
-    _mmLoc             = glGetUniformLocation(_shaderProgID, "u_mMatrix");
-    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
-    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
-    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _pLoc = glGetAttribLocation(_shaderProgID, "a_position");
+    _nLoc = glGetAttribLocation(_shaderProgID, "a_normal");
+
+    _mmLoc = glGetUniformLocation(_shaderProgID, "u_mMatrix");
+    _vmLoc = glGetUniformLocation(_shaderProgID, "u_vMatrix");
+    _pmLoc = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+
+    _lightPosVSLoc   = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
+    _lightAmbiLoc    = glGetUniformLocation(_shaderProgID, "u_lightAmbi");
+    _lightDiffLoc    = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _lightSpecLoc    = glGetUniformLocation(_shaderProgID, "u_lightSpec");
+    _lightSpotDirLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightSpotDegLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDeg");
+    _lightSpotCosLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotCos");
+    _lightSpotExpLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotExp");
+    _lightAttLoc     = glGetUniformLocation(_shaderProgID, "u_lightAtt");
+    _globalAmbiLoc   = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
+
+    _matAmbiLoc = glGetUniformLocation(_shaderProgID, "u_matAmbi");
+    _matDiffLoc = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _matSpecLoc = glGetUniformLocation(_shaderProgID, "u_matSpec");
+    _matEmisLoc = glGetUniformLocation(_shaderProgID, "u_matEmis");
+    _matShinLoc = glGetUniformLocation(_shaderProgID, "u_matShin");
 
     buildBox();
 
@@ -234,14 +290,14 @@ bool onPaint()
     // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    /* 2a) Camera transform: rotate the coordinate system increasingly
+    /* 2b) Model transform: rotate the coordinate system increasingly
      * first around the y- and then around the x-axis. This type of camera
      * transform is called turntable animation.*/
     _cameraMatrix.identity();
     _cameraMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
     _cameraMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
 
-    // 2b) Move the camera to its position.
+    // 2a) Move the camera to its position.
     _cameraMatrix.translate(0, 0, _camZ);
 
     // 2c) View transform is world to camera (= inverse of camera matrix)
@@ -251,16 +307,34 @@ bool onPaint()
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    // 4) Lights get prepared here later on
+    // 4a) Transform light position into view space
+    SLVec4f lightPosVS = _viewMatrix * SLVec4f(_lightMatrix.translation());
+
+    // 4b) The spotlight direction is down the negative z-axis of the light transform
+    SLVec3f lightSpotDirVS = _viewMatrix.mat3() * -_lightMatrix.axisZ();
 
     // 5) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_pmLoc, 1, 0, (float*)&_projectionMatrix);
     glUniformMatrix4fv(_vmLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_mmLoc, 1, 0, (float*)&_modelMatrix);
-    glUniform3f(_lightSpotDirVSLoc, 0.5f, 1.0f, 1.0f);     // light direction in view space
-    glUniform4f(_lightDiffuseLoc, 1.0f, 1.0f, 1.0f, 1.0f); // diffuse light intensity
-    glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
+
+    glUniform4fv(_globalAmbiLoc, 1, (float*)&_globalAmbi);
+    glUniform4fv(_lightPosVSLoc, 1, (float*)&lightPosVS);
+    glUniform4fv(_lightAmbiLoc, 1, (float*)&_lightAmbi);
+    glUniform4fv(_lightDiffLoc, 1, (float*)&_lightDiff);
+    glUniform4fv(_lightSpecLoc, 1, (float*)&_lightSpec);
+    glUniform3fv(_lightSpotDirLoc, 1, (float*)&lightSpotDirVS);
+    glUniform3fv(_lightAttLoc, 1, (float*)&_lightAtt);
+    glUniform1f(_lightSpotDegLoc, _lightSpotDeg);
+    glUniform1f(_lightSpotCosLoc, cos(_lightSpotDeg * Utils::DEG2RAD));
+    glUniform1f(_lightSpotExpLoc, _lightSpotExp);
+
+    glUniform4fv(_matAmbiLoc, 1, (float*)&_matAmbi);
+    glUniform4fv(_matDiffLoc, 1, (float*)&_matDiff);
+    glUniform4fv(_matSpecLoc, 1, (float*)&_matSpec);
+    glUniform4fv(_matEmisLoc, 1, (float*)&_matEmis);
+    glUniform1f(_matShinLoc, _matShin);
 
     // 6) Activate the vertex array
     glBindVertexArray(_vao);
@@ -289,10 +363,11 @@ void onResize(GLFWwindow* myWindow, int width, int height)
     // define the projection matrix
     _projectionMatrix.perspective(50, w / h, 0.01f, 10.0f);
 
-    // define the viewport (OpenGL applies it in the background)
+    // define the viewport
     glViewport(0, 0, width, height);
 
     GETGLERROR;
+
     onPaint();
 }
 //-----------------------------------------------------------------------------
@@ -353,6 +428,23 @@ void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
         _camZ += (SLfloat)Utils::sign(yscroll) * 0.1f;
         onPaint();
     }
+    else if (_modifiers == ALT)
+    {
+        _matShin *= yscroll > 0.0 ? 1.5f : 0.75f;
+        onPaint();
+    }
+    else if (_modifiers & ALT && _modifiers & CTRL)
+    {
+        _lightSpotExp += yscroll > 0.0 ? 10.0f : -10.0f;
+        _lightSpotExp = Utils::clamp(_lightSpotExp, 0.0f, 200.0f);
+        onPaint();
+    }
+    else if (_modifiers == CTRL)
+    {
+        _lightSpotDeg += yscroll > 0.0 ? 1.0f : -1.0f;
+        _lightSpotDeg = Utils::clamp(_lightSpotDeg, 0.0f, 180.0f);
+        onPaint();
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -368,48 +460,24 @@ void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods
                 onClose(window);
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-            case GLFW_KEY_LEFT_SHIFT:
-                _modifiers = _modifiers | SHIFT;
-                break;
-            case GLFW_KEY_RIGHT_SHIFT:
-                _modifiers = _modifiers | SHIFT;
-                break;
-            case GLFW_KEY_LEFT_CONTROL:
-                _modifiers = _modifiers | CTRL;
-                break;
-            case GLFW_KEY_RIGHT_CONTROL:
-                _modifiers = _modifiers | CTRL;
-                break;
-            case GLFW_KEY_LEFT_ALT:
-                _modifiers = _modifiers | ALT;
-                break;
-            case GLFW_KEY_RIGHT_ALT:
-                _modifiers = _modifiers | ALT;
-                break;
+            case GLFW_KEY_LEFT_SHIFT: _modifiers = _modifiers | SHIFT; break;
+            case GLFW_KEY_RIGHT_SHIFT: _modifiers = _modifiers | SHIFT; break;
+            case GLFW_KEY_LEFT_CONTROL: _modifiers = _modifiers | CTRL; break;
+            case GLFW_KEY_RIGHT_CONTROL: _modifiers = _modifiers | CTRL; break;
+            case GLFW_KEY_LEFT_ALT: _modifiers = _modifiers | ALT; break;
+            case GLFW_KEY_RIGHT_ALT: _modifiers = _modifiers | ALT; break;
         }
     }
     else if (action == GLFW_RELEASE)
     {
         switch (GLFWKey)
         {
-            case GLFW_KEY_LEFT_SHIFT:
-                _modifiers = _modifiers ^ SHIFT;
-                break;
-            case GLFW_KEY_RIGHT_SHIFT:
-                _modifiers = _modifiers ^ SHIFT;
-                break;
-            case GLFW_KEY_LEFT_CONTROL:
-                _modifiers = _modifiers ^ CTRL;
-                break;
-            case GLFW_KEY_RIGHT_CONTROL:
-                _modifiers = _modifiers ^ CTRL;
-                break;
-            case GLFW_KEY_LEFT_ALT:
-                _modifiers = _modifiers ^ ALT;
-                break;
-            case GLFW_KEY_RIGHT_ALT:
-                _modifiers = _modifiers ^ ALT;
-                break;
+            case GLFW_KEY_LEFT_SHIFT: _modifiers = _modifiers ^ SHIFT; break;
+            case GLFW_KEY_RIGHT_SHIFT: _modifiers = _modifiers ^ SHIFT; break;
+            case GLFW_KEY_LEFT_CONTROL: _modifiers = _modifiers ^ CTRL; break;
+            case GLFW_KEY_RIGHT_CONTROL: _modifiers = _modifiers ^ CTRL; break;
+            case GLFW_KEY_LEFT_ALT: _modifiers = _modifiers ^ ALT; break;
+            case GLFW_KEY_RIGHT_ALT: _modifiers = _modifiers ^ ALT; break;
         }
     }
 }
@@ -498,7 +566,7 @@ int main(int argc, char* argv[])
     _scrHeight = 480;
 
     // Init OpenGL and the window library GLFW
-    initGLFW(_scrWidth, _scrHeight, "DiffuseCube");
+    initGLFW(_scrWidth, _scrHeight, "Blinn-Phong-Lighting");
 
     // Check errors before we start
     GETGLERROR;

@@ -879,10 +879,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
 
         if (metalness == -1.0f)
             slMat->metalness(0.0f);
-
     }
     else
+    {
         slMat->reflectionModel(RM_BlinnPhong);
+    }
 
     return slMat;
 }

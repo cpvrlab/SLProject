@@ -402,7 +402,7 @@ public class SLMat4f
     	_m[3]=0;           _m[7]=0;           _m[11]=-1;           _m[15]=0;
     }
     
-    public void perspective(float fov, float aspect, float n, float f) 
+    public void perspective(float fovV, float aspect, float n, float f)
     {  
         float t = (float)(Math.tan(Math.toRadians(fovV *0.5))*n);
         float b = -t;

@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLScene.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLScene.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLScene.h>
 #include <Utils.h>
@@ -21,7 +21,7 @@
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
 #ifdef SL_USE_ENTITIES
-SLEntities                       SLScene::entities;
+SLEntities SLScene::entities;
 #endif
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
@@ -230,10 +230,11 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
  and the fully or partially selected meshes are stored in SLScene::_selectedMeshes.
  The SLNode::isSelected and SLMesh::isSelected show if a node or mesh is
  selected. A node can be selected with or without a mesh. If a mesh is
- selected, its node is always also selected. To avoid a node from selection
- you can set its drawing bit SL_DB_NOTSELECTABLE. You should transform a
- node or mesh and show the properties of a node or mesh if only a single
- node and single full mesh is selected. To get them call
+ selected, its node is always also selected. A node without mesh can only be
+ selected in the scenegraph window.
+ To avoid a node from selection you can set its drawing bit SL_DB_NOTSELECTABLE.
+ You should transform a node or mesh and show the properties of a node or mesh
+ if only a single node and single full mesh is selected. To get them call
  SLScene::singleNodeSelected() or SLScene::singleMeshFullSelected().
  <br>
  For partial mesh selection see SLMesh::handleRectangleSelection.
@@ -247,7 +248,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         return;
     }
 
-    if (nodeToSelect->drawBit(SL_DB_NOTSELECTABLE))
+    if (nodeToSelect && nodeToSelect->drawBit(SL_DB_NOTSELECTABLE))
     {
         SL_LOG("Node is not selectable: %s", nodeToSelect->name().c_str());
         return;
@@ -258,7 +259,9 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         SL_EXIT_MSG("SLScene::selectNodeMesh: No node or mesh to select.");
 
     // Search in _selectedNodes vector
-    auto foundNode = find(_selectedNodes.begin(), _selectedNodes.end(), nodeToSelect);
+    auto foundNode = find(_selectedNodes.begin(),
+                          _selectedNodes.end(),
+                          nodeToSelect);
 
     // Case 3: Node without mesh selected
     if (nodeToSelect && !meshToSelect)
@@ -272,7 +275,9 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
     }
 
     // Search in _selectedMeshes vector
-    auto foundMesh = find(_selectedMeshes.begin(), _selectedMeshes.end(), meshToSelect);
+    auto foundMesh = find(_selectedMeshes.begin(),
+                          _selectedMeshes.end(),
+                          meshToSelect);
 
     // Case 4: nodeToSelect and meshToSelect are not yet selected: so we select them
     if (foundNode == _selectedNodes.end() && foundMesh == _selectedMeshes.end())
@@ -306,7 +311,7 @@ void SLScene::selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect)
         return;
     }
 
-    // Case 7: Both are already selected so we unselect them.
+    // Case 7: Both are already selected, so we unselect them.
     if (nodeToSelect && *foundNode == nodeToSelect && *foundMesh == meshToSelect)
     {
         // Check if other mesh from same node is selected

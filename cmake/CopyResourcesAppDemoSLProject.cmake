@@ -30,7 +30,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/Particle*.png
 			${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
 			${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
-			${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png
+			${SL_PROJECT_ROOT}/data/images/textures/Testmap_1024_C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/TexNotFound.png
 			${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png

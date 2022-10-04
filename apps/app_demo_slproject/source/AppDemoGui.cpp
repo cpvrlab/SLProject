@@ -142,9 +142,11 @@ static SLTransformNode* transformNode = nullptr;
 
 SLstring AppDemoGui::infoAbout = R"(
 Welcome to the SLProject demo app. It is developed at the Computer Science Department of the Bern University of Applied Sciences.
-The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing. The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. Click to close and use the menu to choose different scenes and view settings.
-For more information please visit: https://github.com/cpvrlab/SLProject
+The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing.
+The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
+Ray tracing and path tracing provide additional high quality transparencies, reflections and soft shadows.
+Click the X to close and use the menu File > Load Demo Scenes to choose other scenes that each show-case a specific feature of SLProject.
+For more information please visit: https://github.com/cpvrlab/SLProject/wiki
 )";
 
 SLstring AppDemoGui::infoCredits = R"(
@@ -462,7 +464,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     }
 #endif
 
-                    // Wrong value of displayed, need to use a profiler to measure ( Can't just measure time before and after the draw call and take the difference, not with the GPU)
+                    // Wrong value of displayed, need to use a profiler to measure (can't just measure time before and after the draw call and take the difference, not with the GPU)
                     /* if (s->singleMeshFullSelected() != nullptr)
                     {
                         SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
@@ -1515,6 +1517,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(am, s, sv, SID_PointClouds);
+                    if (ImGui::MenuItem("Z-Fighting", nullptr, sid == SID_ZFighting))
+                        s->onLoad(am, s, sv, SID_ZFighting);
 
                     ImGui::EndMenu();
                 }
@@ -1650,6 +1654,30 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 }
 #endif
 
+                if (ImGui::BeginMenu("Robotics"))
+                {
+                    SLstring zip     = "GLTF-FanucCRX.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        else
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
+                    }
+
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
@@ -1725,6 +1753,25 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_AnimationSkeletal);
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
                         s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
+
+                    SLstring zip     = "GLTF-FanucCRX.zip";
+                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+                    SLstring pathDst = AppDemo::configPath + "models/";
+
+                    if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        else
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      zip,
+                                                      pathSrc,
+                                                      pathDst,
+                                                      fileToLoad,
+                                                      SID_Robotics_FanucCRX_FK);
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -2721,7 +2768,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Reset"))
             {
                 cam->resetToInitialState();
-                cam->focalDist(cam->translationOS().length());
+                float dist = cam->translationOS().length();
+                cam->focalDist(dist);
             }
 
             if (ImGui::BeginMenu("Look from"))
@@ -3245,6 +3293,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     if (ImGui::TreeNode("Scene Properties"))
     {
+        if (s->lights().size() > 0)
+        {
+            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+            SLCol4f             gAC = s->lights()[0]->globalAmbient;
+            if (ImGui::ColorEdit3("Global Ambient Color", (float*)&gAC, cef))
+                s->lights()[0]->globalAmbient = gAC;
+        }
+
         if (ImGui::TreeNode("Sky", "Skybox"))
         {
             if (s->skybox())
@@ -3610,10 +3666,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     light->specularColor(sC);
                             }
 
-                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, aP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
                                 light->ambientPower(aP);
 
-                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, dP * 1.1f, "%.2f"))
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
                                 light->diffusePower(dP);
 
                             float sP = light->specularPower();

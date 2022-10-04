@@ -489,7 +489,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     SLVGLTexture& texture = mat->textures(TT_diffuse);
     SLVec3f       L, N, H;
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
-    SLCol4f       amdi, spec;
+    SLCol4f       ambi, diff, spec;
     SLCol4f       localSpec(0, 0, 0, 1);
     SLScene*      s          = _sv->s();
     SLCol4f       localColor = mat->emissive() + (mat->ambient() & SLLight::globalAmbient);
@@ -528,7 +528,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s->root3D()) : 0;
 
             // calculate the ambient part
-            amdi = light->ambient() & mat->ambient() * ray->hitAO;
+            ambi = light->ambient() & mat->ambient() * ray->hitAO;
 
             // calculate spot effect if light is a spotlight
             spec.set(0, 0, 0);
@@ -557,14 +557,15 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
                 NdotH = std::max(N.dot(H), 0.0f);
                 sf    = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
-                amdi += lighted * df * light->diffuse() & mat->diffuse();
+                diff += lighted * df * light->diffuse() & mat->diffuse();
                 spec = lighted * sf * light->specular() & mat->specular();
             }
 
             // apply attenuation and spot effect
-            att = light->attenuation(lightDist) * spotEffect;
-            localColor += att * amdi;
-            localSpec += att * spec;
+            att = light->attenuation(lightDist) ;
+            localColor += att * ambi;
+            localColor += att * spotEffect * diff;
+            localSpec += att * spotEffect * spec;
         }
     }
 

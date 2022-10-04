@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ADSTex.frag
+//  File:      ch09_TextureMapping.frag
 //  Purpose:   GLSL fragment program for simple ADS per vertex lighting with
 //             texture mapping
 //  Authors:   Marcus Hudritsch

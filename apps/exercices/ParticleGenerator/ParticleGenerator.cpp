@@ -135,14 +135,14 @@ void buildBox()
     // We define the colors with the same components as the cubes corners.
     _numV              = 8;
     VertexPC* vertices = new VertexPC[_numV];
-    vertices[0].set(0.05, -0.5, 0.05, 1, 1, 1);   // LTN
-    vertices[1].set(0.05, -0.6, 0.05, 1, 0, 1);   // LBN
-    vertices[2].set(0.05, -0.6, -0.05, 1, 0, 0);  // LBF
-    vertices[3].set(0.05, -0.5, -0.05, 1, 1, 0);  // LTF
-    vertices[4].set(-0.05, -0.6, -0.05, 0, 0, 0); // RBF
-    vertices[5].set(-0.05, -0.6, 0.05, 0, 0, 1);  // RBN
-    vertices[6].set(-0.05, -0.5, 0.05, 0, 1, 1);  // RTN
-    vertices[7].set(-0.05, -0.5, -0.05, 0, 1, 0); // RTF
+    vertices[0].set(0.05f, -0.5f, 0.05f, 1, 1, 1);   // LTN
+    vertices[1].set(0.05f, -0.6f, 0.05f, 1, 0, 1);   // LBN
+    vertices[2].set(0.05f, -0.6f, -0.05f, 1, 0, 0);  // LBF
+    vertices[3].set(0.05f, -0.5f, -0.05f, 1, 1, 0);  // LTF
+    vertices[4].set(-0.05f, -0.6f, -0.05f, 0, 0, 0); // RBF
+    vertices[5].set(-0.05f, -0.6f, 0.05f, 0, 0, 1);  // RBN
+    vertices[6].set(-0.05f, -0.5f, 0.05f, 0, 1, 1);  // RTN
+    vertices[7].set(-0.05f, -0.5f, -0.05f, 0, 1, 0); // RTF
 
     // Define the triangle indexes of the cubes vertices
     _numI           = 36;
@@ -227,7 +227,7 @@ void initParticles(float   timeToLive,
     Particle* data = new Particle[_amount];
     Particle  p    = Particle();
     p.p            = particleGenPos;
-    for (unsigned int i = 0; i < _amount; i++)
+    for (uint32_t i = 0; i < (uint32_t)_amount; i++)
     {
         p.v.x   = randomFloat(velocityRandomStart.x, velocityRandomEnd.x); // Random value for x velocity
         p.v.y   = randomFloat(velocityRandomStart.y, velocityRandomEnd.y); // Random value for y velocity
@@ -410,7 +410,7 @@ bool onPaint()
     mv.multiply(_modelMatrix);
     mvp.multiply(mv);
 
-    _currentTime    = glfwGetTime();
+    _currentTime    = (float)glfwGetTime();
     float delatTime = _currentTime - _lastTime;
     _lastTime       = _currentTime;
 
