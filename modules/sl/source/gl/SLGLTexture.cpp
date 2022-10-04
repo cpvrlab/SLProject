@@ -1122,10 +1122,13 @@ void SLGLTexture::bindActive(SLuint texUnit)
 #ifdef SL_HAS_OPTIX
         if (!_cudaGraphicsResource)
         {
-            CUDA_CHECK(cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
+            // Todo: Bugfix needed for Optix needs some work for newer shader models
+            //CUDA_CHECK(
+              cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
                                                  _texID,
                                                  _target,
-                                                 CU_GRAPHICS_REGISTER_FLAGS_NONE));
+                                                 CU_GRAPHICS_REGISTER_FLAGS_NONE);
+              //);
         }
 #endif
     }

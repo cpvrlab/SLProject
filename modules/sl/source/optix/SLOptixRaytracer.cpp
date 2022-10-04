@@ -193,7 +193,10 @@ OptixPipeline SLOptixRaytracer::createPipeline(OptixProgramGroup* program_groups
 
     char   log[2048];
     size_t sizeof_log = sizeof(log);
-    OPTIX_CHECK_LOG(optixPipelineCreate(
+
+    // Todo: Bugfix needed for Optix needs some work for newer shader models
+    //OPTIX_CHECK_LOG(
+      optixPipelineCreate(
       SLOptix::context,
       &_pipeline_compile_options,
       &pipeline_link_options,
@@ -201,7 +204,8 @@ OptixPipeline SLOptixRaytracer::createPipeline(OptixProgramGroup* program_groups
       numProgramGroups,
       log,
       &sizeof_log,
-      &pipeline));
+      &pipeline);
+      //);
 
     return pipeline;
 }
@@ -343,7 +347,7 @@ void SLOptixRaytracer::updateScene(SLSceneView* sv)
     {
         RayGenClassicSbtRecord rayGenSbtRecord;
         _rayGenClassicBuffer.download(&rayGenSbtRecord);
-        if (camera->projection() == P_monoPerspective)
+        if (camera->projType() == P_monoPerspective)
         {
             OPTIX_CHECK(optixSbtRecordPackHeader(_pinhole_raygen_prog_group, &rayGenSbtRecord));
         }

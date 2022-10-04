@@ -360,7 +360,7 @@ void onResize(GLFWwindow* myWindow, int width, int height)
     double h = (double)height;
 
     // define the projection matrix
-    _projectionMatrix.perspective(50, w / h, 0.01f, 10.0f);
+    _projectionMatrix.perspective(50.0f, (float)(w / h), 0.01f, 10.0f);
 
     // define the viewport
     glViewport(0, 0, width, height);
@@ -409,8 +409,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)_startX - x;
-        _deltaX = (int)_startY - y;
+        _deltaY = (int)(_startX - x);
+        _deltaX = (int)(_startY - y);
         onPaint();
     }
 }

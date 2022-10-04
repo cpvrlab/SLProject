@@ -42,15 +42,14 @@ static string getPtxFilename(string filename)
     return ptxFilename;
 }
 //-----------------------------------------------------------------------------
-string getPtxStringFromFile(
-  string       filename,
-  const char** log)
+string getPtxStringFromFile(string       filename,
+                            const char** log)
 {
     if (log)
         *log = NULL;
 
     string *ptx, sourceFilePath;
-    sourceFilePath = "modules/sl/" + getPtxFilename(filename);
+    sourceFilePath = "../modules/sl" + getPtxFilename(filename);
 
     ptx = new string();
 

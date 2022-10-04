@@ -161,7 +161,7 @@ SLint SLEntities::updateWMRec(SLint id, SLMat4f& parentWM)
     }
 #endif
 
-    SLint handledChildren = 0;
+    SLuint handledChildren = 0;
     while (handledChildren < entity->childCount)
     {
         SLint childID = id + handledChildren + 1;

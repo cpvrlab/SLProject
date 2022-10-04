@@ -304,7 +304,7 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 
     list(FIND CUDA_NVCC_FLAGS "-arch" index)
     if (index EQUAL -1)
-        list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
+        list(APPEND CUDA_NVCC_FLAGS -arch sm_60)
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
     endif ()
     set(flag "--use_fast_math")
