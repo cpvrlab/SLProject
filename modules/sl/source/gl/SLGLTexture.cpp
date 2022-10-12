@@ -1274,7 +1274,7 @@ SLCol4f SLGLTexture::getTexelf(const SLVec3f& cubemapDir)
            _target == GL_TEXTURE_CUBE_MAP &&
            "SLGLTexture::getTexelf: Not a cubemap!");
 
-    SLint   index;
+    SLint   index = 0;
     SLfloat u, v;
 
     cubeXYZ2UV(cubemapDir.x, cubemapDir.y, cubemapDir.z, index, u, v);

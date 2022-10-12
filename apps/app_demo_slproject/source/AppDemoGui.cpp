@@ -388,7 +388,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                     SLfloat updateAABBTime = s->updateAABBTimesMS().average();
-                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -404,7 +403,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
@@ -422,6 +420,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
+                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
+                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
 #endif
                     if (!s->animManager().allAnimNames().empty())
@@ -508,7 +508,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLPathtracer* pt           = sv->pathtracer();
                     SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
                     SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
-                    SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
                     SLuint        rayTotal     = SLRay::totalNumRays();
 
                     sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
@@ -2321,7 +2320,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Draw Detection", nullptr, tracker->drawDetection()))
                         tracker->drawDetection(!tracker->drawDetection());
 
-                if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
+                if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr) && featureTracker != nullptr)
                 {
                     if (ImGui::MenuItem("Force Relocation", nullptr, featureTracker->forceRelocation()))
                         featureTracker->forceRelocation(!featureTracker->forceRelocation());
@@ -3079,7 +3078,6 @@ void AppDemoGui::buildMenuEdit(SLScene* s, SLSceneView* sv)
 void AppDemoGui::buildMenuContext(SLScene* s, SLSceneView* sv)
 {
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) &&
         ImGui::IsMouseReleased(1))
@@ -3131,7 +3129,6 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
@@ -3152,7 +3149,6 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && !node->mesh();
@@ -3223,7 +3219,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     SLNode* singleNode       = s->singleNodeSelected();
     SLMesh* singleFullMesh   = s->singleMeshFullSelected();
@@ -4381,8 +4376,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         for (auto* shd : m->program()->shaders())
                         {
-                            SLfloat lineH = ImGui::GetTextLineHeight();
-
                             if (ImGui::TreeNode(shd->name().c_str()))
                             {
                                 SLchar* text = new char[shd->code().length() + 1];
@@ -4400,8 +4393,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         for (auto* shd : m->programTF()->shaders())
                         {
-                            SLfloat lineH = ImGui::GetTextLineHeight();
-
                             if (ImGui::TreeNode(shd->name().c_str()))
                             {
                                 SLchar* text = new char[shd->code().length() + 1];
