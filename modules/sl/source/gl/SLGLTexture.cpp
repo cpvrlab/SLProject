@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLGLTexture.cpp
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLGLTexture.cpp
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLGLState.h>
 #include <SLGLTexture.h>
@@ -272,6 +272,74 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
     _texType = TT_diffuse;
 
     for (const auto& filename : files)
+        load(filename, true, loadGrayscaleIntoAlpha);
+
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = (SLint)_images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_3D;
+    _texID                 = 0;
+    _uvIndex               = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = true;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _deleteImageAfterBuild = false;
+
+#ifdef SL_HAS_OPTIX
+    _cudaGraphicsResource = nullptr;
+    _cudaTextureObject    = 0;
+#endif
+
+    // Add pointer to the global resource vectors for deallocation
+    if (assetMgr)
+        assetMgr->textures().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*!
+ * Constructor for 3D textures from single image file that is stacked depth times.
+ * Textures can be used in multiple materials. Textures can belong therefore
+ * to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * @param assetMgr Pointer to a global asset manager. If passed the asset
+ * manager is the owner of the instance and will do the deallocation. If a
+ * nullptr is passed the creator is responsible for the deallocation.
+ * @param depth Depth of 3D texture.
+ * @param filename texture image file. If only filenames are
+ * passed they will be searched on the SLGLTexture::defaultPath.
+ * @param min_filter Minification filter constant from OpenGL
+ * @param mag_filter Magnification filter constant from OpenGL
+ * @param wrapS Texture wrapping in S direction (OpenGL constant)
+ * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ * @param name Name of the 3D texture
+ * @param loadGrayscaleIntoAlpha Flag if grayscale image should be loaded into
+ * alpha channel.
+ */
+SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           depth,
+                         const SLstring& filename,
+                         SLint           min_filter,
+                         SLint           mag_filter,
+                         SLint           wrapS,
+                         SLint           wrapT,
+                         const SLstring& name,
+                         SLbool          loadGrayscaleIntoAlpha) : SLObject(name)
+{
+    assert(depth > 1);
+
+    _texType = TT_diffuse;
+
+    for (SLint i = 0; i < depth; ++i)
         load(filename, true, loadGrayscaleIntoAlpha);
 
     if (!_images.empty())
@@ -1123,12 +1191,12 @@ void SLGLTexture::bindActive(SLuint texUnit)
         if (!_cudaGraphicsResource)
         {
             // Todo: Bugfix needed for Optix needs some work for newer shader models
-            //CUDA_CHECK(
-              cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
-                                                 _texID,
-                                                 _target,
-                                                 CU_GRAPHICS_REGISTER_FLAGS_NONE);
-              //);
+            // CUDA_CHECK(
+            cuGraphicsGLRegisterImage(&_cudaGraphicsResource,
+                                      _texID,
+                                      _target,
+                                      CU_GRAPHICS_REGISTER_FLAGS_NONE);
+            //);
         }
 #endif
     }
@@ -1220,7 +1288,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
 
     // Draw the character triangles
     SLGLState*   stateGL = SLGLState::instance();
-    SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
+    SLGLProgram* sp      = SLGLProgramManager::get(SP_TextureOnly);
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
     sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);

@@ -1330,10 +1330,7 @@ void appDemoLoadScene(SLAssetManager* am,
         SLNode* polyR = new SLNode(new SLPolygon(am, VR, T, "PolygonR", matR));
 
         // 3D Texture Mapping on a pyramid
-        SLVstring tex3DFiles;
-        for (SLint i = 0; i < 256; ++i)
-            tex3DFiles.push_back(texPath + "Wave_radial10_256C.jpg");
-        SLGLTexture* tex3D = new SLGLTexture(am, tex3DFiles);
+        SLGLTexture* tex3D = new SLGLTexture(am, 256, texPath + "Wave_radial10_256C.jpg");
         SLGLProgram* spr3D = new SLGLProgramGeneric(am,
                                                     shaderPath + "TextureOnly3D.vert",
                                                     shaderPath + "TextureOnly3D.frag");

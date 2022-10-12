@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLGLTexture.h
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch, Martin Christen
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLGLTexture.h
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch, Martin Christen
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #ifndef SLGLTEXTURE_H
 #define SLGLTEXTURE_H
@@ -134,6 +134,17 @@ public:
                          const SLstring&  name                   = "3D-Texture",
                          SLbool           loadGrayscaleIntoAlpha = false);
 
+    //! ctor for 3D texture from a single file with depth as 3rd dimension
+    explicit SLGLTexture(SLAssetManager* assetMgr,
+                         SLint           depth,
+                         const SLstring& imageFilename,
+                         SLint           min_filter             = GL_LINEAR,
+                         SLint           mag_filter             = GL_LINEAR,
+                         SLint           wrapS                  = GL_REPEAT,
+                         SLint           wrapT                  = GL_REPEAT,
+                         const SLstring& name                   = "3D-Texture",
+                         SLbool          loadGrayscaleIntoAlpha = false);
+
     //! ctor for cube mapping with internal image allocation
     SLGLTexture(SLAssetManager* assetMgr,
                 const SLstring& imageFilenameXPos,
@@ -231,20 +242,20 @@ public:
     static string internalFormatStr(int internalFormat);
 
     void   build2DMipmaps(SLint target, SLuint index);
-    SLbool copyVideoImage(SLint       camWidth,
-                          SLint       camHeight,
+    SLbool copyVideoImage(SLint           camWidth,
+                          SLint           camHeight,
                           CVPixelFormatGL glFormat,
-                          SLuchar*    data,
-                          SLbool      isContinuous,
-                          SLbool      isTopLeft);
+                          SLuchar*        data,
+                          SLbool          isContinuous,
+                          SLbool          isTopLeft);
 
-    SLbool copyVideoImage(SLint       camWidth,
-                          SLint       camHeight,
+    SLbool copyVideoImage(SLint           camWidth,
+                          SLint           camHeight,
                           CVPixelFormatGL srcFormat,
                           CVPixelFormatGL dstFormat,
-                          SLuchar*    data,
-                          SLbool      isContinuous,
-                          SLbool      isTopLeft);
+                          SLuchar*        data,
+                          SLbool          isContinuous,
+                          SLbool          isTopLeft);
 
     void calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
     void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
