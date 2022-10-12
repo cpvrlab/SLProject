@@ -391,7 +391,8 @@ void SLSceneView::onInitialize()
     if (_s && _s->root3D() && _s->root3D()->aabb()->radiusOS() < 0.0001f)
     {
         // Init camera so that its frustum is set
-        _camera->setProjection(this, ET_center);
+        if (_camera)
+            _camera->setProjection(this, ET_center);
 
         // build axis aligned bounding box hierarchy after init
         clock_t t = clock();

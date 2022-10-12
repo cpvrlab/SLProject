@@ -771,6 +771,13 @@ void appDemoLoadScene(SLAssetManager* am,
     // Initialize all preloaded stuff from SLScene
     s->init(am);
 
+    // Make sure the sv->camera doesn't
+    sv->camera(sv->sceneViewCamera());
+
+    // Clear the visible materials from the last scene
+    sv->visibleMaterials2D().clear();
+    sv->visibleMaterials3D().clear();
+
     // clear gui stuff that depends on scene and sceneview
     AppDemoGui::clear();
 
