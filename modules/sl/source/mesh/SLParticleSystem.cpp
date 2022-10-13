@@ -972,7 +972,6 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         // Direction and speed, but no shape override, because I want a constant direction in one way I don't want the direction to be overridden
         else if (_doDirectionSpeed && !_doShapeOverride)
         {
-            tempSpeed = 0.0f;
             if (_doSpeedRange)
                 tempSpeed = max(_speedRange.x, _speedRange.y);
             else

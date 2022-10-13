@@ -346,7 +346,6 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
 
     // Now use the depth material
     SLGLProgram* sp    = depthMat->program();
-    SLGLState*   state = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
     sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
