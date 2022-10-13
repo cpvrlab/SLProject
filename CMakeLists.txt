@@ -71,8 +71,6 @@ endif ()
 
 if ("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
     add_link_options("-sALLOW_MEMORY_GROWTH=1" "-sASYNCIFY" "-sASSERTIONS")
-    #add_compile_options("-fsanitize=address")
-    #add_link_options("-fsanitize=address")
 endif ()
 
 add_subdirectory(modules/sens)

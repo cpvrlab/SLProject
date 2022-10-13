@@ -461,8 +461,4 @@ endif ()
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH"
             "--preload-file=../data@data")
-else()
-    target_link_directories(${target} PRIVATE "K:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/lib/clang/11.0.0/lib/windows")
-    target_link_libraries(${target} PRIVATE clang_rt.asan_dynamic-x86_64 clang_rt.asan_dynamic_runtime_thunk-x86_64)
-    target_link_options(${target} PRIVATE /wholearchive:clang_rt.asan_dynamic_runtime_thunk-x86_64.lib)
 endif ()
