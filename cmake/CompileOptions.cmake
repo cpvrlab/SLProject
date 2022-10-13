@@ -193,6 +193,16 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 	endif()
 endif ()
 
+
+# Clang only compiler options
+#if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+#	if("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
+#		set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
+#				-fsanitize=address
+#			)
+#	endif ()
+#endif ()
+
 set(EXTERNAL_LIB_COMPILE_OPTIONS)
 
 #
@@ -207,3 +217,12 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_SYSTEM_NAME}" MATCHES "L
         -pthread
     )
 endif()
+
+# Clang only linker options
+#if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+#	if("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
+#		set(DEFAULT_LINKER_OPTIONS ${DEFAULT_LINKER_OPTIONS}
+#				-fsanitize=address
+#			)
+#	endif ()
+#endif ()
