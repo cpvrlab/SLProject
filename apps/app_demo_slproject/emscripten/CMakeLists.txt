@@ -14,7 +14,7 @@ file(GLOB sources
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoGui.cpp
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoLoad.cpp
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainWASM.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainEmscripten.cpp
 )
 
 add_executable(

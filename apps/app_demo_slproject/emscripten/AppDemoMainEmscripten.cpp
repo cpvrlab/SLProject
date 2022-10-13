@@ -3,7 +3,6 @@
 #include <SLLightSpot.h>
 #include <SLBox.h>
 #include <SLRectangle.h>
-#include <SLAssetStore.h>
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
@@ -436,6 +435,8 @@ EM_BOOL onLoop(double time, void* userData)
 
 void runApp()
 {
+    EM_ASM({ Module.wasmTable = wasmTable; });
+
     glfwInit();
 
     int windowWidth = 1080;

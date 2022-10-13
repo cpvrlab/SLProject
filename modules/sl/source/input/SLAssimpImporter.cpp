@@ -22,6 +22,7 @@
 #    include <SLAnimManager.h>
 #    include <Profiler.h>
 #    include <SLAssimpProgressHandler.h>
+#    include <SLAssimpIOSystem.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #    include <assimp/Importer.hpp>
@@ -304,7 +305,8 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
         ai.SetProgressHandler((Assimp::ProgressHandler*)progressHandler);
 
     ///////////////////////////////////////////////////////////////////////
-    const aiScene* scene = ai.ReadFile(pathAndFile.c_str(), (SLuint)flags);
+    ai.SetIOHandler(new SLAssimpIOSystem());
+    const aiScene* scene = ai.ReadFile(pathAndFile, (SLuint)flags);
     ///////////////////////////////////////////////////////////////////////
 
     if (!scene)
@@ -1472,16 +1474,16 @@ SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;
-    if (Utils::fileExists(pathFile))
+    if (SLFileStorage::exists(pathFile, IOK_generic))
         return pathFile;
 
     // Check file alone
-    if (Utils::fileExists(aiTexFile))
+    if (SLFileStorage::exists(aiTexFile, IOK_generic))
         return aiTexFile;
 
     // Check path & file combination
     pathFile = modelPath + Utils::getFileName(aiTexFile);
-    if (Utils::fileExists(pathFile))
+    if (SLFileStorage::exists(pathFile, IOK_generic))
         return pathFile;
 
     if (showWarning)

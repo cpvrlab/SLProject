@@ -10,7 +10,12 @@
 #include <cv/CVImage.h>
 #include <Utils.h>
 #include <algorithm> // std::max
-#include <SLFileIO.h>
+#include <SLFileStorage.h>
+
+#ifdef __EMSCRIPTEN__
+#    define STB_IMAGE_IMPLEMENTATION
+#    include "stb_image.h"
+#endif
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -381,7 +386,28 @@ void CVImage::load(const string& filename,
     _bytesInFile = Utils::getFileSize(filename);
 
     // load the image format as stored in the file
-    _cvMat = SLFileIO::loadImage(filename);
+
+    SLIOBuffer buffer   = SLFileStorage::readIntoBuffer(filename, IOK_image);
+    CVMat      inputMat = CVMat(1, (int)buffer.size, CV_8UC1, buffer.data);
+
+#ifndef __EMSCRIPTEN__
+    _cvMat = cv::imdecode(inputMat, cv::ImreadModes::IMREAD_UNCHANGED);
+#else
+    const unsigned char* encodedData = buffer.data;
+    int                  size        = (int)buffer.size;
+    int                  width;
+    int                  height;
+    int                  numChannels;
+    unsigned char*       data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 4);
+
+    // Convert RGB to BGR
+    for (int i = 0; i < 4 * width * height; i += 4)
+        std::swap(data[i + 0], data[i + 2]);
+
+    _cvMat = CVMat(height, width, CV_8UC4, data);
+#endif
+
+    SLFileStorage::deleteBuffer(buffer);
 
     if (!_cvMat.data)
     {
@@ -455,11 +481,7 @@ CVPixelFormatGL CVImage::cvType2glPixelFormat(int cvType)
         case CV_8UC1: return PF_red;
         case CV_8UC2: return PF_rg;
         case CV_8UC3: return PF_bgr;
-#ifndef __EMSCRIPTEN__
         case CV_8UC4: return PF_bgra;
-#else
-        case CV_8UC4: return PF_rgba;
-#endif
         case CV_16FC1: return PF_r16f;
         case CV_16FC2: return PF_rg16f;
         case CV_16FC3: return PF_rgb16f;

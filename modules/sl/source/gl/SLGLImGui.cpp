@@ -14,7 +14,6 @@
 #include <SLGLImGui.h>
 #include <SLScene.h>
 #include <GlobalTimer.h>
-#include <SLAssetStore.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLGLImGui::fontPropDots  = 16.0f;
@@ -147,14 +146,14 @@ void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = fontDir + "DroidSans.ttf";
-    if (SLAssetStore::assetExists(DroidSans))
+    if (Utils::fileExists(DroidSans))
         io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontDir + "ProggyClean.ttf";
-    if (SLAssetStore::assetExists(ProggyClean))
+    if (Utils::fileExists(ProggyClean))
         io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());

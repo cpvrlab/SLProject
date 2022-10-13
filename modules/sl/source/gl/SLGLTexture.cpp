@@ -12,6 +12,7 @@
 #include <SLScene.h>
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
+#include "SLFileStorage.h"
 #include <Utils.h>
 #include <Profiler.h>
 
@@ -509,7 +510,7 @@ void SLGLTexture::load(const SLstring& filename,
                        SLbool          flipVertical,
                        SLbool          loadGrayscaleIntoAlpha)
 {
-    if (!Utils::fileExists(filename))
+    if (!SLFileStorage::exists(filename, IOK_image))
     {
         SLstring msg = "SLGLTexture: File not found: " + filename;
         SL_EXIT_MSG(msg.c_str());

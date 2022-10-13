@@ -55,7 +55,8 @@ namespace fs = std::experimental::filesystem;
 #    include <sys/types.h>
 #    include <sys/stat.h>
 #elif defined(__EMSCRIPTEN__)
-#    define  _LIBCPP_NO_EXPERIMENTAL_DEPRECATION_WARNING_FILESYSTEM
+#    include <emscripten.h>
+#    define _LIBCPP_NO_EXPERIMENTAL_DEPRECATION_WARNING_FILESYSTEM
 #    include <experimental/filesystem>
 #    define USE_STD_FILESYSTEM
 namespace fs = std::experimental::filesystem;
@@ -63,6 +64,14 @@ namespace fs = std::experimental::filesystem;
 
 #ifndef __EMSCRIPTEN__
 using asio::ip::tcp;
+#endif
+
+#ifdef __EMSCRIPTEN__
+// clang-format off
+EM_JS(void, alert, (const char* string), {
+    alert(UTF8ToString(string));
+})
+// clang-format on
 #endif
 
 using std::fstream;
@@ -783,7 +792,9 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
 // Returns true if a directory exists.
 bool dirExists(const string& path)
 {
-#if defined(USE_STD_FILESYSTEM)
+#if defined(__EMSCRIPTEN__)
+    return true;
+#elif defined(USE_STD_FILESYSTEM)
     return fs::exists(path) && fs::is_directory(path);
 #else
     struct stat info
@@ -1132,8 +1143,10 @@ void exitMsg(const char* tag,
                         msg,
                         line,
                         file);
+#elif defined(__EMSCRIPTEN__)
+    std::string message = "SLProject error";
+    alert(message.c_str());
 #else
-
     log(tag,
         "Exit %s at line %d in %s\n",
         msg,
@@ -1280,7 +1293,7 @@ std::string ComputerInfos::get()
     {
         case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
         case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
-        case 12: arch = "ARM64"; break;                             // PROCESSOR_ARCHITECTURE_ARM64
+        case 12: arch = "ARM64"; break; // PROCESSOR_ARCHITECTURE_ARM64
         case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
         case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
         default: arch = "???";

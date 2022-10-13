@@ -15,12 +15,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     }
 
     def do_GET(self):
-        url = urllib.parse.urlparse(self.path)
-
-        file_path = url.path
-        if file_path == "/":
-            file_path = "/app-Demo-SLProject.html"
-        file_path = os.curdir + file_path
+        file_path = self.get_path()
 
         try:
             file = open(file_path, "rb")
@@ -39,6 +34,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
 
+    def do_HEAD(self):
+        file_path = self.get_path()
+        self.send_response(200 if os.path.isfile(file_path) else 404)
+        self.end_headers()
+
+    def get_path(self):
+        url = urllib.parse.urlparse(self.path)
+        file_path = url.path
+        if file_path == "/":
+            file_path = "/app-Demo-SLProject.html"
+        return os.curdir + file_path
 
 server = HTTPServer((HOSTNAME, PORT), RequestHandler)
 

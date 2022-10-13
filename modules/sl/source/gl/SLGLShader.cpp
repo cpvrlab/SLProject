@@ -11,7 +11,7 @@
 #include <SLGLState.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
-#include <SLAssetStore.h>
+#include "SLFileStorage.h"
 
 //-----------------------------------------------------------------------------
 // Error Strings
@@ -46,14 +46,16 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
     _file     = filename;
 
     // Only load file at this moment, don't compile it.
-    if (SLAssetStore::assetExists(filename))
+    if (SLFileStorage::exists(filename, IOK_shader))
         load(filename);
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    _code = SLAssetStore::loadTextAsset(filename);
+    SLIOBuffer buffer = SLFileStorage::readIntoBuffer(filename, IOK_shader);
+    _code = SLstring(buffer.data, buffer.data + buffer.size);
+    SLFileStorage::deleteBuffer(buffer);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
     _code = removeComments(_code);
@@ -156,24 +158,29 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
 #if defined(DEBUG) || defined(_DEBUG)
         string filename = Utils::getFileName(_file);
         string path     = Utils::getDirName(_file);
-        if (SLAssetStore::dirExists(path))
+        if (Utils::dirExists(path))
         {
             if (Utils::containsString(path, "generatedShaders"))
             {
-                SLAssetStore::saveTextAsset(_file, _code);
+                SLIOStream* stream = SLFileStorage::open(_file, IOK_shader, IOM_write);
+                stream->write(_code.c_str(), _code.size());
+                SLFileStorage::close(stream);
+
                 SL_LOG("Exported Shader Program: %s", filename.c_str());
             }
         }
         else
             SL_WARN_MSG("**** No path to write shader ***");
 #else
-        if (!SLAssetStore::assetExists(_file))
+        if (!SLFileStorage::exists(_file, IOK_shader))
         {
             string filename = Utils::getFileName(_file);
             string path     = Utils::getDirName(_file);
-            if (SLAssetStore::dirExists(path))
+            if (Utils::dirExists(path))
             {
-                SLAssetStore::saveTextAsset(_file, _code);
+                SLIOStream* stream = SLFileStorage::open(_file, IOK_shader, IOM_write);
+                stream->write(_code.c_str(), _code.size());
+                SLFileStorage::close(stream);
                 SL_LOG("Exported Shader Program: %s", filename.c_str());
             }
             else

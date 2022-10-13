@@ -756,6 +756,7 @@ void appDemoLoadScene(SLAssetManager* am,
     trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
+#endif
 
     // reset existing sceneviews
     for (auto* sceneview : AppDemo::sceneViews)
@@ -763,7 +764,6 @@ void appDemoLoadScene(SLAssetManager* am,
 
     // Clear all data in the asset manager
     am->clear();
-#endif
 
     AppDemo::sceneID   = sceneID;
     SLGLState* stateGL = SLGLState::instance();
@@ -776,6 +776,13 @@ void appDemoLoadScene(SLAssetManager* am,
 
     // Initialize all preloaded stuff from SLScene
     s->init(am);
+
+    // Make sure the sv->camera doesn't
+    sv->camera(sv->sceneViewCamera());
+
+    // Clear the visible materials from the last scene
+    sv->visibleMaterials2D().clear();
+    sv->visibleMaterials3D().clear();
 
     // clear gui stuff that depends on scene and sceneview
     AppDemoGui::clear();
@@ -814,7 +821,7 @@ void appDemoLoadScene(SLAssetManager* am,
         s->root3D(scene);
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "donald_trump.jpg");
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
         SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
 
         // Create a light source node

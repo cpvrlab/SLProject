@@ -56,6 +56,7 @@ target_include_directories(
 		${SL_PROJECT_ROOT}/modules/sl/source/cv
 		${SL_PROJECT_ROOT}/modules/sl/source/gl
 		${SL_PROJECT_ROOT}/modules/sl/source/input
+		${SL_PROJECT_ROOT}/modules/sl/source/io
 		${SL_PROJECT_ROOT}/modules/sl/source/mesh
 		${SL_PROJECT_ROOT}/modules/sl/source/node
 		${SL_PROJECT_ROOT}/modules/sl/source/optix
@@ -101,3 +102,7 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
+
+target_link_directories(${target} PRIVATE "K:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/lib/clang/11.0.0/lib/windows")
+target_link_libraries(${target} PRIVATE clang_rt.asan_dynamic-x86_64 clang_rt.asan_dynamic_runtime_thunk-x86_64)
+target_link_options(${target} PRIVATE /wholearchive:clang_rt.asan_dynamic_runtime_thunk-x86_64.lib)
