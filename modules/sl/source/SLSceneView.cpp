@@ -2048,9 +2048,9 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
             Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
 
-#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+#    if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
         _gui->drawMouseCursor(true);
-#endif
+#    endif
         _screenCaptureIsRequested = false;
     }
     else

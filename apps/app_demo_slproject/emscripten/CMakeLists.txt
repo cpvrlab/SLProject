@@ -23,15 +23,12 @@ add_executable(
     ${sources}
 )
 
-# Link GLFW 3
-set_target_properties(${target} PROPERTIES LINK_FLAGS "-s USE_GLFW=3")
+# Link library.js
+target_link_options(${target} PUBLIC "--js-library" "${CMAKE_CURRENT_SOURCE_DIR}/library.js")
 
-# Copy index.html to output directory
+# Copy index.html and server script to output directory
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target}.html" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/server.py" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/server.py" COPYONLY)
-
-# Link Embind
-target_link_libraries(${target} PUBLIC embind)
 
 message(${OpenCV_INCLUDE_DIR})
 

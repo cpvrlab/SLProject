@@ -38,7 +38,7 @@ SLIOStream* SLFileStorage::open(SLstring       path,
             return new SLIOReaderNative(path);
     }
     else if (mode == IOM_write)
-        return new SLIOReaderMemory(path);
+        return new SLIOWriterMemory(path);
 
     return nullptr;
 #endif
@@ -78,5 +78,17 @@ SLIOBuffer SLFileStorage::readIntoBuffer(SLstring path, SLIOStreamKind kind)
 void SLFileStorage::deleteBuffer(SLIOBuffer& buffer)
 {
     delete[] buffer.data;
+}
+//-----------------------------------------------------------------------------
+SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
+{
+    SLIOStream* stream = open(path, kind, IOM_read);
+    size_t size = stream->size();
+    SLstring string;
+    string.resize(size);
+    stream->read((void*)string.data(), size);
+    close(stream);
+
+    return string;
 }
 //-----------------------------------------------------------------------------

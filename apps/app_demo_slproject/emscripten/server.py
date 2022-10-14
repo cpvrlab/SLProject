@@ -27,6 +27,8 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             self.send_response(200)
             self.send_header("Content-Type", mime_type)
+            self.send_header("Cross-Origin-Embedder-Policy", "require-corp")
+            self.send_header("Cross-Origin-Opener-Policy", "same-origin")
             self.end_headers()
             self.wfile.write(content)
         except Exception as e:

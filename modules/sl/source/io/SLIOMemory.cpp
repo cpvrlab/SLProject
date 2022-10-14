@@ -1,8 +1,9 @@
 #include <SLIOMemory.h>
-#include <unordered_map>
-#include <vector>
 
 #ifdef SL_STORAGE_WEB
+//-----------------------------------------------------------------------------
+#include <unordered_map>
+#include <vector>
 //-----------------------------------------------------------------------------
 std::unordered_map<SLstring, std::vector<char>> memoryFiles;
 //-----------------------------------------------------------------------------

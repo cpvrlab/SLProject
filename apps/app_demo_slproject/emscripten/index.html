@@ -15,6 +15,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            outline: none;
         }
 
         #overlay {
@@ -26,16 +27,18 @@
             align-items: center;
             flex-direction: column;
             gap: 20pt;
-            background-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.65);
+            transition: opacity ease-in-out 1s;
+            pointer-events: none;
         }
 
         #overlay:not(.visible) {
-            display: none;
+            opacity: 0;
         }
 
         #spinner {
-            border: 12px solid gray;
-            border-top: 12px solid black;
+            border: 12px solid #888888;
+            border-top: 12px solid #222222;
             border-radius: 50%;
             width: 64px;
             height: 64px;
@@ -43,6 +46,7 @@
         }
 
         #download-text {
+            font-family: monospace;
             font-size: 24pt;
         }
 
@@ -53,14 +57,15 @@
     </style>
 </head>
 <body>
-<canvas oncontextmenu="event.preventDefault();" style="cursor: none;"></canvas>
+<canvas id="canvas" tabindex="1" oncontextmenu="event.preventDefault();" style="cursor: none;"></canvas>
 <div id="overlay">
     <div id="spinner"></div>
     <p id="download-text"></p>
 </div>
 <script type="text/javascript">
     var Module = {
-        canvas: document.querySelector("canvas")
+        canvas: document.querySelector("#canvas"),
+        GL_MAX_TEXTURE_IMAGE_UNITS: 32
     };
 </script>
 <script src="app-Demo-SLProject.js"></script>

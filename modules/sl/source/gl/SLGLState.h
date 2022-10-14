@@ -49,7 +49,8 @@ class SLMaterial;
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
-#if defined(DEBUG) || defined(_DEBUG)
+// glGetError turns WebGL rendering into a slideshow, so we disable it when compiling with Emscripten
+#if (defined(DEBUG) || defined(_DEBUG)) && !defined(SL_EMSCRIPTEN)
 #    define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
 #else
 #    define GET_GL_ERROR

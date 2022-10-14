@@ -54,7 +54,7 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
 void SLGLShader::load(const SLstring& filename)
 {
     SLIOBuffer buffer = SLFileStorage::readIntoBuffer(filename, IOK_shader);
-    _code = SLstring(buffer.data, buffer.data + buffer.size);
+    _code             = SLstring(buffer.data, buffer.data + buffer.size);
     SLFileStorage::deleteBuffer(buffer);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
@@ -281,9 +281,9 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
                 string filename = Utils::trimString(pragmaParts[2], "\"");
                 string path     = Utils::getPath(_file);
                 string pathFile = path + filename;
-                if (Utils::fileExists(pathFile))
+                if (SLFileStorage::exists(pathFile, IOK_shader))
                 {
-                    string includeCode = Utils::readTextFileIntoString("SLProject", pathFile);
+                    string includeCode = SLFileStorage::readIntoString(pathFile, IOK_shader);
                     includeCode        = removeComments(includeCode);
                     outCode += includeCode + '\n';
                 }

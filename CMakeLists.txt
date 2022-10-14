@@ -70,7 +70,16 @@ if ("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
-    add_link_options("-sALLOW_MEMORY_GROWTH=1" "-sASYNCIFY" "-sASSERTIONS")
+    add_compile_options("-sUSE_PTHREADS")
+    add_link_options(
+            "-sALLOW_MEMORY_GROWTH=1"
+            "-sASSERTIONS"
+            #"-sEXIT_RUNTIME=0"
+            "-sUSE_PTHREADS"
+            "-sPROXY_TO_PTHREAD"
+            "-sOFFSCREENCANVAS_SUPPORT=1"
+            "-sOFFSCREENCANVASES_TO_PTHREAD='#canvas'"
+    )
 endif ()
 
 add_subdirectory(modules/sens)

@@ -1,68 +1,52 @@
 #include <SLIOFetch.h>
-#include <iostream>
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-// clang-format off
-EM_ASYNC_JS(void, jsFetch, (const char* urlPointer,
-                            int urlLength,
-                            int* outStatus,
-                            unsigned char** outData,
-                            int* outLength), {
-    document.querySelector("#overlay").classList.add("visible");
-
-    let url = UTF8ToString(urlPointer, urlLength);
-    document.querySelector("#download-text").innerHTML = url;
-
-    let response = await fetch(url);
-    setValue(outStatus, response.status, "i32");
-
-    if (response.status == 200) {
-        let data = await response.arrayBuffer();
-
-        let typedArray = new Uint8Array(data);
-        let buffer = _malloc(data.byteLength);
-        writeArrayToMemory(typedArray, buffer);
-
-        setValue(outData, buffer, "u8*");
-        setValue(outLength, data.byteLength, "i32");
-    } else {
-        setValue(outData, 0, "u8*");
-        setValue(outLength, 0, "i32");
-    }
-
-    document.querySelector("#overlay").classList.remove("visible");
-})
-// clang-format on
+#include <iostream>
+#include <emscripten/threading.h>
+#include <emscripten/fetch.h>
 //-----------------------------------------------------------------------------
-// clang-format off
-EM_ASYNC_JS(bool, jsFileExists, (const char* urlPointer, int urlLength), {
-    let url = UTF8ToString(urlPointer, urlLength);
-    let response = await fetch(url, {method: 'HEAD'});
-    return response.status === 200;
-})
-// clang-format on
+extern "C" {
+    extern void showLoadingOverlay(const char* resource);
+    extern void hideLoadingOverlay();
+};
 //-----------------------------------------------------------------------------
 SLFetchResult SLIOReaderFetch::fetch(SLstring url)
 {
+    emscripten_async_run_in_main_runtime_thread(EM_FUNC_SIG_VI,
+                                                showLoadingOverlay,
+                                                url.c_str());
+
     std::cout << "FETCH \"" << url << "\"" << std::endl;
 
-    int            status;
-    unsigned char* data;
-    int            size;
-    jsFetch(url.c_str(), (int)url.length(), &status, &data, &size);
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    std::strcpy(attr.requestMethod, "GET");
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_SYNCHRONOUS;
+    emscripten_fetch_t* fetch = emscripten_fetch(&attr, url.c_str());
 
-    std::cout << "STATUS: " << status << ", SIZE: " << size << std::endl;
+    std::cout << "STATUS: " << fetch->status << ", SIZE: " << fetch->totalBytes << std::endl;
 
-    SLIOBuffer    buffer{data, (size_t)size};
-    SLFetchResult result{status, buffer};
-    return result;
+    unsigned char* data = new unsigned char[fetch->totalBytes];
+    std::memcpy(data, fetch->data, fetch->totalBytes);
+    emscripten_fetch_close(fetch);
+
+    emscripten_async_run_in_main_runtime_thread(EM_FUNC_SIG_V,
+                                                hideLoadingOverlay);
+
+    SLIOBuffer buffer{data, (size_t)fetch->totalBytes};
+    return SLFetchResult{fetch->status, buffer};
 }
 //-----------------------------------------------------------------------------
 bool SLIOReaderFetch::exists(SLstring url)
 {
-    return true;
-//    return jsFileExists(url.c_str(), (int)url.size());
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    std::strcpy(attr.requestMethod, "HEAD");
+    attr.attributes = EMSCRIPTEN_FETCH_SYNCHRONOUS;
+    emscripten_fetch_t* fetch = emscripten_fetch(&attr, url.c_str());
+    emscripten_fetch_close(fetch);
+    return fetch->status == 200;
 }
 //-----------------------------------------------------------------------------
 SLIOReaderFetch::SLIOReaderFetch(SLstring url)

@@ -23,8 +23,11 @@ for a good top down information.
 #include <HighResTimer.h>
 #include <cv/CVTypedefs.h>
 #include <cv/CVCalibration.h>
-#include <opencv2/aruco.hpp>
-#include <opencv2/xfeatures2d.hpp>
+
+#ifndef __EMSCRIPTEN__
+#    include <opencv2/aruco.hpp>
+#    include <opencv2/xfeatures2d.hpp>
+#endif
 
 #include <SLQuat4.h>
 

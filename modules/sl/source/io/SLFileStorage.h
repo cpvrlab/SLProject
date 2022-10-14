@@ -61,6 +61,7 @@ void        close(SLIOStream* stream);
 bool        exists(SLstring path, SLIOStreamKind kind);
 SLIOBuffer  readIntoBuffer(SLstring path, SLIOStreamKind kind);
 void        deleteBuffer(SLIOBuffer& buffer);
+SLstring    readIntoString(SLstring path, SLIOStreamKind kind);
 }
 //-----------------------------------------------------------------------------
 #endif

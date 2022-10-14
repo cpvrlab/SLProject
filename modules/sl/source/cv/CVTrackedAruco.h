@@ -19,9 +19,10 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <cv/CVTypedefs.h>
-#include <cv/CVTracked.h>
-#include <opencv2/aruco.hpp>
+#ifndef __EMSCRIPTEN__
+#    include <cv/CVTypedefs.h>
+#    include <cv/CVTracked.h>
+#    include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
 //! ArUco Paramters loaded from configuration file.
@@ -133,4 +134,5 @@ private:
     string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
+#endif
 #endif // CVTrackedAruco_H

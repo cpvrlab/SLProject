@@ -290,7 +290,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
     clear();
 
     // Check existence
-    if (!Utils::fileExists(pathAndFile))
+    if (!SLFileStorage::exists(pathAndFile, IOK_shader))
     {
         SLstring msg = "SLAssimpImporter: File not found: " + pathAndFile + "\n";
         SL_EXIT_MSG(msg.c_str());

@@ -1,8 +1,5 @@
 #include <SLInterface.h>
 #include <SLScene.h>
-#include <SLLightSpot.h>
-#include <SLBox.h>
-#include <SLRectangle.h>
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
@@ -12,391 +9,276 @@
 
 #include <emscripten.h>
 #include <emscripten/html5.h>
-#include <emscripten/fetch.h>
 #include <emscripten/val.h>
 
 #include <iostream>
-#include <fstream>
-#include <atomic>
-#include <filesystem>
 
-//-----------------------------------------------------------------------------
-// Global application variables
-static GLFWwindow* window;                     //!< The global glfw window handle
-static SLint       svIndex;                    //!< SceneView index
-static SLint       scrWidth;                   //!< Window width at start up
-static SLint       scrHeight;                  //!< Window height at start up
-static SLbool      fixAspectRatio;             //!< Flag if wnd aspect ratio should be fixed
-static SLfloat     scrWdivH;                   //!< aspect ratio screen width divided by height
-static SLint       dpi = 142;                  //!< Dot per inch resolution of screen
-static SLint       startX;                     //!< start position x in pixels
-static SLint       startY;                     //!< start position y in pixels
-static SLint       mouseX;                     //!< Last mouse position x in pixels
-static SLint       mouseY;                     //!< Last mouse position y in pixels
-static SLVec2i     touch2;                     //!< Last finger touch 2 position in pixels
-static SLVec2i     touchDelta;                 //!< Delta between two fingers in x
-static SLint       lastWidth;                  //!< Last window width in pixels
-static SLint       lastHeight;                 //!< Last window height in pixels
-static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
-static SLKey       modifiers         = K_none; //!< last modifier keys
-static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
+static int canvasWidth;
+static int canvasHeight;
+
+static GLFWwindow* window;             //!< The global glfw window handle
+static SLint       svIndex;            //!< SceneView index
+static SLint       scrWidth;           //!< Window width at start up
+static SLint       scrHeight;          //!< Window height at start up
+static SLbool      fixAspectRatio;     //!< Flag if wnd aspect ratio should be fixed
+static SLfloat     scrWdivH;           //!< aspect ratio screen width divided by height
+static SLint       dpi = 142;          //!< Dot per inch resolution of screen
+static SLint       startX;             //!< start position x in pixels
+static SLint       startY;             //!< start position y in pixels
+static SLint       mouseX;             //!< Last mouse position x in pixels
+static SLint       mouseY;             //!< Last mouse position y in pixels
+static SLVec2i     touch2;             //!< Last finger touch 2 position in pixels
+static SLVec2i     touchDelta;         //!< Delta between two fingers in x
+static SLint       lastWidth;          //!< Last window width in pixels
+static SLint       lastHeight;         //!< Last window height in pixels
+static SLbool      fullscreen = false; //!< flag if window is in fullscreen mode
 
 extern void appDemoLoadScene(SLAssetManager* am,
                              SLScene*        s,
                              SLSceneView*    sv,
                              SLSceneID       sceneID);
 
-SLKey mapKeyToSLKey(SLint key)
+void updateCanvas()
+{
+    // clang-format off
+    EM_ASM({
+        let canvas = Module['canvas'];
+        canvas.nativeWidth = $0;
+        canvas.nativeHeight = $1;
+        canvas.width = $0;
+        canvas.height = $1;
+    }, canvasWidth, canvasHeight);
+    // clang-format on
+}
+
+SLKey mapKeyToSLKey(unsigned long key)
 {
     switch (key)
     {
-        case GLFW_KEY_SPACE: return K_space;
-        case GLFW_KEY_ESCAPE: return K_esc;
-        case GLFW_KEY_F1: return K_F1;
-        case GLFW_KEY_F2: return K_F2;
-        case GLFW_KEY_F3: return K_F3;
-        case GLFW_KEY_F4: return K_F4;
-        case GLFW_KEY_F5: return K_F5;
-        case GLFW_KEY_F6: return K_F6;
-        case GLFW_KEY_F7: return K_F7;
-        case GLFW_KEY_F8: return K_F8;
-        case GLFW_KEY_F9: return K_F9;
-        case GLFW_KEY_F10: return K_F10;
-        case GLFW_KEY_F11: return K_F11;
-        case GLFW_KEY_F12: return K_F12;
-        case GLFW_KEY_UP: return K_up;
-        case GLFW_KEY_DOWN: return K_down;
-        case GLFW_KEY_LEFT: return K_left;
-        case GLFW_KEY_RIGHT: return K_right;
-        case GLFW_KEY_LEFT_SHIFT: return K_shift;
-        case GLFW_KEY_RIGHT_SHIFT: return K_shift;
-        case GLFW_KEY_LEFT_CONTROL: return K_ctrl;
-        case GLFW_KEY_RIGHT_CONTROL: return K_ctrl;
-        case GLFW_KEY_LEFT_ALT: return K_alt;
-        case GLFW_KEY_RIGHT_ALT: return K_alt;
-        case GLFW_KEY_LEFT_SUPER: return K_super;  // Apple command key
-        case GLFW_KEY_RIGHT_SUPER: return K_super; // Apple command key
-        case GLFW_KEY_TAB: return K_tab;
-        case GLFW_KEY_ENTER: return K_enter;
-        case GLFW_KEY_BACKSPACE: return K_backspace;
-        case GLFW_KEY_INSERT: return K_insert;
-        case GLFW_KEY_DELETE: return K_delete;
-        case GLFW_KEY_PAGE_UP: return K_pageUp;
-        case GLFW_KEY_PAGE_DOWN: return K_pageDown;
-        case GLFW_KEY_HOME: return K_home;
-        case GLFW_KEY_END: return K_end;
-        case GLFW_KEY_KP_0: return K_NP0;
-        case GLFW_KEY_KP_1: return K_NP1;
-        case GLFW_KEY_KP_2: return K_NP2;
-        case GLFW_KEY_KP_3: return K_NP3;
-        case GLFW_KEY_KP_4: return K_NP4;
-        case GLFW_KEY_KP_5: return K_NP5;
-        case GLFW_KEY_KP_6: return K_NP6;
-        case GLFW_KEY_KP_7: return K_NP7;
-        case GLFW_KEY_KP_8: return K_NP8;
-        case GLFW_KEY_KP_9: return K_NP9;
-        case GLFW_KEY_KP_DIVIDE: return K_NPDivide;
-        case GLFW_KEY_KP_MULTIPLY: return K_NPMultiply;
-        case GLFW_KEY_KP_SUBTRACT: return K_NPSubtract;
-        case GLFW_KEY_KP_ADD: return K_NPAdd;
-        case GLFW_KEY_KP_DECIMAL: return K_NPDecimal;
-        case GLFW_KEY_UNKNOWN: return K_none;
+        case 8: return K_backspace;
+        case 9: return K_tab;
+        case 13: return K_enter;
+        case 16: return K_shift;
+        case 17: return K_ctrl;
+        case 18: return K_alt;
+        case 27: return K_esc;
+        case 32: return K_space;
+        case 33: return K_pageUp;
+        case 34: return K_pageDown;
+        case 35: return K_end;
+        case 36: return K_home;
+        case 37: return K_left;
+        case 38: return K_up;
+        case 39: return K_right;
+        case 40: return K_down;
+        case 45: return K_insert;
+        case 46: return K_delete;
+        case 96: return K_NP0;
+        case 97: return K_NP1;
+        case 98: return K_NP2;
+        case 99: return K_NP3;
+        case 100: return K_NP4;
+        case 101: return K_NP5;
+        case 102: return K_NP6;
+        case 103: return K_NP7;
+        case 104: return K_NP8;
+        case 105: return K_NP9;
+        case 106: return K_NPMultiply;
+        case 107: return K_NPAdd;
+        case 109: return K_NPSubtract;
+        case 110: return K_NPDecimal;
+        case 111: return K_NPDivide;
+        case 112: return K_F1;
+        case 113: return K_F2;
+        case 114: return K_F3;
+        case 115: return K_F4;
+        case 116: return K_F5;
+        case 117: return K_F6;
+        case 118: return K_F7;
+        case 119: return K_F8;
+        case 120: return K_F9;
+        case 121: return K_F10;
+        case 122: return K_F11;
+        case 123: return K_F12;
+        default: return (SLKey)key;
+    }
+}
+
+SLKey mapModifiersToSLModifiers(bool shiftDown, bool ctrlDown, bool altDown)
+{
+    int modifiers = 0;
+    if (shiftDown) modifiers |= K_shift;
+    if (ctrlDown) modifiers |= K_ctrl;
+    if (altDown) modifiers |= K_alt;
+    return (SLKey)modifiers;
+}
+
+SLKey mapModifiersToSLModifiers(const EmscriptenMouseEvent* mouseEvent)
+{
+    return mapModifiersToSLModifiers(mouseEvent->shiftKey,
+                                     mouseEvent->ctrlKey,
+                                     mouseEvent->altKey);
+}
+
+SLKey mapModifiersToSLModifiers(const EmscriptenKeyboardEvent* keyEvent)
+{
+    return mapModifiersToSLModifiers(keyEvent->shiftKey,
+                                     keyEvent->ctrlKey,
+                                     keyEvent->altKey);
+}
+
+EMSCRIPTEN_RESULT emOnMousePressed(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+{
+    SLint x         = mouseX;
+    SLint y         = mouseY;
+    SLKey modifiers = mapModifiersToSLModifiers(mouseEvent);
+
+    startX = x;
+    startY = y;
+
+    switch (mouseEvent->button)
+    {
+        case 0:
+            if (modifiers & K_alt && modifiers & K_ctrl)
+                slTouch2Down(svIndex, x - 20, y, x + 20, y);
+            else
+                slMouseDown(svIndex, MB_left, x, y, modifiers);
+            break;
+        case 1:
+            slMouseDown(svIndex, MB_middle, x, y, modifiers);
+            break;
+        case 2:
+            slMouseDown(svIndex, MB_right, x, y, modifiers);
+            break;
         default: break;
     }
-    return (SLKey)key;
+
+    return EM_TRUE;
 }
 
-static void onResize(GLFWwindow* myWindow, int width, int height)
+EM_BOOL emOnMouseReleased(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
 {
-    if (AppDemo::sceneViews.empty()) return;
-    SLSceneView* sv = AppDemo::sceneViews[svIndex];
+    SLint x         = mouseX;
+    SLint y         = mouseY;
+    SLKey modifiers = mapModifiersToSLModifiers(mouseEvent);
 
-    if (fixAspectRatio)
+    startX = -1;
+    startY = -1;
+
+    switch (mouseEvent->button)
     {
-        // correct target width and height
-        if ((float)height * scrWdivH <= (float)width)
-        {
-            width  = (int)((float)height * scrWdivH);
-            height = (int)((float)width / scrWdivH);
-        }
-        else
-        {
-            height = (int)((float)width / scrWdivH);
-            width  = (int)((float)height * scrWdivH);
-        }
+        case 0:
+            slMouseUp(svIndex, MB_left, x, y, modifiers);
+            break;
+        case 1:
+            slMouseUp(svIndex, MB_middle, x, y, modifiers);
+            break;
+        case 2:
+            slMouseUp(svIndex, MB_right, x, y, modifiers);
+            break;
+        default: break;
     }
 
-    lastWidth  = width;
-    lastHeight = height;
-
-    // width & height are in screen coords.
-    slResize(svIndex, width, height);
+    return EM_TRUE;
 }
 
-static void onMouseButton(GLFWwindow* myWindow,
-                          int         button,
-                          int         action,
-                          int         mods)
+EM_BOOL emOnMouseDoubleClicked(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
 {
-    SLint x = mouseX;
-    SLint y = mouseY;
-    startX  = x;
-    startY  = y;
+    SLint x         = mouseX;
+    SLint y         = mouseY;
+    SLKey modifiers = mapModifiersToSLModifiers(mouseEvent);
 
-    // Translate modifiers
-    modifiers = K_none;
-    if ((uint)mods & (uint)GLFW_MOD_SHIFT) modifiers = (SLKey)(modifiers | K_shift);
-    if ((uint)mods & (uint)GLFW_MOD_CONTROL) modifiers = (SLKey)(modifiers | K_ctrl);
-    if ((uint)mods & (uint)GLFW_MOD_ALT) modifiers = (SLKey)(modifiers | K_alt);
-
-    if (action == GLFW_PRESS)
+    switch (mouseEvent->button)
     {
-        SLfloat mouseDeltaTime = (SLfloat)glfwGetTime() - lastMouseDownTime;
-        lastMouseDownTime      = (SLfloat)glfwGetTime();
-
-        // handle double click
-        if (mouseDeltaTime < 0.3f)
-        {
-            switch (button)
-            {
-                case GLFW_MOUSE_BUTTON_LEFT:
-                    slDoubleClick(svIndex, MB_left, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_RIGHT:
-                    slDoubleClick(svIndex, MB_right, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slDoubleClick(svIndex, MB_middle, x, y, modifiers);
-                    break;
-                default: break;
-            }
-        }
-        else // normal mouse clicks
-        {
-            switch (button)
-            {
-                case GLFW_MOUSE_BUTTON_LEFT:
-                    if (modifiers & K_alt && modifiers & K_ctrl)
-                        slTouch2Down(svIndex, x - 20, y, x + 20, y);
-                    else
-                        slMouseDown(svIndex, MB_left, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_RIGHT:
-                    slMouseDown(svIndex, MB_right, x, y, modifiers);
-                    break;
-                case GLFW_MOUSE_BUTTON_MIDDLE:
-                    slMouseDown(svIndex, MB_middle, x, y, modifiers);
-                    break;
-                default: break;
-            }
-        }
+        case GLFW_MOUSE_BUTTON_LEFT:
+            slDoubleClick(svIndex, MB_left, x, y, modifiers);
+            break;
+        case GLFW_MOUSE_BUTTON_RIGHT:
+            slDoubleClick(svIndex, MB_right, x, y, modifiers);
+            break;
+        case GLFW_MOUSE_BUTTON_MIDDLE:
+            slDoubleClick(svIndex, MB_middle, x, y, modifiers);
+            break;
+        default: break;
     }
+
+    return EM_TRUE;
+}
+
+EM_BOOL emOnMouseMove(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+{
+    mouseX = (int)mouseEvent->targetX;
+    mouseY = (int)mouseEvent->targetY;
+
+    if (mouseEvent->altKey && mouseEvent->ctrlKey)
+        slTouch2Move(svIndex, mouseX - 20, mouseY, mouseX + 20, mouseY);
     else
-    { // flag end of mouse click for long touches
-        startX = -1;
-        startY = -1;
+        slMouseMove(svIndex, mouseX, mouseY);
 
-        switch (button)
-        {
-            case GLFW_MOUSE_BUTTON_LEFT:
-                slMouseUp(svIndex, MB_left, x, y, modifiers);
-                break;
-            case GLFW_MOUSE_BUTTON_RIGHT:
-                slMouseUp(svIndex, MB_right, x, y, modifiers);
-                break;
-            case GLFW_MOUSE_BUTTON_MIDDLE:
-                slMouseUp(svIndex, MB_middle, x, y, modifiers);
-                break;
-            default: break;
-        }
-    }
+    return EM_TRUE;
 }
 
-static void onMouseMove(GLFWwindow* myWindow,
-                        double      x,
-                        double      y)
+EM_BOOL emOnMouseWheel(int eventType, const EmscriptenWheelEvent* wheelEvent, void* userData)
 {
-    // x & y are in screen coords.
-    mouseX = (int)x;
-    mouseY = (int)y;
+    // Invert the sign because the scroll value is inverted
+    double deltaY = -wheelEvent->deltaY;
 
-    if (modifiers & K_alt && modifiers & K_ctrl)
-        slTouch2Move(svIndex, (int)(x - 20), (int)y, (int)(x + 20), (int)y);
-    else
-        slMouseMove(svIndex, (int)x, (int)y);
+    // Make sure the delta is at least one integer
+    if (std::abs(deltaY) < 1) deltaY = Utils::sign(wheelEvent->deltaY);
+
+    SLKey modifiers = mapModifiersToSLModifiers(&wheelEvent->mouse);
+    slMouseWheel(svIndex, (int)deltaY, modifiers);
+
+    return EM_TRUE;
 }
 
-static void onMouseWheel(GLFWwindow* myWindow,
-                         double      xscroll,
-                         double      yscroll)
+EM_BOOL emOnKeyPressed(int eventType, const EmscriptenKeyboardEvent* keyEvent, void* userData)
 {
-    // make sure the delta is at least one integer
-    int dY = (int)yscroll;
-    if (dY == 0) dY = (int)(Utils::sign(yscroll));
+    SLKey key       = mapKeyToSLKey(keyEvent->keyCode);
+    SLKey modifiers = mapModifiersToSLModifiers(keyEvent);
 
-    slMouseWheel(svIndex, dY, modifiers);
-}
-
-static void onKeyPress(GLFWwindow* myWindow,
-                       int         GLFWKey,
-                       int         scancode,
-                       int         action,
-                       int         mods)
-{
-    SLKey key = mapKeyToSLKey(GLFWKey);
-
-    if (action == GLFW_PRESS)
+    if (modifiers & K_alt && modifiers & K_shift)
     {
-        switch (key)
+        SLSceneView* sv = AppDemo::sceneViews[0];
+
+        if (key == '0' && sv)
         {
-            case K_ctrl: modifiers = (SLKey)(modifiers | K_ctrl); return;
-            case K_alt: modifiers = (SLKey)(modifiers | K_alt); return;
-            case K_shift: modifiers = (SLKey)(modifiers | K_shift); return;
-            default: break;
+            appDemoLoadScene(AppDemo::assetManager,
+                             AppDemo::scene,
+                             sv,
+                             SID_Empty);
+            SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
         }
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        switch (key)
+        else if (key == K_left && sv && AppDemo::sceneID > 0)
         {
-            case K_ctrl: modifiers = (SLKey)(modifiers ^ K_ctrl); return;
-            case K_alt: modifiers = (SLKey)(modifiers ^ K_alt); return;
-            case K_shift: modifiers = (SLKey)(modifiers ^ K_shift); return;
-            default: break;
+            appDemoLoadScene(AppDemo::assetManager,
+                             AppDemo::scene,
+                             sv,
+                             (SLSceneID)(AppDemo::sceneID - 1));
+            SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
+        }
+        else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal - 1)
+        {
+            appDemoLoadScene(AppDemo::assetManager,
+                             AppDemo::scene,
+                             sv,
+                             (SLSceneID)(AppDemo::sceneID + 1));
+            SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
         }
     }
 
-    // Special treatment for ESC key
-    if (key == K_esc && action == GLFW_RELEASE)
-    {
-        if (fullscreen)
-        {
-            fullscreen = !fullscreen;
-            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
-            glfwSetWindowPos(myWindow, 10, 30);
-        }
-        if (AppDemoGui::hideUI)
-            AppDemoGui::hideUI = false;
-    }
-    // Toggle fullscreen mode
-    else if (key == K_F9 && action == GLFW_PRESS)
-    {
-        fullscreen = !fullscreen;
+    slKeyPress(svIndex, key, modifiers);
 
-        if (fullscreen)
-        {
-            GLFWmonitor*       primary = glfwGetPrimaryMonitor();
-            const GLFWvidmode* mode    = glfwGetVideoMode(primary);
-            glfwSetWindowSize(myWindow, mode->width, mode->height);
-            glfwSetWindowPos(myWindow, 0, 0);
-        }
-        else
-        {
-            glfwSetWindowSize(myWindow, scrWidth, scrHeight);
-            glfwSetWindowPos(myWindow, 10, 30);
-        }
-    }
-    else
-    {
-        // Keyboard shortcuts for next or previous sceneID loading
-        if (modifiers & K_alt && modifiers & K_shift)
-        {
-            SLSceneView* sv = AppDemo::sceneViews[0];
-            if (action == GLFW_PRESS)
-            {
-                if (key == '0' && sv)
-                {
-                    appDemoLoadScene(AppDemo::assetManager,
-                                     AppDemo::scene,
-                                     sv,
-                                     SID_Empty);
-                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
-                }
-                else if (key == K_left && sv && AppDemo::sceneID > 0)
-                {
-                    appDemoLoadScene(AppDemo::assetManager,
-                                     AppDemo::scene,
-                                     sv,
-                                     (SLSceneID)(AppDemo::sceneID - 1));
-                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
-                }
-                else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal - 1)
-                {
-                    appDemoLoadScene(AppDemo::assetManager,
-                                     AppDemo::scene,
-                                     sv,
-                                     (SLSceneID)(AppDemo::sceneID + 1));
-                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
-                }
-            }
-            return;
-        }
-
-        if (action == GLFW_PRESS)
-            slKeyPress(svIndex, key, modifiers);
-        else if (action == GLFW_RELEASE)
-            slKeyRelease(svIndex, key, modifiers);
-    }
+    return EM_TRUE;
 }
 
-void onCharInput(GLFWwindow*, SLuint c)
+EM_BOOL emOnKeyReleased(int eventType, const EmscriptenKeyboardEvent* keyEvent, void* userData)
 {
-    slCharInput(svIndex, c);
-}
+    SLKey key       = mapKeyToSLKey(keyEvent->keyCode);
+    SLKey modifiers = mapModifiersToSLModifiers(keyEvent);
+    slKeyRelease(svIndex, key, modifiers);
 
-void onGLFWError(int error, const char* description)
-{
-    fputs(description, stderr);
-}
-
-void appDemoLoadSceneEmscripten(SLAssetManager* am,
-                                SLScene*        s,
-                                SLSceneView*    sv,
-                                SLSceneID       sceneID)
-{
-    std::cout << "loading scene..." << std::endl;
-
-    s->init(am);
-
-    // Set scene name and info string
-    s->name("Minimal Scene Test");
-    s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
-            "You can find all other test scenes in the menu File > Load Test Scenes."
-            "You can jump to the next scene with the Shift-Alt-CursorRight.\n"
-            "You can open various info windows under the menu Infos. You can drag, dock and stack them on all sides.\n"
-            "You can rotate the scene with click and drag on the left mouse button (LMB).\n"
-            "You can zoom in/out with the mousewheel. You can pan with click and drag on the middle mouse button (MMB).\n");
-
-    // Create a scene group node
-    SLNode* scene = new SLNode("scene node");
-    s->root3D(scene);
-
-    // Create textures and materials
-    SLGLTexture* texC = new SLGLTexture(am, AppDemo::texturePath + "earth2048_C.png");
-    SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
-
-    // Create a light source node
-    SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
-    light1->translation(0, 0, 5);
-    light1->name("light node");
-    scene->addChild(light1);
-
-    // Create meshes and nodes
-    SLMesh* rectMesh = new SLRectangle(am,
-                                       SLVec2f(-5, -5),
-                                       SLVec2f(5, 5),
-                                       25,
-                                       25,
-                                       "rectangle mesh",
-                                       m1);
-    SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
-    scene->addChild(rectNode);
-
-    // Set background color and the root scene node
-    sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
-                                               SLCol4f(0.2f, 0.2f, 0.2f));
-    // Save energy
-    sv->doWaitOnIdle(true);
+    return EM_TRUE;
 }
 
 SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
@@ -404,30 +286,25 @@ SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& 
     return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
 }
 
-EM_JS(int, getViewportWidth, (), {
-    return window.innerWidth - 1;
-});
-
-EM_JS(int, getViewportHeight, (), {
-    return window.innerHeight - 1;
-});
-
-SLbool onPaint()
+void onPaint()
 {
-    int width;
-    int height;
-    glfwGetWindowSize(window, &width, &height);
+    int newCanvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
+    int newCanvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight;);
 
-    int newWidth  = getViewportWidth();
-    int newHeight = getViewportHeight();
-    if (width != newWidth || height != newHeight) glfwSetWindowSize(window, newWidth, newHeight);
+    if (newCanvasWidth != canvasWidth || newCanvasHeight != canvasHeight)
+    {
+        canvasWidth  = newCanvasWidth;
+        canvasHeight = newCanvasHeight;
+        updateCanvas();
+
+        if (!AppDemo::sceneViews.empty())
+            slResize(svIndex, canvasWidth, canvasHeight);
+    }
 
     slPaintAllViews();
-    glfwSwapBuffers(window);
-    return true;
 }
 
-EM_BOOL onLoop(double time, void* userData)
+EM_BOOL onLoop(double, void*)
 {
     onPaint();
     return EM_TRUE;
@@ -435,62 +312,74 @@ EM_BOOL onLoop(double time, void* userData)
 
 void runApp()
 {
-    EM_ASM({ Module.wasmTable = wasmTable; });
+    canvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
+    canvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight;);
+    updateCanvas();
 
-    glfwInit();
+    EmscriptenWebGLContextAttributes attributes;
+    emscripten_webgl_init_context_attributes(&attributes);
+    attributes.enableExtensionsByDefault = true;
+    attributes.antialias                 = false;
+    attributes.depth                     = true;
+    attributes.stencil                   = true;
+    attributes.alpha                     = true;
+    attributes.majorVersion              = 2;
+    attributes.minorVersion              = 0;
 
-    int windowWidth = 1080;
-    int windowHeight = 720;
+    auto context = emscripten_webgl_create_context("#canvas", &attributes);
+    if (context > 0)
+        SL_LOG("WebGL context created.");
+    else
+        SL_EXIT_MSG("Failed to created WebGL context.");
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    window = glfwCreateWindow(windowWidth, windowHeight, "SLProject", NULL, NULL);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    glfwSwapInterval(1);
+    EMSCRIPTEN_RESULT result = emscripten_webgl_make_context_current(context);
+    if (result == EMSCRIPTEN_RESULT_SUCCESS)
+        SL_LOG("WebGL context made current.");
+    else
+        SL_EXIT_MSG("Failed to make WebGL context current.");
+
+    emscripten_set_mousedown_callback("#canvas", nullptr, true, emOnMousePressed);
+    emscripten_set_mouseup_callback("#canvas", nullptr, true, emOnMouseReleased);
+    emscripten_set_dblclick_callback("#canvas", nullptr, true, emOnMouseDoubleClicked);
+    emscripten_set_mousemove_callback("#canvas", nullptr, true, emOnMouseMove);
+    emscripten_set_wheel_callback("#canvas", nullptr, true, emOnMouseWheel);
+    emscripten_set_keydown_callback("#canvas", nullptr, true, emOnKeyPressed);
+    emscripten_set_keyup_callback("#canvas", nullptr, true, emOnKeyReleased);
 
     SLVstring args;
 
     slCreateAppAndScene(
-        args,
-        "data/",
-        "data/shaders/",
-        "data/models/",
-        "data/images/textures/",
-        "data/images/fonts/",
-        "data/videos/",
-        "data/config/",
-        "AppDemoEmscripten",
-        (void*)appDemoLoadScene
-    );
+      args,
+      "data/",
+      "data/shaders/",
+      "data/models/",
+      "data/images/textures/",
+      "data/images/fonts/",
+      "data/videos/",
+      "data/config/",
+      "AppDemoEmscripten",
+      (void*)appDemoLoadScene);
 
     slCreateSceneView(
-        AppDemo::assetManager,
-        AppDemo::scene,
-        windowWidth,
-        windowHeight,
-        1,
-        (SLSceneID)SID_Minimal,
-        (void*)&onPaint,
-        nullptr,
-        (void*)createAppDemoSceneView,
-        (void*)AppDemoGui::build,
-        (void*)AppDemoGui::loadConfig,
-        (void*)AppDemoGui::saveConfig
-    );
-
-    glfwSetKeyCallback(window, onKeyPress);
-    glfwSetCharCallback(window, onCharInput);
-    glfwSetWindowSizeCallback(window, onResize);
-    glfwSetMouseButtonCallback(window, onMouseButton);
-    glfwSetCursorPosCallback(window, onMouseMove);
-    glfwSetScrollCallback(window, onMouseWheel);
+      AppDemo::assetManager,
+      AppDemo::scene,
+      canvasWidth,
+      canvasHeight,
+      1,
+      (SLSceneID)SID_Minimal,
+      (void*)&onPaint,
+      nullptr,
+      (void*)createAppDemoSceneView,
+      (void*)AppDemoGui::build,
+      (void*)AppDemoGui::loadConfig,
+      (void*)AppDemoGui::saveConfig);
 
     // We cannot loop ourselves because that would block the page,
     // but we can register an update function to be called in every iteration
     // of the JavaScript event loop.
     emscripten_request_animation_frame_loop(onLoop, nullptr);
 
-    //glfwTerminate();
+    // glfwTerminate();
 }
 
 int main(void)
