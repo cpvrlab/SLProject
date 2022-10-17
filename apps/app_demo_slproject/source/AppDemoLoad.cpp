@@ -53,6 +53,7 @@
 #include <SLNodeLOD.h>
 #include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
 #include <SLEntities.h>
+#include <SLFileStorage.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -2906,17 +2907,25 @@ resolution shadows near the camera and lower resolution shadows further away.");
       sceneID == SID_glTF_Sponza ||
       sceneID == SID_glTF_WaterBottle) //..........................................................
     {
-        SLstring clearCoatTest = configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
-        SLstring damagedHelmet = configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-        SLstring flightHelmet  = configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
-        SLstring sponzaPalace  = configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
-        SLstring waterBottle   = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+#ifndef SL_EMSCRIPTEN
+        SLstring largeModelsPath = configPath + "models/";
+#else
+        SLstring largeModelsPath = modelPath;
+#endif
+
+        SLstring clearCoatTest = largeModelsPath + "glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
+        SLstring damagedHelmet = largeModelsPath + "glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+        SLstring flightHelmet  = largeModelsPath + "glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+        SLstring sponzaPalace  = largeModelsPath + "glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
+        SLstring waterBottle   = largeModelsPath + "glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+
+        SL_LOG(damagedHelmet.c_str());
 
         if ( //(sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest)) ||
-          (sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet)) ||
-          (sceneID == SID_glTF_FlightHelmet && Utils::fileExists(flightHelmet)) ||
-          (sceneID == SID_glTF_Sponza && Utils::fileExists(sponzaPalace)) ||
-          (sceneID == SID_glTF_WaterBottle && Utils::fileExists(waterBottle)))
+          (sceneID == SID_glTF_DamagedHelmet && SLFileStorage::exists(damagedHelmet, IOK_model)) ||
+          (sceneID == SID_glTF_FlightHelmet && SLFileStorage::exists(flightHelmet, IOK_model)) ||
+          (sceneID == SID_glTF_Sponza && SLFileStorage::exists(sponzaPalace, IOK_model)) ||
+          (sceneID == SID_glTF_WaterBottle && SLFileStorage::exists(waterBottle, IOK_model)))
         {
             SLVec3f  camPos, lookAt;
             SLfloat  camClipFar = 100;
@@ -2966,7 +2975,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create HDR CubeMap and get precalculated textures from it
             SLSkybox* skybox = new SLSkybox(am,
                                             shaderPath,
-                                            configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
+                                            largeModelsPath + "glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
             // Create a scene group node

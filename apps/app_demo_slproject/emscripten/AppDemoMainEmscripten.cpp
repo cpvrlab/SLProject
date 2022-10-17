@@ -16,6 +16,10 @@
 static int canvasWidth;
 static int canvasHeight;
 
+static int lastTouchDownX;
+static int lastTouchDownY;
+static double lastTouchDownTimeMS;
+
 static GLFWwindow* window;             //!< The global glfw window handle
 static SLint       svIndex;            //!< SceneView index
 static SLint       scrWidth;           //!< Window width at start up
@@ -43,8 +47,6 @@ void updateCanvas()
     // clang-format off
     EM_ASM({
         let canvas = Module['canvas'];
-        canvas.nativeWidth = $0;
-        canvas.nativeHeight = $1;
         canvas.width = $0;
         canvas.height = $1;
     }, canvasWidth, canvasHeight);
@@ -281,6 +283,79 @@ EM_BOOL emOnKeyReleased(int eventType, const EmscriptenKeyboardEvent* keyEvent, 
     return EM_TRUE;
 }
 
+EM_BOOL emOnTouchStart(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+{
+    if (touchEvent->numTouches == 1)
+    {
+        mouseX = (int)touchEvent->touches[0].clientX;
+        mouseY = (int)touchEvent->touches[0].clientY;
+        slMouseDown(svIndex, MB_left, mouseX, mouseY, K_none);
+        lastTouchDownTimeMS = touchEvent->timestamp;
+    }
+    else if (touchEvent->numTouches == 2)
+    {
+        int x0 = (int)touchEvent->touches[0].clientX;
+        int y0 = (int)touchEvent->touches[0].clientY;
+        int x1 = (int)touchEvent->touches[1].clientX;
+        int y1 = (int)touchEvent->touches[1].clientY;
+        slTouch2Down(svIndex, x0, y0, x1, y1);
+    }
+
+    lastTouchDownX = mouseX;
+    lastTouchDownY = mouseY;
+    return EM_TRUE;
+}
+
+EM_BOOL emOnTouchEnd(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+{
+    if (touchEvent->numTouches == 1)
+    {
+        mouseX = (int)touchEvent->touches[0].clientX;
+        mouseY = (int)touchEvent->touches[0].clientY;
+        slMouseUp(svIndex, MB_left, mouseX, mouseY, K_none);
+
+        int dx = std::abs(mouseX - lastTouchDownX);
+        int dy = std::abs(mouseY - lastTouchDownY);
+        double dt = touchEvent->timestamp - lastTouchDownTimeMS;
+
+        if (dt > 800 && dx < 15 && dy < 15)
+        {
+            slMouseDown(svIndex, MB_right, lastTouchDownX, lastTouchDownY, K_none);
+            slMouseUp(svIndex, MB_right, lastTouchDownX, lastTouchDownY, K_none);
+        }
+    }
+    else if (touchEvent->numTouches == 2)
+    {
+        int x0 = (int)touchEvent->touches[0].clientX;
+        int y0 = (int)touchEvent->touches[0].clientY;
+        int x1 = (int)touchEvent->touches[1].clientX;
+        int y1 = (int)touchEvent->touches[1].clientY;
+        slTouch2Up(svIndex, x0, y0, x1, y1);
+    }
+
+    return EM_TRUE;
+}
+
+EM_BOOL emOnTouchMove(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+{
+    if (touchEvent->numTouches == 1)
+    {
+        mouseX = (int)touchEvent->touches[0].clientX;
+        mouseY = (int)touchEvent->touches[0].clientY;
+        slMouseMove(svIndex, mouseX, mouseY);
+    }
+    else if (touchEvent->numTouches == 2)
+    {
+        int x0 = (int)touchEvent->touches[0].clientX;
+        int y0 = (int)touchEvent->touches[0].clientY;
+        int x1 = (int)touchEvent->touches[1].clientX;
+        int y1 = (int)touchEvent->touches[1].clientY;
+        slTouch2Move(svIndex, x0, y0, x1, y1);
+    }
+
+    return EM_TRUE;
+}
+
 SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
 {
     return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
@@ -345,6 +420,9 @@ void runApp()
     emscripten_set_wheel_callback("#canvas", nullptr, true, emOnMouseWheel);
     emscripten_set_keydown_callback("#canvas", nullptr, true, emOnKeyPressed);
     emscripten_set_keyup_callback("#canvas", nullptr, true, emOnKeyReleased);
+    emscripten_set_touchstart_callback("#canvas", nullptr, true, emOnTouchStart);
+    emscripten_set_touchend_callback("#canvas", nullptr, true, emOnTouchEnd);
+    emscripten_set_touchmove_callback("#canvas", nullptr, true, emOnTouchMove);
 
     SLVstring args;
 
@@ -365,7 +443,7 @@ void runApp()
       AppDemo::scene,
       canvasWidth,
       canvasHeight,
-      1,
+      dpi,
       (SLSceneID)SID_Minimal,
       (void*)&onPaint,
       nullptr,

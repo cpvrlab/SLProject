@@ -1522,7 +1522,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     set(assimp_DIR "${PREBUILT_PATH}/emscripten_assimp_${assimp_VERSION}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_LINK_DIR "${assimp_DIR}/lib")
-    set(assimp_LIBS assimp)
+    set(assimp_LIBS ${assimp_LINK_LIBS})
 endif ()
 #==============================================================================
 

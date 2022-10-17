@@ -460,5 +460,6 @@ endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH"
-            "--preload-file=../data/images/fonts@data/images/fonts")
+            "--preload-file=../data/images/fonts@data/images/fonts"
+            "--pre-js=${SL_PROJECT_ROOT}/modules/sl/js/fetchfs.js")
 endif ()

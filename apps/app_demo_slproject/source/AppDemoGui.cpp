@@ -380,26 +380,26 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
 #ifndef SL_EMSCRIPTEN
-                CVVideoType  vt    = CVCapture::instance()->videoType();
+                CVVideoType vt = CVCapture::instance()->videoType();
 #endif
-				SLchar       m[2550]; // message character array
-                m[0] = 0;             // set zero length
+                SLchar m[2550]; // message character array
+                m[0] = 0;       // set zero length
 
                 if (rType == RT_gl)
                 {
                     // Get averages from average variables (see Averaged)
 #ifndef SL_EMSCRIPTEN
-                    SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+                    SLfloat captureTime = CVCapture::instance()->captureTimesMS().average();
 #endif
-                    SLfloat updateTime     = s->updateTimesMS().average();
+                    SLfloat updateTime = s->updateTimesMS().average();
 #ifndef SL_EMSCRIPTEN
-                    SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
-                    SLfloat detectTime     = CVTracked::detectTimesMS.average();
-                    SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
-                    SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
-                    SLfloat matchTime      = CVTracked::matchTimesMS.average();
-                    SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
-                    SLfloat poseTime       = CVTracked::poseTimesMS.average();
+                    SLfloat trackingTime = CVTracked::trackingTimesMS.average();
+                    SLfloat detectTime   = CVTracked::detectTimesMS.average();
+                    SLfloat detect1Time  = CVTracked::detect1TimesMS.average();
+                    SLfloat detect2Time  = CVTracked::detect2TimesMS.average();
+                    SLfloat matchTime    = CVTracked::matchTimesMS.average();
+                    SLfloat optFlowTime  = CVTracked::optFlowTimesMS.average();
+                    SLfloat poseTime     = CVTracked::poseTimesMS.average();
 #endif
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                     SLfloat updateAABBTime = s->updateAABBTimesMS().average();
@@ -410,17 +410,17 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
                     // Calculate percentage from frame time
 #ifndef SL_EMSCRIPTEN
-                    SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat captureTimePC = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
 #endif
-                    SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateTimePC = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
 #ifndef SL_EMSCRIPTEN
-					SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat detectTimePC     = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat matchTimePC      = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat optFlowTimePC    = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat trackingTimePC = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat detectTimePC   = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat matchTimePC    = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat optFlowTimePC  = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat poseTimePC     = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
 #endif
-					SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
@@ -441,8 +441,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 #endif
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
-                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
-                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateDODTime   = s->updateDODTimesMS().average();
+                    SLfloat updateDODTimePC = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
 #endif
                     if (!s->animManager().allAnimNames().empty())
@@ -450,7 +450,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
                         sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
                     }
-					
+
 #ifndef SL_EMSCRIPTEN
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {
@@ -529,10 +529,10 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 #endif
                 else if (rType == RT_pt)
                 {
-                    SLPathtracer* pt           = sv->pathtracer();
-                    SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
-                    SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
-                    SLuint        rayTotal     = SLRay::totalNumRays();
+                    SLPathtracer* pt       = sv->pathtracer();
+                    SLint         ptWidth  = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
+                    SLint         ptHeight = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
+                    SLuint        rayTotal = SLRay::totalNumRays();
 
                     sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
                     sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
@@ -1470,10 +1470,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     assert(s->assetManager() && "No asset manager assigned to scene!");
     SLAssetManager* am = s->assetManager();
 
-    SLSceneID    sid           = AppDemo::sceneID;
-    SLGLState*   stateGL       = SLGLState::instance();
+    SLSceneID  sid     = AppDemo::sceneID;
+    SLGLState* stateGL = SLGLState::instance();
 #ifndef SL_EMSCRIPTEN
-    CVCapture*   capture       = CVCapture::instance();
+    CVCapture* capture = CVCapture::instance();
 #endif
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
@@ -1510,10 +1510,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #endif
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(am, s, sv, SID_FrustumCull);
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
                         s->onLoad(am, s, sv, SID_2Dand3DText);
-#endif
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(am, s, sv, SID_PointClouds);
                     if (ImGui::MenuItem("Z-Fighting", nullptr, sid == SID_ZFighting))
@@ -1559,11 +1557,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_RTSoftShadows);
                     if (ImGui::MenuItem("Cascaded Shadows", nullptr, sid == SID_ShadowMappingCascaded))
                         s->onLoad(am, s, sv, SID_ShadowMappingCascaded);
-					
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Columns with Cascaded Sh.", nullptr, sid == SID_Benchmark6_ColumnsLOD))
                         s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
-#endif
 
                     ImGui::EndMenu();
                 }
@@ -1601,7 +1596,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("glTF Sample Models"))
                 {
                     SLstring zip     = "glTF-Sample-Models.zip";
@@ -1619,11 +1613,16 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Damaged Helmet", nullptr, sid == SID_glTF_DamagedHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+#ifndef SL_EMSCRIPTEN
                         if (Utils::fileExists(fileToLoad))
                             s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_DamagedHelmet);
+#else
+                        s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
+#endif
                     }
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Flight Helmet", nullptr, sid == SID_glTF_FlightHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
@@ -1648,10 +1647,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_WaterBottle);
                     }
+#endif
 
                     ImGui::EndMenu();
                 }
-#endif
 
                 if (ImGui::BeginMenu("Robotics"))
                 {
@@ -1798,10 +1797,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);
-#ifdef SL_BUILD_WAI
+#    ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(am, s, sv, SID_VideoTrackWAI);
-#endif
+#    endif
                     ImGui::EndMenu();
                 }
 #endif
@@ -1921,9 +1920,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                 }
 
-#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
@@ -2016,6 +2015,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark1_LargeModel);
                         }
                     }
+#endif
 
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
@@ -2025,6 +2025,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
+
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
@@ -2057,6 +2059,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       SID_Benchmark6_ColumnsLOD);
                         }
                     }
+#endif
                     if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (stateGL->glHasGeometryShaders())
@@ -2068,7 +2071,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }
                     ImGui::EndMenu();
                 }
-#endif
 
                 ImGui::EndMenu();
             }
@@ -2087,9 +2089,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                 nullptr,
                                 AppDemo::sceneID > SID_Empty))
                 s->onLoad(am, s, sv, AppDemo::sceneID - 1);
-				
+
 #ifndef SL_EMSCRIPTEN
-			ImGui::Separator();
+            ImGui::Separator();
 
             if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
@@ -2168,9 +2170,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Animation off", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
-			
+
 #ifndef SL_EMSCRIPTEN
-			ImGui::Separator();
+            ImGui::Separator();
 
             if (ImGui::BeginMenu("Viewport Aspect"))
             {
