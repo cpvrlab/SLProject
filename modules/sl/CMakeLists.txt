@@ -258,6 +258,8 @@ file(GLOB sources
         source/io/SLIONative.h
         source/io/SLIOFetch.cpp
         source/io/SLIOFetch.h
+        source/io/SLIOLocalStorage.cpp
+        source/io/SLIOLocalStorage.h
         source/io/SLIOMemory.cpp
         source/io/SLIOMemory.h
         externals/stb/stb_image.h
@@ -459,7 +461,6 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
-    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH"
-            "--preload-file=../data/images/fonts@data/images/fonts"
-            "--pre-js=${SL_PROJECT_ROOT}/modules/sl/js/fetchfs.js")
+    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH" "-sWASMFS"
+            "--preload-file=../data/images/fonts@data/images/fonts")
 endif ()

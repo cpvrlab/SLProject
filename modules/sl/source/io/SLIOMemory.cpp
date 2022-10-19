@@ -2,8 +2,8 @@
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-#include <unordered_map>
-#include <vector>
+#    include <unordered_map>
+#    include <vector>
 //-----------------------------------------------------------------------------
 std::unordered_map<SLstring, std::vector<char>> memoryFiles;
 //-----------------------------------------------------------------------------
@@ -12,7 +12,18 @@ bool SLIOMemory::exists(SLstring path)
     return memoryFiles.count(path);
 }
 //-----------------------------------------------------------------------------
+std::vector<char>& SLIOMemory::get(SLstring path)
+{
+    return memoryFiles[path];
+}
+//-----------------------------------------------------------------------------
+void SLIOMemory::set(SLstring path, const std::vector<char>& data)
+{
+    memoryFiles[path] = data;
+}
+//-----------------------------------------------------------------------------
 SLIOReaderMemory::SLIOReaderMemory(SLstring path)
+  : _path(path)
 {
     SL_LOG("READING FROM MEMORY");
 }
@@ -59,6 +70,7 @@ SLIOWriterMemory::SLIOWriterMemory(SLstring path)
     _position(0)
 {
     SL_LOG("WRITING TO MEMORY");
+    memoryFiles[_path].clear();
 }
 //-----------------------------------------------------------------------------
 size_t SLIOWriterMemory::write(const void* buffer, size_t size)

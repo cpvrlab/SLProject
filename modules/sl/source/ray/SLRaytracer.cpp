@@ -136,11 +136,36 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     // Measure time
     float t1 = GlobalTimer::timeS();
 
+#ifndef SL_EMSCRIPTEN
     // Bind render functions to be called multi-threaded
     auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1, _2);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
                                     ? bind(&SLRaytracer::renderSlices, this, _1, _2)
                                     : bind(&SLRaytracer::renderSlicesMS, this, _1, _2);
+#else
+    // Wrap render functions in lambdas because Emscripten chokes on std::bind
+    std::function<void(bool, SLuint)> sampleAAPixelsFunction = [this](bool isMainThread, SLuint threadNum)
+    {
+        sampleAAPixels(isMainThread, threadNum);
+    };
+
+    std::function<void(bool, SLuint)> renderSlicesFunction;
+
+    if (_cam->lensSamples()->samples() == 1)
+    {
+        renderSlicesFunction = [this](bool isMainThread, SLuint threadNum)
+        {
+            renderSlices(isMainThread, threadNum);
+        };
+    }
+    else
+    {
+        renderSlicesFunction = [this](bool isMainThread, SLuint threadNum)
+        {
+            renderSlicesMS(isMainThread, threadNum);
+        };
+    }
+#endif
 
     // Do multi-threading only in release config
     // Render image without anti-aliasing
@@ -562,7 +587,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             }
 
             // apply attenuation and spot effect
-            att = light->attenuation(lightDist) ;
+            att = light->attenuation(lightDist);
             localColor += att * ambi;
             localColor += att * spotEffect * diff;
             localSpec += att * spotEffect * spec;

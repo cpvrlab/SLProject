@@ -5,8 +5,11 @@
 #elif defined(SL_STORAGE_WEB)
 #    include <SLIOFetch.h>
 #    include <SLIOMemory.h>
+#    include <SLIOLocalStorage.h>
 #    include <SLIONative.h>
 #endif
+
+#include <iostream>
 
 //-----------------------------------------------------------------------------
 SLIOStream* SLFileStorage::open(SLstring       path,
@@ -34,11 +37,18 @@ SLIOStream* SLFileStorage::open(SLstring       path,
         }
         else if (kind == IOK_image || kind == IOK_model)
             return new SLIOReaderFetch(path);
+        else if (kind == IOK_config)
+            return new SLIOReaderLocalStorage(path);
         else
             return new SLIOReaderNative(path);
     }
     else if (mode == IOM_write)
-        return new SLIOWriterMemory(path);
+    {
+        if (kind == IOK_shader)
+            return new SLIOWriterMemory(path);
+        else if (kind == IOK_config)
+            return new SLIOWriterLocalStorage(path);
+    }
 
     return nullptr;
 #endif
@@ -46,6 +56,7 @@ SLIOStream* SLFileStorage::open(SLstring       path,
 //-----------------------------------------------------------------------------
 void SLFileStorage::close(SLIOStream* stream)
 {
+    stream->flush();
     delete stream;
 }
 //-----------------------------------------------------------------------------
@@ -59,6 +70,8 @@ bool SLFileStorage::exists(SLstring path, SLIOStreamKind kind)
 
     if (kind == IOK_shader)
         return SLIOMemory::exists(path) || SLIOReaderFetch::exists(path);
+    else if (kind == IOK_config)
+        return SLIOLocalStorage::exists(path);
     else
         return SLIOReaderFetch::exists(path);
 #endif
@@ -83,11 +96,25 @@ void SLFileStorage::deleteBuffer(SLIOBuffer& buffer)
 SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
 {
     SLIOStream* stream = open(path, kind, IOM_read);
-    size_t size = stream->size();
-    SLstring string;
+    size_t      size   = stream->size();
+    SLstring    string;
     string.resize(size);
     stream->read((void*)string.data(), size);
     close(stream);
+
+    /*
+    SLstring canonicalString;
+    for(int i = 0; i < string.size(); i++)
+    {
+        if(i != string.size() - 1 && string[i] == '\r' && string[i + 1] == '\n')
+        {
+            canonicalString += "\n";
+            i++;
+        }
+        else
+            canonicalString += string[i];
+    }
+    */
 
     return string;
 }

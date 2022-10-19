@@ -12,6 +12,8 @@
 namespace SLIOMemory
 {
 bool exists(SLstring path);
+std::vector<char>& get(SLstring path);
+void set(SLstring path, const std::vector<char>& data);
 }
 //-----------------------------------------------------------------------------
 class SLIOReaderMemory : public SLIOStream
@@ -23,7 +25,7 @@ public:
     bool   seek(size_t offset, Origin origin);
     size_t size();
 
-private:
+protected:
     SLstring _path;
     size_t   _position;
 };
@@ -37,7 +39,7 @@ public:
     bool   seek(size_t offset, Origin origin);
     void   flush();
 
-private:
+protected:
     SLstring _path;
     size_t   _position;
 };

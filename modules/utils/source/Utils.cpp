@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 #ifndef __EMSCRIPTEN__
 #    include <asio.hpp>
@@ -56,10 +57,10 @@ namespace fs = std::experimental::filesystem;
 #    include <sys/stat.h>
 #elif defined(__EMSCRIPTEN__)
 #    include <emscripten.h>
-#    define _LIBCPP_NO_EXPERIMENTAL_DEPRECATION_WARNING_FILESYSTEM
-#    include <experimental/filesystem>
-#    define USE_STD_FILESYSTEM
-namespace fs = std::experimental::filesystem;
+#    include <dirent.h>
+#    include <unistd.h>
+#    include <sys/types.h>
+#    include <sys/stat.h>
 #endif
 
 #ifndef __EMSCRIPTEN__
@@ -1204,7 +1205,7 @@ void errorMsg(const char* tag,
 // Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads()
 {
-#if defined(DEBUG) || defined(_DEBUG) || defined(__EMSCRIPTEN__)
+#if defined(DEBUG) || defined(_DEBUG)
     return 1;
 #else
     return std::max(std::thread::hardware_concurrency(), 1U);

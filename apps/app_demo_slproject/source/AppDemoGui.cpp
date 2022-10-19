@@ -40,6 +40,7 @@
 #include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLHorizonNode.h>
+#include <SLFileStorage.h>
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <bezier.hpp>
@@ -2141,7 +2142,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 #endif
 
-#ifndef SL_OS_ANDROID
+#if !defined(SL_OS_ANDROID) && !defined(SL_EMSCRIPTEN)
             ImGui::Separator();
 
             if (ImGui::MenuItem("Quit & Save"))
@@ -4666,7 +4667,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
     SLstring    fullPathAndFilename = AppDemo::configPath +
                                    AppDemo::name + ".yml";
 
-    if (!Utils::fileExists(fullPathAndFilename))
+    if (!SLFileStorage::exists(fullPathAndFilename, IOK_config))
     {
         SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
 
@@ -4679,8 +4680,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
-        AppDemoGui::showAbout        = false;
-        AppDemoGui::showInfosScene   = false;
+        AppDemoGui::showAbout        = true;
+        AppDemoGui::showInfosScene   = true;
         AppDemoGui::showStatsTiming  = false;
         AppDemoGui::showStatsScene   = false;
         AppDemoGui::showStatsVideo   = false;
@@ -4706,10 +4707,11 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         return;
     }
 
-    CVFileStorage fs;
     try
     {
-        fs.open(fullPathAndFilename, CVFileStorage::READ);
+        SLstring configString = SLFileStorage::readIntoString(fullPathAndFilename, IOK_config);
+        CVFileStorage fs(configString, CVFileStorage::READ | CVFileStorage::MEMORY);
+
         if (fs.isOpened())
         {
             // clang-format off
@@ -4786,11 +4788,11 @@ void AppDemoGui::saveConfig()
     SLstring    fullPathAndFilename = AppDemo::configPath +
                                    AppDemo::name + ".yml";
 
-    if (!Utils::fileExists(fullPathAndFilename))
+    if (!SLFileStorage::exists(fullPathAndFilename, IOK_config))
         SL_LOG("New config file will be written: %s",
                fullPathAndFilename.c_str());
 
-    CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE);
+    CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE | CVFileStorage::MEMORY);
 
     if (!fs.isOpened())
     {
@@ -4826,7 +4828,11 @@ void AppDemoGui::saveConfig()
     fs << "showDateAndTime" << AppDemoGui::showDateAndTime;
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
-    fs.release();
+    std::string configString = fs.releaseAndGetString();
+    SLIOStream* stream = SLFileStorage::open(fullPathAndFilename, IOK_config, IOM_write);
+    stream->write(configString.c_str(), configString.size());
+    SLFileStorage::close(stream);
+
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

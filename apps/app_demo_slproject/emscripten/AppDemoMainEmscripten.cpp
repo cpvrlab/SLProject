@@ -11,8 +11,6 @@
 #include <emscripten/html5.h>
 #include <emscripten/val.h>
 
-#include <iostream>
-
 static int canvasWidth;
 static int canvasHeight;
 
@@ -356,12 +354,18 @@ EM_BOOL emOnTouchMove(int eventType, const EmscriptenTouchEvent* touchEvent, voi
     return EM_TRUE;
 }
 
+const char* emOnUnload(int eventType, const void* reserved, void* userData)
+{
+    slTerminate();
+    return nullptr;
+}
+
 SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
 {
     return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
 }
 
-void onPaint()
+bool onPaint()
 {
     int newCanvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
     int newCanvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight;);
@@ -376,7 +380,7 @@ void onPaint()
             slResize(svIndex, canvasWidth, canvasHeight);
     }
 
-    slPaintAllViews();
+    return slPaintAllViews();
 }
 
 EM_BOOL onLoop(double, void*)
@@ -423,6 +427,7 @@ void runApp()
     emscripten_set_touchstart_callback("#canvas", nullptr, true, emOnTouchStart);
     emscripten_set_touchend_callback("#canvas", nullptr, true, emOnTouchEnd);
     emscripten_set_touchmove_callback("#canvas", nullptr, true, emOnTouchMove);
+    emscripten_set_beforeunload_callback(nullptr, emOnUnload);
 
     SLVstring args;
 
@@ -456,8 +461,6 @@ void runApp()
     // but we can register an update function to be called in every iteration
     // of the JavaScript event loop.
     emscripten_request_animation_frame_loop(onLoop, nullptr);
-
-    // glfwTerminate();
 }
 
 int main(void)

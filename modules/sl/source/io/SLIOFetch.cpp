@@ -25,17 +25,19 @@ SLFetchResult SLIOReaderFetch::fetch(SLstring url)
     attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_SYNCHRONOUS;
     emscripten_fetch_t* fetch = emscripten_fetch(&attr, url.c_str());
 
-    std::cout << "STATUS: " << fetch->status << ", SIZE: " << fetch->totalBytes << std::endl;
+    int status = fetch->status;
+    size_t size = (size_t)fetch->totalBytes;
+    std::cout << "STATUS: " << status << ", SIZE: " << size << std::endl;
 
-    unsigned char* data = new unsigned char[fetch->totalBytes];
-    std::memcpy(data, fetch->data, fetch->totalBytes);
+    unsigned char* data = new unsigned char[size];
+    std::memcpy(data, fetch->data, size);
     emscripten_fetch_close(fetch);
 
     emscripten_async_run_in_main_runtime_thread(EM_FUNC_SIG_V,
                                                 hideLoadingOverlay);
 
-    SLIOBuffer buffer{data, (size_t)fetch->totalBytes};
-    return SLFetchResult{fetch->status, buffer};
+    SLIOBuffer buffer{data, size};
+    return SLFetchResult{status, buffer};
 }
 //-----------------------------------------------------------------------------
 bool SLIOReaderFetch::exists(SLstring url)
@@ -45,8 +47,9 @@ bool SLIOReaderFetch::exists(SLstring url)
     std::strcpy(attr.requestMethod, "HEAD");
     attr.attributes = EMSCRIPTEN_FETCH_SYNCHRONOUS;
     emscripten_fetch_t* fetch = emscripten_fetch(&attr, url.c_str());
+    bool exists = fetch->status == 200;
     emscripten_fetch_close(fetch);
-    return fetch->status == 200;
+    return exists;
 }
 //-----------------------------------------------------------------------------
 SLIOReaderFetch::SLIOReaderFetch(SLstring url)

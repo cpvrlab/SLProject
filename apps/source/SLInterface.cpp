@@ -211,7 +211,7 @@ void slTerminate()
     // Deletes all remaining sceneviews the current scene instance
     AppDemo::deleteAppAndScene();
 
-    // For more info on PROFILING read Utils/lib-utils/source/Profilerrumentor.h
+    // For more info on PROFILING read Utils/lib-utils/source/Profiler.h
 #if PROFILING
     SLstring filePathName = PROFILER_TRACE_FILE_PATH;
 

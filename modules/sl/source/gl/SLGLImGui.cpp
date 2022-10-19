@@ -310,6 +310,11 @@ void SLGLImGui::createOpenGLObjects()
 //! Deletes all OpenGL objects for drawing the imGui
 void SLGLImGui::deleteOpenGLObjects()
 {
+#ifdef SL_EMSCRIPTEN
+    // The WebGL context is apparently already destroyed when we call this function
+    return;
+#endif
+
     if (_vaoHandle)
         glDeleteVertexArrays(1, &_vaoHandle);
     _vaoHandle = 0;
