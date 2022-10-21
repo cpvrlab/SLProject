@@ -57,6 +57,7 @@ include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
 include(cmake/ConfigureMSVCCLion.cmake)
 include(cmake/ConfigureClangCl.cmake)
+include(cmake/DownloadData.cmake)
 
 if (SL_DOWNLOAD_PREBUILTS)
     include(cmake/DownloadPrebuilts.cmake)

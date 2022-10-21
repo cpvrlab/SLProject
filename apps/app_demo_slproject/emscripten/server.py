@@ -46,7 +46,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         file_path = url.path
         if file_path == "/":
             file_path = "/app-Demo-SLProject.html"
+        if file_path.startswith("/data/"):
+            file_path = "/.." + file_path
+
         return os.curdir + file_path
+
 
 server = HTTPServer((HOSTNAME, PORT), RequestHandler)
 

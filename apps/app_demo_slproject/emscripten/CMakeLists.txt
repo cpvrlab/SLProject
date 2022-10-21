@@ -30,8 +30,6 @@ target_link_options(${target} PUBLIC "--js-library" "${CMAKE_CURRENT_SOURCE_DIR}
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target}.html" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/server.py" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/server.py" COPYONLY)
 
-message(${OpenCV_INCLUDE_DIR})
-
 target_include_directories(
         ${target}
         PRIVATE
