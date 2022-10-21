@@ -1599,9 +1599,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("glTF Sample Models"))
                 {
-                    SLstring zip     = "glTF-Sample-Models.zip";
-                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
-                    SLstring pathDst = AppDemo::configPath + "models/";
+                    SLstring zip = "glTF-Sample-Models.zip";
 
                     /*if (ImGui::MenuItem("Clear Coat Test", nullptr, sid == SID_glTF_ClearCoatTest))
                     {
@@ -1614,64 +1612,35 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Damaged Helmet", nullptr, sid == SID_glTF_DamagedHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-#ifndef SL_EMSCRIPTEN
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
-                        else
-                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_DamagedHelmet);
-#else
-                        s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
-#endif
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_DamagedHelmet);
                     }
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Flight Helmet", nullptr, sid == SID_glTF_FlightHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_glTF_FlightHelmet);
-                        else
-                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_FlightHelmet);
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_FlightHelmet);
                     }
                     if (ImGui::MenuItem("Sponza Palace", nullptr, sid == SID_glTF_Sponza))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_glTF_Sponza);
-                        else
-                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_Sponza);
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_Sponza);
                     }
                     if (ImGui::MenuItem("Water Bottle", nullptr, sid == SID_glTF_WaterBottle))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_glTF_WaterBottle);
-                        else
-                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_WaterBottle);
+                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_WaterBottle);
                     }
-#endif
 
                     ImGui::EndMenu();
                 }
 
                 if (ImGui::BeginMenu("Robotics"))
                 {
-                    SLstring zip     = "GLTF-FanucCRX.zip";
-                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
-                    SLstring pathDst = AppDemo::configPath + "models/";
+                    SLstring zip = "GLTF-FanucCRX.zip";
 
                     if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
-                        else
-                            downloadModelAndLoadScene(s,
-                                                      sv,
-                                                      zip,
-                                                      pathSrc,
-                                                      pathDst,
-                                                      fileToLoad,
-                                                      SID_Robotics_FanucCRX_FK);
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
                     }
 
                     ImGui::EndMenu();
@@ -1753,23 +1722,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
                         s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
 
-                    SLstring zip     = "GLTF-FanucCRX.zip";
-                    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
-                    SLstring pathDst = AppDemo::configPath + "models/";
+                    SLstring zip = "GLTF-FanucCRX.zip";
 
                     if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
-                        if (Utils::fileExists(fileToLoad))
-                            s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
-                        else
-                            downloadModelAndLoadScene(s,
-                                                      sv,
-                                                      zip,
-                                                      pathSrc,
-                                                      pathDst,
-                                                      fileToLoad,
-                                                      SID_Robotics_FanucCRX_FK);
+                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
                     }
 
                     ImGui::EndMenu();
@@ -2000,23 +1958,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                             AppDemo::jobsToFollowInMain.emplace_back(followUpJob1);
                         }
                     }
+#endif
                     if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
-                        else
-                        {
-                            downloadModelAndLoadScene(s,
-                                                      sv,
-                                                      "xyzrgb_dragon.zip",
-                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
-                                                      AppDemo::configPath + "models/",
-                                                      largeFile,
-                                                      SID_Benchmark1_LargeModel);
-                        }
+                        loadSceneWithLargeModel(s, sv, "xyzrgb_dragon.zip", largeFile, SID_Benchmark1_LargeModel);
                     }
-#endif
 
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
@@ -2026,41 +1973,17 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
-
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(am, s, sv, SID_Benchmark5_ColumnsNoLOD);
-                        else
-                        {
-                            downloadModelAndLoadScene(s,
-                                                      sv,
-                                                      "GLTF-CorinthianColumn.zip",
-                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
-                                                      AppDemo::configPath + "models/",
-                                                      largeFile,
-                                                      SID_Benchmark5_ColumnsNoLOD);
-                        }
+                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark5_ColumnsNoLOD);
                     }
                     if (ImGui::MenuItem("Columns with LOD", nullptr, sid == SID_Benchmark6_ColumnsLOD))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
-                        else
-                        {
-                            downloadModelAndLoadScene(s,
-                                                      sv,
-                                                      "GLTF-CorinthianColumn.zip",
-                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
-                                                      AppDemo::configPath + "models/",
-                                                      largeFile,
-                                                      SID_Benchmark6_ColumnsLOD);
-                        }
+                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark6_ColumnsLOD);
                     }
-#endif
+
                     if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (stateGL->glHasGeometryShaders())
@@ -4703,18 +4626,17 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             style.ScrollbarSize = 16.0f;
 
         style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
-
-        return;
     }
-
-    try
+    else
     {
-        SLstring configString = SLFileStorage::readIntoString(fullPathAndFilename, IOK_config);
-        CVFileStorage fs(configString, CVFileStorage::READ | CVFileStorage::MEMORY);
-
-        if (fs.isOpened())
+        try
         {
-            // clang-format off
+            SLstring      configString = SLFileStorage::readIntoString(fullPathAndFilename, IOK_config);
+            CVFileStorage fs(configString, CVFileStorage::READ | CVFileStorage::MEMORY);
+
+            if (fs.isOpened())
+            {
+                // clang-format off
             SLint i = 0;
             SLbool b = false;
             fs["configTime"] >> AppDemoGui::configTime;
@@ -4746,39 +4668,53 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
             fs["showDateAndTime"] >> b;     AppDemoGui::showDateAndTime = b;
             fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
-            // clang-format on
+                // clang-format on
 
-            fs.release();
-            SL_LOG("Config. loaded   : %s", fullPathAndFilename.c_str());
-            SL_LOG("Config. date     : %s", AppDemoGui::configTime.c_str());
-            SL_LOG("fontPropDots     : %f", SLGLImGui::fontPropDots);
-            SL_LOG("fontFixedDots    : %f", SLGLImGui::fontFixedDots);
+                fs.release();
+                SL_LOG("Config. loaded   : %s", fullPathAndFilename.c_str());
+                SL_LOG("Config. date     : %s", AppDemoGui::configTime.c_str());
+                SL_LOG("fontPropDots     : %f", SLGLImGui::fontPropDots);
+                SL_LOG("fontFixedDots    : %f", SLGLImGui::fontFixedDots);
+            }
+            else
+            {
+                SL_LOG("****** Failed to open file for reading: %s", fullPathAndFilename.c_str());
+            }
         }
-        else
+        catch (...)
         {
-            SL_LOG("****** Failed to open file for reading: %s", fullPathAndFilename.c_str());
+            SL_LOG("****** Parsing of file failed: %s", fullPathAndFilename.c_str());
         }
-    }
-    catch (...)
-    {
-        SL_LOG("****** Parsing of file failed: %s", fullPathAndFilename.c_str());
-    }
 
-    // check font sizes for HDPI displays
-    if (dotsPerInch > 300)
-    {
-        if (SLGLImGui::fontPropDots < 16.1f &&
-            SLGLImGui::fontFixedDots < 13.1)
+        // check font sizes for HDPI displays
+        if (dotsPerInch > 300)
         {
-            // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
-            SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
+            if (SLGLImGui::fontPropDots < 16.1f &&
+                SLGLImGui::fontFixedDots < 13.1)
+            {
+                // Scale for proportional and fixed size fonts
+                SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+                SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
-            // Default settings for the first time
-            SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-            SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+                // Default settings for the first time
+                SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
+                SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+            }
         }
     }
+
+#ifdef SL_EMSCRIPTEN
+    // Overwrite config with URL parameters
+    // clang-format off
+    int sceneId = MAIN_THREAD_EM_ASM_INT(
+        let params = new URL(window.location).searchParams;
+        return params.get("scene") ?? -1;
+    );
+    // clang-format on
+
+    if (sceneId != -1)
+        AppDemo::sceneID = (SLSceneID)sceneId;
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Stores the UI configuration
@@ -4829,7 +4765,7 @@ void AppDemoGui::saveConfig()
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     std::string configString = fs.releaseAndGetString();
-    SLIOStream* stream = SLFileStorage::open(fullPathAndFilename, IOK_config, IOM_write);
+    SLIOStream* stream       = SLFileStorage::open(fullPathAndFilename, IOK_config, IOM_write);
     stream->write(configString.c_str(), configString.size());
     SLFileStorage::close(stream);
 
@@ -4951,6 +4887,25 @@ void AppDemoGui::showLUTColors(SLTexColorLUT* lut)
             ImGui::Text("%3.2f Pos. %lu", pos, c);
         ImGui::PopItemWidth();
     }
+}
+//-----------------------------------------------------------------------------
+void AppDemoGui::loadSceneWithLargeModel(SLScene*     s,
+                                         SLSceneView* sv,
+                                         string       downloadFilename,
+                                         string       filenameToLoad,
+                                         SLSceneID    sceneIDToLoad)
+{
+    SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
+    SLstring pathDst = AppDemo::configPath + "models/";
+
+#ifndef SL_EMSCRIPTEN
+    if (Utils::fileExists(fileToLoad))
+        s->onLoad(am, s, sv, sceneIDToLoad);
+    else
+        downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, filenameToLoad, sceneIDToLoad);
+#else
+    s->onLoad(s->assetManager(), s, sv, sceneIDToLoad);
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Parallel HTTP download, unzip and load scene job scheduling

@@ -796,6 +796,12 @@ void appDemoLoadScene(SLAssetManager* am,
     SLScene::entities.dump(true);
 #endif
 
+#ifndef SL_EMSCRIPTEN
+    SLstring largeModelsPath = configPath + "models/";
+#else
+    SLstring largeModelsPath = modelPath + "LargeModels/";
+#endif
+
     if (sceneID == SID_Empty) //...................................................................
     {
         s->name("No Scene loaded.");
@@ -2907,12 +2913,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
       sceneID == SID_glTF_Sponza ||
       sceneID == SID_glTF_WaterBottle) //..........................................................
     {
-#ifndef SL_EMSCRIPTEN
-        SLstring largeModelsPath = configPath + "models/";
-#else
-        SLstring largeModelsPath = modelPath;
-#endif
-
         SLstring clearCoatTest = largeModelsPath + "glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
         SLstring damagedHelmet = largeModelsPath + "glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
         SLstring flightHelmet  = largeModelsPath + "glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
@@ -3027,9 +3027,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Robotics_FanucCRX_FK) //...............................................
     {
-        SLstring modelFile = configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+        SLstring modelFile = largeModelsPath + "GLTF-FanucCRX/Fanuc-CRX.gltf";
 
-        if (Utils::fileExists(modelFile))
+        if (SLFileStorage::exists(modelFile, IOK_model))
         {
             s->info("FANUC CRX Robot with Forward Kinematic");
 
@@ -6272,9 +6272,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+        SLstring largeFile = largeModelsPath + "xyzrgb_dragon/xyzrgb_dragon.ply";
 
-        if (Utils::fileExists(largeFile))
+        if (SLFileStorage::exists(largeFile, IOK_model))
         {
             s->name("Large Model Benchmark Scene");
             s->info("Large Model with 7.2 mio. triangles.");
@@ -6513,12 +6513,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
              sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
     {
-        SLstring modelFile = configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-        SLstring texCFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
-        SLstring texNFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+        SLstring modelFile = largeModelsPath + "GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+        SLstring texCFile  = largeModelsPath + "GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = largeModelsPath + "GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
 
-        if (Utils::fileExists(modelFile) &&
-            Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
+        if (SLFileStorage::exists(modelFile, IOK_model) &&
+            SLFileStorage::exists(texCFile, IOK_image) &&
+            SLFileStorage::exists(texNFile, IOK_image))
         {
             SLchar name[512];
             SLint  size;

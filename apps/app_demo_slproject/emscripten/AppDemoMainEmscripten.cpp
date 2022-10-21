@@ -234,6 +234,9 @@ EM_BOOL emOnMouseWheel(int eventType, const EmscriptenWheelEvent* wheelEvent, vo
 
 EM_BOOL emOnKeyPressed(int eventType, const EmscriptenKeyboardEvent* keyEvent, void* userData)
 {
+    if (keyEvent->repeat)
+        return EM_TRUE;
+
     SLKey key       = mapKeyToSLKey(keyEvent->keyCode);
     SLKey modifiers = mapModifiersToSLModifiers(keyEvent);
 

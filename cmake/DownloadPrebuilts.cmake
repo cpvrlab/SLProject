@@ -72,6 +72,20 @@ set(openssl_LINK_LIBS
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 
+function(download_lib LIB_NAME)
+    set(LIB_PREBUILT_DIR "${PREBUILT_PATH}/${LIB_NAME}")
+    set(LIB_ZIP "${LIB_NAME}.zip")
+
+    if (NOT EXISTS "${LIB_PREBUILT_DIR}")
+        message(STATUS "Downloading: ${LIB_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${LIB_ZIP}" "${PREBUILT_PATH}/${LIB_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${LIB_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${LIB_ZIP}")
+    endif ()
+endfunction()
+
 #=======================================================================================================================
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
@@ -1495,7 +1509,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     #########################
 
     set(OpenCV_VERSION "4.6.0")
-    set(OpenCV_DIR "${PREBUILT_PATH}/emscripten_opencv_${OpenCV_VERSION}")
+    set(OpenCV_PREBUILT_DIR "emscripten_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
 
@@ -1514,15 +1529,20 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
 
+    download_lib(${OpenCV_PREBUILT_DIR})
+
     #########################
     # Assimp for Emscripten #
     #########################
 
     set(assimp_VERSION "v5.0.0")
-    set(assimp_DIR "${PREBUILT_PATH}/emscripten_assimp_${assimp_VERSION}")
+    set(assimp_PREBUILT_DIR "emscripten_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
     set(assimp_LINK_DIR "${assimp_DIR}/lib")
     set(assimp_LIBS ${assimp_LINK_LIBS})
+
+    download_lib(${assimp_PREBUILT_DIR})
 endif ()
 #==============================================================================
 

@@ -1009,7 +1009,7 @@ void SLGLTexture::build(SLint texUnit)
 
         // Handle special case for HDR textures
         if (_texType == TT_hdr)
-            _internalFormat = GL_RGB16F;
+            _internalFormat = SL_HDR_GL_INTERNAL_FORMAT;
 
         // Build textures
         if (_target == GL_TEXTURE_2D)
@@ -1024,7 +1024,7 @@ void SLGLTexture::build(SLint texUnit)
                          (SLsizei)_images[0]->height(),
                          0,
                          format,
-                         _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
+                         _texType == TT_hdr ? SL_HDR_GL_TYPE : GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[0]->data());
             /////////////////////////////////////////////////////////////
 

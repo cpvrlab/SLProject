@@ -31,7 +31,7 @@
             flex-direction: row;
             justify-content: start;
             align-items: end;
-            transition: opacity ease-in-out 1s;
+            transition: opacity ease-in-out 0.5s;
             pointer-events: none;
         }
 
@@ -40,19 +40,20 @@
         }
 
         #loading-container {
-            background: linear-gradient(to right, white 0%, transparent 100%);
+            width: 100%;
+            background: linear-gradient(to top, black 0%, transparent 100%);
             box-sizing: content-box;
             display: flex;
             flex-direction: row;
             justify-content: start;
             align-items: center;
             overflow: hidden;
-            padding: 10pt;
+            padding: 100pt 10pt 10pt 10pt;
         }
 
         #spinner {
-            border: 8px solid #888888;
-            border-top: 8px solid #222222;
+            border: 8px solid white;
+            border-top: 8px solid #6c6c6c;
             border-radius: 50%;
             width: 32px;
             height: 32px;
@@ -61,8 +62,9 @@
         }
 
         #download-text {
+            color: white;
             font-family: monospace;
-            font-size: 20pt;
+            font-size: 18pt;
         }
 
         @keyframes spin {
