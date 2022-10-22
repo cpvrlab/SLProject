@@ -137,7 +137,7 @@ void main()
     vec4 cloudColor = texture(u_matTextureDiffuse1, v_uv0.st);
     float cloudAlpha = cloudColor.a;
     vec4 ground = (texture(u_matTextureDiffuse2, Tc)*night2 +
-                   texture(u_matTextureDiffuse0, Tc)*(1.0-night2))*(1-cloudAlpha);
+                   texture(u_matTextureDiffuse0, Tc)*(1.0-night2))*(1.0-cloudAlpha);
    
     //Calculate CloudTexture
     vec4 cloud = o_fragColor*texture(u_matTextureDiffuse1, Wtc)*(cloudAlpha);

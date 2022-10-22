@@ -3,6 +3,18 @@
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
+//#############################################################################
+//  File:      AppDemoMainEmscripten.cpp
+//  Purpose:   Application that demonstrates most features of the SLProject
+//             framework with WebGL, WebAssembly and Emscripten in a web
+//             browser. Implementation of the GUI is done with the emscripten
+//             framework.
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <GLFW/glfw3.h>
 #include <GLES3/gl3.h>
