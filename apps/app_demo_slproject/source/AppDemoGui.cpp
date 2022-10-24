@@ -4765,10 +4765,7 @@ void AppDemoGui::saveConfig()
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     std::string configString = fs.releaseAndGetString();
-    SLIOStream* stream       = SLFileStorage::open(fullPathAndFilename, IOK_config, IOM_write);
-    stream->write(configString.c_str(), configString.size());
-    SLFileStorage::close(stream);
-
+    SLFileStorage::writeString(fullPathAndFilename, IOK_config, configString);
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
@@ -4899,10 +4896,10 @@ void AppDemoGui::loadSceneWithLargeModel(SLScene*     s,
     SLstring pathDst = AppDemo::configPath + "models/";
 
 #ifndef SL_EMSCRIPTEN
-    if (Utils::fileExists(fileToLoad))
-        s->onLoad(am, s, sv, sceneIDToLoad);
+    if (Utils::fileExists(filenameToLoad))
+        s->onLoad(s->assetManager(), s, sv, sceneIDToLoad);
     else
-        downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, filenameToLoad, sceneIDToLoad);
+        downloadModelAndLoadScene(s, sv, downloadFilename, pathSrc, pathDst, filenameToLoad, sceneIDToLoad);
 #else
     s->onLoad(s->assetManager(), s, sv, sceneIDToLoad);
 #endif

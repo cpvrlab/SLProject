@@ -13,6 +13,7 @@
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
+#include <SLFileStorage.h>
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
     if (loadConfigCB)
         loadConfigCB(dpi);
 
-    // Load GUI fonts depending on the resolution
+    // load GUI fonts depending on the resolution
     loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots, fontDir);
 }
 //-----------------------------------------------------------------------------
@@ -69,7 +70,7 @@ SLGLImGui::~SLGLImGui()
     if (_saveConfig)
         _saveConfig();
 
-    // destroy imgui context after your last imgui call
+    // Destroy imgui context after your last imgui call
     ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
@@ -94,10 +95,11 @@ void SLGLImGui::init(const string& configPath)
     _mousePressed[0]   = false;
     _mousePressed[1]   = false;
     _mousePressed[2]   = false;
+    _configPath        = configPath;
 
-    ImGuiIO&              io       = ImGui::GetIO();
-    static const SLstring inifile  = configPath + "imgui.ini";
-    io.IniFilename                 = inifile.c_str();
+    ImGuiIO& io                    = ImGui::GetIO();
+    io.IniSavingRate               = 1.0f;
+    io.IniFilename                 = NULL; // Disable ini config saving because we handle that ourselves
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
     io.KeyMap[ImGuiKey_RightArrow] = K_right;
@@ -131,6 +133,14 @@ void SLGLImGui::init(const string& configPath)
     // Change default style to show the widget border
     ImGuiStyle& style     = ImGui::GetStyle();
     style.FrameBorderSize = 1;
+
+    // Load ImGui config from imgui.ini
+    SLstring iniFile = configPath + "imgui.ini";
+    if (SLFileStorage::exists(iniFile, IOK_config))
+    {
+        SLstring iniContents = SLFileStorage::readIntoString(iniFile, IOK_config);
+        ImGui::LoadIniSettingsFromMemory(iniContents.c_str(), iniContents.size());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
@@ -401,6 +411,17 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 
     // Start the frame
     ImGui::NewFrame();
+
+    // Save ImGui config to imgui.ini
+    if (ImGui::GetIO().WantSaveIniSettings)
+    {
+        SLstring    iniFile = _configPath + "imgui.ini";
+        size_t      iniContentsSize;
+        const char* rawIniContents = ImGui::SaveIniSettingsToMemory(&iniContentsSize);
+        SLstring    iniContents(rawIniContents, rawIniContents + iniContentsSize);
+        SLFileStorage::writeString(iniFile, IOK_config, iniContents);
+        ImGui::GetIO().WantSaveIniSettings = false;
+    }
 
     // Call the _build function. The whole UI is constructed here
     // This function is provided by the top-level project.

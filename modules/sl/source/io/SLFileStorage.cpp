@@ -105,20 +105,13 @@ SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
     stream->read((void*)string.data(), size);
     close(stream);
 
-    /*
-    SLstring canonicalString;
-    for(int i = 0; i < string.size(); i++)
-    {
-        if(i != string.size() - 1 && string[i] == '\r' && string[i + 1] == '\n')
-        {
-            canonicalString += "\n";
-            i++;
-        }
-        else
-            canonicalString += string[i];
-    }
-    */
-
     return string;
+}
+//-----------------------------------------------------------------------------
+void SLFileStorage::writeString(SLstring path, SLIOStreamKind kind, const SLstring& string)
+{
+    SLIOStream* stream = open(path, kind, IOM_write);
+    stream->write(string.c_str(), string.size());
+    close(stream);
 }
 //-----------------------------------------------------------------------------
