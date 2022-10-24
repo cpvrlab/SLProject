@@ -796,12 +796,6 @@ void appDemoLoadScene(SLAssetManager* am,
     SLScene::entities.dump(true);
 #endif
 
-#ifndef SL_EMSCRIPTEN
-    SLstring largeModelsPath = configPath + "models/";
-#else
-    SLstring largeModelsPath = modelPath + "LargeModels/";
-#endif
-
     if (sceneID == SID_Empty) //...................................................................
     {
         s->name("No Scene loaded.");
@@ -2913,13 +2907,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
       sceneID == SID_glTF_Sponza ||
       sceneID == SID_glTF_WaterBottle) //..........................................................
     {
-        SLstring clearCoatTest = largeModelsPath + "glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
-        SLstring damagedHelmet = largeModelsPath + "glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-        SLstring flightHelmet  = largeModelsPath + "glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
-        SLstring sponzaPalace  = largeModelsPath + "glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
-        SLstring waterBottle   = largeModelsPath + "glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
-
-        SL_LOG(damagedHelmet.c_str());
+        SLstring damagedHelmet = modelPath + "GLTF/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+        SLstring flightHelmet  = modelPath + "GLTF/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+        SLstring sponzaPalace  = modelPath + "GLTF/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
+        SLstring waterBottle   = modelPath + "GLTF/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
 
         if ( //(sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest)) ||
           (sceneID == SID_glTF_DamagedHelmet && SLFileStorage::exists(damagedHelmet, IOK_model)) ||
@@ -2975,7 +2966,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create HDR CubeMap and get precalculated textures from it
             SLSkybox* skybox = new SLSkybox(am,
                                             shaderPath,
-                                            largeModelsPath + "glTF-Sample-Models/hdris/envmap_malibu.hdr",
+                                            modelPath + "GLTF/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
             // Create a scene group node
@@ -3027,7 +3018,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Robotics_FanucCRX_FK) //...............................................
     {
-        SLstring modelFile = largeModelsPath + "GLTF-FanucCRX/Fanuc-CRX.gltf";
+        SLstring modelFile = modelPath + "GLTF/FanucCRX/Fanuc-CRX.gltf";
 
         if (SLFileStorage::exists(modelFile, IOK_model))
         {
@@ -3219,8 +3210,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                         mriImages,
                                         GL_LINEAR,
                                         GL_LINEAR,
+#ifndef SL_EMSCRIPTEN
                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+#else
+                                        GL_CLAMP_TO_EDGE,
+                                        GL_CLAMP_TO_EDGE,
+#endif
                                         "mri_head_front_to_back",
                                         true);
 
@@ -6272,7 +6268,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = largeModelsPath + "xyzrgb_dragon/xyzrgb_dragon.ply";
+        SLstring largeFile = modelPath + "PLY/xyzrgb_dragon/xyzrgb_dragon.ply";
 
         if (SLFileStorage::exists(largeFile, IOK_model))
         {
@@ -6513,9 +6509,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
              sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
     {
-        SLstring modelFile = largeModelsPath + "GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-        SLstring texCFile  = largeModelsPath + "GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
-        SLstring texNFile  = largeModelsPath + "GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+        SLstring modelFile = modelPath + "GLTF/CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+        SLstring texCFile  = modelPath + "GLTF/CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = modelPath + "GLTF/CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
 
         if (SLFileStorage::exists(modelFile, IOK_model) &&
             SLFileStorage::exists(texCFile, IOK_image) &&

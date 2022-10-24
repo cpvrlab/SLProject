@@ -1611,23 +1611,27 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     }*/
                     if (ImGui::MenuItem("Damaged Helmet", nullptr, sid == SID_glTF_DamagedHelmet))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_DamagedHelmet);
+                        s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_DamagedHelmet);
                     }
                     if (ImGui::MenuItem("Flight Helmet", nullptr, sid == SID_glTF_FlightHelmet))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_FlightHelmet);
+                        s->onLoad(am, s, sv, SID_glTF_FlightHelmet);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_FlightHelmet);
                     }
                     if (ImGui::MenuItem("Sponza Palace", nullptr, sid == SID_glTF_Sponza))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_Sponza);
+                        s->onLoad(am, s, sv, SID_glTF_Sponza);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_Sponza);
                     }
                     if (ImGui::MenuItem("Water Bottle", nullptr, sid == SID_glTF_WaterBottle))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_WaterBottle);
+                        s->onLoad(am, s, sv, SID_glTF_WaterBottle);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_glTF_WaterBottle);
                     }
 
                     ImGui::EndMenu();
@@ -1639,8 +1643,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
+                        s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
                     }
 
                     ImGui::EndMenu();
@@ -1650,8 +1655,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
                         s->onLoad(am, s, sv, SID_VolumeRayCast);
-
-#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
                     {
                         auto loadMRIImages = []()
@@ -1668,8 +1671,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                         mriImages,
                                                         GL_LINEAR,
                                                         GL_LINEAR,
+#ifndef SL_EMSCRIPTEN
                                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
                                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+#else
+                                                        GL_CLAMP_TO_EDGE,
+                                                        GL_CLAMP_TO_EDGE,
+#endif
                                                         "mri_head_front_to_back",
                                                         true);
                             AppDemo::jobIsRunning = false;
@@ -1706,7 +1714,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         // AppDemo::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
                         AppDemo::jobsToFollowInMain.push_back(onLoadScene);
                     }
-#endif
 
                     ImGui::EndMenu();
                 }
@@ -1726,8 +1733,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
                     {
-                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
-                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
+                        s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
+                        //                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
                     }
 
                     ImGui::EndMenu();
@@ -1958,13 +1966,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                             AppDemo::jobsToFollowInMain.emplace_back(followUpJob1);
                         }
                     }
-#endif
                     if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         loadSceneWithLargeModel(s, sv, "xyzrgb_dragon.zip", largeFile, SID_Benchmark1_LargeModel);
                     }
+#endif
 
+                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_Benchmark1_LargeModel))
+                        s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
@@ -1975,13 +1985,15 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
                     if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
                     {
-                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark5_ColumnsNoLOD);
+                        s->onLoad(am, s, sv, SID_Benchmark5_ColumnsNoLOD);
+                        //                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark5_ColumnsNoLOD);
                     }
                     if (ImGui::MenuItem("Columns with LOD", nullptr, sid == SID_Benchmark6_ColumnsLOD))
                     {
-                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark6_ColumnsLOD);
+                        s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
+                        //                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        //                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark6_ColumnsLOD);
                     }
 
                     if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))

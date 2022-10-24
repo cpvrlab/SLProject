@@ -395,7 +395,12 @@ bool onPaint()
             slResize(svIndex, canvasWidth, canvasHeight);
     }
 
-    return slPaintAllViews();
+    ///////////////////////////////////////////////
+    bool jobIsRunning      = slUpdateParallelJob();
+    bool viewsNeedsRepaint = slPaintAllViews();
+    ///////////////////////////////////////////////
+
+    return jobIsRunning || viewsNeedsRepaint;
 }
 
 EM_BOOL onLoop(double, void*)
