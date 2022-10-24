@@ -26,8 +26,8 @@
 static int canvasWidth;
 static int canvasHeight;
 
-static int lastTouchDownX;
-static int lastTouchDownY;
+static int    lastTouchDownX;
+static int    lastTouchDownY;
 static double lastTouchDownTimeMS;
 
 static GLFWwindow* window;             //!< The global glfw window handle
@@ -327,8 +327,8 @@ EM_BOOL emOnTouchEnd(int eventType, const EmscriptenTouchEvent* touchEvent, void
         mouseY = (int)touchEvent->touches[0].clientY;
         slMouseUp(svIndex, MB_left, mouseX, mouseY, K_none);
 
-        int dx = std::abs(mouseX - lastTouchDownX);
-        int dy = std::abs(mouseY - lastTouchDownY);
+        int    dx = std::abs(mouseX - lastTouchDownX);
+        int    dy = std::abs(mouseY - lastTouchDownY);
         double dt = touchEvent->timestamp - lastTouchDownTimeMS;
 
         if (dt > 800 && dx < 15 && dy < 15)
@@ -419,6 +419,7 @@ void runApp()
     attributes.alpha                     = true;
     attributes.majorVersion              = 2;
     attributes.minorVersion              = 0;
+    attributes.preserveDrawingBuffer     = true;
 
     auto context = emscripten_webgl_create_context("#canvas", &attributes);
     if (context > 0)

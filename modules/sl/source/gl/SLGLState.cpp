@@ -619,12 +619,15 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
 void SLGLState::readPixels(void* buffer)
 {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
+
+#ifndef SL_EMSCRIPTEN
     glReadBuffer(GL_FRONT);
+#endif
 
     // Get viewport size
     GLint vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);
 
-    glReadPixels(vp[0], vp[1], vp[2], vp[3], GL_RGB, GL_UNSIGNED_BYTE, buffer);
+    glReadPixels(vp[0], vp[1], vp[2], vp[3], SL_READ_PIXELS_GL_FORMAT, GL_UNSIGNED_BYTE, buffer);
 }
 //-----------------------------------------------------------------------------

@@ -168,6 +168,18 @@ file(GLOB sources
         source/input/SLInputManager.cpp
         source/input/SLInputManager.h
         source/input/SLUiInterface.h
+        source/io/SLFileStorage.cpp
+        source/io/SLFileStorage.h
+        source/io/SLIOBrowserOpen.cpp
+        source/io/SLIOBrowserOpen.h
+        source/io/SLIOFetch.cpp
+        source/io/SLIOFetch.h
+        source/io/SLIOLocalStorage.cpp
+        source/io/SLIOLocalStorage.h
+        source/io/SLIOMemory.cpp
+        source/io/SLIOMemory.h
+        source/io/SLIONative.cpp
+        source/io/SLIONative.h
         source/math/SLCurveBezier.cpp
         source/math/SLCurveBezier.h
         source/math/SLRect.h
@@ -252,16 +264,6 @@ file(GLOB sources
         source/ray/SLRaySamples2D.h
         source/ray/SLRaytracer.cpp
         source/ray/SLRaytracer.h
-        source/io/SLFileStorage.cpp
-        source/io/SLFileStorage.h
-        source/io/SLIONative.cpp
-        source/io/SLIONative.h
-        source/io/SLIOFetch.cpp
-        source/io/SLIOFetch.h
-        source/io/SLIOLocalStorage.cpp
-        source/io/SLIOLocalStorage.h
-        source/io/SLIOMemory.cpp
-        source/io/SLIOMemory.h
         externals/stb/stb_image.h
         )
 

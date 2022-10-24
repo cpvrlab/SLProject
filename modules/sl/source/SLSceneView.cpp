@@ -10,14 +10,19 @@
 #include <SLAnimManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
-#include <SLLightRect.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLFileStorage.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
 #include <Profiler.h>
 
 #include <utility>
+
+#ifdef SL_EMSCRIPTEN
+#    define STB_IMAGE_WRITE_IMPLEMENTATION
+#    include "stb_image_write.h"
+#endif
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -2011,26 +2016,39 @@ SLbool SLSceneView::draw3DOptixPT()
  */
 void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
 {
-#ifndef SL_EMSCRIPTEN
     if (_screenCaptureWaitFrames == 0)
     {
         SLint fbW = _viewportRect.width;
         SLint fbH = _viewportRect.height;
 
+#ifndef SL_EMSCRIPTEN
         GLsizei nrChannels = 3;
-        GLsizei stride     = nrChannels * fbW;
+#else
+        GLsizei nrChannels = 4;
+#endif
+
+        GLsizei stride = nrChannels * fbW;
         stride += (stride % 4) ? (4 - stride % 4) : 0;
         GLsizei       bufferSize = stride * fbH;
         vector<uchar> buffer(bufferSize);
 
         SLGLState::instance()->readPixels(buffer.data());
 
+#ifndef SL_EMSCRIPTEN
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
+#else
+        CVMat   rgbImg     = CVMat(fbH, fbW, CV_8UC4, (void*)buffer.data(), stride);
+        cv::cvtColor(rgbImg, rgbImg, cv::COLOR_RGBA2RGB);
+        nrChannels = 3;
+        stride = nrChannels * fbW;
+#endif
+
         cv::flip(rgbImg, rgbImg, 0);
         if (targetSize.width > 0 && targetSize.height > 0)
             cv::resize(rgbImg, rgbImg, targetSize);
 
+#ifndef SL_EMSCRIPTEN
         vector<int> compression_params;
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         compression_params.push_back(6);
@@ -2047,14 +2065,24 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
             msg += ex.what();
             Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
+#else
+        auto writer = [](void* context, void* data, int size)
+        {
+            SLIOStream* stream = (SLIOStream*)context;
+            stream->write(data, size);
+        };
 
-#    if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+        SLIOStream* stream = SLFileStorage::open(pathFilename, IOK_image, IOM_write);
+        stbi_write_png_to_func(writer, (void*)stream, fbW, fbH, nrChannels, rgbImg.data, stride);
+        SLFileStorage::close(stream);
+#endif
+
+#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS) && !defined(SL_EMSCRIPTEN)
         _gui->drawMouseCursor(true);
-#    endif
+#endif
         _screenCaptureIsRequested = false;
     }
     else
         _screenCaptureWaitFrames--;
-#endif
 }
 //-----------------------------------------------------------------------------

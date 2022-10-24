@@ -69,7 +69,6 @@ SLIOWriterMemory::SLIOWriterMemory(SLstring path)
   : _path(path),
     _position(0)
 {
-    SL_LOG("WRITING TO MEMORY");
     memoryFiles[_path].clear();
 }
 //-----------------------------------------------------------------------------

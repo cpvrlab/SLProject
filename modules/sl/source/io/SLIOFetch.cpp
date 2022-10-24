@@ -11,10 +11,10 @@ SLFetchResult SLIOReaderFetch::fetch(SLstring url)
     // clang-format off
     MAIN_THREAD_EM_ASM({
         let resource = UTF8ToString($0);
-        document.querySelector("#download-text").innerHTML = resource;
+        document.querySelector("#loading-text").innerHTML = resource;
 
         if (globalThis.hideTimer === null) {
-            document.querySelector("#overlay").classList.add("visible");
+            document.querySelector("#loading-overlay").classList.add("visible");
         } else {
             clearTimeout(globalThis.hideTimer);
         }
@@ -41,7 +41,7 @@ SLFetchResult SLIOReaderFetch::fetch(SLstring url)
     MAIN_THREAD_EM_ASM({
         globalThis.hideTimer = setTimeout(function () {
             globalThis.hideTimer = null;
-            document.querySelector("#overlay").classList.remove("visible");
+            document.querySelector("#loading-overlay").classList.remove("visible");
         }, 500);
     });
     // clang-format on
