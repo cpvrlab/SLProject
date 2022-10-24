@@ -463,6 +463,5 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
-    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH" "-sWASMFS"
-            "--preload-file=../data/images/fonts@data/images/fonts")
+    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH")
 endif ()

@@ -2,9 +2,9 @@
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-#include <iostream>
 #include <emscripten/threading.h>
 #include <emscripten/fetch.h>
+#include <iostream>
 //-----------------------------------------------------------------------------
 SLFetchResult SLIOReaderFetch::fetch(SLstring url)
 {

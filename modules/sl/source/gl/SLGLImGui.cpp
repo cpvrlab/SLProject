@@ -156,15 +156,23 @@ void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = fontDir + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
+    if (SLFileStorage::exists(DroidSans, IOK_font))
+    {
+        SLIOBuffer buffer = SLFileStorage::readIntoBuffer(DroidSans, IOK_font);
+        io.Fonts->AddFontFromMemoryTTF(buffer.data, (int)buffer.size, fontPropDotsToLoad);
+        // ImGui takes ownership of the buffer, so no memory deallocation
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontDir + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
+    if (SLFileStorage::exists(ProggyClean, IOK_font))
+    {
+        SLIOBuffer buffer = SLFileStorage::readIntoBuffer(ProggyClean, IOK_font);
+        io.Fonts->AddFontFromMemoryTTF(buffer.data, (int)buffer.size, fontFixedDotsToLoad);
+        // ImGui takes ownership of the buffer, so no memory deallocation
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 

@@ -115,11 +115,16 @@
         <p id="loading-text"></p>
     </div>
 </div>
-<div id="snapshot-overlay" onclick="classList.remove('visible');">
+<div id="snapshot-overlay">
     <img id="snapshot-image" alt="Snapshot"/>
     <a id="snapshot-download">Download</a>
 </div>
 <script type="text/javascript">
+    document.querySelector("#snapshot-overlay").addEventListener("click", event => {
+        event.target.classList.remove('visible');
+        URL.revokeObjectURL(snapshotURL);
+    });
+
     var Module = {
         canvas: document.querySelector("#canvas")
     };

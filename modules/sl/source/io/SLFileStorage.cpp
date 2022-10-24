@@ -7,7 +7,6 @@
 #    include <SLIOMemory.h>
 #    include <SLIOLocalStorage.h>
 #    include <SLIOBrowserOpen.h>
-#    include <SLIONative.h>
 #endif
 
 #include <iostream>
@@ -36,12 +35,10 @@ SLIOStream* SLFileStorage::open(SLstring       path,
             else
                 return new SLIOReaderFetch(path);
         }
-        else if (kind == IOK_image || kind == IOK_model)
+        else if (kind == IOK_image || kind == IOK_model || kind == IOK_font)
             return new SLIOReaderFetch(path);
         else if (kind == IOK_config)
             return new SLIOReaderLocalStorage(path);
-        else
-            return new SLIOReaderNative(path);
     }
     else if (mode == IOM_write)
     {

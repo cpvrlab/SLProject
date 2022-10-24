@@ -21,13 +21,13 @@ void SLIOWriterBrowserOpen::flush()
         let section = HEAPU8.subarray($1, $1 + $2);
         let array = new Uint8Array(section);
         let blob = new Blob([array], {"type": "image/png"});
-        let url = URL.createObjectURL(blob);
+        globalThis.snapshotURL = URL.createObjectURL(blob);
 
         let link = document.querySelector("#snapshot-download");
-        link.href = url;
+        link.href = snapshotURL;
         link.download = path;
 
-        document.querySelector("#snapshot-image").src = url;
+        document.querySelector("#snapshot-image").src = snapshotURL;
         document.querySelector("#snapshot-overlay").classList.add("visible");
     }, filename.c_str(), data, length);
     // clang-format on
