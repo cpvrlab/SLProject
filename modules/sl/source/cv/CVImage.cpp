@@ -393,12 +393,13 @@ void CVImage::load(const string& filename,
 #ifndef __EMSCRIPTEN__
     _cvMat = cv::imdecode(inputMat, cv::ImreadModes::IMREAD_UNCHANGED);
 #else
-    const unsigned char* encodedData = buffer.data;
-    int                  size        = (int)buffer.size;
-    int                  width;
-    int                  height;
-    int                  numChannels;
-    unsigned char*       data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 4);
+    unsigned char* encodedData = buffer.data;
+    int            size        = (int)buffer.size;
+    int            width;
+    int            height;
+    int            numChannels;
+    stbi_hdr_to_ldr_gamma(1.0f);
+    unsigned char* data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 4);
 
     // Convert RGB to BGR
     for (int i = 0; i < 4 * width * height; i += 4)
