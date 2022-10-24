@@ -6,16 +6,20 @@
 #include <emscripten/threading.h>
 #include <emscripten/fetch.h>
 //-----------------------------------------------------------------------------
-extern "C" {
-    extern void showLoadingOverlay(const char* resource);
-    extern void hideLoadingOverlay();
-};
-//-----------------------------------------------------------------------------
 SLFetchResult SLIOReaderFetch::fetch(SLstring url)
 {
-    emscripten_async_run_in_main_runtime_thread(EM_FUNC_SIG_VI,
-                                                showLoadingOverlay,
-                                                url.c_str());
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        let resource = UTF8ToString($0);
+        document.querySelector("#download-text").innerHTML = resource;
+
+        if (globalThis.hideTimer === null) {
+            document.querySelector("#overlay").classList.add("visible");
+        } else {
+            clearTimeout(globalThis.hideTimer);
+        }
+    }, url.c_str());
+    // clang-format on
 
     std::cout << "FETCH \"" << url << "\"" << std::endl;
 
@@ -33,8 +37,14 @@ SLFetchResult SLIOReaderFetch::fetch(SLstring url)
     std::memcpy(data, fetch->data, size);
     emscripten_fetch_close(fetch);
 
-    emscripten_async_run_in_main_runtime_thread(EM_FUNC_SIG_V,
-                                                hideLoadingOverlay);
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        globalThis.hideTimer = setTimeout(function () {
+            globalThis.hideTimer = null;
+            document.querySelector("#overlay").classList.remove("visible");
+        }, 500);
+    });
+    // clang-format on
 
     SLIOBuffer buffer{data, size};
     return SLFetchResult{status, buffer};

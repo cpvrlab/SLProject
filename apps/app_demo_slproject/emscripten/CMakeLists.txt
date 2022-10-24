@@ -23,9 +23,6 @@ add_executable(
     ${sources}
 )
 
-# Link library.js
-target_link_options(${target} PUBLIC "--js-library" "${CMAKE_CURRENT_SOURCE_DIR}/library.js")
-
 # Copy index.html and server script to output directory
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/index.html" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target}.html" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/server.py" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/server.py" COPYONLY)
