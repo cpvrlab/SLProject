@@ -6,7 +6,20 @@
 #    include <emscripten/fetch.h>
 #    include <iostream>
 //-----------------------------------------------------------------------------
-SLFetchResult SLIOReaderFetch::fetch(SLstring url)
+bool SLIOReaderFetch::exists(SLstring url)
+{
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    std::strcpy(attr.requestMethod, "HEAD");
+    attr.attributes            = EMSCRIPTEN_FETCH_SYNCHRONOUS;
+    emscripten_fetch_t* fetch  = emscripten_fetch(&attr, url.c_str());
+    bool                exists = fetch->status == 200;
+    emscripten_fetch_close(fetch);
+    return exists;
+}
+//-----------------------------------------------------------------------------
+SLIOReaderFetch::SLIOReaderFetch(SLstring url)
+  : SLIOReaderMemory(url)
 {
     Utils::showSpinnerMsg(url);
 
@@ -22,82 +35,18 @@ SLFetchResult SLIOReaderFetch::fetch(SLstring url)
     size_t size   = (size_t)fetch->totalBytes;
     std::cout << "STATUS: " << status << ", SIZE: " << size << std::endl;
 
-    unsigned char* data = new unsigned char[size];
-    std::memcpy(data, fetch->data, size);
-    emscripten_fetch_close(fetch);
+    if (status == 200)
+    {
+        SLIOMemory::set(_path, std::vector<char>(fetch->data, fetch->data + size));
+    }
 
+    emscripten_fetch_close(fetch);
     Utils::hideSpinnerMsg();
-
-    SLIOBuffer buffer{data, size};
-    return SLFetchResult{status, buffer};
-}
-//-----------------------------------------------------------------------------
-bool SLIOReaderFetch::exists(SLstring url)
-{
-    emscripten_fetch_attr_t attr;
-    emscripten_fetch_attr_init(&attr);
-    std::strcpy(attr.requestMethod, "HEAD");
-    attr.attributes            = EMSCRIPTEN_FETCH_SYNCHRONOUS;
-    emscripten_fetch_t* fetch  = emscripten_fetch(&attr, url.c_str());
-    bool                exists = fetch->status == 200;
-    emscripten_fetch_close(fetch);
-    return exists;
-}
-//-----------------------------------------------------------------------------
-SLIOReaderFetch::SLIOReaderFetch(SLstring url)
-  : _position(0)
-{
-    _buffer = fetch(url).buffer;
 }
 //-----------------------------------------------------------------------------
 SLIOReaderFetch::~SLIOReaderFetch()
 {
-    std::free(_buffer.data);
-}
-//-----------------------------------------------------------------------------
-size_t SLIOReaderFetch::read(void* buffer, size_t size)
-{
-    if (_position + size <= _buffer.size)
-    {
-        std::memcpy(buffer, _buffer.data + _position, size);
-        _position += size;
-        return size;
-    }
-    else
-    {
-        size_t sizeToRead = _buffer.size - _position;
-        std::memcpy(buffer, _buffer.data + _position, sizeToRead);
-        _position += sizeToRead;
-        return sizeToRead;
-    }
-}
-//-----------------------------------------------------------------------------
-size_t SLIOReaderFetch::tell()
-{
-    return _position;
-}
-//-----------------------------------------------------------------------------
-bool SLIOReaderFetch::seek(size_t offset, Origin origin)
-{
-    size_t previousPos = _position;
-
-    switch (origin)
-    {
-        case IOO_beg: _position = offset; break;
-        case IOO_cur: _position += offset; break;
-        case IOO_end: _position = _buffer.size - 1 - offset; break;
-    }
-
-    bool ok = _position >= 0 && _position < _buffer.size;
-    if (!ok)
-        _position = previousPos;
-
-    return ok;
-}
-//-----------------------------------------------------------------------------
-size_t SLIOReaderFetch::size()
-{
-    return _buffer.size;
+    SLIOMemory::clear(_path);
 }
 //-----------------------------------------------------------------------------
 #endif

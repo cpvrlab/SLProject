@@ -6,7 +6,7 @@
 #    include <SLIOFetch.h>
 #    include <SLIOMemory.h>
 #    include <SLIOLocalStorage.h>
-#    include <SLIOBrowserOpen.h>
+#    include <SLIOBrowserDisplay.h>
 #endif
 
 #include <iostream>
@@ -47,7 +47,7 @@ SLIOStream* SLFileStorage::open(SLstring       path,
         else if (kind == IOK_config)
             return new SLIOWriterLocalStorage(path);
         else if (kind == IOK_image)
-            return new SLIOWriterBrowserOpen(path);
+            return new SLIOWriterBrowserDisplay(path);
     }
 
     return nullptr;

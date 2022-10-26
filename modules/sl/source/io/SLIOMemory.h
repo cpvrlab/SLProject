@@ -14,6 +14,7 @@ namespace SLIOMemory
 bool exists(SLstring path);
 std::vector<char>& get(SLstring path);
 void set(SLstring path, const std::vector<char>& data);
+void clear(SLstring path);
 }
 //-----------------------------------------------------------------------------
 class SLIOReaderMemory : public SLIOStream

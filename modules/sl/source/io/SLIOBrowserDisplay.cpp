@@ -1,13 +1,18 @@
-#include <SLIOBrowserOpen.h>
+#include <SLIOBrowserDisplay.h>
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-SLIOWriterBrowserOpen::SLIOWriterBrowserOpen(SLstring path)
+SLIOWriterBrowserDisplay::SLIOWriterBrowserDisplay(SLstring path)
   : SLIOWriterMemory(path)
 {
 }
 //-----------------------------------------------------------------------------
-void SLIOWriterBrowserOpen::flush()
+SLIOWriterBrowserDisplay::~SLIOWriterBrowserDisplay()
+{
+    SLIOMemory::clear(_path);
+}
+//-----------------------------------------------------------------------------
+void SLIOWriterBrowserDisplay::flush()
 {
     std::vector<char>& buffer = SLIOMemory::get(_path);
     const char*        data   = buffer.data();

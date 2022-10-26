@@ -6,31 +6,17 @@
 #define SLPROJECT_SLIOFETCH_H
 
 #include <SLFileStorage.h>
+#include <SLIOMemory.h>
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-struct SLFetchResult
-{
-    int        status;
-    SLIOBuffer buffer;
-};
-//-----------------------------------------------------------------------------
-class SLIOReaderFetch : public SLIOStream
+class SLIOReaderFetch : public SLIOReaderMemory
 {
 public:
-    static SLFetchResult fetch(SLstring url);
-    static bool          exists(SLstring url);
+    static bool exists(SLstring url);
 
     SLIOReaderFetch(SLstring url);
     ~SLIOReaderFetch();
-    size_t read(void* buffer, size_t size);
-    size_t tell();
-    bool   seek(size_t offset, Origin origin);
-    size_t size();
-
-private:
-    SLIOBuffer _buffer;
-    size_t     _position;
 };
 //-----------------------------------------------------------------------------
 #endif

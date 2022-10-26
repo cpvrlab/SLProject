@@ -38,6 +38,11 @@ SLIOReaderLocalStorage::SLIOReaderLocalStorage(SLstring path)
     SLIOMemory::set(path, vector);
 }
 //-----------------------------------------------------------------------------
+SLIOReaderLocalStorage::~SLIOReaderLocalStorage()
+{
+    SLIOMemory::clear(_path);
+}
+//-----------------------------------------------------------------------------
 SLIOWriterLocalStorage::SLIOWriterLocalStorage(SLstring path)
   : SLIOWriterMemory(path)
 {

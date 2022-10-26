@@ -22,6 +22,11 @@ void SLIOMemory::set(SLstring path, const std::vector<char>& data)
     memoryFiles[path] = data;
 }
 //-----------------------------------------------------------------------------
+void SLIOMemory::clear(SLstring path)
+{
+    memoryFiles.erase(path);
+}
+//-----------------------------------------------------------------------------
 SLIOReaderMemory::SLIOReaderMemory(SLstring path)
   : _path(path)
 {

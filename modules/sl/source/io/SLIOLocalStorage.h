@@ -19,6 +19,7 @@ class SLIOReaderLocalStorage : public SLIOReaderMemory
 {
 public:
     SLIOReaderLocalStorage(SLstring path);
+    ~SLIOReaderLocalStorage();
 };
 //-----------------------------------------------------------------------------
 class SLIOWriterLocalStorage : public SLIOWriterMemory
