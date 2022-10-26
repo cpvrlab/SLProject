@@ -1,20 +1,21 @@
+// #############################################################################
+//   File:      AppDemoMainEmscripten.cpp
+//   Purpose:   Application that demonstrates most features of the SLProject
+//              framework with WebGL, WebAssembly and Emscripten in a web
+//              browser. Implementation of the GUI is done with the emscripten
+//              framework.
+//   Date:      October 2022
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marino von Wattenwyl
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
+
 #include <SLInterface.h>
 #include <SLScene.h>
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
-//#############################################################################
-//  File:      AppDemoMainEmscripten.cpp
-//  Purpose:   Application that demonstrates most features of the SLProject
-//             framework with WebGL, WebAssembly and Emscripten in a web
-//             browser. Implementation of the GUI is done with the emscripten
-//             framework.
-//  Date:      October 2022
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marino von Wattenwyl
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
 
 #include <GLFW/glfw3.h>
 #include <GLES3/gl3.h>
@@ -47,11 +48,12 @@ static SLint       lastWidth;          //!< Last window width in pixels
 static SLint       lastHeight;         //!< Last window height in pixels
 static SLbool      fullscreen = false; //!< flag if window is in fullscreen mode
 
+//-----------------------------------------------------------------------------
 extern void appDemoLoadScene(SLAssetManager* am,
                              SLScene*        s,
                              SLSceneView*    sv,
                              SLSceneID       sceneID);
-
+//-----------------------------------------------------------------------------
 void updateCanvas()
 {
     // clang-format off
@@ -62,7 +64,7 @@ void updateCanvas()
     }, canvasWidth, canvasHeight);
     // clang-format on
 }
-
+//-----------------------------------------------------------------------------
 SLKey mapKeyToSLKey(unsigned long key)
 {
     switch (key)
@@ -115,7 +117,7 @@ SLKey mapKeyToSLKey(unsigned long key)
         default: return (SLKey)key;
     }
 }
-
+//-----------------------------------------------------------------------------
 SLKey mapModifiersToSLModifiers(bool shiftDown, bool ctrlDown, bool altDown)
 {
     int modifiers = 0;
@@ -124,22 +126,24 @@ SLKey mapModifiersToSLModifiers(bool shiftDown, bool ctrlDown, bool altDown)
     if (altDown) modifiers |= K_alt;
     return (SLKey)modifiers;
 }
-
+//-----------------------------------------------------------------------------
 SLKey mapModifiersToSLModifiers(const EmscriptenMouseEvent* mouseEvent)
 {
     return mapModifiersToSLModifiers(mouseEvent->shiftKey,
                                      mouseEvent->ctrlKey,
                                      mouseEvent->altKey);
 }
-
+//-----------------------------------------------------------------------------
 SLKey mapModifiersToSLModifiers(const EmscriptenKeyboardEvent* keyEvent)
 {
     return mapModifiersToSLModifiers(keyEvent->shiftKey,
                                      keyEvent->ctrlKey,
                                      keyEvent->altKey);
 }
-
-EMSCRIPTEN_RESULT emOnMousePressed(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+//-----------------------------------------------------------------------------
+EMSCRIPTEN_RESULT emOnMousePressed(int                         eventType,
+                                   const EmscriptenMouseEvent* mouseEvent,
+                                   void*                       userData)
 {
     SLint x         = mouseX;
     SLint y         = mouseY;
@@ -167,8 +171,10 @@ EMSCRIPTEN_RESULT emOnMousePressed(int eventType, const EmscriptenMouseEvent* mo
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnMouseReleased(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnMouseReleased(int                         eventType,
+                          const EmscriptenMouseEvent* mouseEvent,
+                          void*                       userData)
 {
     SLint x         = mouseX;
     SLint y         = mouseY;
@@ -193,8 +199,10 @@ EM_BOOL emOnMouseReleased(int eventType, const EmscriptenMouseEvent* mouseEvent,
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnMouseDoubleClicked(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnMouseDoubleClicked(int                         eventType,
+                               const EmscriptenMouseEvent* mouseEvent,
+                               void*                       userData)
 {
     SLint x         = mouseX;
     SLint y         = mouseY;
@@ -216,8 +224,10 @@ EM_BOOL emOnMouseDoubleClicked(int eventType, const EmscriptenMouseEvent* mouseE
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnMouseMove(int eventType, const EmscriptenMouseEvent* mouseEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnMouseMove(int                         eventType,
+                      const EmscriptenMouseEvent* mouseEvent,
+                      void*                       userData)
 {
     mouseX = (int)mouseEvent->targetX;
     mouseY = (int)mouseEvent->targetY;
@@ -229,8 +239,10 @@ EM_BOOL emOnMouseMove(int eventType, const EmscriptenMouseEvent* mouseEvent, voi
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnMouseWheel(int eventType, const EmscriptenWheelEvent* wheelEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnMouseWheel(int                         eventType,
+                       const EmscriptenWheelEvent* wheelEvent,
+                       void*                       userData)
 {
     // Invert the sign because the scroll value is inverted
     double deltaY = -wheelEvent->deltaY;
@@ -243,8 +255,10 @@ EM_BOOL emOnMouseWheel(int eventType, const EmscriptenWheelEvent* wheelEvent, vo
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnKeyPressed(int eventType, const EmscriptenKeyboardEvent* keyEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnKeyPressed(int                            eventType,
+                       const EmscriptenKeyboardEvent* keyEvent,
+                       void*                          userData)
 {
     if (keyEvent->repeat)
         return EM_TRUE;
@@ -286,8 +300,10 @@ EM_BOOL emOnKeyPressed(int eventType, const EmscriptenKeyboardEvent* keyEvent, v
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnKeyReleased(int eventType, const EmscriptenKeyboardEvent* keyEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnKeyReleased(int                            eventType,
+                        const EmscriptenKeyboardEvent* keyEvent,
+                        void*                          userData)
 {
     SLKey key       = mapKeyToSLKey(keyEvent->keyCode);
     SLKey modifiers = mapModifiersToSLModifiers(keyEvent);
@@ -295,8 +311,10 @@ EM_BOOL emOnKeyReleased(int eventType, const EmscriptenKeyboardEvent* keyEvent, 
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnTouchStart(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnTouchStart(int                         eventType,
+                       const EmscriptenTouchEvent* touchEvent,
+                       void*                       userData)
 {
     if (touchEvent->numTouches == 1)
     {
@@ -318,8 +336,10 @@ EM_BOOL emOnTouchStart(int eventType, const EmscriptenTouchEvent* touchEvent, vo
     lastTouchDownY = mouseY;
     return EM_TRUE;
 }
-
-EM_BOOL emOnTouchEnd(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnTouchEnd(int                         eventType,
+                     const EmscriptenTouchEvent* touchEvent,
+                     void*                       userData)
 {
     if (touchEvent->numTouches == 1)
     {
@@ -348,8 +368,10 @@ EM_BOOL emOnTouchEnd(int eventType, const EmscriptenTouchEvent* touchEvent, void
 
     return EM_TRUE;
 }
-
-EM_BOOL emOnTouchMove(int eventType, const EmscriptenTouchEvent* touchEvent, void* userData)
+//-----------------------------------------------------------------------------
+EM_BOOL emOnTouchMove(int                         eventType,
+                      const EmscriptenTouchEvent* touchEvent,
+                      void*                       userData)
 {
     if (touchEvent->numTouches == 1)
     {
@@ -368,18 +390,22 @@ EM_BOOL emOnTouchMove(int eventType, const EmscriptenTouchEvent* touchEvent, voi
 
     return EM_TRUE;
 }
-
-const char* emOnUnload(int eventType, const void* reserved, void* userData)
+//-----------------------------------------------------------------------------
+const char* emOnUnload(int         eventType,
+                       const void* reserved,
+                       void*       userData)
 {
     slTerminate();
     return nullptr;
 }
-
-SLSceneView* createAppDemoSceneView(SLScene* scene, int curDPI, SLInputManager& inputManager)
+//-----------------------------------------------------------------------------
+SLSceneView* createAppDemoSceneView(SLScene*        scene,
+                                    int             curDPI,
+                                    SLInputManager& inputManager)
 {
     return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
 }
-
+//-----------------------------------------------------------------------------
 bool onPaint()
 {
     int newCanvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
@@ -402,13 +428,13 @@ bool onPaint()
 
     return jobIsRunning || viewsNeedsRepaint;
 }
-
+//-----------------------------------------------------------------------------
 EM_BOOL onLoop(double, void*)
 {
     onPaint();
     return EM_TRUE;
 }
-
+//-----------------------------------------------------------------------------
 void runApp()
 {
     canvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
@@ -483,9 +509,10 @@ void runApp()
     // of the JavaScript event loop.
     emscripten_request_animation_frame_loop(onLoop, nullptr);
 }
-
+//-----------------------------------------------------------------------------
 int main(void)
 {
     runApp();
     return 0;
 }
+//-----------------------------------------------------------------------------

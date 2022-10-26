@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      Utils.cpp
-//  Authors:   Marcus Hudritsch
-//  Date:      May 2019
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      Utils.cpp
+//   Authors:   Marcus Hudritsch
+//   Date:      May 2019
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <Utils.h>
 #include <cstddef>
@@ -1199,6 +1199,40 @@ void errorMsg(const char* tag,
         msg,
         line,
         file);
+#endif
+}
+//-----------------------------------------------------------------------------
+// Shows the a spinner icon message. So far only used with emscripten
+void showSpinnerMsg(string msg)
+{
+#ifdef __EMSCRIPTEN__
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        let resource = UTF8ToString($0);
+        document.querySelector("#loading-text").innerHTML = resource;
+
+        if (globalThis.hideTimer === null) {
+            document.querySelector("#loading-overlay").classList.add("visible");
+        } else {
+            clearTimeout(globalThis.hideTimer);
+        }
+    }, msg.c_str());
+    // clang-format on
+#endif
+}
+//-----------------------------------------------------------------------------
+// Hides the previous spinner icon message. So far only used with emscripten
+void hideSpinnerMsg()
+{
+#ifdef __EMSCRIPTEN__
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        globalThis.hideTimer = setTimeout(function () {
+              globalThis.hideTimer = null;
+              document.querySelector("#loading-overlay").classList.remove("visible");
+          }, 500);
+    });
+    // clang-format on
 #endif
 }
 //-----------------------------------------------------------------------------

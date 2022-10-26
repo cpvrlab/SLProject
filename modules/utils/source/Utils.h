@@ -207,21 +207,29 @@ extern std::unique_ptr<CustomLog> customLog;
 //! logs a formatted string platform independently
 void log(const char* tag, const char* format, ...);
 
-//! Terminates the application with a message. No leak cheching.
+//! Terminates the application with a message. No leak checking.
 [[noreturn]] void exitMsg(const char* tag,
                           const char* msg,
                           int         line,
                           const char* file);
 
+//! Platform independent warn message output
 void warnMsg(const char* tag,
              const char* msg,
              int         line,
              const char* file);
 
+//! Platform independent error message output
 void errorMsg(const char* tag,
               const char* msg,
               int         line,
               const char* file);
+
+//! Shows the a spinner icon message
+void showSpinnerMsg(string msg);
+
+//! Hides the previous spinner icon message
+void hideSpinnerMsg();
 
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();

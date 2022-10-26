@@ -105,7 +105,9 @@ SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
     return string;
 }
 //-----------------------------------------------------------------------------
-void SLFileStorage::writeString(SLstring path, SLIOStreamKind kind, const SLstring& string)
+void SLFileStorage::writeString(SLstring        path,
+                                SLIOStreamKind  kind,
+                                const SLstring& string)
 {
     SLIOStream* stream = open(path, kind, IOM_write);
     stream->write(string.c_str(), string.size());
