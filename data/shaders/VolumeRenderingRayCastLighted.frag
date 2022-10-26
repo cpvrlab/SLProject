@@ -94,6 +94,14 @@ void main()
     {
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
         vec4 voxel = texture(u_matTextureDiffuse0, position);
+
+        //If the texture coordinates are outside the range 0.0 - 1.0, set voxel to 0
+        //This emulates GL_CLAMP_TO_BORDER, which is only available in version >= 3.2
+        vec3 is_inside_lower = max(vec3(0.0), sign(position));
+        vec3 is_inside_upper = max(vec3(0.0), sign(vec3(1.0) - position));
+        vec3 is_inside_axes = is_inside_lower * is_inside_upper;
+        voxel *= is_inside_axes.x * is_inside_axes.y * is_inside_axes.z;
+
         vec3 N = voxel.xyz * 2.0f - 1.0f;
 
         //Transform the read pixel with the 1D transform function lookup table

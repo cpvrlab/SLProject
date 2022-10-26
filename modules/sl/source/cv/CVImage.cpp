@@ -400,12 +400,7 @@ void CVImage::load(const string& filename,
     int            numChannels;
     stbi_hdr_to_ldr_gamma(1.0f);
     unsigned char* data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 4);
-
-    // Convert RGB to BGR
-    for (int i = 0; i < 4 * width * height; i += 4)
-        std::swap(data[i + 0], data[i + 2]);
-
-    _cvMat = CVMat(height, width, CV_8UC4, data);
+    _cvMat              = CVMat(height, width, CV_8UC4, data);
 #endif
 
     SLFileStorage::deleteBuffer(buffer);
@@ -416,6 +411,7 @@ void CVImage::load(const string& filename,
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
+#ifndef __EMSCRIPTEN__
     // Convert greater component depth than 8 bit to 8 bit, only if the image is not HDR
     if (_cvMat.depth() > CV_8U && ext != "hdr")
         _cvMat.convertTo(_cvMat, CV_8U, 1.0 / 256.0);
@@ -465,6 +461,21 @@ void CVImage::load(const string& filename,
         // string filename = Utils::getFileNameWOExt(pathfilename);
         // savePNG(_path + filename + "_InAlpha.png");
     }
+#else
+    _format             = PF_rgba;
+    _bytesPerPixel      = bytesPerPixel(_format);
+
+    if (loadGrayscaleIntoAlpha)
+    {
+        for (int i = 0; i < 4 * _cvMat.cols * _cvMat.rows; i += 4)
+        {
+            _cvMat.data[i + 3] = _cvMat.data[i];
+            _cvMat.data[i + 0] = 0;
+            _cvMat.data[i + 1] = 0;
+            _cvMat.data[i + 2] = 0;
+        }
+    }
+#endif
 
     _bytesPerLine  = bytesPerLine((uint)_cvMat.cols, _format, _cvMat.isContinuous());
     _bytesPerImage = _bytesPerLine * (uint)_cvMat.rows;
