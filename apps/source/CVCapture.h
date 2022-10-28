@@ -20,12 +20,17 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
+#include <SL.h>
 #include <cv/CVTypedefs.h>
 #include <cv/CVImage.h>
 #include <Averaged.h>
 #include <opencv2/opencv.hpp>
 #include <cv/CVCamera.h>
 #include <HighResTimer.h>
+
+#ifdef SL_EMSCRIPTEN
+#    include <WebCamera.h>
+#endif
 
 using Utils::AvgFloat;
 
@@ -72,14 +77,14 @@ public: //! Public static instance getter for singleton pattern
     CVSize2i openFile();
     void     start(float viewportWdivH);
     bool     grabAndAdjustForSL(float viewportWdivH);
-    void     loadIntoLastFrame(float        vieportWdivH,
-                               int          camWidth,
-                               int          camHeight,
+    void     loadIntoLastFrame(float           vieportWdivH,
+                               int             camWidth,
+                               int             camHeight,
                                CVPixelFormatGL srcPixelFormat,
-                               const uchar* data,
-                               bool         isContinuous);
+                               const uchar*    data,
+                               bool            isContinuous);
     void     adjustForSL(float viewportWdivH);
-    bool     isOpened() { return _captureDevice.isOpened(); }
+    bool     isOpened();
     void     release();
     void     copyYUVPlanes(float  scrWdivH,
                            int    srcW,
@@ -111,17 +116,17 @@ public: //! Public static instance getter for singleton pattern
 
     void moveCapturePosition(int n);
 
-    CVMat       lastFrame;          //!< last frame grabbed in RGB
-    CVMat       lastFrameFull;      //!< last frame grabbed in RGB and full resolution
-    CVMat       lastFrameGray;      //!< last frame in grayscale
+    CVMat           lastFrame;          //!< last frame grabbed in RGB
+    CVMat           lastFrameFull;      //!< last frame grabbed in RGB and full resolution
+    CVMat           lastFrameGray;      //!< last frame in grayscale
     CVPixelFormatGL format;             //!< GL pixel format
-    CVSize      captureSize;        //!< size of captured frame
-    float       startCaptureTimeMS; //!< start time of capturing in ms
-    bool        hasSecondaryCamera; //!< flag if device has secondary camera
-    string      videoFilename;      //!< video filename to load
-    bool        videoLoops;         //!< flag if video should loop
-    float       fps;
-    int         frameCount;
+    CVSize          captureSize;        //!< size of captured frame
+    float           startCaptureTimeMS; //!< start time of capturing in ms
+    bool            hasSecondaryCamera; //!< flag if device has secondary camera
+    string          videoFilename;      //!< video filename to load
+    bool            videoLoops;         //!< flag if video should loop
+    float           fps;
+    int             frameCount;
 
     /*! A requestedSizeIndex of -1 returns on Android the default size of 640x480.
     This is the default size index if the camera resolutions are unknown.*/
@@ -138,10 +143,15 @@ private:
     ~CVCapture();
     static CVCapture* _instance; //!< global singleton object
 
-    CVVideoType    _videoType;      //!< Flag for using the live video image
-    CVVideoCapture _captureDevice;  //!< OpenCV capture device
-    AvgFloat       _captureTimesMS; //!< Averaged time for video capturing in ms
-    HighResTimer   _timer;          //!< High resolution timer
+#ifndef SL_EMSCRIPTEN
+    CVVideoCapture _captureDevice; //!< OpenCV capture device
+#else
+    WebCamera _webCamera; //!< Browser capture stream
+#endif
+
+    CVVideoType  _videoType;      //!< Flag for using the live video image
+    AvgFloat     _captureTimesMS; //!< Averaged time for video capturing in ms
+    HighResTimer _timer;          //!< High resolution timer
 };
 //-----------------------------------------------------------------------------
 #endif // CVCapture_H

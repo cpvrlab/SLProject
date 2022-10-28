@@ -30,7 +30,6 @@ void SLIOMemory::clear(SLstring path)
 SLIOReaderMemory::SLIOReaderMemory(SLstring path)
   : _path(path)
 {
-    SL_LOG("READING FROM MEMORY");
 }
 //-----------------------------------------------------------------------------
 size_t SLIOReaderMemory::read(void* buffer, size_t size)

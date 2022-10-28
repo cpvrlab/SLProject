@@ -7,7 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-//#include <AppDemo.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
@@ -16,18 +15,23 @@
 #include <cv/CVCalibrationEstimator.h>
 #include <AppDemoSceneView.h>
 #include <AppDemo.h>
-#include <FtpUtils.h>
 #include <GlobalTimer.h>
 #include <Profiler.h>
+
+#ifndef SL_EMSCRIPTEN
+#include <FtpUtils.h>
+#endif
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
  It gets updated in the following onUpdateTracking routine */
 SLGLTexture* videoTexture = nullptr;
 
+#ifndef SL_EMSCRIPTEN
 /*! Global pointer for a tracker that is set in AppDemoLoad for video scenes
  It gets updated in the following onUpdateTracking routine */
 CVTracked* tracker = nullptr;
+#endif
 
 /*! Global pointer to a node that from witch the tracker changes the pose.
  it gets updated in the following onUpdateTracking routine */
@@ -121,6 +125,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                     if (ac->calibration.save(AppDemo::calibFilePath, mainCalibFilename))
                     {
 
+#ifndef SL_EMSCRIPTEN
                         if (!FtpUtils::uploadFile(AppDemo::calibFilePath,
                                                   mainCalibFilename,
                                                   AppDemo::CALIB_FTP_HOST,
@@ -131,6 +136,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                         {
                             Utils::log("WAIApp", errorMsg.c_str());
                         }
+#endif
                     }
                     else
                     {
@@ -236,6 +242,7 @@ bool onUpdateVideo()
         }
         else
         {
+#ifndef SL_EMSCRIPTEN
             ensureValidCalibration(ac, sv);
             // Attention: Always update scene camera fovV from calibration because the calibration may have
             // been adapted in adjustForSL after a change of aspect ratio!
@@ -276,6 +283,7 @@ bool onUpdateVideo()
                 else
                     trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
+#endif
 
             // Update info text only for chessboard scene
             if (AppDemo::sceneID == SID_VideoCalibrateMain ||
@@ -326,7 +334,10 @@ bool onUpdateVideo()
         else
             SL_WARN_MSG("No video texture to copy to.");
 
+#ifndef SL_EMSCRIPTEN
         CVTracked::trackingTimesMS.set(GlobalTimer::timeMS() - trackingTimeStartMS);
+#endif
+
         return true;
     }
 

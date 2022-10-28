@@ -13,7 +13,7 @@
             touch-action: none;
         }
 
-        canvas {
+        #canvas {
             position: absolute;
             background-color: black;
             top: 0;
@@ -105,6 +105,14 @@
                 transform: rotate(180deg);
             }
         }
+
+        #capture-video {
+            display: none;
+        }
+
+        #capture-canvas {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -119,6 +127,8 @@
     <img id="snapshot-image" alt="Snapshot"/>
     <a id="snapshot-download">Download</a>
 </div>
+<video id="capture-video" autoplay ></video>
+<canvas id="capture-canvas"></canvas>
 <script type="text/javascript">
     document.querySelector("#snapshot-overlay").addEventListener("click", event => {
         event.target.classList.remove('visible');

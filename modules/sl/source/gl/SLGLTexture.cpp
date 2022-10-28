@@ -682,18 +682,24 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
 {
     PROFILE_FUNCTION();
 
+#ifndef SL_EMSCRIPTEN
+    CVPixelFormatGL pixelFormat = PF_rgb;
+#else
+    CVPixelFormatGL pixelFormat = PF_rgba;
+#endif
+
     // Add image for the first time
     if (_images.empty())
         _images.push_back(new CVImage(camWidth,
                                       camHeight,
-                                      PF_rgb,
+                                      pixelFormat,
                                       "LiveVideoImageFromMemory"));
 
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
                                        camHeight,
                                        srcFormat,
-                                       PF_rgb,
+                                       pixelFormat,
                                        data,
                                        isContinuous,
                                        isTopLeft);

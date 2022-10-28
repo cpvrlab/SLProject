@@ -16,6 +16,7 @@
 #include <AppDemo.h>
 #include <AppDemoSceneView.h>
 #include <AppDemoGui.h>
+#include <CVCapture.h>
 
 #include <GLFW/glfw3.h>
 #include <GLES3/gl3.h>
@@ -53,6 +54,7 @@ extern void appDemoLoadScene(SLAssetManager* am,
                              SLScene*        s,
                              SLSceneView*    sv,
                              SLSceneID       sceneID);
+extern bool onUpdateVideo();
 //-----------------------------------------------------------------------------
 void updateCanvas()
 {
@@ -408,6 +410,10 @@ SLSceneView* createAppDemoSceneView(SLScene*        scene,
 //-----------------------------------------------------------------------------
 bool onPaint()
 {
+    if (AppDemo::sceneViews.empty())
+        return false;
+    SLSceneView* sv = AppDemo::sceneViews[svIndex];
+
     int newCanvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
     int newCanvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight;);
 
@@ -421,7 +427,15 @@ bool onPaint()
             slResize(svIndex, canvasWidth, canvasHeight);
     }
 
+    // If live video image is requested grab it and copy it
+    if (CVCapture::instance()->videoType() != VT_NONE)
+    {
+        float viewportWdivH = sv->viewportWdivH();
+        CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
+    }
+
     ///////////////////////////////////////////////
+    onUpdateVideo();
     bool jobIsRunning      = slUpdateParallelJob();
     bool viewsNeedsRepaint = slPaintAllViews();
     ///////////////////////////////////////////////
@@ -429,7 +443,7 @@ bool onPaint()
     return jobIsRunning || viewsNeedsRepaint;
 }
 //-----------------------------------------------------------------------------
-EM_BOOL onLoop(double, void*)
+EM_BOOL onLoop(double time, void* userData)
 {
     onPaint();
     return EM_TRUE;
@@ -437,8 +451,8 @@ EM_BOOL onLoop(double, void*)
 //-----------------------------------------------------------------------------
 void runApp()
 {
-    canvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth;);
-    canvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight;);
+    canvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth);
+    canvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight);
     updateCanvas();
 
     EmscriptenWebGLContextAttributes attributes;

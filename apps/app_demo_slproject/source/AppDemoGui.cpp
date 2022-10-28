@@ -12,10 +12,7 @@
 #include <AppDemo.h>
 #include <SL.h>
 
-#ifndef SL_EMSCRIPTEN
-#    include <CVCapture.h>
-#endif
-
+#include <CVCapture.h>
 #include <cv/CVImage.h>
 #include <cv/CVTrackedFeatures.h>
 #include <SLAssetManager.h>
@@ -380,19 +377,16 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             {
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
-#ifndef SL_EMSCRIPTEN
-                CVVideoType vt = CVCapture::instance()->videoType();
-#endif
+                CVVideoType  vt    = CVCapture::instance()->videoType();
+
                 SLchar m[2550]; // message character array
                 m[0] = 0;       // set zero length
 
                 if (rType == RT_gl)
                 {
                     // Get averages from average variables (see Averaged)
-#ifndef SL_EMSCRIPTEN
                     SLfloat captureTime = CVCapture::instance()->captureTimesMS().average();
-#endif
-                    SLfloat updateTime = s->updateTimesMS().average();
+                    SLfloat updateTime  = s->updateTimesMS().average();
 #ifndef SL_EMSCRIPTEN
                     SLfloat trackingTime = CVTracked::trackingTimesMS.average();
                     SLfloat detectTime   = CVTracked::detectTimesMS.average();
@@ -410,9 +404,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat draw2DTime     = sv->draw2DTimesMS().average();
 
                     // Calculate percentage from frame time
-#ifndef SL_EMSCRIPTEN
                     SLfloat captureTimePC = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-#endif
                     SLfloat updateTimePC = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
 #ifndef SL_EMSCRIPTEN
                     SLfloat trackingTimePC = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
@@ -437,9 +429,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
                     sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
-#ifndef SL_EMSCRIPTEN
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-#endif
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
                     SLfloat updateDODTime   = s->updateDODTimesMS().average();
@@ -1471,11 +1461,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
     assert(s->assetManager() && "No asset manager assigned to scene!");
     SLAssetManager* am = s->assetManager();
 
-    SLSceneID  sid     = AppDemo::sceneID;
-    SLGLState* stateGL = SLGLState::instance();
-#ifndef SL_EMSCRIPTEN
-    CVCapture* capture = CVCapture::instance();
-#endif
+    SLSceneID    sid           = AppDemo::sceneID;
+    SLGLState*   stateGL       = SLGLState::instance();
+    CVCapture*   capture       = CVCapture::instance();
     SLRenderType rType         = sv->renderType();
     SLbool       hasAnimations = (!s->animManager().allAnimNames().empty());
     static SLint curAnimIx     = -1;
@@ -1667,7 +1655,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                             for (SLint i = 0; i < 207; ++i)
                                 mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
-                            gTexMRI3D             = new SLGLTexture(nullptr,
+                            gTexMRI3D = new SLGLTexture(nullptr,
                                                         mriImages,
                                                         GL_LINEAR,
                                                         GL_LINEAR,
@@ -1741,11 +1729,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("Video"))
                 {
                     if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
                         s->onLoad(am, s, sv, SID_VideoTextureLive);
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Texture from Video File", nullptr, sid == SID_VideoTextureFile))
                         s->onLoad(am, s, sv, SID_VideoTextureFile);
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
@@ -1764,13 +1752,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);
-#    ifdef SL_BUILD_WAI
+#endif
+#ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(am, s, sv, SID_VideoTrackWAI);
-#    endif
+#endif
                     ImGui::EndMenu();
                 }
-#endif
 
                 if (ImGui::BeginMenu("Ray Tracing"))
                 {
@@ -2107,7 +2095,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Animation off", "Space", s->stopAnimations()))
                 s->stopAnimations(!s->stopAnimations());
 
-#ifndef SL_EMSCRIPTEN
             ImGui::Separator();
 
             if (ImGui::BeginMenu("Viewport Aspect"))
@@ -2149,7 +2136,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
-#endif
 
             // Rotation and Location Sensor
 #if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
@@ -2226,7 +2212,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
             }
 #endif
 
-#ifndef SL_EMSCRIPTEN
             if (ImGui::BeginMenu("Video Sensor"))
             {
                 CVCamera* ac = capture->activeCamera;
@@ -2267,6 +2252,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+#ifndef SL_EMSCRIPTEN
                 if (ImGui::BeginMenu("Calibration"))
                 {
                     if (ImGui::MenuItem("Start Calibration (Main Camera)"))
@@ -2340,10 +2326,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 
                     ImGui::EndMenu();
                 }
+#endif
 
                 ImGui::EndMenu();
             }
-#endif
 
             ImGui::Separator();
 
