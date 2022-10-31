@@ -56,7 +56,10 @@ CVMat WebCamera::read()
 
     // Recreate the image if the size has changed
     if (size.width != _image.cols || size.height != _image.rows)
+    {
         _image = CVMat(size.height, size.width, CV_8UC4);
+        _waitingForResize = false;
+    }
 
     // clang-format off
     MAIN_THREAD_EM_ASM({
@@ -104,8 +107,19 @@ CVSize2i WebCamera::getSize()
 //-----------------------------------------------------------------------------
 void WebCamera::setSize(CVSize2i size)
 {
-    if (!isReady() || (size.width == _image.cols && size.height == _image.rows))
+    // Return if the stream is still loading
+    if(!isReady())
         return;
+
+    // Return if we are already waiting for the resize
+    if(_waitingForResize)
+        return;
+
+    // Return if the new size is equal to the old size
+    if (size.width == _image.cols && size.height == _image.rows)
+        return;
+
+    _waitingForResize = true;
 
     // clang-format off
     MAIN_THREAD_EM_ASM({

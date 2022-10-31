@@ -28,9 +28,10 @@ public:
     bool isOpened() { return _isOpened; }
 
 private:
-    bool  _isOpened = false;
-    CVMat _image;
-    CVMat _imageCopy;
+    bool     _isOpened = false;
+    CVMat    _image;
+    CVMat    _imageCopy;
+    bool     _waitingForResize = false;
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_WEBCAMERA_H

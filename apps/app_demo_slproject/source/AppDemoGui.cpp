@@ -712,7 +712,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 
-#ifndef SL_EMSCRIPTEN
             if (showStatsVideo)
             {
                 SLchar m[2550]; // message character array
@@ -763,6 +762,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
                 sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
+#ifndef SL_EMSCRIPTEN
                 if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                 {
                     sprintf(m + strlen(m), "-------------:\n");
@@ -779,6 +779,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                     }
                 }
+#endif
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -787,7 +788,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
-#endif
 #ifdef SL_BUILD_WAI
             if (showStatsWAI && AppDemo::sceneID == SID_VideoTrackWAI)
             {
