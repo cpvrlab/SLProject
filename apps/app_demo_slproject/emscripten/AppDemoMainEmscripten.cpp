@@ -443,13 +443,12 @@ bool onPaint()
     return jobIsRunning || viewsNeedsRepaint;
 }
 //-----------------------------------------------------------------------------
-EM_BOOL onLoop(double time, void* userData)
+void onLoop()
 {
     onPaint();
-    return EM_TRUE;
 }
 //-----------------------------------------------------------------------------
-void runApp()
+int main(void)
 {
     canvasWidth  = MAIN_THREAD_EM_ASM_INT(return window.innerWidth);
     canvasHeight = MAIN_THREAD_EM_ASM_INT(return window.innerHeight);
@@ -521,12 +520,8 @@ void runApp()
     // We cannot loop ourselves because that would block the page,
     // but we can register an update function to be called in every iteration
     // of the JavaScript event loop.
-    emscripten_request_animation_frame_loop(onLoop, nullptr);
-}
-//-----------------------------------------------------------------------------
-int main(void)
-{
-    runApp();
+    emscripten_set_main_loop(onLoop, 0, true);
+
     return 0;
 }
 //-----------------------------------------------------------------------------

@@ -18,14 +18,17 @@ void WebCamera::open()
     MAIN_THREAD_EM_ASM({
         console.log("[WebCamera] Requesting stream...");
 
-        let constraints = { "video": true };
+        // We can't use object literals because that breaks EM_ASM for some reason
+        let videoConstraints = {};
+        videoConstraints["width"] = 1280;
+        videoConstraints["height"] = 720;
+        let constraints = { "video": videoConstraints };
+
         navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
                 console.log("[WebCamera] Stream acquired");
 
                 let video = document.querySelector("#capture-video");
-                let canvas = document.querySelector("#capture-canvas");
-
                 video.srcObject = stream;
             })
             .catch(error => {
@@ -100,12 +103,14 @@ void WebCamera::close()
         let video = document.querySelector("#capture-video");
         let stream = video.srcObject;
 
-        stream.getVideoTracks().forEach(track => {
-            if (track.readyState == "live") {
-                track.stop();
-                stream.removeTrack(track);
-            }
-        });
+        if (stream !== null) {
+            stream.getVideoTracks().forEach(track => {
+                if (track.readyState == "live") {
+                    track.stop();
+                    stream.removeTrack(track);
+                }
+            });
+        }
 
         console.log("[WebCamera] Tracks closed");
     });
