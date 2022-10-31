@@ -41,36 +41,22 @@ void WebCamera::open()
     _isOpened = true;
 }
 //-----------------------------------------------------------------------------
+bool WebCamera::isReady()
+{
+    return _image.cols != 0 && _image.rows != 0;
+}
+//-----------------------------------------------------------------------------
 CVMat WebCamera::read()
 {
-    if (!_isImageAllocated)
-    {
-        int32_t width;
-        int32_t height;
+    CVSize2i size = getSize();
 
-        // clang-format off
-        MAIN_THREAD_EM_ASM({
-            let video = document.querySelector("#capture-video");
-            let width = video.videoWidth;
-            let height = video.videoHeight;
+    // If the width or the height is zero, the video is not ready
+    if (size.width == 0 || size.height == 0)
+        return CVMat(0, 0, CV_8UC4);
 
-            if (width != 0 && height != 0)
-                console.log("[WebCamera] Resolution: " + width + "x" + height);
-
-            setValue($0, video.videoWidth, "i32");
-            setValue($1, video.videoHeight, "i32");
-        }, &width, &height);
-        // clang-format on
-
-        // If the width or the height is zero, the video is not ready
-        if (width == 0 || height == 0)
-            return CVMat(0, 0, CV_8UC4);
-
-        // Allocate the image data
-        uchar* data       = new uchar[4 * (int64_t)width * (int64_t)height];
-        _image            = CVMat(height, width, CV_8UC4, data);
-        _isImageAllocated = true;
-    }
+    // Recreate the image if the size has changed
+    if (size.width != _image.cols || size.height != _image.rows)
+        _image = CVMat(size.height, size.width, CV_8UC4);
 
     // clang-format off
     MAIN_THREAD_EM_ASM({
@@ -93,7 +79,54 @@ CVMat WebCamera::read()
     }, _image.data);
     // clang-format on
 
-    return _image.clone();
+    _image.copyTo(_imageCopy);
+    return _imageCopy;
+}
+//-----------------------------------------------------------------------------
+CVSize2i WebCamera::getSize()
+{
+    int32_t width;
+    int32_t height;
+
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        let video = document.querySelector("#capture-video");
+        let width = video.videoWidth;
+        let height = video.videoHeight;
+
+        setValue($0, video.videoWidth, "i32");
+        setValue($1, video.videoHeight, "i32");
+    }, &width, &height);
+    // clang-format on
+
+    return CVSize2i(width, height);
+}
+//-----------------------------------------------------------------------------
+void WebCamera::setSize(CVSize2i size)
+{
+    if (!isReady() || (size.width == _image.cols && size.height == _image.rows))
+        return;
+
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        let video = document.querySelector("#capture-video");
+        let stream = video.srcObject;
+
+        if (stream === null)
+            return;
+
+        // We can't use object literals because that breaks EM_ASM for some reason
+        let constraints = {};
+        constraints["width"] = $0;
+        constraints["height"] = $1;
+
+        stream.getVideoTracks().forEach(track => {
+            track.applyConstraints(constraints);
+        });
+
+        console.log("[WebCamera] Applied resolution " + $0 + "x" + $1);
+    }, size.width, size.height);
+    // clang-format on
 }
 //-----------------------------------------------------------------------------
 void WebCamera::close()
@@ -103,20 +136,19 @@ void WebCamera::close()
         let video = document.querySelector("#capture-video");
         let stream = video.srcObject;
 
-        if (stream !== null) {
-            stream.getVideoTracks().forEach(track => {
-                if (track.readyState == "live") {
-                    track.stop();
-                    stream.removeTrack(track);
-                }
-            });
+        if (stream === null) {
+            console.log("[WebCamera] Stream is already closed");
         }
 
-        console.log("[WebCamera] Tracks closed");
+        stream.getVideoTracks().forEach(track => {
+            if (track.readyState == "live") {
+                track.stop();
+                stream.removeTrack(track);
+            }
+        });
+
+        console.log("[WebCamera] Stream closed");
     });
     // clang-format on
-
-    delete[] _image.data;
-    _isImageAllocated = false;
 }
 //-----------------------------------------------------------------------------

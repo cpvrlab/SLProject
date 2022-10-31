@@ -17,16 +17,20 @@
 class WebCamera
 {
 public:
-    void  open();
-    CVMat read();
-    void  close();
+    void     open();
+    bool     isReady();
+    CVMat    read();
+    CVSize2i getSize();
+    void     setSize(CVSize2i size);
+    void     close();
 
+    // Getters
     bool isOpened() { return _isOpened; }
 
 private:
     bool  _isOpened = false;
     CVMat _image;
-    bool  _isImageAllocated = false;
+    CVMat _imageCopy;
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_WEBCAMERA_H

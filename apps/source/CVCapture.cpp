@@ -102,6 +102,14 @@ CVSize2i CVCapture::open(int deviceNum)
     }
 #else
     _webCamera.open();
+
+    // We can't query the actual resolution of the camera because that is considered a security risk.
+    // Therefore, we list some common resolutions. If the camera doesn't support the requested resolution,
+    // the browser will simply switch to a supported one.
+    camSizes           = {CVSize2i(640, 480),
+                CVSize2i(1280, 720),
+                CVSize2i(1920, 1080)};
+    activeCamSizeIndex = 0;
 #endif
 
     return CVSize2i(0, 0);
@@ -265,6 +273,9 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
         SL_LOG("Web camera is not open!");
         return false;
     }
+
+    if (activeCamera->camSizeIndex() != -1)
+        _webCamera.setSize(camSizes[activeCamera->camSizeIndex()]);
 
     lastFrame = _webCamera.read();
     adjustForSL(viewportWdivH);
@@ -502,7 +513,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    if(!lastFrame.empty())
+    if (!lastFrame.empty())
     {
 #ifndef SL_EMSCRIPTEN
         cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
