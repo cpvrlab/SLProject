@@ -431,22 +431,18 @@ void SLGLState::bindTexture(SLenum target, SLuint textureID)
  */
 void SLGLState::activeTexture(SLenum textureUnit)
 {
-    assert((textureUnit - GL_TEXTURE0) <= _glMaxTexUnits && "To many texture units!");
+    if ((textureUnit - GL_TEXTURE0) > _glMaxTexUnits)
+        SL_LOG("******* To many texture units: %i used of %i",
+               (SLint)textureUnit - GL_TEXTURE0,
+               _glMaxTexUnits);
 
-    // (luc) If we call glActiveTexture and glBindTexture from outside,
-    // This will lead to problems as the global state in SLGLState will not be
-    // equivalent to the OpenGL state.
-    // We should solve this by querying opengl for the last binded texture.
-    // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
-    // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
+    assert((textureUnit - GL_TEXTURE0) <= _glMaxTexUnits &&
+           "To many texture units!");
 
-    // if (textureUnit != _textureUnit)
-    {
-        glActiveTexture(textureUnit);
-        _textureUnit = textureUnit;
+    glActiveTexture(textureUnit);
+    _textureUnit = textureUnit;
 
-        GET_GL_ERROR;
-    }
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::unbindAnythingAndFlush unbinds all shaderprograms and buffers in
