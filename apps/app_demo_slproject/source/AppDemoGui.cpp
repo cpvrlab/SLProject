@@ -1002,6 +1002,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
                 sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
                 sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+                sprintf(m + strlen(m), "OpenGL Tex.Units : %i\n", stateGL->glMaxTexUnits());
+                sprintf(m + strlen(m), "OpenGL Tex.Size  : %i\n", stateGL->glMaxTexSize());
                 sprintf(m + strlen(m), "-----------------:\n");
                 sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
                 sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");

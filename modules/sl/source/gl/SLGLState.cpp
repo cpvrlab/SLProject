@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      SLGLState.cpp
-//  Purpose:   Singleton class implementation for global OpenGL replacement
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLGLState.cpp
+//   Purpose:   Singleton class implementation for global OpenGL replacement
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <SLGLState.h>
 #include <SLMaterial.h>
@@ -50,6 +50,8 @@ void SLGLState::initAll()
     _glSLVersionNO = getSLVersionNO();
     _glIsES2       = (_glVersion.find("OpenGL ES 2") != string::npos);
     _glIsES3       = (_glVersion.find("OpenGL ES 3") != string::npos);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_glMaxTexUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_glMaxTexSize);
 
 // Get extensions
 #ifndef APP_USES_GLES
@@ -84,11 +86,11 @@ void SLGLState::initAll()
     _clearColor.set(-1, -1, -1, -1);
 
     // Reset all cached states to an invalid state
-    _programID     = 0;
-    _colorMaskR    = -1;
-    _colorMaskG    = -1;
-    _colorMaskB    = -1;
-    _colorMaskA    = -1;
+    _programID  = 0;
+    _colorMaskR = -1;
+    _colorMaskG = -1;
+    _colorMaskB = -1;
+    _colorMaskA = -1;
 
     _isInitialized = true;
 
@@ -429,7 +431,9 @@ void SLGLState::bindTexture(SLenum target, SLuint textureID)
  */
 void SLGLState::activeTexture(SLenum textureUnit)
 {
-    // (luc) If there we call glActiveTexture and glBindTexture from outside,
+    assert((textureUnit - GL_TEXTURE0) <= _glMaxTexUnits && "To many texture units!");
+
+    // (luc) If we call glActiveTexture and glBindTexture from outside,
     // This will lead to problems as the global state in SLGLState will not be
     // equivalent to the OpenGL state.
     // We should solve this by querying opengl for the last binded texture.
