@@ -30,13 +30,10 @@
 erleb-AR
 data/shaders/*.spv
 data/*erleb-AR*
+data/calibrations/*
+data/images/*
 data/models/*
-data/images/sequences/rgbd_dataset_
-data/images/sequences/rgbd_dataset_freiburg1_desk
-data/calibrations/orb-slam-state-*
-data/calibrations/street*
-data/calibrations/ORBvoc.txt
-data/calibrations/imgs
+data/opencv/*
 data/videos
 data/screenshots
 data/slam-maps
