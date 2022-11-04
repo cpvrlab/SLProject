@@ -1543,6 +1543,21 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     set(assimp_LIBS ${assimp_LINK_LIBS})
 
     download_lib(${assimp_PREBUILT_DIR})
+
+    ######################
+    # ktx for Emscripten #
+    ######################
+
+    set(ktx_VERSION "v4.1.0-rc3")
+    set(ktx_DIR ${PREBUILT_PATH}/emscripten_ktx_${ktx_VERSION})
+    add_library(KTX::ktx STATIC IMPORTED)
+    set_target_properties(KTX::ktx
+            PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/lib/libktx.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
+
+    set(ktx_LIBS KTX::ktx)
 endif ()
 #==============================================================================
 

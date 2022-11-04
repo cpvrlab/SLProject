@@ -590,17 +590,27 @@ void SLGLTexture::load(const SLstring& filename,
     if (ext == "ktx2")
     {
 #ifdef SL_BUILD_WITH_KTX
-        _ktxFileName         = filename;
-        _compressedTexture   = true;
-        KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
-                                                              KTX_TEXTURE_CREATE_NO_FLAGS,
-                                                              (ktxTexture**)&_ktxTexture);
+        _ktxFileName       = filename;
+        _compressedTexture = true;
+
+        SLIOBuffer     buffer = SLFileStorage::readIntoBuffer(filename, IOK_image);
+        KTX_error_code error  = ktxTexture_CreateFromMemory(buffer.data,
+                                                           buffer.size,
+                                                           KTX_TEXTURE_CREATE_NO_FLAGS,
+                                                           (ktxTexture**)&_ktxTexture);
+        // KTX apparently takes ownership of the data, so no deallocation
+
         if (error != KTX_SUCCESS)
         {
             string errStr = "Error in SLGLTexture::load: " +
                             ktxErrorStr(error) + " in file: " + filename;
             SL_EXIT_MSG(errStr.c_str());
         }
+
+#    ifdef SL_EMSCRIPTEN
+        // WebGL doesn't support generating mipmaps for compressed textures
+        _ktxTexture->generateMipmaps = false;
+#    endif
 
         if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
@@ -619,6 +629,13 @@ void SLGLTexture::load(const SLstring& filename,
             _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
 #    elif defined(SL_OS_ANDROID)
             _compressionFormat = KTX_TTF_ETC2_RGBA;
+#    elif defined(SL_EMSCRIPTEN)
+            if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_s3tc"))
+                _compressionFormat = KTX_TTF_BC3_RGBA;
+            if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_etc"))
+                _compressionFormat = KTX_TTF_ETC2_RGBA;
+            else
+                SL_EXIT_MSG("No valid compression format found for this WebGL context");
 #    else
             _compressionFormat = KTX_TTF_BC3_RGBA;
 #    endif
@@ -1106,7 +1123,7 @@ void SLGLTexture::build(SLint texUnit)
                 glGenerateMipmap(GL_TEXTURE_2D);
 
                 // Mipmaps use 1/3 more memory on GPU
-                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * (4.0f / 3.0f));
             }
         }
 
