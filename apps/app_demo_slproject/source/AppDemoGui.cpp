@@ -2387,7 +2387,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Mesh Wired", "M", sv->drawBits()->get(SL_DB_MESHWIRED)))
                     sv->drawBits()->toggle(SL_DB_MESHWIRED);
 
-                if (ImGui::MenuItem("Width hard edges", "H", sv->drawBits()->get(SL_DB_WITHEDGES)))
+                if (ImGui::MenuItem("With hard edges", "H", sv->drawBits()->get(SL_DB_WITHEDGES)))
                     sv->drawBits()->toggle(SL_DB_WITHEDGES);
 
                 if (ImGui::MenuItem("Only hard edges", "O", sv->drawBits()->get(SL_DB_ONLYEDGES)))
