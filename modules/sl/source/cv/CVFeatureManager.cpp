@@ -35,15 +35,16 @@ CVFeatureManager::~CVFeatureManager()
 //! Creates a detector and decriptor to the passed type
 void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
 {
-#ifndef __EMSCRIPTEN__
     switch (type)
     {
+#ifndef __EMSCRIPTEN__
         case DDT_FAST_BRIEF:
             _detector   = cv::FastFeatureDetector::create(30,
                                                         true,
                                                         cv::FastFeatureDetector::TYPE_9_16);
             _descriptor = cv::xfeatures2d::BriefDescriptorExtractor::create(32, true);
             break;
+#endif
         case DDT_ORB_ORB:
             _detector   = cv::ORB::create(200,
                                         1.44f,
@@ -64,6 +65,7 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
                                          20);
             _descriptor = _detector;
             break;
+#ifndef __EMSCRIPTEN__
         case DDT_SURF_SURF:
             _detector   = cv::xfeatures2d::SURF::create(100,
                                                       2,
@@ -73,21 +75,22 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
             _descriptor = _detector;
             break;
         case DDT_SIFT_SIFT:
-#if CV_MAJOR_VERSION == 4 && CV_MINOR_VERSION == 5
+#    if CV_MAJOR_VERSION == 4 && CV_MINOR_VERSION == 5
             _detector = cv::SIFT::create(300,
                                          2,
                                          0.04,
                                          10,
                                          1.6);
-#else
+#    else
             _detector = cv::xfeatures2d::SIFT::create(300,
                                                       2,
                                                       0.04,
                                                       10,
                                                       1.6);
-#endif
+#    endif
             _descriptor = _detector;
             break;
+#endif
         default:
             Utils::exitMsg("SLProject",
                            "Unknown detector-descriptor type.",
@@ -96,7 +99,6 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
     }
 
     _type = type;
-#endif
 }
 //-----------------------------------------------------------------------------
 //! Sets the detector and decriptor to the passed ones

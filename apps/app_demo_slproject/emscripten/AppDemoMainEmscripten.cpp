@@ -469,7 +469,7 @@ int main(void)
     if (context > 0)
         SL_LOG("WebGL context created.");
     else
-        SL_EXIT_MSG("Failed to created WebGL context.");
+        SL_EXIT_MSG("Failed to create WebGL context.");
 
     EMSCRIPTEN_RESULT result = emscripten_webgl_make_context_current(context);
     if (result == EMSCRIPTEN_RESULT_SUCCESS)
@@ -489,8 +489,9 @@ int main(void)
     emscripten_set_touchmove_callback("#canvas", nullptr, true, emOnTouchMove);
     emscripten_set_beforeunload_callback(nullptr, emOnUnload);
 
-    SLVstring args;
+    AppDemo::calibIniPath = "data/calibrations/";
 
+    SLVstring args;
     slCreateAppAndScene(
       args,
       "data/",

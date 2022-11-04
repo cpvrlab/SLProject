@@ -1,6 +1,5 @@
 #include <SLIONative.h>
 
-#if 1
 //-----------------------------------------------------------------------------
 SLIOReaderNative::SLIOReaderNative(SLstring path)
   : _stream(path, std::ios::binary)
@@ -80,4 +79,3 @@ void SLIOWriterNative::flush()
     _stream.flush();
 }
 //-----------------------------------------------------------------------------
-#endif

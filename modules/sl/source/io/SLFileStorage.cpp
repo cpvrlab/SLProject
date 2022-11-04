@@ -38,7 +38,12 @@ SLIOStream* SLFileStorage::open(SLstring       path,
         else if (kind == IOK_image || kind == IOK_model || kind == IOK_font)
             return new SLIOReaderFetch(path);
         else if (kind == IOK_config)
-            return new SLIOReaderLocalStorage(path);
+        {
+            if (SLIOLocalStorage::exists(path))
+                return new SLIOReaderLocalStorage(path);
+            else
+                return new SLIOReaderFetch(path);
+        }
     }
     else if (mode == IOM_write)
     {
@@ -71,7 +76,7 @@ bool SLFileStorage::exists(SLstring path, SLIOStreamKind kind)
     if (kind == IOK_shader)
         return SLIOMemory::exists(path) || SLIOReaderFetch::exists(path);
     else if (kind == IOK_config)
-        return SLIOLocalStorage::exists(path);
+        return SLIOLocalStorage::exists(path) || SLIOReaderFetch::exists(path);
     else
         return SLIOReaderFetch::exists(path);
 #endif

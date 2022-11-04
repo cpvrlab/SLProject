@@ -101,7 +101,10 @@ CVSize2i CVCapture::open(int deviceNum)
         Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
     }
 #else
-    _webCamera.open();
+    WebCameraFacing facing;
+    if (_videoType == VT_MAIN) facing = WebCameraFacing::FRONT;
+    else if(_videoType == VT_SCND) facing = WebCameraFacing::BACK;
+    _webCamera.open(facing);
 
     // We can't query the actual resolution of the camera because that is considered a security risk.
     // Therefore, we list some common resolutions. If the camera doesn't support the requested resolution,
@@ -388,11 +391,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
 {
     PROFILE_FUNCTION();
 
-#ifndef SL_EMSCRIPTEN
     format = CVImage::cvType2glPixelFormat(lastFrame.type());
-#else
-    format = PF_rgba;
-#endif
 
     //////////////////////////////////////
     // 1) Check if capture size changed //
@@ -514,13 +513,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // Android image copy loop #4
 
     if (!lastFrame.empty())
-    {
-#ifndef SL_EMSCRIPTEN
         cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
-#else
-        cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_RGBA2GRAY);
-#endif
-    }
 
 #ifndef SL_EMSCRIPTEN
     // Reset calibrated image size

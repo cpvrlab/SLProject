@@ -742,14 +742,12 @@ void appDemoLoadScene(SLAssetManager* am,
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
-#ifndef SL_EMSCRIPTEN
+    CVCapture::instance()->videoType(VT_NONE); // turn off any video
+
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes(); // delete all tracker times
     delete tracker;
     tracker = nullptr;
-#endif
-
-    CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
     // Reset asset pointer from previous scenes
     videoTexture = nullptr; // The video texture will be deleted by scene uninit
@@ -3676,7 +3674,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTrackChessMain ||
              sceneID == SID_VideoTrackChessScnd ||
              sceneID == SID_VideoCalibrateMain ||
@@ -3788,6 +3785,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
+#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTrackArucoMain ||
              sceneID == SID_VideoTrackArucoScnd) //................................................
     {
@@ -3864,6 +3862,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
+#endif
     else if (sceneID == SID_VideoTrackFeature2DMain) //............................................
     {
         /*
@@ -3996,11 +3995,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
-                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
-                                     3);
-        trackedNode = cam1;
-        tracker->drawDetection(true);
+//        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
+//                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
+//                                     3);
+//        trackedNode = cam1;
+//        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4135,7 +4134,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
-
     else if (sceneID == SID_ErlebARBernChristoffel) //.............................................
     {
         s->name("Christoffel Tower AR");
@@ -4280,11 +4278,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -4293,7 +4291,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4392,11 +4390,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -4405,7 +4403,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4539,11 +4537,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -4552,7 +4550,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4685,11 +4683,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -4698,7 +4696,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4868,11 +4866,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -4881,7 +4879,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4991,11 +4989,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -5004,7 +5002,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -5111,11 +5109,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -5124,7 +5122,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(0, cam1->translationWS().y, 0);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -5235,11 +5233,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -5248,7 +5246,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -5360,11 +5358,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring tif = dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
         AppDemo::devLoc.loadGeoTiff(tif);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         AppDemo::devLoc.isUsed(true);
         AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         AppDemo::devLoc.isUsed(false);
         AppDemo::devRot.isUsed(false);
         SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
@@ -5373,12 +5371,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(pos_f.length());
         cam1->lookAt(SLVec3f::ZERO);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
-#endif
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");

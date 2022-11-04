@@ -762,7 +762,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
                 sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
-#ifndef SL_EMSCRIPTEN
                 if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                 {
                     sprintf(m + strlen(m), "-------------:\n");
@@ -779,7 +778,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                     }
                 }
-#endif
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1742,6 +1740,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackArucoScnd);
+#endif
                     if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                         s->onLoad(am, s, sv, SID_VideoTrackChessMain);
                     if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
@@ -1754,7 +1753,6 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);
-#endif
 #ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(am, s, sv, SID_VideoTrackWAI);

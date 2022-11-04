@@ -682,11 +682,7 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
 {
     PROFILE_FUNCTION();
 
-#ifndef SL_EMSCRIPTEN
     CVPixelFormatGL pixelFormat = PF_rgb;
-#else
-    CVPixelFormatGL pixelFormat = PF_rgba;
-#endif
 
     // Add image for the first time
     if (_images.empty())

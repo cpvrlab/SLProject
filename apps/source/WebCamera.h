@@ -14,10 +14,16 @@
 #include <CVTypedefs.h>
 
 //-----------------------------------------------------------------------------
+enum class WebCameraFacing
+{
+    FRONT = 0,
+    BACK = 1
+};
+//-----------------------------------------------------------------------------
 class WebCamera
 {
 public:
-    void     open();
+    void     open(WebCameraFacing facing);
     bool     isReady();
     CVMat    read();
     CVSize2i getSize();
@@ -30,7 +36,7 @@ public:
 private:
     bool     _isOpened = false;
     CVMat    _image;
-    CVMat    _imageCopy;
+    CVMat    _imageBGR;
     bool     _waitingForResize = false;
 };
 //-----------------------------------------------------------------------------

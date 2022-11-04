@@ -10,6 +10,7 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
+#include <cv/CVTracked.h>
 #include <cv/CVTrackedAruco.h>
 #include <SLGLTexture.h>
 #include <cv/CVCalibrationEstimator.h>
@@ -27,11 +28,9 @@
  It gets updated in the following onUpdateTracking routine */
 SLGLTexture* videoTexture = nullptr;
 
-#ifndef SL_EMSCRIPTEN
 /*! Global pointer for a tracker that is set in AppDemoLoad for video scenes
  It gets updated in the following onUpdateTracking routine */
 CVTracked* tracker = nullptr;
-#endif
 
 /*! Global pointer to a node that from witch the tracker changes the pose.
  it gets updated in the following onUpdateTracking routine */
@@ -242,7 +241,6 @@ bool onUpdateVideo()
         }
         else
         {
-#ifndef SL_EMSCRIPTEN
             ensureValidCalibration(ac, sv);
             // Attention: Always update scene camera fovV from calibration because the calibration may have
             // been adapted in adjustForSL after a change of aspect ratio!
@@ -283,7 +281,6 @@ bool onUpdateVideo()
                 else
                     trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
             }
-#endif
 
             // Update info text only for chessboard scene
             if (AppDemo::sceneID == SID_VideoCalibrateMain ||

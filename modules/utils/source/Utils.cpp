@@ -900,7 +900,9 @@ void removeFile(const string& path)
 // Returns true if a file exists.
 bool fileExists(const string& pathfilename)
 {
-#if defined(USE_STD_FILESYSTEM)
+#if defined(__EMSCRIPTEN__)
+    return false;
+#elif defined(USE_STD_FILESYSTEM)
     return fs::exists(pathfilename);
 #else
     struct stat info

@@ -17,6 +17,7 @@ for a good top down information.
 */
 
 #include <cv/CVTrackedChessboard.h>
+#include <SLFileStorage.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
@@ -40,10 +41,10 @@ CVTrackedChessboard::CVTrackedChessboard(string calibIniPath)
 //-----------------------------------------------------------------------------
 bool CVTrackedChessboard::loadCalibParams()
 {
-    cv::FileStorage fs;
-    string          fullCalibIniFile = _calibIniPath + _calibParamsFileName;
+    string        fullCalibIniFile = _calibIniPath + _calibParamsFileName;
+    SLstring      configString     = SLFileStorage::readIntoString(fullCalibIniFile, IOK_config);
+    CVFileStorage fs(configString, CVFileStorage::READ | CVFileStorage::MEMORY);
 
-    fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
         Utils::log("SLProject", "Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());

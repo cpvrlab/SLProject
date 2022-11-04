@@ -24,10 +24,14 @@ enum CVFeatureType
 //! Feature detector-decriptor types
 enum CVDetectDescribeType
 {
+#ifndef __EMSCRIPTEN__
     DDT_FAST_BRIEF,
+#endif
     DDT_RAUL_RAUL,
     DDT_ORB_ORB,
+#ifndef __EMSCRIPTEN__
     DDT_SURF_SURF,
+#endif
     DDT_SIFT_SIFT
 };
 //-----------------------------------------------------------------------------

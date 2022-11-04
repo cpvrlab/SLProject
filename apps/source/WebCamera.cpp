@@ -12,19 +12,17 @@
 #include <emscripten.h>
 
 //-----------------------------------------------------------------------------
-void WebCamera::open()
+void WebCamera::open(WebCameraFacing facing)
 {
     // clang-format off
     MAIN_THREAD_EM_ASM({
         console.log("[WebCamera] Requesting stream...");
 
-        // We can't use object literals because that breaks EM_ASM for some reason
-        let videoConstraints = {};
-        videoConstraints["width"] = 1280;
-        videoConstraints["height"] = 720;
-        let constraints = { "video": videoConstraints };
+        let facingMode;
+        if ($0 == 0) facingMode = "user";
+        else if ($0 == 1) facingMode = "environment";
 
-        navigator.mediaDevices.getUserMedia(constraints)
+        navigator.mediaDevices.getUserMedia({ "video": { "facingMode": facingMode } })
             .then(stream => {
                 console.log("[WebCamera] Stream acquired");
 
@@ -35,7 +33,7 @@ void WebCamera::open()
                 console.log("[WebCamera] Failed to acquire stream");
                 console.log(error);
             });
-    });
+    }, facing);
     // clang-format on
 
     _isOpened = true;
@@ -52,7 +50,7 @@ CVMat WebCamera::read()
 
     // If the width or the height is zero, the video is not ready
     if (size.width == 0 || size.height == 0)
-        return CVMat(0, 0, CV_8UC4);
+        return CVMat(0, 0, CV_8UC3);
 
     // Recreate the image if the size has changed
     if (size.width != _image.cols || size.height != _image.rows)
@@ -82,8 +80,12 @@ CVMat WebCamera::read()
     }, _image.data);
     // clang-format on
 
-    _image.copyTo(_imageCopy);
-    return _imageCopy;
+    if (_imageBGR.size != _image.size)
+        _imageBGR = CVMat(_image.rows, _image.cols, CV_8UC3);
+
+    cv::cvtColor(_image, _imageBGR, cv::COLOR_RGBA2BGR);
+
+    return _imageBGR;
 }
 //-----------------------------------------------------------------------------
 CVSize2i WebCamera::getSize()
