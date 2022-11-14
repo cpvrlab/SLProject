@@ -1,6 +1,11 @@
-//
-// Created by vwm1 on 11/10/2022.
-//
+//#############################################################################
+//  File:      SLIOMemory.h
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #ifndef SLPROJECT_SLIOMEMORY_H
 #define SLPROJECT_SLIOMEMORY_H
@@ -9,6 +14,7 @@
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
+//! Collection of functions for accessing files stored in memory
 namespace SLIOMemory
 {
 bool exists(SLstring path);
@@ -17,6 +23,7 @@ void set(SLstring path, const std::vector<char>& data);
 void clear(SLstring path);
 }
 //-----------------------------------------------------------------------------
+//! SLIOStream implementation for reading from memory
 class SLIOReaderMemory : public SLIOStream
 {
 public:
@@ -31,6 +38,7 @@ protected:
     size_t   _position;
 };
 //-----------------------------------------------------------------------------
+//! SLIOStream implementation for reading to memory
 class SLIOWriterMemory : public SLIOStream
 {
 public:

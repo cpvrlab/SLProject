@@ -1,18 +1,30 @@
-#include <SLIOBrowserDisplay.h>
+//#############################################################################
+//  File:      SLIOBrowserDisplay.cpp
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+#include <SLIOBrowserPopup.h>
+#include <Utils.h>
+#include <cassert>
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-SLIOWriterBrowserDisplay::SLIOWriterBrowserDisplay(SLstring path)
+SLIOWriterBrowserPopup::SLIOWriterBrowserPopup(SLstring path)
   : SLIOWriterMemory(path)
 {
+    assert(Utils::endsWithString(path, ".png") && "SLIOWriteBrowserDisplay only supports PNG files");
 }
 //-----------------------------------------------------------------------------
-SLIOWriterBrowserDisplay::~SLIOWriterBrowserDisplay()
+SLIOWriterBrowserPopup::~SLIOWriterBrowserPopup()
 {
     SLIOMemory::clear(_path);
 }
 //-----------------------------------------------------------------------------
-void SLIOWriterBrowserDisplay::flush()
+void SLIOWriterBrowserPopup::flush()
 {
     std::vector<char>& buffer = SLIOMemory::get(_path);
     const char*        data   = buffer.data();

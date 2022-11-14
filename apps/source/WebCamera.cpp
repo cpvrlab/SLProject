@@ -12,6 +12,14 @@
 #include <emscripten.h>
 
 //-----------------------------------------------------------------------------
+//! Acquires a video stream
+/*!
+ * Requests a video stream from the browser and assigns it to the HTML video
+ * object as soon as it is ready. It must be called before accessing any of
+ * the other member functions. The function does not block, so the stream may
+ * not be ready yet after it returns.
+ * @param facing Preferred facing mode on mobile
+ */
 void WebCamera::open(WebCameraFacing facing)
 {
     // clang-format off
@@ -39,11 +47,24 @@ void WebCamera::open(WebCameraFacing facing)
     _isOpened = true;
 }
 //-----------------------------------------------------------------------------
+//! Returns whether the video stream has been acquired
+/*!
+ * The video stream is not immediately available when calling WebCamera::open.
+ * This function can be used to determine if the user has allowed camera
+ * access and if it is ready for reading.
+ * @return True if the stream has been acquired
+ */
 bool WebCamera::isReady()
 {
     return _image.cols != 0 && _image.rows != 0;
 }
 //-----------------------------------------------------------------------------
+//! Reads the current frame
+/*!
+ * If the video stream is ready, copies the current frame from the video HTML
+ * element into a CVMat in BGR format. Returns an empty image otherwise.
+ * @return The CVMat containing the image data in BGR format
+ */
 CVMat WebCamera::read()
 {
     CVSize2i size = getSize();
@@ -88,6 +109,12 @@ CVMat WebCamera::read()
     return _imageBGR;
 }
 //-----------------------------------------------------------------------------
+//! Gets the size of the video input
+/*!
+ * The size is determined by getting the width and height of the HTML video
+ * element.
+ * @return The size of the video input
+ */
 CVSize2i WebCamera::getSize()
 {
     int32_t width;
@@ -107,6 +134,13 @@ CVSize2i WebCamera::getSize()
     return CVSize2i(width, height);
 }
 //-----------------------------------------------------------------------------
+//! Requests a video size from the browser
+/*!
+ * The function tries to resize the video size. It is not guaranteed that this
+ * will have any effect or that the size after resizing will be equal to the
+ * size provided because the browser may not support it.
+ * @param size Preferred size of the video
+ */
 void WebCamera::setSize(CVSize2i size)
 {
     // Return if the stream is still loading
@@ -145,6 +179,11 @@ void WebCamera::setSize(CVSize2i size)
     // clang-format on
 }
 //-----------------------------------------------------------------------------
+//! Closes the video stream
+/*!
+ * After calling this function, the camera must be reopened before accessing
+ * any of the other member functions.
+ */
 void WebCamera::close()
 {
     // clang-format off

@@ -1,13 +1,19 @@
-//
-// Created by vwm1 on 11/10/2022.
-//
+//#############################################################################
+//  File:      SLIONative.h
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #ifndef SLPROJECT_SLIONATIVE_H
 #define SLPROJECT_SLIONATIVE_H
 
 #include <SLFileStorage.h>
 
-#if 1
+#ifndef SL_EMSCRIPTEN
+//! SLIOStream implementation for reading from native files
 //-----------------------------------------------------------------------------
 class SLIOReaderNative : public SLIOStream
 {
@@ -22,6 +28,7 @@ private:
     std::ifstream _stream;
 };
 //-----------------------------------------------------------------------------
+//! SLIOStream implementation for writing to native files
 class SLIOWriterNative : public SLIOStream
 {
 public:

@@ -170,8 +170,8 @@ file(GLOB sources
         source/input/SLUiInterface.h
         source/io/SLFileStorage.cpp
         source/io/SLFileStorage.h
-        source/io/SLIOBrowserDisplay.cpp
-        source/io/SLIOBrowserDisplay.h
+        source/io/SLIOBrowserPopup.cpp
+        source/io/SLIOBrowserPopup.h
         source/io/SLIOFetch.cpp
         source/io/SLIOFetch.h
         source/io/SLIOLocalStorage.cpp

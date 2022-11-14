@@ -14,12 +14,14 @@
 #include <CVTypedefs.h>
 
 //-----------------------------------------------------------------------------
+//! Facing modes for the camera
 enum class WebCameraFacing
 {
     FRONT = 0,
     BACK = 1
 };
 //-----------------------------------------------------------------------------
+//! Interface to access the camera in the browser
 class WebCamera
 {
 public:

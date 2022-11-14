@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SLFileStorage.h
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SLPROJECT_SLFILESTORAGE_H
 #define SLPROJECT_SLFILESTORAGE_H
 
@@ -13,12 +22,14 @@
 #endif
 
 //-----------------------------------------------------------------------------
+//! Utility struct that holds a pointer and its length
 struct SLIOBuffer
 {
     unsigned char* data;
     size_t         size;
 };
 //-----------------------------------------------------------------------------
+//! Enum of file kinds
 enum SLIOStreamKind
 {
     IOK_generic,
@@ -29,12 +40,20 @@ enum SLIOStreamKind
     IOK_config
 };
 //-----------------------------------------------------------------------------
+//! Enum of stream opening modes
 enum SLIOStreamMode
 {
     IOM_read,
     IOM_write
 };
 //-----------------------------------------------------------------------------
+//! Interface for accessing external data using streams
+/*!
+ * SLIOStream provides an interface to access files which may be stored in the
+ * native file system, on a remote server, in memory, etc. Streams should not
+ * be instantiated by users of the class, but by SLFileStorage::open, which
+ * selects the appropriate stream implementation for a given kind and mode.
+ */
 class SLIOStream
 {
 public:
@@ -54,6 +73,7 @@ public:
     virtual void   flush() {}
 };
 //-----------------------------------------------------------------------------
+//! Collection of functions to open, use and close streams
 namespace SLFileStorage
 {
 SLIOStream* open(SLstring path, SLIOStreamKind kind, SLIOStreamMode mode);

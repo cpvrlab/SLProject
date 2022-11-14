@@ -1,5 +1,15 @@
+//#############################################################################
+//  File:      SLIONative.cpp
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <SLIONative.h>
 
+#ifndef SL_EMSCRIPTEN
 //-----------------------------------------------------------------------------
 SLIOReaderNative::SLIOReaderNative(SLstring path)
   : _stream(path, std::ios::binary)
@@ -79,3 +89,4 @@ void SLIOWriterNative::flush()
     _stream.flush();
 }
 //-----------------------------------------------------------------------------
+#endif
