@@ -102,8 +102,8 @@ CVSize2i CVCapture::open(int deviceNum)
     }
 #else
     WebCameraFacing facing;
-    if (_videoType == VT_MAIN) facing = WebCameraFacing::FRONT;
-    else if(_videoType == VT_SCND) facing = WebCameraFacing::BACK;
+    if (_videoType == VT_MAIN) facing = WebCameraFacing::BACK;
+    else if(_videoType == VT_SCND) facing = WebCameraFacing::FRONT;
     _webCamera.open(facing);
 
     // We can't query the actual resolution of the camera because that is considered a security risk.
