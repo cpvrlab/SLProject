@@ -149,12 +149,21 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
 
             if (_drawDetection)
             {
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
                 cv::aruco::drawAxis(imageRgb,
                                     calib->cameraMat(),
                                     calib->distortion(),
                                     cv::Mat(rVecs[i]),
                                     cv::Mat(tVecs[i]),
                                     0.01f);
+#else
+                cv::drawFrameAxes(imageRgb,
+                                  calib->cameraMat(),
+                                  calib->distortion(),
+                                  cv::Mat(rVecs[i]),
+                                  cv::Mat(tVecs[i]),
+                                  0.01f);
+#endif
             }
         }
     }
