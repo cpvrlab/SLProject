@@ -1,15 +1,22 @@
+@echo off
+
+echo WARNING: this script should be run in a directory with a short path (e.g. C:/opencv-sfm), ^
+because building Ceres Solver creates very long path names that might exceed the Windows path length limit
+pause
+
 call build_gflags.bat
 call build_glog.bat
 call build_eigen.bat
+call build_ceres.bat
 
 git clone https://github.com/opencv/opencv.git
 cd opencv
-git checkout 4.6.0
+::git checkout 4.6.0
 cd ../
 
 git clone https://github.com/opencv/opencv_contrib.git
 cd opencv_contrib
-git checkout 4.6.0
+::git checkout 4.6.0
 cd ../
 
 cd opencv
@@ -34,9 +41,10 @@ cmake .. ^
 -DGlog_DIR=%cd%/../../builds/glog/lib/cmake/glog ^
 -DGLOG_INCLUDE_DIR=%cd%/../../builds/glog\include ^
 -DEigen3_DIR=%cd%/../../builds/eigen/share/eigen3/cmake ^
--Dglog_DIR=%cd%/../../builds/glog/lib/cmake/glog
-::-DCeres_DIR=%cd%/../../builds/ceres-solver/lib/cmake/Ceres ^
-::-DCERES_INCLUDE_DIR=%cd%/../../builds/ceres-solver/include
+-Dgflags_DIR=%cd%/../../builds/gflags/lib/cmake/gflags ^
+-Dglog_DIR=%cd%/../../builds/glog/lib/cmake/glog ^
+-DCeres_DIR=%cd%/../../builds/ceres-solver/lib/cmake/Ceres ^
+-DCERES_INCLUDE_DIR=%cd%/../../builds/ceres-solver/include
 
 cmake --build . --target install --config Debug -j8
 
