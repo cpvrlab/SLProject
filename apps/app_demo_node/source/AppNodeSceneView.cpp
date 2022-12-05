@@ -62,13 +62,13 @@ void AppNodeSceneView::postSceneLoad()
     _moveBox->translation(0, 0, 2);
     _moveBox->rotation(22.5f, SLVec3f(0, -1, 0));
     _moveBox->addMesh(new SLBox(am, -0.3f, -0.3f, -0.3f, 0.3f, 0.3f, 0.3f, "Box", rMat));
-    _moveBox->setInitialState();
+    _moveBox->saveStateAsInitial();
 
     // build child box
     _moveBoxChild = new SLNode("Child");
     _moveBoxChild->translation(0, 1, 0);
     _moveBoxChild->rotation(22.5f, SLVec3f(0, -1, 0));
-    _moveBoxChild->setInitialState();
+    _moveBoxChild->saveStateAsInitial();
     _moveBoxChild->addMesh(new SLBox(am, -0.2f, -0.2f, -0.2f, 0.2f, 0.2f, 0.2f, "Box", gMat));
     _moveBox->addChild(_moveBoxChild);
 

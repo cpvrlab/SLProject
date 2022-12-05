@@ -279,7 +279,7 @@ void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
     {
         // Move the animation curve to the initial WM position of the node
         SLMat4f parentWM  = _animatedNode->parent()->updateAndGetWM();
-        SLMat4f initialOM = _animatedNode->initialOM();
+        SLMat4f initialOM = _animatedNode->initialTransform().toMat();
         _interpolationCurve->draw(parentWM * initialOM);
     }
 }

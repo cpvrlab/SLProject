@@ -229,7 +229,7 @@ void WAIApp::initSceneCamera()
         _sceneCamera->focalDist(5);
         _sceneCamera->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                           SLCol4f(0.2f, 0.2f, 0.2f));
-        _sceneCamera->setInitialState();
+        _sceneCamera->saveStateAsInitial();
     }
 }
 
@@ -302,7 +302,7 @@ void WAIApp::initIntroScene()
     cam1->lookAt(0, 0, 0);
     cam1->focalDist(5);
     cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-    cam1->setInitialState();
+    cam1->saveStateAsInitial();
 
     SLLightSpot* light1 = new SLLightSpot(10, 10, 10, 0.3f);
     light1->ambient(SLCol4f(0.2f, 0.2f, 0.2f));

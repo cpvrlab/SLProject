@@ -606,7 +606,7 @@ int main()
     cameraNode->fov(fov);
     cameraNode->clipNear(0.001f);
     cameraNode->clipFar(1000000.0f); // Increase to infinity?
-    cameraNode->setInitialState();
+    cameraNode->saveStateAsInitial();
 
     sv->doWaitOnIdle(false);
     sv->camera(cameraNode);

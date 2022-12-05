@@ -171,7 +171,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForTranslation(SLNode*        t
                                                                 const SLVec3f& endPos)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f);
     track->createNodeKeyframe(lengthSec())->translation(endPos);
@@ -186,7 +186,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation(SLNode*        targ
                                                              const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f);
     track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis));
@@ -202,7 +202,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation2(SLNode*        tar
                                                               const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
 
     SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
@@ -224,7 +224,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation3(SLNode*        tar
                                                               const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
 
     SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
@@ -250,7 +250,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation4(SLNode*        tar
                                                               const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
 
     SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
@@ -275,7 +275,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation360(SLNode*        t
                                                                 const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
 
     SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
@@ -296,7 +296,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForScaling(SLNode*        targe
                                                             const SLVec3f& endScale)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f);
     track->createNodeKeyframe(lengthSec())->scale(endScale);
@@ -314,7 +314,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForEllipse(SLNode* target,
 {
     assert(axisA != axisB && radiusA > 0 && radiusB > 0);
     SLNodeAnimTrack* track = createNodeAnimTrack();
-    target->setInitialState();
+    target->saveStateAsInitial();
     track->animatedNode(target);
 
     /* The ellipse is defined by 5 keyframes: A,B,C,D and again A

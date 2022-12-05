@@ -91,7 +91,6 @@ SLNode::SLNode(SLMesh*         mesh,
     _depth    = 1;
     _entityID = INT32_MIN;
     _om.identity();
-    _om.translate(translation);
     _wm.identity();
     _wmI.identity();
     _drawBits.allOff();
@@ -105,6 +104,7 @@ SLNode::SLNode(SLMesh*         mesh,
     _levelForSM     = 0;
     _mesh           = nullptr;
 
+    translate(translation);
     addMesh(mesh);
 }
 //-----------------------------------------------------------------------------
@@ -560,7 +560,8 @@ bool SLNode::hitRec(SLRay* ray)
 */
 SLNode* SLNode::copyRec()
 {
-    SLNode* copy = new SLNode(name());
+    SLNode* copy     = new SLNode(name());
+    copy->_transform = _transform;
     copy->_om.setMatrix(_om);
     copy->_depth          = _depth;
     copy->_isAABBUpToDate = _isAABBUpToDate;
@@ -676,6 +677,8 @@ class it is ok.
 void SLNode::updateWM() const
 {
     // PROFILE_FUNCTION();
+
+    //    _wm = transformWS().toMat();
 
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
@@ -804,6 +807,16 @@ void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
 
 //-----------------------------------------------------------------------------
 /*!
+ * Updates the local transform of this node
+ */
+void SLNode::transformOS(SLTransform transform)
+{
+    _transform = transform;
+    _om        = _transform.toMat();
+    needUpdate();
+}
+//-----------------------------------------------------------------------------
+/*!
 sets the position of this node to pos in 'relativeTo' space.
 @note using TS_Object for this function yields the same result as calling
 translate(pos, TS_Object)
@@ -811,14 +824,22 @@ translate(pos, TS_Object)
 void SLNode::translation(const SLVec3f& pos, SLTransformSpace relativeTo)
 {
     if (relativeTo == TS_world && _parent)
+        _transform.position = _parent->updateAndGetWMI() * pos;
+    else
+        _transform.position = pos;
+
+    updateMatPos();
+    needUpdate();
+
+    /*
+    if (relativeTo == TS_world && _parent)
     { // transform position to local space
         SLVec3f localPos = _parent->updateAndGetWMI() * pos;
         _om.translation(localPos);
     }
     else
         _om.translation(pos);
-
-    needUpdate();
+    */
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -829,34 +850,46 @@ of (0, 1, 0) with TS_Object will rotate the node around its own up axis.
 void SLNode::rotation(const SLQuat4f&  rot,
                       SLTransformSpace relativeTo)
 {
-    SLMat4f rotation = rot.toMat4();
+    if (relativeTo == TS_object)
+        _transform.rotation = _transform.rotation * rot;
+    else if (_parent && relativeTo == TS_world)
+        _transform.rotation = _parent->transformWS().rotation.inverted() * rot;
+    else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
+        _transform.rotation = rot;
 
-    if (_parent && relativeTo == TS_world)
-    {
-        // get the inverse parent rotation to remove it from our current rotation
-        // we want the input quaternion to absolutely set our new rotation relative
-        // to the world axes
-        SLMat4f parentRotInv = _parent->updateAndGetWMI();
-        parentRotInv.translation(0, 0, 0);
-
-        // set the om rotation to the inverse of the parents rotation to achieve a
-        // 0, 0, 0 relative rotation in world space
-        _om.rotation(0, 0, 0, 0);
-        _om.setMatrix(_om * parentRotInv);
-        rotate(rot, relativeTo);
-    }
-    else if (relativeTo == TS_parent)
-    { // relative to parent, reset current rotation and just rotate again
-        _om.rotation(0, 0, 0, 0);
-        rotate(rot, relativeTo);
-    }
-    else
-    {
-        // in TS_Object everything is relative to our current orientation
-        _om.rotation(0, 0, 0, 0);
-        _om.setMatrix(_om * rotation);
-    }
+    updateMat3x3();
     needUpdate();
+
+    //    SLMat4f rotation = rot.toMat4();
+    //
+    //    if (_parent && relativeTo == TS_world)
+    //    {
+    //        // get the inverse parent rotation to remove it from our current rotation
+    //        // we want the input quaternion to absolutely set our new rotation relative
+    //        // to the world axes
+    //        SLMat4f parentRotInv = _parent->updateAndGetWMI();
+    //        parentRotInv.translation(0, 0, 0);
+    //
+    //        // set the om rotation to the inverse of the parents rotation to achieve a
+    //        // 0, 0, 0 relative rotation in world space
+    //        _om.rotation(0, 0, 0, 0);
+    //        _om.setMatrix(_om * parentRotInv);
+    //        rotate(rot, relativeTo);
+    //    }
+    //    else if (relativeTo == TS_parent)
+    //    {
+    //        // relative to parent, reset current rotation and just rotate again
+    //        _om.rotation(0, 0, 0, 0);
+    //        rotate(rot, relativeTo);
+    //    }
+    //    else
+    //    {
+    //        // in TS_Object everything is relative to our current orientation
+    //        _om.rotation(0, 0, 0, 0);
+    //        _om.setMatrix(_om * rotation);
+    //    }
+    //
+    //    needUpdate();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -879,7 +912,8 @@ isn't the possiblity for shearing an object currently.
 */
 void SLNode::scaling(const SLVec3f& scaling)
 {
-    _om.scaling(scaling);
+    _transform.scaling = scaling;
+    updateMat3x3();
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -888,26 +922,19 @@ Moves the node by the vector 'delta' relative to the space expressed by 'relativ
 */
 void SLNode::translate(const SLVec3f& delta, SLTransformSpace relativeTo)
 {
-    switch (relativeTo)
+    if (relativeTo == TS_world)
     {
-        case TS_object:
-            _om.translate(delta);
-            break;
-
-        case TS_world:
-            if (_parent)
-            {
-                SLVec3f localVec = _parent->updateAndGetWMI().mat3() * delta;
-                _om.translation(localVec + _om.translation());
-            }
-            else
-                _om.translation(delta + _om.translation());
-            break;
-
-        case TS_parent:
-            _om.translation(delta + _om.translation());
-            break;
+        if (_parent)
+            _transform.position += _parent->updateAndGetWMI().mat3() * delta;
+        else
+            _transform.position += delta;
     }
+    else if (relativeTo == TS_parent)
+        _transform.position += delta;
+    else if (relativeTo == TS_object)
+        _transform.position += _om.mat3() * delta;
+
+    updateMatPos();
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -927,31 +954,14 @@ Rotates the node around its local origin relative to the space expressed by 'rel
 */
 void SLNode::rotate(const SLQuat4f& rot, SLTransformSpace relativeTo)
 {
-    SLMat4f rotation = rot.toMat4();
-
     if (relativeTo == TS_object)
-    {
-        _om.setMatrix(_om * rotation);
-    }
+        _transform.rotation = _transform.rotation * rot;
     else if (_parent && relativeTo == TS_world)
-    {
-        SLMat4f rotWS;
-        rotWS.translate(updateAndGetWM().translation());
-        rotWS.multiply(rotation);
-        rotWS.translate(-updateAndGetWM().translation());
-
-        _om.setMatrix(_parent->_wm.inverted() * rotWS * updateAndGetWM());
-    }
+        _transform.rotation = _parent->transformWS().rotation.inverted() * rot * transformWS().rotation;
     else // relativeTo == TS_Parent || relativeTo == TS_World && !_parent
-    {
-        SLMat4f rotOS;
-        rotOS.translate(translationOS());
-        rotOS.multiply(rotation);
-        rotOS.translate(-translationOS());
+        _transform.rotation = rot * _transform.rotation;
 
-        _om.setMatrix(rotOS * _om);
-    }
-
+    updateMat3x3();
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -960,7 +970,7 @@ Rotates the node around an arbitrary point. The 'axis' and 'point' parameter
 are relative to the space described by 'relativeTo'.
 */
 void SLNode::rotateAround(const SLVec3f&   point,
-                          SLVec3f&         axis,
+                          const SLVec3f&   axis,
                           SLfloat          angleDeg,
                           SLTransformSpace relativeTo)
 {
@@ -973,16 +983,23 @@ void SLNode::rotateAround(const SLVec3f&   point,
         localAxis  = _parent->updateAndGetWMI().mat3() * axis;
     }
 
-    SLMat4f rot;
-    rot.translate(localPoint);
-    rot.rotate(angleDeg, localAxis);
-    rot.translate(-localPoint);
+    localAxis.normalize();
+
+    SLQuat4f rot;
+    rot.fromAngleAxis(angleDeg * Utils::DEG2RAD, localAxis.x, localAxis.y, localAxis.z);
 
     if (relativeTo == TS_object)
-        _om.setMatrix(_om * rot);
+    {
+        _transform.position += _transform.rotation.rotate(rot.rotate(-point) + point);
+        _transform.rotation = _transform.rotation * rot;
+    }
     else
-        _om.setMatrix(rot * _om);
+    {
+        _transform.position = rot.rotate(_transform.position - localPoint) + localPoint;
+        _transform.rotation = rot * _transform.rotation;
+    }
 
+    _om = _transform.toMat();
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -994,8 +1011,14 @@ isn't the possibility for shearing an object currently.
 */
 void SLNode::scale(const SLVec3f& scale)
 {
+    _transform.scaling &= scale;
+    updateMat3x3();
+    needUpdate();
+
+    /*
     _om.scale(scale);
     needUpdate();
+     */
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1041,6 +1064,9 @@ void SLNode::lookAt(const SLVec3f&   target,
 
     _om.posAtUp(pos, pos + dir, localUp);
 
+    _transform.rotation.fromMat3(_om.mat3());
+    _transform.position = _om.translation();
+
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -1064,9 +1090,9 @@ void SLNode::scaleToCenter(SLfloat maxDim)
 /*!
 Saves the current position as the initial state
 */
-void SLNode::setInitialState()
+void SLNode::saveStateAsInitial()
 {
-    _initialOM = _om;
+    _initialTransform = _transform;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1074,7 +1100,19 @@ Resets this object to its initial state
 */
 void SLNode::resetToInitialState()
 {
-    _om.setMatrix(_initialOM);
+    _transform = _initialTransform;
+    _om        = _transform.toMat();
+    needUpdate();
+}
+//-----------------------------------------------------------------------------
+//! Sets the local transform from a matrix
+void SLNode::om(const SLMat4f& mat)
+{
+    SLVec4f rotQuatAsVec4;
+    mat.decompose(_transform.position, rotQuatAsVec4, _transform.scaling);
+    _transform.rotation.set(rotQuatAsVec4.x, rotQuatAsVec4.y, rotQuatAsVec4.z, rotQuatAsVec4.w);
+
+    _om = mat;
     needUpdate();
 }
 //-----------------------------------------------------------------------------
@@ -1156,6 +1194,32 @@ void SLNode::setMeshMat(SLMaterial* mat, bool recursive)
             child->setMeshMat(mat, recursive);
 }
 //-----------------------------------------------------------------------------
+void SLNode::updateMat3x3()
+{
+    SLMat3f rotationMat = _transform.rotation.toMat3();
+    SLMat3f scalingMat;
+    scalingMat.scale(_transform.scaling);
+    _om.setRotation(rotationMat * scalingMat);
+}
+//-----------------------------------------------------------------------------
+void SLNode::updateMatPos()
+{
+    _om.translation(_transform.position);
+}
+//-----------------------------------------------------------------------------
+SLTransform SLNode::transformWS() const
+{
+    if (!_parent)
+        return _transform;
+
+    SLTransform parent = _parent->transformWS();
+
+    SLVec3f  position = parent.position + (parent.scaling & parent.rotation.rotate(_transform.position));
+    SLQuat4f rotation = parent.rotation * _transform.rotation;
+    SLVec3f  scaling  = parent.scaling & _transform.scaling;
+    return {position, rotation, scaling};
+}
+//-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX
 void SLNode::createInstanceAccelerationStructureTree()
 {
@@ -1174,17 +1238,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
             const SLMat4f mat4x4        = om();
             float         transform[12] = {mat4x4.m(0),
-                                           mat4x4.m(4),
-                                           mat4x4.m(8),
-                                           mat4x4.m(12),
-                                           mat4x4.m(1),
-                                           mat4x4.m(5),
-                                           mat4x4.m(9),
-                                           mat4x4.m(13),
-                                           mat4x4.m(2),
-                                           mat4x4.m(6),
-                                           mat4x4.m(10),
-                                           mat4x4.m(14)};
+                                   mat4x4.m(4),
+                                   mat4x4.m(8),
+                                   mat4x4.m(12),
+                                   mat4x4.m(1),
+                                   mat4x4.m(5),
+                                   mat4x4.m(9),
+                                   mat4x4.m(13),
+                                   mat4x4.m(2),
+                                   mat4x4.m(6),
+                                   mat4x4.m(10),
+                                   mat4x4.m(14)};
             memcpy(instance.transform, transform, sizeof(float) * 12);
 
             instance.instanceId        = instanceIndex++;
@@ -1204,17 +1268,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
         const SLMat4f& mat4x4        = om();
         float          transform[12] = {mat4x4.m(0),
-                                        mat4x4.m(4),
-                                        mat4x4.m(8),
-                                        mat4x4.m(12),
-                                        mat4x4.m(1),
-                                        mat4x4.m(5),
-                                        mat4x4.m(9),
-                                        mat4x4.m(13),
-                                        mat4x4.m(2),
-                                        mat4x4.m(6),
-                                        mat4x4.m(10),
-                                        mat4x4.m(14)};
+                               mat4x4.m(4),
+                               mat4x4.m(8),
+                               mat4x4.m(12),
+                               mat4x4.m(1),
+                               mat4x4.m(5),
+                               mat4x4.m(9),
+                               mat4x4.m(13),
+                               mat4x4.m(2),
+                               mat4x4.m(6),
+                               mat4x4.m(10),
+                               mat4x4.m(14)};
 
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
@@ -1284,17 +1348,17 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
 
         const SLMat4f& mat4x4        = updateAndGetWM();
         float          transform[12] = {mat4x4.m(0),
-                                        mat4x4.m(4),
-                                        mat4x4.m(8),
-                                        mat4x4.m(12),
-                                        mat4x4.m(1),
-                                        mat4x4.m(5),
-                                        mat4x4.m(9),
-                                        mat4x4.m(13),
-                                        mat4x4.m(2),
-                                        mat4x4.m(6),
-                                        mat4x4.m(10),
-                                        mat4x4.m(14)};
+                               mat4x4.m(4),
+                               mat4x4.m(8),
+                               mat4x4.m(12),
+                               mat4x4.m(1),
+                               mat4x4.m(5),
+                               mat4x4.m(9),
+                               mat4x4.m(13),
+                               mat4x4.m(2),
+                               mat4x4.m(6),
+                               mat4x4.m(10),
+                               mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
         instance.instanceId = instanceIndex++;

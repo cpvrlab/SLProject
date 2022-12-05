@@ -16,7 +16,7 @@
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
-//!Quaternion class for angle-axis rotation representation.
+//! Quaternion class for angle-axis rotation representation.
 /*!Quaternion class for angle-axis rotation representation. For rotations
 quaternions must have unit length. See http://en.wikipedia.org/wiki/Quaternion
 Quaternions can be interpolated at low cost with the method lerp or slerp.
@@ -26,13 +26,15 @@ Quaternions can be interpolated at low cost with the method lerp or slerp.
 template <class T>
 class SLQuat4 
 {  
-    public:         SLQuat4         ();
+    public:
+
+                    SLQuat4         ();
                     SLQuat4         (T x, T y, T z, T w);
            explicit SLQuat4         (const SLMat3<T>& m);
                     SLQuat4         (T angleDEG, const SLVec3<T>& axis);
                     SLQuat4         (const SLVec3<T>& v0, const SLVec3<T>& v1);
                     SLQuat4         (const T xRotRAD, const T yRotRAD, const T zRotRAD);
-      
+
         T           x               () const { return _x; }
         T           y               () const { return _y; }
         T           z               () const { return _z; }
@@ -54,6 +56,9 @@ class SLQuat4
         void        toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const;
         void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const;
         void        toEulerAnglesZXY(T& zRotRAD, T& xRotRAD, T& yRotRAD) const;
+        SLVec3<T>   toEulerAnglesXYZ() const;
+        SLVec3<T>   toEulerAnglesZYX() const;
+        SLVec3<T>   toEulerAnglesZXY() const;
 
         T           dot             (const SLQuat4<T>& q) const;
         T           length          () const;
@@ -386,24 +391,6 @@ void SLQuat4<T>::toAngleAxis (T& angleDEG, SLVec3<T>& axis) const
 }
 //-----------------------------------------------------------------------------
 template <typename T>
-void SLQuat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const
-{
-    double sinz = +2.0 * (_w * _z + _x * _y);
-    double cosz = +1.0 - 2.0 * (_y *_y + _z *_z);
-    zRotRAD = (T)atan2(sinz, cosz);
-
-    double siny = +2.0 * (_w *_y - _z *_x);
-    if (fabs(siny) >= 1)
-        yRotRAD = (T)copysign(PI / 2, siny); // use 90 degrees if out of range
-    else
-        yRotRAD = (T)asin(siny);
-
-    double sinx = +2.0 * (_w * _x + _y * _z);
-    double cosx = +1.0 - 2.0 * (_x * _x + _y * _y);
-    xRotRAD = (T)atan2(sinx, cosx);
-}
-//-----------------------------------------------------------------------------
-template <typename T>
 void SLQuat4<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const
 {
     double sinx = -(T)2 * (_z * _y - _w * _x);
@@ -422,6 +409,24 @@ void SLQuat4<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const
 }
 //-----------------------------------------------------------------------------
 template <typename T>
+void SLQuat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const
+{
+    double sinz = +2.0 * (_w * _z + _x * _y);
+    double cosz = +1.0 - 2.0 * (_y *_y + _z *_z);
+    zRotRAD = (T)atan2(sinz, cosz);
+
+    double siny = +2.0 * (_w *_y - _z *_x);
+    if (fabs(siny) >= 1)
+        yRotRAD = (T)copysign(PI / 2, siny); // use 90 degrees if out of range
+    else
+        yRotRAD = (T)asin(siny);
+
+    double sinx = +2.0 * (_w * _x + _y * _z);
+    double cosx = +1.0 - 2.0 * (_x * _x + _y * _y);
+    xRotRAD = (T)atan2(sinx, cosx);
+}
+//-----------------------------------------------------------------------------
+template <typename T>
 void SLQuat4<T>::toEulerAnglesZXY(T& zRotRAD, T& xRotRAD, T& yRotRAD) const
 {
     double sinz = -(T)2 * (_x * _y - _w * _z);
@@ -437,6 +442,30 @@ void SLQuat4<T>::toEulerAnglesZXY(T& zRotRAD, T& xRotRAD, T& yRotRAD) const
     double siny = -(T)2 * (_x * _z - _w * _y);
     double cosy = 1 - (T)2 * (_x * _x + _y * _y);
     yRotRAD = (T)atan2(siny, cosy);
+}
+//-----------------------------------------------------------------------------
+template <typename T>
+SLVec3<T> SLQuat4<T>::toEulerAnglesXYZ() const
+{
+    SLVec3<T> result;
+    toEulerAnglesXYZ(result.x, result.y, result.z);
+    return result;
+}
+//-----------------------------------------------------------------------------
+template <typename T>
+SLVec3<T> SLQuat4<T>::toEulerAnglesZYX() const
+{
+    SLVec3<T> result;
+    toEulerAnglesZYX(result.x, result.y, result.z);
+    return result;
+}
+//-----------------------------------------------------------------------------
+template <typename T>
+SLVec3<T> SLQuat4<T>::toEulerAnglesZXY() const
+{
+    SLVec3<T> result;
+    toEulerAnglesZXY(result.x, result.y, result.z);
+    return result;
 }
 //-----------------------------------------------------------------------------
 template<class T>

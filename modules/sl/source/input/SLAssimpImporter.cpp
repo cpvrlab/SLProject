@@ -650,7 +650,7 @@ void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent,
     memcpy(&om, &node->mTransformation, sizeof(SLMat4f));
     om.transpose();
     joint->om(om);
-    joint->setInitialState();
+    joint->saveStateAsInitial();
     */
     // set the binding pose as initial state
     SLMat4f om;
@@ -658,7 +658,7 @@ void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent,
     if (parent)
         om = parent->updateAndGetWM().inverted() * om;
     joint->om(om);
-    joint->setInitialState();
+    joint->saveStateAsInitial();
 
     for (SLuint i = 0; i < node->mNumChildren; i++)
         loadSkeleton(animManager, joint, node->mChildren[i]);
@@ -1336,10 +1336,10 @@ SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnima
             //      animations to it. If we were to reset each joint just before applying a channel to it
             //      we wouldn't have this problem. But we coulnd't blend animations as easily.
             //
-            SLMat4f prevOM = affectedJoint->om();
-            affectedJoint->om(SLMat4f());
-            affectedJoint->setInitialState();
-            affectedJoint->om(prevOM);
+            SLTransform prevTransformOT = affectedJoint->transformOS();
+            affectedJoint->transformOS(SLTransform());
+            affectedJoint->saveStateAsInitial();
+            affectedJoint->transformOS(prevTransformOT);
         }
 
         // log

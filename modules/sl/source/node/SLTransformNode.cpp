@@ -756,7 +756,7 @@ void SLTransformNode::lookAt(SLNode* node, SLCamera* camera)
     SLVec3f nodeRight  = (up ^ nodeDir).normalize();
     SLVec3f nodeUp     = (nodeDir ^ nodeRight).normalize();
 
-    SLVec3f nodeTranslation = node->om().translation();
+    SLVec3f nodeTranslation = node->translationOS();
 
     // clang-format off
     SLMat4f updatedOm = SLMat4f(nodeRight.x, nodeUp.x, nodeDir.x, nodeTranslation.x,

@@ -863,7 +863,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->translation(-7, 2, 7);
         cam1->lookAt(0, -2, 0);
         cam1->focalDist(10);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
                                   SLCol4f(0.1f, 0.4f, 0.8f));
@@ -905,7 +905,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->focalDist(12);
         cam1->stereoEyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 2.5f, 2.5f, 2.5f, 0.2f);
@@ -1037,7 +1037,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 1, 0);
         cam1->focalDist(17);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // light
@@ -1184,7 +1184,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(18);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light = new SLLightSpot(am, s, 0.1f);
@@ -1352,7 +1352,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* scene = new SLNode();
@@ -1389,7 +1389,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4.2f);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Position for rectangle and uv out of earth texture
@@ -1494,7 +1494,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 10, 10, 10, 0.3f);
@@ -1550,7 +1550,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 10, 10, 10, 0.3f);
@@ -1629,7 +1629,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(15);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 10, 10, 10, 0.3f);
@@ -1686,7 +1686,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                   SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create materials
@@ -1783,7 +1783,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(7);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Define 5 light sources
@@ -1875,7 +1875,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f::BLACK);
         cam1->focalDist(30);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -1983,7 +1983,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->focalDist(30);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Add directional light with a position that corresponds roughly to the sun direction
@@ -2074,7 +2074,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create generic shader program with 4 custom uniforms
@@ -2127,7 +2127,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f, 40, true);
         light1->powers(0.1f, 1.0f, 1.0f);
@@ -2187,7 +2187,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(20);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f, 40, true);
         light1->powers(0.1f, 1.0f, 1.0f);
@@ -2251,7 +2251,7 @@ void appDemoLoadScene(SLAssetManager* am,
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // There is no light needed in this scene. All reflections come from cube maps
@@ -2340,7 +2340,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0, 0, 0));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* sun = new SLLightSpot(am, s);
@@ -2378,7 +2378,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 1, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create light source
@@ -2427,7 +2427,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 2, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create light sources
@@ -2531,7 +2531,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->lookAt(0, 1, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create light sources
@@ -2587,7 +2587,7 @@ void appDemoLoadScene(SLAssetManager* am,
         cam1->fov(27);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create lights
@@ -2682,7 +2682,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 1, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create light source
@@ -2748,7 +2748,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0.5f, 2);
         cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->focalDist(2);
         scene->addChild(cam1);
 
@@ -2974,7 +2974,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->focalDist(camPos.length());
             cam1->clipFar(camClipFar);
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
             scene->addChild(cam1);
 
             // Add directional light with a position that corresponds roughly to the sun direction
@@ -3029,7 +3029,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
                                       SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->focalDist(2);
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
             scene->addChild(cam1);
 
             // Define directional
@@ -3163,7 +3163,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Set light
@@ -3240,7 +3240,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Set light
@@ -3275,9 +3275,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 2, 10);
         cam1->lookAt(0, 2, 0);
         cam1->focalDist(10);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -3394,7 +3394,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 0, 22);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLCamera* cam2 = new SLCamera("Camera 2");
@@ -3403,7 +3403,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam2->focalDist(5);
         cam2->clipFar(10);
         cam2->background().colors(SLCol4f(0, 0, 0.6f), SLCol4f(0, 0, 0.3f));
-        cam2->setInitialState();
+        cam2->saveStateAsInitial();
         cam2->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLCamera* cam3 = new SLCamera("Camera 3");
@@ -3412,7 +3412,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam3->focalDist(5);
         cam3->clipFar(10);
         cam3->background().colors(SLCol4f(0.6f, 0, 0), SLCol4f(0.3f, 0, 0));
-        cam3->setInitialState();
+        cam3->saveStateAsInitial();
         cam3->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 0, 2, 0, 0.5f);
@@ -3425,7 +3425,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light2->powers(0.1f, 1.0f, 1.0f);
         light2->attenuation(1, 0, 0);
         light2->translate(-8, -4, 0, TS_world);
-        light2->setInitialState();
+        light2->saveStateAsInitial();
         SLAnimation*     light2Anim = s->animManager().createNodeAnimation("light2_anim", 2.0f, true, EC_linear, AL_pingPongLoop);
         SLNodeAnimTrack* track      = light2Anim->createNodeAnimTrack();
         track->animatedNode(light2);
@@ -3558,7 +3558,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
@@ -3640,7 +3640,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(20);
         cam1->lookAt(0, 0, 0);
         cam1->background().texture(videoTexture);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -3742,7 +3742,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipFar(10);
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -3819,7 +3819,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -3875,7 +3875,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(15, 15, 0);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
@@ -3955,7 +3955,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 0, 0.5f);
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -4019,7 +4019,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         scene->addChild(cam1);
 
         // Create a light source node
@@ -4076,7 +4076,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -4150,7 +4150,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
         cam1->clipFar(700);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -4313,7 +4313,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
         cam1->clipFar(1000);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -4832,8 +4832,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Add level of detail switch callback lambda
         cam1->onCamUpdateCB([=](SLSceneView* sv)
                             {
-            SLVec3f posCam     = sv->camera()->updateAndGetWM().translation();
-            SLVec3f posAlt     = tmpAltar->updateAndGetWM().translation();
+            SLVec3f posCam     = sv->camera()->translationWS();
+            SLVec3f posAlt     = tmpAltar->translationWS();
             SLVec3f distCamAlt = posCam - posAlt;
             float   tmpDist    = distCamAlt.length();
             float   thtDist    = posCam.length();
@@ -4902,7 +4902,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(1);
         cam1->clipFar(400);
         cam1->focalDist(150);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -5025,7 +5025,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(1);
         cam1->clipFar(400);
         cam1->focalDist(150);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -5145,7 +5145,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(1);
         cam1->clipFar(300);
         cam1->focalDist(150);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -5281,7 +5281,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(1);
         cam1->clipFar(300);
         cam1->focalDist(150);
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
@@ -5444,7 +5444,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->fov(27);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.0f, 0.0f, 0.0f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // assemble scene
@@ -5506,7 +5506,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* rect = new SLNode(new SLRectangle(am, SLVec2f(-3, -3), SLVec2f(5, 4), 20, 20, "Floor", matYel));
@@ -5551,7 +5551,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -5616,7 +5616,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->fogIsOn(true);
         cam1->fogMode(FM_exp);
         cam1->fogDensity(0.04f);
@@ -5704,7 +5704,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lensDiameter(0.4f);
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -5762,7 +5762,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 0, 5);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create a light source node
@@ -6109,7 +6109,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->translation(0, 1.2f, 4.0f);
             cam1->lookAt(0, 1.2f, 0);
             cam1->focalDist(4.5f);
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
             scene->addChild(cam1);
             sv->camera(cam1);
 
@@ -6273,7 +6273,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->clipFar(10000);
             cam1->focalDist(220);
             cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
             cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
             SLLightSpot* light1 = new SLLightSpot(am, s, 200, 200, 200, 1);
@@ -6315,7 +6315,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(50);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 15, 15, 15, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -6379,7 +6379,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(20);
         cam1->lookAt(0, 2.5f, 0);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
 
         SLLightSpot* light1 = new SLLightSpot(am, s, 15, 15, 15, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -6444,7 +6444,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
@@ -6532,7 +6532,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->focalDist(cam1->translationOS().length());
             cam1->clipFar(600);
             cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
 
             // Create directional light for the sunlight
             SLLightDirect* sunLight = new SLLightDirect(am, s, 1.0f);
@@ -6646,7 +6646,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->focalDist(75);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
-        cam1->setInitialState();
+        cam1->saveStateAsInitial();
 
         // Root scene node
         SLNode* scene = new SLNode;
@@ -6713,7 +6713,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->focalDist(100);
             cam1->lookAt(0, 0, 0);
             cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
 
             // Root scene node
             SLNode* root = new SLNode;
@@ -6766,7 +6766,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->focalDist(400);
             cam1->lookAt(0, 0, 0);
             cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
-            cam1->setInitialState();
+            cam1->saveStateAsInitial();
 
             // Root scene node
             SLNode* root = new SLNode;

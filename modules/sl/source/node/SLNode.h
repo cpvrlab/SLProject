@@ -25,6 +25,22 @@ class SLAABBox;
 class SLNode;
 class SLAnimation;
 
+struct SLTransform
+{
+    SLVec3f  position = SLVec3f(0, 0, 0);
+    SLQuat4f rotation = SLQuat4f(0, 0, 0, 1);
+    SLVec3f  scaling  = SLVec3f(1, 1, 1);
+
+    SLMat4f toMat() const
+    {
+        SLMat4f mat;
+        mat.setTranslation(position);
+        mat.setRotation(rotation.toMat3());
+        mat.scale(scaling);
+        return mat;
+    }
+};
+
 //-----------------------------------------------------------------------------
 //! SLVNode typedef for a vector of SLNodes
 typedef deque<SLNode*> SLVNode;
@@ -191,23 +207,27 @@ public:
     deque<SLNode*> findChildren(SLuint drawbit,
                                 SLbool findRecursive = true);
 
-    // local direction getter functions
-    SLVec3f translationOS() const;
-    SLVec3f forwardOS() const;
-    SLVec3f rightOS() const;
-    SLVec3f upOS() const;
-    SLVec3f axisXOS() const;
-    SLVec3f axisYOS() const;
-    SLVec3f axisZOS() const;
-    SLVec3f translationWS() const;
-    SLVec3f forwardWS() const;
-    SLVec3f rightWS() const;
-    SLVec3f upWS() const;
-    SLVec3f axisXWS() const;
-    SLVec3f axisYWS() const;
-    SLVec3f axisZWS() const;
+    // transform getter functions
+    SLTransform transformOS() const { return _transform; }
+    SLVec3f     translationOS() const { return _transform.position; }
+    SLQuat4f    rotationOS() const { return _transform.rotation; }
+    SLVec3f     scalingOS() const { return _transform.scaling; }
+    SLVec3f     forwardOS() const;
+    SLVec3f     rightOS() const;
+    SLVec3f     upOS() const;
+    SLVec3f     axisXOS() const;
+    SLVec3f     axisYOS() const;
+    SLVec3f     axisZOS() const;
+    SLVec3f     translationWS() const;
+    SLVec3f     forwardWS() const;
+    SLVec3f     rightWS() const;
+    SLVec3f     upWS() const;
+    SLVec3f     axisXWS() const;
+    SLVec3f     axisYWS() const;
+    SLVec3f     axisZWS() const;
 
     // transform setter methods
+    void transformOS(SLTransform transform);
     void translation(const SLVec3f&   pos,
                      SLTransformSpace relativeTo = TS_parent);
     void translation(SLfloat          x,
@@ -253,7 +273,7 @@ public:
                 SLfloat          z,
                 SLTransformSpace relativeTo = TS_object);
     void rotateAround(const SLVec3f&   point,
-                      SLVec3f&         axis,
+                      const SLVec3f&   axis,
                       SLfloat          angleDeg,
                       SLTransformSpace relativeTo = TS_world);
     void scale(SLfloat s);
@@ -262,17 +282,13 @@ public:
 
     // Misc.
     void scaleToCenter(SLfloat maxDim);
-    void setInitialState();
+    void saveStateAsInitial();
     void resetToInitialState();
 
     // Setters (see also members)
-    void parent(SLNode* p);
-    void entityID(SLint entityID) { _entityID = entityID; }
-    void om(const SLMat4f& mat)
-    {
-        _om.setMatrix(mat);
-        needUpdate();
-    }
+    void         parent(SLNode* p);
+    void         entityID(SLint entityID) { _entityID = entityID; }
+    void         om(const SLMat4f& mat);
     void         animation(SLAnimation* a) { _animation = a; }
     void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
     virtual void needUpdate();
@@ -288,7 +304,7 @@ public:
     SLint                 depth() const { return _depth; }
     SLint                 entityID() const { return _entityID; }
     const SLMat4f&        om() { return _om; }
-    const SLMat4f&        initialOM() { return _initialOM; }
+    const SLTransform&    initialTransform() { return _initialTransform; }
     const SLMat4f&        updateAndGetWM() const;
     const SLMat4f&        updateAndGetWMI() const;
     SLDrawBits*           drawBits() { return &_drawBits; }
@@ -323,39 +339,43 @@ public:
 private:
     void updateWM() const;
     template<typename T>
-    void findChildrenHelper(const SLstring& name,
-                            deque<T*>&      list,
-                            SLbool          findRecursive,
-                            SLbool          canContain = false);
-    void findChildrenHelper(const SLMesh*   mesh,
-                            deque<SLNode*>& list,
-                            SLbool          findRecursive);
-    void findChildrenHelper(SLuint          drawbit,
-                            deque<SLNode*>& list,
-                            SLbool          findRecursive);
+    void        findChildrenHelper(const SLstring& name,
+                                   deque<T*>&      list,
+                                   SLbool          findRecursive,
+                                   SLbool          canContain = false);
+    void        findChildrenHelper(const SLMesh*   mesh,
+                                   deque<SLNode*>& list,
+                                   SLbool          findRecursive);
+    void        findChildrenHelper(SLuint          drawbit,
+                                   deque<SLNode*>& list,
+                                   SLbool          findRecursive);
+    void        updateMat3x3();
+    void        updateMatPos();
+    SLTransform transformWS() const;
 
 protected:
     SLNode* _parent;   //!< pointer to the parent node
     SLVNode _children; //!< vector of children nodes
     SLMesh* _mesh;     //!< pointer to a single mesh
 
-    SLint            _depth;          //!< depth of the node in a scene tree
-    SLint            _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design
-    SLMat4f          _om;             //!< object matrix for local transforms
-    SLMat4f          _initialOM;      //!< the initial om state
-    mutable SLMat4f  _wm;             //!< world matrix for world transform
-    mutable SLMat4f  _wmI;            //!< inverse world matrix
-    mutable SLbool   _isWMUpToDate;   //!< is the WM of this node still valid
-    mutable SLbool   _isWMIUpToDate;  //!< is the inverse WM of this node still valid
-    mutable SLbool   _isAABBUpToDate; //!< is the saved aabb still valid
-    bool             _castsShadows;   //!< flag if meshes of node should cast shadows
-    bool             _isSelected;     //!< flag if node and one or more of its meshes are selected
-    SLDrawBits       _drawBits;       //!< node level drawing flags
-    SLAABBox         _aabb;           //!< axis aligned bounding box
-    SLAnimation*     _animation;      //!< animation of the node
-    SLfloat          _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
-    SLubyte          _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
-    function<void()> _onUpdateCB;     //!< Optional lambda callback once per update
+    SLint            _depth;            //!< depth of the node in a scene tree
+    SLint            _entityID;         //!< ID in the SLVEntity graph for Data Oriented Design
+    SLMat4f          _om;               //!< object matrix for local transforms
+    SLTransform      _transform;        //!< current object transform
+    SLTransform      _initialTransform; //!< initial object transform
+    mutable SLMat4f  _wm;               //!< world matrix for world transform
+    mutable SLMat4f  _wmI;              //!< inverse world matrix
+    mutable SLbool   _isWMUpToDate;     //!< is the WM of this node still valid
+    mutable SLbool   _isWMIUpToDate;    //!< is the inverse WM of this node still valid
+    mutable SLbool   _isAABBUpToDate;   //!< is the saved aabb still valid
+    bool             _castsShadows;     //!< flag if meshes of node should cast shadows
+    bool             _isSelected;       //!< flag if node and one or more of its meshes are selected
+    SLDrawBits       _drawBits;         //!< node level drawing flags
+    SLAABBox         _aabb;             //!< axis aligned bounding box
+    SLAnimation*     _animation;        //!< animation of the node
+    SLfloat          _minLodCoverage;   //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
+    SLubyte          _levelForSM;       //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    function<void()> _onUpdateCB;       //!< Optional lambda callback once per update
 };
 
 ////////////////////////
@@ -454,15 +474,6 @@ void SLNode::findChildrenHelper(const SLstring& name,
 // INLINE FUNCTIONS //
 //////////////////////
 
-//-----------------------------------------------------------------------------
-/*!
-SLNode::position returns current local position
-*/
-inline SLVec3f
-SLNode::translationOS() const
-{
-    return _om.translation();
-}
 //-----------------------------------------------------------------------------
 /*!
 Returns the local forward vector (= -z-axis) in a right-hand y-up system

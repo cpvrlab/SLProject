@@ -235,7 +235,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjType proj)
     }
 
     _sceneViewCamera.updateAABBRec(false);
-    _sceneViewCamera.setInitialState();
+    _sceneViewCamera.saveStateAsInitial();
 
     // if no camera exists or in VR mode use the sceneViewCamera
     if (_camera == nullptr)
@@ -1426,11 +1426,9 @@ SLbool SLSceneView::onMouseWheel(SLint delta, SLKey mod)
     // Pass the event to imgui
     if (_gui)
     {
+        _gui->onMouseWheel((SLfloat)delta);
         if (_gui->doNotDispatchMouse())
-        {
-            _gui->onMouseWheel((SLfloat)delta);
             return true;
-        }
     }
 
     if (!_s || !_s->root3D())
@@ -1624,11 +1622,9 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     // Pass the event to imgui
     if (_gui)
     {
+        _gui->onKeyPress(key, mod);
         if (_gui->doNotDispatchKeyboard())
-        {
-            _gui->onKeyPress(key, mod);
             return true;
-        }
     }
 
     if (!_s || !_s->root3D())
@@ -1721,11 +1717,9 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
     // Pass the event to imgui
     if (_gui)
     {
+        _gui->onKeyRelease(key, mod);
         if (_gui->doNotDispatchKeyboard())
-        {
-            _gui->onKeyRelease(key, mod);
             return true;
-        }
     }
 
     if (!_s || !_s->root3D())

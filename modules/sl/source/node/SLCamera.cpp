@@ -754,6 +754,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         // set camera pose to the object matrix
         // om(wTc);
         _om.setRotation(wRc);
+        om(_om);
         needUpdate();
 
         /*
@@ -816,6 +817,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f wRc = wRenucorr * _enucorrRenu * enuRc;
 
             _om.setRotation(wRc);
+            om(_om);
 
             needUpdate();
         }
@@ -835,7 +837,8 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 // Set the camera position
                 SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
 
-                _om.setTranslation(wtc_f);
+                translation(wtc_f);
+
 
                 needUpdate();
             }
@@ -847,7 +850,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 // Set the camera position
                 SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
 
-                _om.setTranslation(wtc_f);
+                translation(wtc_f);
 
                 needUpdate();
             }
@@ -1029,6 +1032,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
         // The lookAt point
         SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
+        SLVec3f localLookAtPoint = _focalDist * SLVec3f(0, 0, -1);
 
         // Determine rot angles around x- & y-axis
         SLfloat dY = ((SLfloat)y - _oldTouchPos1.y) * _mouseRotationFactor;
@@ -1036,25 +1040,13 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
         if (_camAnim == CA_turntableYUp) //....................................
         {
-            SLMat4f rot;
-            rot.translate(lookAtPoint);
-            rot.rotate(-dX, SLVec3f(0, 1, 0));
-            rot.rotate(-dY, rightVS);
-            rot.translate(-lookAtPoint);
-
-            _om.setMatrix(rot * _om);
-            needUpdate();
+            rotateAround(lookAtPoint, SLVec3f(0, 1, 0), -dX);
+            rotateAround(localLookAtPoint, SLVec3f(1, 0, 0), -dY, TS_object);
         }
         else if (_camAnim == CA_turntableZUp) //...............................
         {
-            SLMat4f rot;
-            rot.translate(lookAtPoint);
-            rot.rotate(dX, SLVec3f(0, 0, 1));
-            rot.rotate(dY, rightVS);
-            rot.translate(-lookAtPoint);
-
-            _om.setMatrix(rot * _om);
-            needUpdate();
+            rotateAround(lookAtPoint, SLVec3f(0, 0, 1), dX);
+            rotateAround(localLookAtPoint, SLVec3f(1, 0, 0), dY, TS_object);
         }
         else if (_camAnim == CA_trackball) //..................................
         {
@@ -1088,46 +1080,24 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             // Transform rotation axis into world space
             // Remember: The cameras om is the view matrix inversed
-            SLVec3f axisWS = _om.mat3() * axisVS;
+            SLVec3f axisWS = _transform.rotation.rotate(axisVS);
 
             // Create rotation from one rotation around one axis
-            SLMat4f rot;
-            rot.translate(lookAtPoint);          // undo camera translation
-            rot.rotate((SLfloat)-angle, axisWS); // create incremental rotation
-            rot.translate(-lookAtPoint);         // redo camera translation
-            _om.setMatrix(rot * _om);            // accumulate rotation to the existing camera matrix
+            rotateAround(lookAtPoint, axisWS, -angle, TS_world);
 
             // set current to last
             _trackballStartVec = curMouseVec;
             lastAxisVS         = axisVS;
-
-            needUpdate();
         }
         else if (_camAnim == CA_walkingYUp) //.................................
         {
-            dY *= 0.5f;
-            dX *= 0.5f;
-
-            SLMat4f rot;
-            rot.rotate(-dX, SLVec3f(0, 1, 0));
-            rot.rotate(-dY, rightVS);
-
-            forwardVS.set(rot.multVec(forwardVS));
-            lookAt(positionVS + forwardVS);
-            needUpdate();
+            rotate(SLQuat4f(-0.5f * dX, SLVec3f(0, 1, 0)), TS_world);
+            rotate(SLQuat4f(-0.5f * dY, SLVec3f(1, 0, 0)), TS_object);
         }
         else if (_camAnim == CA_walkingZUp) //.................................
         {
-            dY *= 0.5f;
-            dX *= 0.5f;
-
-            SLMat4f rot;
-            rot.rotate(-dX, SLVec3f(0, 0, 1));
-            rot.rotate(-dY, rightVS);
-
-            forwardVS.set(rot.multVec(forwardVS));
-            lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
-            needWMUpdate();
+            rotate(SLQuat4f(-0.5f * dX, SLVec3f(0, 0, 1)), TS_world);
+            rotate(SLQuat4f(-0.5f * dY, SLVec3f(1, 0, 0)), TS_object);
         }
         else if (_camAnim == CA_deviceRotLocYUp || _camAnim == CA_deviceRotYUp)
         {

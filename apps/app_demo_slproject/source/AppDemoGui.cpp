@@ -752,13 +752,13 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "-------------:\n");
                     if (typeid(*trackedNode) == typeid(SLCamera))
                     {
-                        SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
+                        SLVec3f cameraPos = trackedNode->translationWS();
                         sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
                     }
                     else
                     {
-                        SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
-                        SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
+                        SLVec3f cameraPos = sv->camera()->translationWS();
+                        SLVec3f objectPos = trackedNode->translationWS();
                         SLVec3f camToObj  = objectPos - cameraPos;
                         sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                     }
@@ -946,7 +946,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     // clang-format on
 
                     if (ImGui::Button("Reset"))
-                        selNode->om(selNode->initialOM());
+                        selNode->resetToInitialState();
                 }
                 else
                 {
@@ -3342,14 +3342,29 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                     if (ImGui::TreeNode("Local transform"))
                     {
-                        SLMat4f om(singleNode->om());
-                        SLVec3f trn, rot, scl;
-                        om.decompose(trn, rot, scl);
-                        rot *= Utils::RAD2DEG;
+                        SLVec3f translation;
+                        SLVec3f rotation;
+                        SLVec3f scaling;
 
-                        ImGui::Text("Translation  : %s", trn.toString().c_str());
-                        ImGui::Text("Rotation     : %s", rot.toString().c_str());
-                        ImGui::Text("Scaling      : %s", scl.toString().c_str());
+                        translation = singleNode->translationOS();
+                        singleNode->rotationOS().toEulerAnglesXYZ(rotation.x, rotation.y, rotation.z);
+                        rotation *= Utils::RAD2DEG;
+                        scaling = singleNode->scalingOS();
+
+                        if(ImGui::InputFloat3("Translation", (float*)&translation, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
+                            singleNode->translation(translation);
+
+                        if(ImGui::InputFloat3("Rotation", (float*)&rotation, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
+                        {
+                            rotation *= Utils::DEG2RAD;
+                            SLQuat4f rotationQuat;
+                            rotationQuat.fromEulerAngles(rotation.x, rotation.y, rotation.z);
+                            singleNode->rotation(rotationQuat);
+                        }
+
+                        if(ImGui::InputFloat3("Scaling", (float*)&scaling, "%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
+                            singleNode->scaling(scaling);
+
                         ImGui::TreePop();
                     }
 

@@ -237,14 +237,14 @@ class SLMat4
                                   SLVec3f rotEulerRAD,
                                   SLVec3f scale);
          void        decompose   (SLVec3f &trans, 
-                                  SLVec4f &rotQuat, 
-                                  SLVec3f &scale);
+                                  SLVec4f &rotQuat,
+                                  SLVec3f &scale) const;
          void        decompose   (SLVec3f &trans, 
                                   SLMat3f &rotMat, 
-                                  SLVec3f &scale);
+                                  SLVec3f &scale) const;
          void        decompose   (SLVec3f &trans, 
                                   SLVec3f &rotEulerRAD, 
-                                  SLVec3f &scale);
+                                  SLVec3f &scale) const;
 
          void        print       (const SLchar* str=nullptr) const;
          SLstring    toString    () const;
@@ -1480,7 +1480,7 @@ scaling factors using polar decomposition introduced by Ken Shoemake.
 See the paper in lib-SLExternal/Shoemake/polar-decomp.pdf
 */
 template<class T>
-void SLMat4<T>::decompose(SLVec3f &trans, SLVec4f &rotQuat, SLVec3f &scale)
+void SLMat4<T>::decompose(SLVec3f &trans, SLVec4f &rotQuat, SLVec3f &scale) const
 {  
     // Input matrix A
     HMatrix A;
@@ -1503,7 +1503,7 @@ scaling factors using polar decomposition introduced by Ken Shoemake.
 See the paper in lib-SLExternal/Shoemake/polar-decomp.pdf
 */
 template<class T>
-void SLMat4<T>::decompose(SLVec3f &trans, SLMat3f &rotMat, SLVec3f &scale)
+void SLMat4<T>::decompose(SLVec3f &trans, SLMat3f &rotMat, SLVec3f &scale) const
 {  
     SLVec4f rotQuat;
     decompose(trans, rotQuat, scale);
@@ -1533,7 +1533,7 @@ and the scaling factors using polar decomposition introduced by Ken Shoemake.
 See the paper in lib-SLExternal/Shoemake/polar-decomp.pdf
 */
 template<class T>
-void SLMat4<T>::decompose(SLVec3f &trans, SLVec3f &rotEulerRAD, SLVec3f &scale)
+void SLMat4<T>::decompose(SLVec3f &trans, SLVec3f &rotEulerRAD, SLVec3f &scale) const
 {  
     SLMat3f rotMat;
     decompose(trans, rotMat, scale);
