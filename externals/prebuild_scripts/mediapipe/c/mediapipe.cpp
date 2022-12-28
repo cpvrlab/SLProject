@@ -8,10 +8,11 @@
 #include "absl/flags/flag.h"
 
 #include <string>
-#include <unordered_map>
 #include <cstring>
+#include <iostream>
 
 ABSL_DECLARE_FLAG(std::string, resource_root_dir);
+static absl::Status last_error;
 
 extern "C" {
 
@@ -29,11 +30,16 @@ struct mediapipe_packet {
     mediapipe::Packet packet;
 };
 
-MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(const char* graph, const char* input_stream) {
-    auto* instance = new mediapipe_instance;
-    
+MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(const char* graph, const char* input_stream) {    
     mediapipe::CalculatorGraphConfig config = mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(graph);
-    instance->graph.Initialize(config);
+    
+    auto* instance = new mediapipe_instance;
+    absl::Status result = instance->graph.Initialize(config);
+    if (!result.ok()) {
+        last_error = result;
+        return nullptr;
+    }
+    
     instance->input_stream = input_stream;
     instance->frame_timestamp = 0;
 
@@ -43,6 +49,7 @@ MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(const char* graph, c
 MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* instance, const char* output_stream) {
     absl::StatusOr<mediapipe::OutputStreamPoller> result = instance->graph.AddOutputStreamPoller(output_stream);
     if (!result.ok()) {
+        last_error = result.status();
         return nullptr;
     }
 
@@ -52,7 +59,14 @@ MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* inst
 }
 
 MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance) {
-    return instance->graph.StartRun({}).ok();
+    absl::Status result = instance->graph.StartRun({});
+
+    if (!result.ok()) {
+        last_error = result;
+        return false;
+    }
+
+    return true;
 }
 
 MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_image image) {
@@ -65,11 +79,24 @@ MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_ima
 
     mediapipe::Packet packet = mediapipe::Adopt(mp_frame.release()).At(mp_timestamp);
     auto result = instance->graph.AddPacketToInputStream(instance->input_stream, packet);
-    return result.ok();
+    
+    if (!result.ok()) {
+        last_error = result;
+        return false;
+    }
+
+    return true;
 }
 
 MEDIAPIPE_API bool mediapipe_wait_until_idle(mediapipe_instance* instance) {
-    return instance->graph.WaitUntilIdle().ok();
+    absl::Status result = instance->graph.WaitUntilIdle();
+
+    if (!result.ok()) {
+        last_error = result;
+        return false;
+    }
+
+    return true;
 }
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_poll_packet(mediapipe_poller* poller) {
@@ -90,8 +117,21 @@ MEDIAPIPE_API void mediapipe_destroy_poller(mediapipe_poller* poller) {
     delete poller;
 }
 
-MEDIAPIPE_API void mediapipe_close_instance(mediapipe_instance* instance) {
+MEDIAPIPE_API bool mediapipe_destroy_instance(mediapipe_instance* instance) {
+    absl::Status result = instance->graph.CloseInputStream(instance->input_stream);
+    if (!result.ok()) {
+        last_error = result;
+        return false;
+    }
+
+    result = instance->graph.WaitUntilDone();
+    if (!result.ok()) {
+        last_error = result;
+        return false;
+    }
+    
     delete instance;
+    return true;
 }
 
 MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir) {
@@ -151,6 +191,10 @@ MEDIAPIPE_API void mediapipe_destroy_multi_face_landmarks(mediapipe_multi_face_l
     
     delete[] multi_face_landmarks->elements;
     delete multi_face_landmarks;
+}
+
+MEDIAPIPE_API void mediapipe_print_last_error() {
+    std::cout << "[MediaPipe] " << last_error << std::endl;
 }
 
 }

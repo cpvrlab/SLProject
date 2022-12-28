@@ -1,4 +1,5 @@
 set -e
+shopt -s nullglob
 
 if [ "$#" -lt 1 ]; then
 	echo "ERROR: Missing version argument"
@@ -102,16 +103,22 @@ echo "- Done"
 
 echo -n "Copying data "
 
-for DIR in mediapipe/bazel-bin/mediapipe/modules/*; do
-	MODULE=$(basename "$DIR")
-	mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
+for DIR in mediapipe/mediapipe/modules/*; do
+	if [ -d "$DIR" ]; then
+		MODULE=$(basename "$DIR")
+		mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
 	
-	for FILE in mediapipe/bazel-bin/mediapipe/modules/$MODULE/*.tflite; do
-		cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
-	done
+		for FILE in mediapipe/bazel-bin/mediapipe/modules/$MODULE/*.tflite; do
+			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+		done
+		
+		for FILE in "$DIR"/*.txt; do
+			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+		done
+	fi
 done
 
-cp mediapipe/mediapipe/modules/hand_landmark/handedness.txt "$DATA_DIR/mediapipe/modules/hand_landmark/handedness.txt"
+cp -r mediapipe/mediapipe/graphs "$DATA_DIR/mediapipe/graphs"
 
 echo "- Done"
 
