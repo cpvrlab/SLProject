@@ -105,7 +105,7 @@ echo -n "Copying data "
 for DIR in mediapipe/bazel-bin/mediapipe/modules/*; do
 	MODULE=$(basename "$DIR")
 	mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
-
+	
 	for FILE in mediapipe/bazel-bin/mediapipe/modules/$MODULE/*.tflite; do
 		cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
 	done
