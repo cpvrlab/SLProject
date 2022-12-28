@@ -478,6 +478,31 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
+
+    #########################
+    # MediaPipe for Windows #
+    #########################
+
+    set(MediaPipe_VERSION "v0.8.11")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/win64_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_LINK_DIR "${MediaPipe_DIR}/lib")   #don't forget to add the this link dir down at the bottom
+    set(MediaPipe_INCLUDE_DIR "${MediaPipe_DIR}/include")
+
+    add_library(MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe
+            PROPERTIES
+            IMPORTED_IMPLIB "${MediaPipe_DIR}/lib/mediapipe.lib"
+            IMPORTED_LOCATION "${MediaPipe_DIR}/bin/mediapipe.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+
+    set(MediaPipe_LIBS mediapipe)
+
+    file(GLOB MediaPipe_DLLS ${MediaPipe_DIR}/bin/*.dll)
+
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
+        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+    endif()
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
@@ -1498,3 +1523,4 @@ link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
+link_directories(${MediaPipe_LINK_DIR})
