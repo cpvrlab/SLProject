@@ -6,7 +6,9 @@ if [ "$#" -lt 1 ]; then
 fi
 
 VERSION="$1"
-PACKAGE_DIR="win64_mediapipe_$1"
+BUILD_DIR="build"
+PACKAGE_DIR="$BUILD_DIR/win64_mediapipe_$1"
+DATA_DIR="$BUILD_DIR/data"
 
 echo -n "Checking Clang "
 CLANG_BIN_PATH="$(type -P clang-cl)"
@@ -66,18 +68,22 @@ bazel build -c dbg \
 	mediapipe/c:mediapipe
 
 echo "--------------------------------"
-echo "CREATING PACKAGE"
+echo "COPYING FILES"
 echo "--------------------------------"
 
 cd ..
 
-if [ -d "$PACKAGE_DIR" ]; then
-  echo -n "Removing existing package "
-	rm -r "$PACKAGE_DIR"
+if [ -d "$BUILD_DIR" ]; then
+	echo -n "Removing existing build directory "
+	rm -rf "$BUILD_DIR"
 	echo "- Done"
 fi
 
-echo -n "Creating directories "
+echo -n "Creating build directory "
+mkdir "$BUILD_DIR"
+echo "- Done"
+
+echo -n "Creating library directories "
 mkdir "$PACKAGE_DIR"
 mkdir "$PACKAGE_DIR/include"
 mkdir "$PACKAGE_DIR/bin"
@@ -92,6 +98,21 @@ echo "- Done"
 
 echo -n "Copying header "
 cp mediapipe/mediapipe/c/mediapipe.h "$PACKAGE_DIR/include"
+echo "- Done"
+
+echo -n "Copying data "
+
+for DIR in mediapipe/bazel-bin/mediapipe/modules/*; do
+	MODULE=$(basename "$DIR")
+	mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
+
+	for FILE in mediapipe/bazel-bin/mediapipe/modules/$MODULE/*.tflite; do
+		cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+	done
+done
+
+cp mediapipe/mediapipe/modules/hand_landmark/handedness.txt "$DATA_DIR/mediapipe/modules/hand_landmark/handedness.txt"
+
 echo "- Done"
 
 echo "--------------------------------"
