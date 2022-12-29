@@ -14,6 +14,7 @@
 #include <cv/CVTrackedChessboard.h>
 #include <cv/CVTrackedFaces.h>
 #include <cv/CVTrackedFeatures.h>
+#include <cv/CVTrackedMediaPipeHands.h>
 #include <cv/CVCalibrationEstimator.h>
 
 #include <SLAlgo.h>
@@ -3993,6 +3994,30 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+    }
+    else if (sceneID == SID_VideoTrackMediaPipeMain) //............................................
+    {
+        CVCapture::instance()->videoType(VT_MAIN);
+        s->name("Track MediaPipe (main cam.)");
+        s->info("Experimental MediaPipe integration.");
+
+        videoTexture = new SLGLTexture(am,
+                                       texPath + "LiveVideoError.png",
+                                       GL_LINEAR,
+                                       GL_LINEAR);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->background().texture(videoTexture);
+
+        SLNode* scene = new SLNode("Scene");
+        s->root3D(scene);
+
+        tracker     = new CVTrackedMediaPipeHands(AppDemo::dataPath);
+        trackedNode = cam1;
+        tracker->drawDetection(true);
+
+        sv->doWaitOnIdle(false);
         sv->camera(cam1);
     }
 #ifdef SL_BUILD_WAI

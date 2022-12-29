@@ -112,6 +112,8 @@ file(GLOB sources
         source/cv/CVTrackedFaces.h
         source/cv/CVTrackedFeatures.cpp
         source/cv/CVTrackedFeatures.h
+        source/cv/CVTrackedMediaPipeHands.cpp
+        source/cv/CVTrackedMediaPipeHands.h
         source/cv/CVTypedefs.h
         source/cv/CVTypes.h
         source/gl/SLGLDepthBuffer.cpp
@@ -382,6 +384,7 @@ target_include_directories(${target}
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
         ${assimp_INCLUDE_DIR}
+        ${MediaPipe_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/nlohmann
         ${SL_PROJECT_ROOT}/externals/eigen
@@ -433,6 +436,7 @@ target_link_libraries(${target}
         ${optix_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
+        ${MediaPipe_LIBS}
         lib-Utils
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
