@@ -62,15 +62,11 @@ echo -n "Copying C API "
 cp -r ../c mediapipe/c
 echo "- Done"
 
-bazel build -c dbg \
+bazel build -c opt \
 	--action_env PYTHON_BIN_PATH="$PYTHON_BIN_PATH" \
 	--define MEDIAPIPE_DISABLE_GPU=1 \
 	--compiler=clang-cl \
 	mediapipe/c:mediapipe
-
-echo "--------------------------------"
-echo "COPYING FILES"
-echo "--------------------------------"
 
 cd ..
 
@@ -93,7 +89,7 @@ echo "- Done"
 
 echo -n "Copying libraries "
 cp mediapipe/bazel-bin/mediapipe/c/mediapipe.dll "$PACKAGE_DIR/bin"
-cp mediapipe/bazel-bin/mediapipe/c/opencv_world3410d.dll "$PACKAGE_DIR/bin"
+cp mediapipe/bazel-bin/mediapipe/c/opencv_world3410.dll "$PACKAGE_DIR/bin"
 cp mediapipe/bazel-bin/mediapipe/c/mediapipe.if.lib "$PACKAGE_DIR/lib/mediapipe.lib"
 echo "- Done"
 
@@ -108,11 +104,15 @@ for DIR in mediapipe/mediapipe/modules/*; do
 		MODULE=$(basename "$DIR")
 		mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
 	
-		for FILE in mediapipe/bazel-bin/mediapipe/modules/$MODULE/*.tflite; do
+		for FILE in mediapipe/bazel-bin/mediapipe/modules/"$MODULE"/*.tflite; do
 			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
 		done
-		
+
 		for FILE in "$DIR"/*.txt; do
+			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+		done
+
+		for FILE in "$DIR"/*.pbtxt; do
 			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
 		done
 	fi

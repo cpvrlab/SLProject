@@ -71,20 +71,26 @@ typedef enum {
 
 MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(const char* graph, const char* input_stream);
 MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* instance, const char* output_stream);
+MEDIAPIPE_API void mediapipe_add_side_packet(mediapipe_instance* instance, const char* name, mediapipe_packet* packet);
 MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance);
 MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_image image);
 MEDIAPIPE_API bool mediapipe_wait_until_idle(mediapipe_instance* instance);
-MEDIAPIPE_API mediapipe_packet* mediapipe_poll_packet(mediapipe_poller* poller);
-MEDIAPIPE_API void mediapipe_destroy_packet(mediapipe_packet* packet);
 MEDIAPIPE_API int mediapipe_get_queue_size(mediapipe_poller* poller);
 MEDIAPIPE_API void mediapipe_destroy_poller(mediapipe_poller* poller);
 MEDIAPIPE_API bool mediapipe_destroy_instance(mediapipe_instance* instance);
 MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir);
 
+MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_int(int value);
+MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_float(float value);
+MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_bool(bool value);
+MEDIAPIPE_API mediapipe_packet* mediapipe_poll_packet(mediapipe_poller* poller);
+MEDIAPIPE_API void mediapipe_destroy_packet(mediapipe_packet* packet);
+
 MEDIAPIPE_API size_t mediapipe_get_packet_type_len(mediapipe_packet* packet);
 MEDIAPIPE_API void mediapipe_get_packet_type(mediapipe_packet* packet, char* buffer);
-MEDIAPIPE_API void mediapipe_read_packet_image(mediapipe_packet* packet, uint8_t* out_data);
+MEDIAPIPE_API void mediapipe_copy_packet_image(mediapipe_packet* packet, uint8_t* out_data);
 MEDIAPIPE_API mediapipe_multi_face_landmark_list* mediapipe_get_multi_face_landmarks(mediapipe_packet* packet);
+MEDIAPIPE_API mediapipe_multi_face_landmark_list* mediapipe_get_normalized_multi_face_landmarks(mediapipe_packet* packet);
 MEDIAPIPE_API void mediapipe_destroy_multi_face_landmarks(mediapipe_multi_face_landmark_list* multi_face_landmarks);
 
 MEDIAPIPE_API void mediapipe_print_last_error();
