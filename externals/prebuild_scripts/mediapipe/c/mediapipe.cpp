@@ -4,11 +4,20 @@
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/image_frame.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
+#include "mediapipe/framework/tool/options_util.h"
+
+#include "mediapipe/calculators/util/thresholding_calculator.pb.h"
+#include "mediapipe/calculators/tensor/tensors_to_detections_calculator.pb.h"
+
 #include "absl/flags/declare.h"
 #include "absl/flags/flag.h"
+#include "google/protobuf/util/json_util.h"
 
 #include <string>
 #include <cstring>
+#include <variant>
+#include <cassert>
+#include <fstream>
 #include <iostream>
 
 ABSL_DECLARE_FLAG(std::string, resource_root_dir);
@@ -19,36 +28,48 @@ static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_pa
     const auto& mp_data = packet->packet.Get<std::vector<List>>();
 
     auto* lists = new mediapipe_landmark_list[mp_data.size()];
-    
+
     for (int i = 0; i < mp_data.size(); i++) {
         const List& mp_list = mp_data[i];
         auto* list = new mediapipe_landmark[mp_list.landmark_size()];
-        
+
         for (int j = 0; j < mp_list.landmark_size(); j++) {
             const Landmark& mp_landmark = mp_list.landmark(j);
             list[j] = mediapipe_landmark {
-                .x = mp_landmark.x(),
-                .y = mp_landmark.y(),
-                .z = mp_landmark.z()
+                mp_landmark.x(),
+                mp_landmark.y(),
+                mp_landmark.z()
             };
         }
 
         lists[i] = mediapipe_landmark_list {
-            .elements = list,
-            .length = (int) mp_list.landmark_size()
+            list,
+            (int) mp_list.landmark_size()
         };
     }
 
     return new mediapipe_multi_face_landmark_list {
-        .elements = lists,
-        .length = (int) mp_data.size()
+        lists,
+        (int) mp_data.size()
     };
 }
+
+struct mediapipe_node_option {
+    const char* node;
+    const char* option;
+    std::variant<float, double> value;
+};
+
+struct mediapipe_instance_builder {
+    const char* graph_filename;
+    const char* input_stream;
+    std::vector<mediapipe_node_option> options;
+    std::map<std::string, mediapipe::Packet> side_packets;
+};
 
 struct mediapipe_instance {
     mediapipe::CalculatorGraph graph;
     std::string input_stream;
-    std::map<std::string, mediapipe::Packet> side_packets;
     size_t frame_timestamp;
 };
 
@@ -62,19 +83,90 @@ struct mediapipe_packet {
 
 extern "C" {
 
-MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(const char* graph, const char* input_stream) {    
-    mediapipe::CalculatorGraphConfig config = mediapipe::ParseTextProtoOrDie<mediapipe::CalculatorGraphConfig>(graph);
+MEDIAPIPE_API mediapipe_instance_builder* mediapipe_create_instance_builder(const char* graph_filename, const char* input_stream) {
+    return new mediapipe_instance_builder { graph_filename, input_stream, {} };
+}
+
+MEDIAPIPE_API void mediapipe_add_option_float(mediapipe_instance_builder* instance_builder, const char* node, const char* option, float value) {
+    instance_builder->options.push_back({ node, option, value });
+}
+
+MEDIAPIPE_API void mediapipe_add_option_double(mediapipe_instance_builder* instance_builder, const char* node, const char* option, double value) {
+    instance_builder->options.push_back({ node, option, value });
+}
+
+MEDIAPIPE_API void mediapipe_add_side_packet(mediapipe_instance_builder* instance_builder, const char* name, mediapipe_packet* packet) {
+    instance_builder->side_packets.insert({name, packet->packet});
+    mediapipe_destroy_packet(packet);
+}
+
+MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_builder* builder) {
+    mediapipe::CalculatorGraphConfig config;
     
+    std::ifstream stream(builder->graph_filename, std::ios::binary | std::ios::ate);
+    size_t size = stream.tellg();
+    stream.seekg(0);
+
+    char* memory = new char[size];
+    stream.read(memory, size);
+    config.ParseFromArray(memory, size);
+    delete[] memory;
+    
+    mediapipe::ValidatedGraphConfig validated_config;
+    validated_config.Initialize(config);
+    mediapipe::CalculatorGraphConfig canonical_config = validated_config.Config();
+
+    for (const mediapipe_node_option& option : builder->options) {
+        for (auto& node : *canonical_config.mutable_node()) {
+            if (node.name() != option.node) {
+                continue;
+            }
+
+            google::protobuf::Message* ext;
+
+            if (node.calculator() == "ThresholdingCalculator")
+                ext = node.mutable_options()->MutableExtension(mediapipe::ThresholdingCalculatorOptions::ext);
+            else if (node.calculator() == "TensorsToDetectionsCalculator")
+                ext = node.mutable_options()->MutableExtension(mediapipe::TensorsToDetectionsCalculatorOptions::ext);
+            else {
+                assert(!"Unknown node calculator");
+                return nullptr;
+            }
+
+            auto* descriptor = ext->GetDescriptor();
+            auto* reflection = ext->GetReflection();
+            auto* field_descriptor = descriptor->FindFieldByName(option.option);
+            
+            switch (option.value.index()) {
+                case 0: reflection->SetFloat(ext, field_descriptor, std::get<0>(option.value)); break;
+                case 1: reflection->SetDouble(ext, field_descriptor, std::get<1>(option.value)); break;
+            }
+
+            switch (option.value.index()) {
+                case 0: std::cout << reflection->GetFloat(*ext, field_descriptor) << std::endl; break;
+                case 1: std::cout << reflection->GetDouble(*ext, field_descriptor) << std::endl; break;
+            }
+        }
+    }
+
+    google::protobuf::util::JsonPrintOptions json_options;
+    json_options.add_whitespace = true;
+
+    std::string str;
+    google::protobuf::util::MessageToJsonString(canonical_config, &str, json_options);
+    std::cout << str << std::endl;
+
     auto* instance = new mediapipe_instance;
-    absl::Status result = instance->graph.Initialize(config);
+    absl::Status result = instance->graph.Initialize(canonical_config, builder->side_packets);
     if (!result.ok()) {
         last_error = result;
         return nullptr;
     }
-    
-    instance->input_stream = input_stream;
+
+    instance->input_stream = builder->input_stream;
     instance->frame_timestamp = 0;
 
+    delete builder;
     return instance;
 }
 
@@ -86,17 +178,12 @@ MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* inst
     }
 
     return new mediapipe_poller { 
-        .poller = std::move(*result)
+        std::move(*result)
     };
 }
 
-MEDIAPIPE_API void mediapipe_add_side_packet(mediapipe_instance* instance, const char* name, mediapipe_packet* packet) {
-    instance->side_packets.insert({name, packet->packet});
-    mediapipe_destroy_packet(packet);
-}
-
 MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance) {
-    absl::Status result = instance->graph.StartRun(instance->side_packets);
+    absl::Status result = instance->graph.StartRun({});
 
     if (!result.ok()) {
         last_error = result;
@@ -167,19 +254,19 @@ MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir) {
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_int(int value) {
     return new mediapipe_packet {
-        .packet = mediapipe::MakePacket<int>(value)
+      .packet = mediapipe::MakePacket<int>(value)
     };
 }
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_float(float value) {
     return new mediapipe_packet {
-        .packet = mediapipe::MakePacket<float>(value)
+      .packet = mediapipe::MakePacket<float>(value)
     };
 }
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_bool(bool value) {
     return new mediapipe_packet {
-        .packet = mediapipe::MakePacket<bool>(value)
+      .packet = mediapipe::MakePacket<bool>(value)
     };
 }
 
@@ -204,8 +291,8 @@ MEDIAPIPE_API void mediapipe_get_packet_type(mediapipe_packet* packet, char* buf
 }
 
 MEDIAPIPE_API void mediapipe_copy_packet_image(mediapipe_packet* packet, uint8_t* out_data) {
-	const auto& mp_frame = packet->packet.Get<mediapipe::ImageFrame>();
-	size_t data_size = mp_frame.PixelDataSizeStoredContiguously();
+    const auto& mp_frame = packet->packet.Get<mediapipe::ImageFrame>();
+    size_t data_size = mp_frame.PixelDataSizeStoredContiguously();
     mp_frame.CopyToBuffer(out_data, data_size);
 }
 

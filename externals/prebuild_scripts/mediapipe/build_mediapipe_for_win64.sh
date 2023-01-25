@@ -122,26 +122,20 @@ echo "- Done"
 
 echo -n "Copying data "
 
-for DIR in mediapipe/mediapipe/modules/*; do
-	if [ -d "$DIR" ]; then
-		MODULE=$(basename "$DIR")
-		mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
-	
-		for FILE in mediapipe/bazel-bin/mediapipe/modules/"$MODULE"/*.tflite; do
-			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
-		done
+for DIR in mediapipe/bazel-bin/mediapipe/modules/*; do
+	MODULE=$(basename "$DIR")
+	mkdir -p "$DATA_DIR/mediapipe/modules/$MODULE"
 
-		for FILE in "$DIR"/*.txt; do
-			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
-		done
+	for FILE in "$DIR"/*.binarypb; do
+		cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+	done
 
-		for FILE in "$DIR"/*.pbtxt; do
-			cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
-		done
-	fi
+	for FILE in "$DIR"/*.tflite; do
+		cp "$FILE" "$DATA_DIR/mediapipe/modules/$MODULE/$(basename "$FILE")"
+	done
 done
 
-cp -r mediapipe/mediapipe/graphs "$DATA_DIR/mediapipe/graphs"
+cp mediapipe/mediapipe/modules/hand_landmark/handedness.txt "$DATA_DIR/mediapipe/modules/hand_landmark"
 
 echo "- Done"
 

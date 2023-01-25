@@ -45,18 +45,19 @@ CVTrackedMediaPipeHands::CVTrackedMediaPipeHands(SLstring dataPath)
 {
     mediapipe_set_resource_dir(dataPath.c_str());
 
-    SLstring graphPath = dataPath + "mediapipe/modules/hand_landmark/hand_landmark_tracking_cpu.pbtxt";
-    SLstring graphData = Utils::readTextFileIntoString("SLProject", graphPath);
+    SLstring graphPath = dataPath + "mediapipe/modules/hand_landmark/hand_landmark_tracking_cpu.binarypb";
+    auto* builder = mediapipe_create_instance_builder(graphPath.c_str(), "image");
+    mediapipe_add_option_float(builder, "palmdetectioncpu__TensorsToDetectionsCalculator", "min_score_thresh", 0.5);
+    mediapipe_add_option_double(builder, "handlandmarkcpu__ThresholdingCalculator", "threshold", 0.5);
+    mediapipe_add_side_packet(builder, "num_hands", mediapipe_create_packet_int(2));
+    mediapipe_add_side_packet(builder, "model_complexity", mediapipe_create_packet_int(1));
+    mediapipe_add_side_packet(builder, "use_prev_landmarks", mediapipe_create_packet_bool(true));
 
-    _instance = mediapipe_create_instance(graphData.c_str(), "image");
+    _instance = mediapipe_create_instance(builder);
     CHECK_MP_RESULT(_instance)
 
     _landmarksPoller = mediapipe_create_poller(_instance, "multi_hand_landmarks");
     CHECK_MP_RESULT(_landmarksPoller)
-
-    mediapipe_add_side_packet(_instance, "num_hands", mediapipe_create_packet_int(2));
-    mediapipe_add_side_packet(_instance, "model_complexity", mediapipe_create_packet_int(1));
-    mediapipe_add_side_packet(_instance, "use_prev_landmarks", mediapipe_create_packet_bool(true));
 
     CHECK_MP_RESULT(mediapipe_start(_instance))
 }
@@ -67,8 +68,8 @@ CVTrackedMediaPipeHands::~CVTrackedMediaPipeHands()
 }
 //-----------------------------------------------------------------------------
 bool CVTrackedMediaPipeHands::track(CVMat          imageGray,
-                                   CVMat          imageRgb,
-                                   CVCalibration* calib)
+                                    CVMat          imageRgb,
+                                    CVCalibration* calib)
 {
     processImage(imageRgb);
 
@@ -100,7 +101,7 @@ void CVTrackedMediaPipeHands::processImage(CVMat imageRgb)
 }
 //-----------------------------------------------------------------------------
 void CVTrackedMediaPipeHands::drawResults(mediapipe_multi_face_landmark_list* landmarks,
-                                         CVMat                               imageRgb)
+                                          CVMat                               imageRgb)
 {
     for (int i = 0; i < landmarks->length; i++)
     {
