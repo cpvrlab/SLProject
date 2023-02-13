@@ -181,6 +181,16 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     set(ktx_LIBS KTX::ktx)
 
+    #######################
+    # MediaPipe for Linux #
+    #######################
+
+    set(MediaPipe_VERSION "v0.8.11")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/linux_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
+    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+    set(MediaPipe_LIBS mediapipe)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
     ######################

@@ -25,7 +25,7 @@ static absl::Status last_error;
 
 template<typename List, typename Landmark>
 static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_packet* packet) {
-    const auto& mp_data = packet->packet.Get<std::vector<List>>();
+    const auto& mp_data = packet->packet.template Get<std::vector<List>>();
 
     auto* lists = new mediapipe_landmark_list[mp_data.size()];
 
@@ -105,7 +105,7 @@ MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_b
     
     std::ifstream stream(builder->graph_filename, std::ios::binary | std::ios::ate);
     size_t size = stream.tellg();
-    stream.seekg(0);
+    stream.seekg(0, std::ios::beg);
 
     char* memory = new char[size];
     stream.read(memory, size);

@@ -2,6 +2,7 @@
 #define MEDIAPIPE_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #if _WIN32
 #ifdef COMPILING_DLL
