@@ -196,7 +196,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     ######################
     # OpenCV for Windows #
     #######################
-	set(OpenCV_VERSION "4.5.4")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+	set(OpenCV_VERSION "4.5.0")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
     #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.

@@ -1,34 +1,61 @@
 set -e
 shopt -s nullglob
 
-if [ "$#" -lt 1 ]; then
-	echo "ERROR: Missing version argument"
-	exit 1
-fi
+VERSION="v0.8.11"
+OPENCV_DIR=""
+CONFIG="debug"
 
-VERSION="$1"
+while [[ "$#" -gt 0 ]]; do
+	case $1 in
+		--version)
+			VERSION="$2"
+			shift
+			shift
+			;;
+		--config)
+			CONFIG="$2"
+			shift
+			shift
+			;;
+		--opencv_dir)
+			OPENCV_DIR="$(cygpath -m "$(pwd)/$2")"
+			shift
+			shift
+			;;
+	esac
+done
+
+echo "--------------------------------"
+echo "CONFIGURATION"
+echo "--------------------------------"
+
+echo "MediaPipe version: $VERSION"
+echo "OpenCV directory: $OPENCV_DIR"
+
+echo "--------------------------------"
+
 BUILD_DIR="build"
-PACKAGE_DIR="$BUILD_DIR/win64_mediapipe_$1"
+PACKAGE_DIR="$BUILD_DIR/mediapipe-$VERSION-x86_64-windows"
 DATA_DIR="$BUILD_DIR/data"
-OPENCV_ARCHIVE="opencv-3.4.10-vc14_vc15.exe"
 
-echo -n "Checking Clang "
+echo -n "Checking Clang - "
 CLANG_BIN_PATH="$(type -P clang-cl)"
 if [ -z "$CLANG_BIN_PATH" ]; then
-	echo "- ERROR: Clang is not installed"
+	echo "ERROR: Clang is not installed"
 	echo "Download Clang from: https://github.com/llvm/llvm-project/releases"
 	exit 1
 fi
 export BAZEL_LLVM="$(realpath "$(dirname "$CLANG_BIN_PATH")/../")"
-echo "- OK (Found at $CLANG_BIN_PATH)"
+echo "OK (Found at $CLANG_BIN_PATH)"
 
-echo -n "Checking Bazel "
-if [ -z "$(type -P bazel)" ]; then
-	echo "- ERROR: Bazel is not installed"
+echo -n "Checking Bazel - "
+BAZEL_BIN_PATH="$(type -P bazel)"
+if [ -z "$BAZEL_BIN_PATH" ]; then
+	echo "ERROR: Bazel is not installed"
 	echo "Download Bazel from: https://github.com/bazelbuild/bazel/releases"
 	exit 1
 fi
-echo "- OK"
+echo "OK (Found at $BAZEL_BIN_PATH)"
 
 echo -n "Checking Python "
 PYTHON_BIN_PATH="$(type -P python)"
@@ -52,24 +79,15 @@ fi
 cd mediapipe
 git checkout "$VERSION"
 
-echo "--------------------------------"
-echo "DOWNLOADING OPENCV"
-echo "--------------------------------"
+echo -n "Setting up OpenCV - "
 
-if [ ! -d "opencv" ]; then
-	curl -L "https://github.com/opencv/opencv/releases/download/3.4.10/$OPENCV_ARCHIVE" -o "$OPENCV_ARCHIVE"
-	echo -n "Extracting - "
-	"./$OPENCV_ARCHIVE" -y -o"."
-	echo "Done"
-	echo -n "Updating OpenCV path in workspace - "
-	sed -i 's;C:\\\\opencv\\\\build;opencv/build;g' WORKSPACE
-	echo "Done"
-	echo -n "Removing archive - "
-	rm "./$OPENCV_ARCHIVE"
-	echo "Done"
-else
-	echo "OpenCV already downloaded"
-fi
+LINE=$(grep -n windows_opencv WORKSPACE | cut -d : -f1)
+LINE=$(($LINE + 2))
+sed -i "$LINE"'s;C:\\\\opencv\\\\build;'"$OPENCV_DIR;" WORKSPACE
+
+cp ../opencv_windows.BUILD third_party
+
+echo "Done"
 
 echo "--------------------------------"
 echo "BUILDING C API"
@@ -81,46 +99,46 @@ if [ -d "mediapipe/c" ]; then
 	echo "Done"
 fi
 
-echo -n "Copying C API "
+echo -n "Copying C API - "
 cp -r ../c mediapipe/c
-echo "- Done"
+echo "Done"
 
 bazel build -c opt \
 	--action_env PYTHON_BIN_PATH="$PYTHON_BIN_PATH" \
 	--define MEDIAPIPE_DISABLE_GPU=1 \
 	--compiler=clang-cl \
+	--verbose_failures \
 	mediapipe/c:mediapipe
 
 cd ..
 
 if [ -d "$BUILD_DIR" ]; then
-	echo -n "Removing existing build directory "
+	echo -n "Removing existing build directory - "
 	rm -rf "$BUILD_DIR"
-	echo "- Done"
+	echo "Done"
 fi
 
-echo -n "Creating build directory "
+echo -n "Creating build directory - "
 mkdir "$BUILD_DIR"
-echo "- Done"
+echo "Done"
 
-echo -n "Creating library directories "
+echo -n "Creating library directories - "
 mkdir "$PACKAGE_DIR"
 mkdir "$PACKAGE_DIR/include"
 mkdir "$PACKAGE_DIR/bin"
 mkdir "$PACKAGE_DIR/lib"
-echo "- Done"
+echo "Done"
 
-echo -n "Copying libraries "
+echo -n "Copying libraries - "
 cp mediapipe/bazel-bin/mediapipe/c/mediapipe.dll "$PACKAGE_DIR/bin"
-cp mediapipe/bazel-bin/mediapipe/c/opencv_world3410.dll "$PACKAGE_DIR/bin"
 cp mediapipe/bazel-bin/mediapipe/c/mediapipe.if.lib "$PACKAGE_DIR/lib/mediapipe.lib"
-echo "- Done"
+echo "Done"
 
-echo -n "Copying header "
+echo -n "Copying header - "
 cp mediapipe/mediapipe/c/mediapipe.h "$PACKAGE_DIR/include"
-echo "- Done"
+echo "Done"
 
-echo -n "Copying data "
+echo -n "Copying data - "
 
 for DIR in mediapipe/bazel-bin/mediapipe/modules/*; do
 	MODULE=$(basename "$DIR")
@@ -137,6 +155,6 @@ done
 
 cp mediapipe/mediapipe/modules/hand_landmark/handedness.txt "$DATA_DIR/mediapipe/modules/hand_landmark"
 
-echo "- Done"
+echo "Done"
 
 echo "--------------------------------"
