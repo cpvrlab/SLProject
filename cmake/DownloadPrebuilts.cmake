@@ -1141,6 +1141,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     set(ktx_LIBS KTX::ktx)
 
+    #############################
+    # MediaPipe for MacOS-arm64 #
+    #############################
+
+    set(MediaPipe_VERSION "v0.8.11")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/macArm64_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
+    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+
+    add_library(libmediapipe SHARED IMPORTED)
+    set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
+    set(MediaPipe_LIBS mediapipe)
+	
+	if (COPY_LIBS_TO_CONFIG_FOLDER)
+	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	    endif()
+	endif()
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for iOS_arm64 -------------------------------------")

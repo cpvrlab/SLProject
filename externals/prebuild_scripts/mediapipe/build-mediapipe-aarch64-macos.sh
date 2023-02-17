@@ -33,7 +33,7 @@ echo "MediaPipe version: $VERSION"
 echo "OpenCV directory: $OPENCV_DIR"
 
 BUILD_DIR="build"
-PACKAGE_DIR="$BUILD_DIR/mediapipe-$VERSION-x86_64-macos"
+PACKAGE_DIR="$BUILD_DIR/mediapipe-$VERSION-aarch64-macos"
 DATA_DIR="$BUILD_DIR/data"
 
 echo "--------------------------------"
