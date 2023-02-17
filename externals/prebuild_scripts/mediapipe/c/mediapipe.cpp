@@ -23,6 +23,33 @@
 ABSL_DECLARE_FLAG(std::string, resource_root_dir);
 static absl::Status last_error;
 
+struct mediapipe_node_option {
+    const char* node;
+    const char* option;
+    std::variant<float, double> value;
+};
+
+struct mediapipe_instance_builder {
+    const char* graph_filename;
+    const char* input_stream;
+    std::vector<mediapipe_node_option> options;
+    std::map<std::string, mediapipe::Packet> side_packets;
+};
+
+struct mediapipe_instance {
+    mediapipe::CalculatorGraph graph;
+    std::string input_stream;
+    size_t frame_timestamp;
+};
+
+struct mediapipe_poller {
+    mediapipe::OutputStreamPoller poller;
+};
+
+struct mediapipe_packet {
+    mediapipe::Packet packet;
+};
+
 template<typename List, typename Landmark>
 static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_packet* packet) {
     const auto& mp_data = packet->packet.template Get<std::vector<List>>();
@@ -53,33 +80,6 @@ static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_pa
         (int) mp_data.size()
     };
 }
-
-struct mediapipe_node_option {
-    const char* node;
-    const char* option;
-    std::variant<float, double> value;
-};
-
-struct mediapipe_instance_builder {
-    const char* graph_filename;
-    const char* input_stream;
-    std::vector<mediapipe_node_option> options;
-    std::map<std::string, mediapipe::Packet> side_packets;
-};
-
-struct mediapipe_instance {
-    mediapipe::CalculatorGraph graph;
-    std::string input_stream;
-    size_t frame_timestamp;
-};
-
-struct mediapipe_poller {
-    mediapipe::OutputStreamPoller poller;
-};
-
-struct mediapipe_packet {
-    mediapipe::Packet packet;
-};
 
 extern "C" {
 
