@@ -1,5 +1,6 @@
 #include "mediapipe.h"
 
+#include "externals/prebuild_scripts/mediapipe/c/mediapipe.h"
 #include "mediapipe/framework/calculator_framework.h"
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/image_frame.h"
@@ -193,17 +194,12 @@ MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance) {
     return true;
 }
 
-MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_image image) {
-    auto mp_frame = std::make_unique<mediapipe::ImageFrame>();
-    auto mp_format = static_cast<mediapipe::ImageFormat::Format>(image.format);
-    uint32_t mp_alignment_boundary = mediapipe::ImageFrame::kDefaultAlignmentBoundary;
-    mp_frame->CopyPixelData(mp_format, image.width, image.height, image.data, mp_alignment_boundary);
-
+MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_packet* packet) {
     mediapipe::Timestamp mp_timestamp(instance->frame_timestamp++);
+    mediapipe::Packet mp_packet = packet->packet.At(mp_timestamp);
+    auto result = instance->graph.AddPacketToInputStream(instance->input_stream, mp_packet);
+    mediapipe_destroy_packet(packet);
 
-    mediapipe::Packet packet = mediapipe::Adopt(mp_frame.release()).At(mp_timestamp);
-    auto result = instance->graph.AddPacketToInputStream(instance->input_stream, packet);
-    
     if (!result.ok()) {
         last_error = result;
         return false;
@@ -254,19 +250,30 @@ MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir) {
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_int(int value) {
     return new mediapipe_packet {
-      .packet = mediapipe::MakePacket<int>(value)
+        mediapipe::MakePacket<int>(value)
     };
 }
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_float(float value) {
     return new mediapipe_packet {
-      .packet = mediapipe::MakePacket<float>(value)
+        mediapipe::MakePacket<float>(value)
     };
 }
 
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_bool(bool value) {
     return new mediapipe_packet {
-      .packet = mediapipe::MakePacket<bool>(value)
+        mediapipe::MakePacket<bool>(value)
+    };
+}
+
+MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_image(mediapipe_image image) {
+    auto mp_frame = std::make_unique<mediapipe::ImageFrame>();
+    auto mp_format = static_cast<mediapipe::ImageFormat::Format>(image.format);
+    uint32_t mp_alignment_boundary = mediapipe::ImageFrame::kDefaultAlignmentBoundary;
+    mp_frame->CopyPixelData(mp_format, image.width, image.height, image.data, mp_alignment_boundary);
+
+    return new mediapipe_packet {
+        mediapipe::Adopt(mp_frame.release())
     };
 }
 

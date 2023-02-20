@@ -95,8 +95,9 @@ void CVTrackedMediaPipeHands::processImage(CVMat imageRgb)
     in_image.width  = imageRgb.cols;
     in_image.height = imageRgb.rows;
     in_image.format = 1;
+    mediapipe_packet* packet = mediapipe_create_packet_image(in_image);
 
-    CHECK_MP_RESULT(mediapipe_process(_instance, in_image))
+    CHECK_MP_RESULT(mediapipe_process(_instance, packet))
     CHECK_MP_RESULT(mediapipe_wait_until_idle(_instance))
 }
 //-----------------------------------------------------------------------------

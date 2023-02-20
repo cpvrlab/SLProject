@@ -116,11 +116,11 @@ MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* inst
 /// Returns true if starting the graph has succeeded.
 MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance);
 
-/// Sends an image to the input stream specified in mediapipe_create_instance_builder.
+/// Sends a packet to the input stream specified in mediapipe_create_instance_builder.
 /// The results won't be available immediately. Call mediapipe_get_queue_size to check whether the
-/// image has been processed or mediapipe_wait_until_idle to block until the results are available. 
-/// Returns true if submitting the image has succeeded.
-MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_image image);
+/// packet has been processed or mediapipe_wait_until_idle to block until the results are available. 
+/// Returns true if submitting the packet has succeeded.
+MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_packet* packet);
 
 /// Wait until the MediaPipe graph has finished the work submitted with mediapipe_process and
 /// the results are available.
@@ -141,16 +141,21 @@ MEDIAPIPE_API bool mediapipe_destroy_instance(mediapipe_instance* instance);
 MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir);
 
 /// Create a packet with an integer value.
-/// The packet should be deallocated with mediapipe_destroy_packet unless used as a side packet.
+/// The packet should be deallocated with mediapipe_destroy_packet if polled from an output stream.
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_int(int value);
 
 /// Create a packet with a float value.
-/// The packet should be deallocated with mediapipe_destroy_packet unless used as a side packet.
+/// The packet should be deallocated with mediapipe_destroy_packet if polled from an output stream.
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_float(float value);
 
 /// Create a packet with a bool value.
-/// The packet should be deallocated with mediapipe_destroy_packet unless used as a side packet.
+/// The packet should be deallocated with mediapipe_destroy_packet if polled from an output stream.
 MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_bool(bool value);
+
+/// Create a packet with an image value.
+/// The packet should be deallocated with mediapipe_destroy_packet if polled from an output stream.
+/// The image data is copied and should be deallocated by the caller.
+MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_image(mediapipe_image image);
 
 /// Poll a packet from an output stream.
 /// The packet should be deallocated with mediapipe_destroy_packet.
