@@ -1,6 +1,5 @@
 #include "mediapipe.h"
 
-#include "externals/prebuild_scripts/mediapipe/c/mediapipe.h"
 #include "mediapipe/framework/calculator_framework.h"
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/image_frame.h"
@@ -24,59 +23,59 @@
 ABSL_DECLARE_FLAG(std::string, resource_root_dir);
 static absl::Status last_error;
 
-struct mediapipe_node_option {
+struct mp_node_option {
     const char* node;
     const char* option;
     std::variant<float, double> value;
 };
 
-struct mediapipe_instance_builder {
+struct mp_instance_builder {
     const char* graph_filename;
     const char* input_stream;
-    std::vector<mediapipe_node_option> options;
+    std::vector<mp_node_option> options;
     std::map<std::string, mediapipe::Packet> side_packets;
 };
 
-struct mediapipe_instance {
+struct mp_instance {
     mediapipe::CalculatorGraph graph;
     std::string input_stream;
     size_t frame_timestamp;
 };
 
-struct mediapipe_poller {
+struct mp_poller {
     mediapipe::OutputStreamPoller poller;
 };
 
-struct mediapipe_packet {
+struct mp_packet {
     mediapipe::Packet packet;
 };
 
 template<typename List, typename Landmark>
-static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_packet* packet) {
+static mp_multi_face_landmark_list* get_multi_face_landmarks(mp_packet* packet) {
     const auto& mp_data = packet->packet.template Get<std::vector<List>>();
 
-    auto* lists = new mediapipe_landmark_list[mp_data.size()];
+    auto* lists = new mp_landmark_list[mp_data.size()];
 
     for (int i = 0; i < mp_data.size(); i++) {
         const List& mp_list = mp_data[i];
-        auto* list = new mediapipe_landmark[mp_list.landmark_size()];
+        auto* list = new mp_landmark[mp_list.landmark_size()];
 
         for (int j = 0; j < mp_list.landmark_size(); j++) {
             const Landmark& mp_landmark = mp_list.landmark(j);
-            list[j] = mediapipe_landmark {
+            list[j] = {
                 mp_landmark.x(),
                 mp_landmark.y(),
                 mp_landmark.z()
             };
         }
 
-        lists[i] = mediapipe_landmark_list {
+        lists[i] = mp_landmark_list {
             list,
             (int) mp_list.landmark_size()
         };
     }
 
-    return new mediapipe_multi_face_landmark_list {
+    return new mp_multi_face_landmark_list {
         lists,
         (int) mp_data.size()
     };
@@ -84,24 +83,24 @@ static mediapipe_multi_face_landmark_list* get_multi_face_landmarks(mediapipe_pa
 
 extern "C" {
 
-MEDIAPIPE_API mediapipe_instance_builder* mediapipe_create_instance_builder(const char* graph_filename, const char* input_stream) {
-    return new mediapipe_instance_builder { graph_filename, input_stream, {} };
+MEDIAPIPE_API mp_instance_builder* mp_create_instance_builder(const char* graph_filename, const char* input_stream) {
+    return new mp_instance_builder { graph_filename, input_stream, {} };
 }
 
-MEDIAPIPE_API void mediapipe_add_option_float(mediapipe_instance_builder* instance_builder, const char* node, const char* option, float value) {
+MEDIAPIPE_API void mp_add_option_float(mp_instance_builder* instance_builder, const char* node, const char* option, float value) {
     instance_builder->options.push_back({ node, option, value });
 }
 
-MEDIAPIPE_API void mediapipe_add_option_double(mediapipe_instance_builder* instance_builder, const char* node, const char* option, double value) {
+MEDIAPIPE_API void mp_add_option_double(mp_instance_builder* instance_builder, const char* node, const char* option, double value) {
     instance_builder->options.push_back({ node, option, value });
 }
 
-MEDIAPIPE_API void mediapipe_add_side_packet(mediapipe_instance_builder* instance_builder, const char* name, mediapipe_packet* packet) {
+MEDIAPIPE_API void mp_add_side_packet(mp_instance_builder* instance_builder, const char* name, mp_packet* packet) {
     instance_builder->side_packets.insert({name, packet->packet});
-    mediapipe_destroy_packet(packet);
+    mp_destroy_packet(packet);
 }
 
-MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_builder* builder) {
+MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder) {
     mediapipe::CalculatorGraphConfig config;
     
     std::ifstream stream(builder->graph_filename, std::ios::binary | std::ios::ate);
@@ -117,7 +116,7 @@ MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_b
     validated_config.Initialize(config);
     mediapipe::CalculatorGraphConfig canonical_config = validated_config.Config();
 
-    for (const mediapipe_node_option& option : builder->options) {
+    for (const mp_node_option& option : builder->options) {
         for (auto& node : *canonical_config.mutable_node()) {
             if (node.name() != option.node) {
                 continue;
@@ -157,7 +156,7 @@ MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_b
     google::protobuf::util::MessageToJsonString(canonical_config, &str, json_options);
     std::cout << str << std::endl;
 
-    auto* instance = new mediapipe_instance;
+    auto* instance = new mp_instance;
     absl::Status result = instance->graph.Initialize(canonical_config, builder->side_packets);
     if (!result.ok()) {
         last_error = result;
@@ -171,19 +170,19 @@ MEDIAPIPE_API mediapipe_instance* mediapipe_create_instance(mediapipe_instance_b
     return instance;
 }
 
-MEDIAPIPE_API mediapipe_poller* mediapipe_create_poller(mediapipe_instance* instance, const char* output_stream) {
+MEDIAPIPE_API mp_poller* mp_create_poller(mp_instance* instance, const char* output_stream) {
     absl::StatusOr<mediapipe::OutputStreamPoller> result = instance->graph.AddOutputStreamPoller(output_stream);
     if (!result.ok()) {
         last_error = result.status();
         return nullptr;
     }
 
-    return new mediapipe_poller { 
+    return new mp_poller { 
         std::move(*result)
     };
 }
 
-MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance) {
+MEDIAPIPE_API bool mp_start(mp_instance* instance) {
     absl::Status result = instance->graph.StartRun({});
 
     if (!result.ok()) {
@@ -194,11 +193,11 @@ MEDIAPIPE_API bool mediapipe_start(mediapipe_instance* instance) {
     return true;
 }
 
-MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_packet* packet) {
+MEDIAPIPE_API bool mp_process(mp_instance* instance, mp_packet* packet) {
     mediapipe::Timestamp mp_timestamp(instance->frame_timestamp++);
     mediapipe::Packet mp_packet = packet->packet.At(mp_timestamp);
     auto result = instance->graph.AddPacketToInputStream(instance->input_stream, mp_packet);
-    mediapipe_destroy_packet(packet);
+    mp_destroy_packet(packet);
 
     if (!result.ok()) {
         last_error = result;
@@ -208,7 +207,7 @@ MEDIAPIPE_API bool mediapipe_process(mediapipe_instance* instance, mediapipe_pac
     return true;
 }
 
-MEDIAPIPE_API bool mediapipe_wait_until_idle(mediapipe_instance* instance) {
+MEDIAPIPE_API bool mp_wait_until_idle(mp_instance* instance) {
     absl::Status result = instance->graph.WaitUntilIdle();
 
     if (!result.ok()) {
@@ -219,15 +218,15 @@ MEDIAPIPE_API bool mediapipe_wait_until_idle(mediapipe_instance* instance) {
     return true;
 }
 
-MEDIAPIPE_API int mediapipe_get_queue_size(mediapipe_poller* poller) {
+MEDIAPIPE_API int mp_get_queue_size(mp_poller* poller) {
     return poller->poller.QueueSize();
 }
 
-MEDIAPIPE_API void mediapipe_destroy_poller(mediapipe_poller* poller) {
+MEDIAPIPE_API void mp_destroy_poller(mp_poller* poller) {
     delete poller;
 }
 
-MEDIAPIPE_API bool mediapipe_destroy_instance(mediapipe_instance* instance) {
+MEDIAPIPE_API bool mp_destroy_instance(mp_instance* instance) {
     absl::Status result = instance->graph.CloseInputStream(instance->input_stream);
     if (!result.ok()) {
         last_error = result;
@@ -244,74 +243,74 @@ MEDIAPIPE_API bool mediapipe_destroy_instance(mediapipe_instance* instance) {
     return true;
 }
 
-MEDIAPIPE_API void mediapipe_set_resource_dir(const char* dir) {
+MEDIAPIPE_API void mp_set_resource_dir(const char* dir) {
     absl::SetFlag(&FLAGS_resource_root_dir, dir);
 }
 
-MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_int(int value) {
-    return new mediapipe_packet {
+MEDIAPIPE_API mp_packet* mp_create_packet_int(int value) {
+    return new mp_packet {
         mediapipe::MakePacket<int>(value)
     };
 }
 
-MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_float(float value) {
-    return new mediapipe_packet {
+MEDIAPIPE_API mp_packet* mp_create_packet_float(float value) {
+    return new mp_packet {
         mediapipe::MakePacket<float>(value)
     };
 }
 
-MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_bool(bool value) {
-    return new mediapipe_packet {
+MEDIAPIPE_API mp_packet* mp_create_packet_bool(bool value) {
+    return new mp_packet {
         mediapipe::MakePacket<bool>(value)
     };
 }
 
-MEDIAPIPE_API mediapipe_packet* mediapipe_create_packet_image(mediapipe_image image) {
+MEDIAPIPE_API mp_packet* mp_create_packet_image(mp_image image) {
     auto mp_frame = std::make_unique<mediapipe::ImageFrame>();
     auto mp_format = static_cast<mediapipe::ImageFormat::Format>(image.format);
     uint32_t mp_alignment_boundary = mediapipe::ImageFrame::kDefaultAlignmentBoundary;
     mp_frame->CopyPixelData(mp_format, image.width, image.height, image.data, mp_alignment_boundary);
 
-    return new mediapipe_packet {
+    return new mp_packet {
         mediapipe::Adopt(mp_frame.release())
     };
 }
 
-MEDIAPIPE_API mediapipe_packet* mediapipe_poll_packet(mediapipe_poller* poller) {
-    auto* packet = new mediapipe_packet;
+MEDIAPIPE_API mp_packet* mp_poll_packet(mp_poller* poller) {
+    auto* packet = new mp_packet;
     poller->poller.Next(&packet->packet);
     return packet;
 }
 
-MEDIAPIPE_API void mediapipe_destroy_packet(mediapipe_packet* packet) {
+MEDIAPIPE_API void mp_destroy_packet(mp_packet* packet) {
     delete packet;
 }
 
-MEDIAPIPE_API size_t mediapipe_get_packet_type_len(mediapipe_packet* packet) {
+MEDIAPIPE_API size_t mp_get_packet_type_len(mp_packet* packet) {
     mediapipe::TypeId type = packet->packet.GetTypeId();
     return type.name().size();
 }
 
-MEDIAPIPE_API void mediapipe_get_packet_type(mediapipe_packet* packet, char* buffer) {
+MEDIAPIPE_API void mp_get_packet_type(mp_packet* packet, char* buffer) {
     mediapipe::TypeId type = packet->packet.GetTypeId();
     std::strcpy(buffer, type.name().c_str());
 }
 
-MEDIAPIPE_API void mediapipe_copy_packet_image(mediapipe_packet* packet, uint8_t* out_data) {
+MEDIAPIPE_API void mp_copy_packet_image(mp_packet* packet, uint8_t* out_data) {
     const auto& mp_frame = packet->packet.Get<mediapipe::ImageFrame>();
     size_t data_size = mp_frame.PixelDataSizeStoredContiguously();
     mp_frame.CopyToBuffer(out_data, data_size);
 }
 
-MEDIAPIPE_API mediapipe_multi_face_landmark_list* mediapipe_get_multi_face_landmarks(mediapipe_packet* packet) {
+MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_multi_face_landmarks(mp_packet* packet) {
     return get_multi_face_landmarks<mediapipe::LandmarkList, mediapipe::Landmark>(packet);
 }
 
-MEDIAPIPE_API mediapipe_multi_face_landmark_list* mediapipe_get_normalized_multi_face_landmarks(mediapipe_packet* packet) {
+MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_normalized_multi_face_landmarks(mp_packet* packet) {
     return get_multi_face_landmarks<mediapipe::NormalizedLandmarkList, mediapipe::NormalizedLandmark>(packet);
 }
 
-MEDIAPIPE_API void mediapipe_destroy_multi_face_landmarks(mediapipe_multi_face_landmark_list* multi_face_landmarks) {
+MEDIAPIPE_API void mp_destroy_multi_face_landmarks(mp_multi_face_landmark_list* multi_face_landmarks) {
     for (int i = 0; i < multi_face_landmarks->length; i++) {
         delete[] multi_face_landmarks->elements[i].elements;
     }
@@ -320,7 +319,7 @@ MEDIAPIPE_API void mediapipe_destroy_multi_face_landmarks(mediapipe_multi_face_l
     delete multi_face_landmarks;
 }
 
-MEDIAPIPE_API void mediapipe_print_last_error() {
+MEDIAPIPE_API void mp_print_last_error() {
     std::cout << "[MediaPipe] " << last_error << std::endl;
 }
 

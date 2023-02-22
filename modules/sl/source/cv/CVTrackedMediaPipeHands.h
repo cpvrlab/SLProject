@@ -26,11 +26,11 @@ public:
 
 private:
     void processImage(CVMat imageRgb);
-    void drawResults(mediapipe_multi_face_landmark_list* landmarks,
-                     CVMat                               imageRgb);
+    void drawResults(mp_multi_face_landmark_list* landmarks,
+                     CVMat                        imageRgb);
 
-    mediapipe_instance* _instance;
-    mediapipe_poller*   _landmarksPoller;
+    mp_instance* _instance;
+    mp_poller*   _landmarksPoller;
 };
 //-----------------------------------------------------------------------------
 #endif // CVTRACKEDMEDIAPIPEHANDS_H

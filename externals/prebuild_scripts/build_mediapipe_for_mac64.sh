@@ -16,7 +16,7 @@ DATA_DIR="../../data/mediapipe"
 
 clear
 
-./build_opencv_w_contrib_for_mac64.sh "$OPENCV_VERSION"
+if [ ! -d "$OPENCV_DIR" ]; then ./build_opencv_w_contrib_for_mac64.sh "$OPENCV_VERSION"; fi
 
 cd mediapipe
 ./build-mediapipe-x86_64-macos.sh --version $VERSION --config debug --opencv_dir "../$OPENCV_DIR"

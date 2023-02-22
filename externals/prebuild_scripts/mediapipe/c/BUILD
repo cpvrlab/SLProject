@@ -26,7 +26,7 @@ cc_binary(
         "@com_google_absl//absl/flags:parse",
 		
 		"//mediapipe/graphs/face_mesh:desktop_live_calculators",
-		"//mediapipe/graphs/hand_tracking:desktop_tflite_calculators",
+		"//mediapipe/modules/hand_landmark:hand_landmark_tracking_cpu",
     ],
 	linkshared = 1,
 )

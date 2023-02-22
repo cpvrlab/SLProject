@@ -16,7 +16,7 @@ set DATA_DIR=..\..\data\mediapipe
 
 cls
 
-.\build_opencv_w_contrib_for_win64.bat %OPENCV_VERSION%
+if not exist %OPENCV_DIR% .\build_opencv_w_contrib_for_win64.bat %OPENCV_VERSION%
 
 cd mediapipe
 powershell .\build-mediapipe-x86_64-windows.ps1 --version %VERSION% --config debug --opencv_dir "../%OPENCV_DIR%"
