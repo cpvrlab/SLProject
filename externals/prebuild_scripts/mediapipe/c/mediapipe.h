@@ -18,29 +18,47 @@
 extern "C" {
 #endif
 
-/// Object for configuring an instance before creating it.
+/// Structure specifying instance properties before creation.
 typedef struct mp_instance_builder mp_instance_builder;
 
-/// Contains the MediaPipe graph as well as some extra information.
-/// Data in MediaPipe flows between node of a graph to perform computations.
+/// Structure containing the MediaPipe graph as well as some extra information.
+/// Data in MediaPipe flows between nodes of a graph to perform computations.
 /// The graph takes some packets via an input stream and outputs the resulting packets
-/// via output streams that can be read from using pollers. 
+/// via output streams that can be read from using pollers.
 typedef struct mp_instance mp_instance;
 
-/// Object for polling packets from an output stream.
+/// An interface for polling packets from an output stream.
 typedef struct mp_poller mp_poller;
 
 /// The basic data flow unit in a graph.
 /// Packets can be put into an input stream to process them and polled from
-/// an output stream to read the results.
+/// an output stream to access the results.
 typedef struct mp_packet mp_packet;
 
-/// An image that can be processed by a graph.
+/// Enum specifying the format of image data.
+/// For more information, see: https://github.com/google/mediapipe/blob/master/mediapipe/framework/formats/image_format.proto
+typedef enum : int {
+  mp_image_format_unknown = 0,
+  mp_image_format_srgb = 1,
+  mp_image_format_srgba = 2,
+  mp_image_format_gray8 = 3,
+  mp_image_format_gray16 = 4,
+  mp_image_format_ycbcr420p = 5,
+  mp_image_format_ycbcr420p10 = 6,
+  mp_image_format_srgb48 = 7,
+  mp_image_format_srgba64 = 8,
+  mp_image_format_vec32f1 = 9,
+  mp_image_format_vec32f2 = 12,
+  mp_image_format_lab8 = 10,
+  mp_image_format_sbgra = 11
+} mp_image_format;
+
+/// A structure for wrapping pixel data.
 typedef struct {
     const uint8_t* data;
     int width;
     int height;
-    int format;
+    mp_image_format format;
 } mp_image;
 
 /// The 3D position of a landmark.
@@ -56,11 +74,27 @@ typedef struct {
     int length;
 } mp_landmark_list;
 
-/// A list of hands or faces detcted in an image.
+/// A list of hands or faces detected in an image.
 typedef struct {
     mp_landmark_list* elements;
     int length;
 } mp_multi_face_landmark_list;
+
+/// A rectangle with a rotation in radians.
+typedef struct {
+    float x_center;
+    float y_center;
+    float width;
+    float height;
+    float rotation;
+    long long id;
+} mp_rect;
+
+/// A list of rectangles.
+typedef struct {
+    mp_rect* elements;
+    int length;
+} mp_rect_list;
 
 /// Hand landmark indices in a mp_landmark_list.
 /// For more information, see: https://google.github.io/mediapipe/solutions/hands.html#hand-landmark-model
@@ -102,90 +136,102 @@ MEDIAPIPE_API void mp_add_option_double(mp_instance_builder* instance_builder, c
 /// The function claims ownership of the packet and will deallocate it.
 MEDIAPIPE_API void mp_add_side_packet(mp_instance_builder* instance_builder, const char* name, mp_packet* packet);
 
-/// Creates a MediaPipe instance, which represents the graph with some extra information.
+/// Creates a MediaPipe instance, which contains the graph with some extra information.
 /// The instance should be deallocated when no longer used with mp_destroy_instance.
-/// Returns NULL if the instance creation failed.
+/// Returns NULL on failure.
 MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder);
 
 /// Creates a poller to read packets from an output stream.
 /// The poller should be deallocated before the instance with mp_destroy_poller.
-/// Returns NULL if the poller creation failed.
+/// Returns NULL on failure.
 MEDIAPIPE_API mp_poller* mp_create_poller(mp_instance* instance, const char* output_stream);
 
 /// Starts the graph associated with the instance.
-/// Returns true if starting the graph has succeeded.
+/// Returns true on success.
 MEDIAPIPE_API bool mp_start(mp_instance* instance);
 
 /// Sends a packet to the input stream specified in mp_create_instance_builder.
 /// The results won't be available immediately. Call mp_get_queue_size to check whether the
-/// packet has been processed or mp_wait_until_idle to block until the results are available. 
-/// Returns true if submitting the packet has succeeded.
+/// packet has been processed or mp_wait_until_idle to block until the results are available.
+/// Returns true on success.
 MEDIAPIPE_API bool mp_process(mp_instance* instance, mp_packet* packet);
 
-/// Wait until the MediaPipe graph has finished the work submitted with mp_process and
+/// Blocks until the MediaPipe graph has finished the work submitted with mp_process and
 /// the results are available.
-/// Returns true if processing has succeeded.
+/// Returns true on success.
 MEDIAPIPE_API bool mp_wait_until_idle(mp_instance* instance);
 
-/// Get the number of packets available in an output stream.
+/// Returns the number of packets available in an output stream.
+/// This function should be called before polling packets to avoid infinite blocking.
 MEDIAPIPE_API int mp_get_queue_size(mp_poller* poller);
 
-/// Deallocate a poller.
+/// Deallocates a poller.
 MEDIAPIPE_API void mp_destroy_poller(mp_poller* poller);
 
-/// Deallocate an instance.
-/// Returns true if deallocating the instance has succeeded.
+/// Stops the graph associated with the instance and deallocates it.
+/// Returns true on success.
 MEDIAPIPE_API bool mp_destroy_instance(mp_instance* instance);
 
-/// Set root resource directory where model files are loaded from. 
+/// Sets the root resource directory.
+/// Model files referenced in graphs are loaded from this directory.
 MEDIAPIPE_API void mp_set_resource_dir(const char* dir);
 
-/// Create a packet with an integer value.
-/// The packet should be deallocated with mp_destroy_packet if polled from an output stream.
+/// Creates a packet with an integer value.
 MEDIAPIPE_API mp_packet* mp_create_packet_int(int value);
 
-/// Create a packet with a float value.
-/// The packet should be deallocated with mp_destroy_packet if polled from an output stream.
+/// Creates a packet with a float value.
 MEDIAPIPE_API mp_packet* mp_create_packet_float(float value);
 
-/// Create a packet with a bool value.
-/// The packet should be deallocated with mp_destroy_packet if polled from an output stream.
+/// Creates a packet with a bool value.
 MEDIAPIPE_API mp_packet* mp_create_packet_bool(bool value);
 
-/// Create a packet with an image value.
-/// The packet should be deallocated with mp_destroy_packet if polled from an output stream.
-/// The image data is copied and should be deallocated by the caller.
+/// Creates a packet with an image value.
+/// The pixel data is copied and not deallocated.
 MEDIAPIPE_API mp_packet* mp_create_packet_image(mp_image image);
 
-/// Poll a packet from an output stream.
+/// Polls a packet from an output stream.
 /// The packet should be deallocated with mp_destroy_packet.
 MEDIAPIPE_API mp_packet* mp_poll_packet(mp_poller* poller);
 
-/// Deallocates a packet. 
+/// Deallocates a packet.
 MEDIAPIPE_API void mp_destroy_packet(mp_packet* packet);
 
-/// Gets the length of a packet type name without the NUL terminator.
-MEDIAPIPE_API size_t mp_get_packet_type_len(mp_packet* packet);
+/// Returns the name of the packet type.
+MEDIAPIPE_API const char* mp_get_packet_type(mp_packet* packet);
 
-/// Copies the name of a packet type into a buffer.
-MEDIAPIPE_API void mp_get_packet_type(mp_packet* packet, char* buffer);
+/// Deallocates the type name returned by mp_get_packet_type.
+MEDIAPIPE_API void mp_free_packet_type(const char* type);
 
-/// Copies an image of a packet into a buffer. 
+/// Copies a packet image into a buffer.
 MEDIAPIPE_API void mp_copy_packet_image(mp_packet* packet, uint8_t* out_data);
 
 /// Returns the multi-face landmarks of a packet.
-/// The multi-face landmark list should be destroyed with mp_destroy_multi_face_landmarks.
+/// The list should be destroyed with mp_destroy_multi_face_landmarks.
 MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_multi_face_landmarks(mp_packet* packet);
 
 /// Returns the normalized multi-face landmarks of a packet.
-/// The multi-face landmark list should be destroyed with mp_destroy_multi_face_landmarks.
-MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_normalized_multi_face_landmarks(mp_packet* packet);
+/// The list should be destroyed with mp_destroy_multi_face_landmarks.
+MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_norm_multi_face_landmarks(mp_packet* packet);
 
-/// Deallocates a multi-face landmark list
+/// Deallocates a multi-face landmark list.
 MEDIAPIPE_API void mp_destroy_multi_face_landmarks(mp_multi_face_landmark_list* multi_face_landmarks);
 
-/// Prints the last error generated to stderr.
-MEDIAPIPE_API void mp_print_last_error();
+/// Returns the rectangles of a packet.
+/// The list should be destroyed with mp_destroy_rects.
+MEDIAPIPE_API mp_rect_list* mp_get_rects(mp_packet* packet);
+
+/// Returns the normalized rectangles of a packet.
+/// The list should be destroyed with mp_destroy_rects.
+MEDIAPIPE_API mp_rect_list* mp_get_norm_rects(mp_packet* packet);
+
+/// Deallocates a rectangle list.
+MEDIAPIPE_API void mp_destroy_rects(mp_rect_list* list);
+
+/// Returns the last error message generated.
+MEDIAPIPE_API const char* mp_get_last_error();
+
+/// Deallocates the error message returned by mp_get_last_error
+MEDIAPIPE_API void mp_free_error(const char* message);
 
 #ifdef __cplusplus
 }

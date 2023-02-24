@@ -13,7 +13,9 @@
 #define CHECK_MP_RESULT(result) \
     if (!result) \
     { \
-        mp_print_last_error(); \
+        const char* error = mp_get_last_error(); \
+        std::cerr << error << std::endl; \
+        mp_free_error(error); \
         SL_EXIT_MSG("Exiting due to MediaPipe error"); \
     }
 //-----------------------------------------------------------------------------
@@ -46,7 +48,7 @@ CVTrackedMediaPipeHands::CVTrackedMediaPipeHands(SLstring dataPath)
     mp_set_resource_dir(dataPath.c_str());
 
     SLstring graphPath = dataPath + "mediapipe/modules/hand_landmark/hand_landmark_tracking_cpu.binarypb";
-    auto* builder = mp_create_instance_builder(graphPath.c_str(), "image");
+    auto*    builder   = mp_create_instance_builder(graphPath.c_str(), "image");
     mp_add_option_float(builder, "palmdetectioncpu__TensorsToDetectionsCalculator", "min_score_thresh", 0.5);
     mp_add_option_double(builder, "handlandmarkcpu__ThresholdingCalculator", "threshold", 0.5);
     mp_add_side_packet(builder, "num_hands", mp_create_packet_int(2));
@@ -64,6 +66,7 @@ CVTrackedMediaPipeHands::CVTrackedMediaPipeHands(SLstring dataPath)
 //-----------------------------------------------------------------------------
 CVTrackedMediaPipeHands::~CVTrackedMediaPipeHands()
 {
+    mp_destroy_poller(_landmarksPoller);
     CHECK_MP_RESULT(mp_destroy_instance(_instance))
 }
 //-----------------------------------------------------------------------------
@@ -76,7 +79,7 @@ bool CVTrackedMediaPipeHands::track(CVMat          imageGray,
     if (mp_get_queue_size(_landmarksPoller) > 0)
     {
         auto* landmarksPacket = mp_poll_packet(_landmarksPoller);
-        auto* landmarks       = mp_get_normalized_multi_face_landmarks(landmarksPacket);
+        auto* landmarks       = mp_get_norm_multi_face_landmarks(landmarksPacket);
 
         drawResults(landmarks, imageRgb);
 
@@ -91,10 +94,10 @@ bool CVTrackedMediaPipeHands::track(CVMat          imageGray,
 void CVTrackedMediaPipeHands::processImage(CVMat imageRgb)
 {
     mp_image in_image;
-    in_image.data   = imageRgb.data;
-    in_image.width  = imageRgb.cols;
-    in_image.height = imageRgb.rows;
-    in_image.format = 1;
+    in_image.data     = imageRgb.data;
+    in_image.width    = imageRgb.cols;
+    in_image.height   = imageRgb.rows;
+    in_image.format   = mp_image_format_srgb;
     mp_packet* packet = mp_create_packet_image(in_image);
 
     CHECK_MP_RESULT(mp_process(_instance, packet))
@@ -102,7 +105,7 @@ void CVTrackedMediaPipeHands::processImage(CVMat imageRgb)
 }
 //-----------------------------------------------------------------------------
 void CVTrackedMediaPipeHands::drawResults(mp_multi_face_landmark_list* landmarks,
-                                          CVMat                               imageRgb)
+                                          CVMat                        imageRgb)
 {
     for (int i = 0; i < landmarks->length; i++)
     {

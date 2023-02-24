@@ -4,6 +4,7 @@
 #include "mediapipe/framework/port/parse_text_proto.h"
 #include "mediapipe/framework/formats/image_frame.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
+#include "mediapipe/framework/formats/rect.pb.h"
 #include "mediapipe/framework/tool/options_util.h"
 
 #include "mediapipe/calculators/util/thresholding_calculator.pb.h"
@@ -81,6 +82,29 @@ static mp_multi_face_landmark_list* get_multi_face_landmarks(mp_packet* packet) 
     };
 }
 
+template<typename Rect>
+static mp_rect_list* get_rects(mp_packet* packet) {
+    const auto& mp_data = packet->packet.template Get<std::vector<Rect>>();
+    auto* list = new mp_rect[mp_data.size()];
+
+    for (int i = 0; i < mp_data.size(); i++) {
+        const Rect& mp_rect = mp_data[i];
+        list[i] = {
+            (float) mp_rect.x_center(),
+            (float) mp_rect.y_center(),
+            (float) mp_rect.width(),
+            (float) mp_rect.height(),
+            mp_rect.rotation(),
+            mp_rect.rect_id()
+        };
+    }
+
+    return new mp_rect_list {
+        list,
+        (int) mp_data.size()
+    };
+}
+
 extern "C" {
 
 MEDIAPIPE_API mp_instance_builder* mp_create_instance_builder(const char* graph_filename, const char* input_stream) {
@@ -102,8 +126,13 @@ MEDIAPIPE_API void mp_add_side_packet(mp_instance_builder* instance_builder, con
 
 MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder) {
     mediapipe::CalculatorGraphConfig config;
-    
+
     std::ifstream stream(builder->graph_filename, std::ios::binary | std::ios::ate);
+	if (!stream) {
+		last_error = absl::Status(absl::StatusCode::kNotFound, "Failed to open graph file");
+		return nullptr;
+	}
+
     size_t size = stream.tellg();
     stream.seekg(0, std::ios::beg);
 
@@ -111,7 +140,7 @@ MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder) {
     stream.read(memory, size);
     config.ParseFromArray(memory, size);
     delete[] memory;
-    
+
     mediapipe::ValidatedGraphConfig validated_config;
     validated_config.Initialize(config);
     mediapipe::CalculatorGraphConfig canonical_config = validated_config.Config();
@@ -136,18 +165,15 @@ MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder) {
             auto* descriptor = ext->GetDescriptor();
             auto* reflection = ext->GetReflection();
             auto* field_descriptor = descriptor->FindFieldByName(option.option);
-            
+
             switch (option.value.index()) {
                 case 0: reflection->SetFloat(ext, field_descriptor, std::get<0>(option.value)); break;
                 case 1: reflection->SetDouble(ext, field_descriptor, std::get<1>(option.value)); break;
             }
-
-            switch (option.value.index()) {
-                case 0: std::cout << reflection->GetFloat(*ext, field_descriptor) << std::endl; break;
-                case 1: std::cout << reflection->GetDouble(*ext, field_descriptor) << std::endl; break;
-            }
         }
     }
+
+    /* For printing the graph
 
     google::protobuf::util::JsonPrintOptions json_options;
     json_options.add_whitespace = true;
@@ -155,6 +181,8 @@ MEDIAPIPE_API mp_instance* mp_create_instance(mp_instance_builder* builder) {
     std::string str;
     google::protobuf::util::MessageToJsonString(canonical_config, &str, json_options);
     std::cout << str << std::endl;
+    
+    */
 
     auto* instance = new mp_instance;
     absl::Status result = instance->graph.Initialize(canonical_config, builder->side_packets);
@@ -177,7 +205,7 @@ MEDIAPIPE_API mp_poller* mp_create_poller(mp_instance* instance, const char* out
         return nullptr;
     }
 
-    return new mp_poller { 
+    return new mp_poller {
         std::move(*result)
     };
 }
@@ -238,7 +266,7 @@ MEDIAPIPE_API bool mp_destroy_instance(mp_instance* instance) {
         last_error = result;
         return false;
     }
-    
+
     delete instance;
     return true;
 }
@@ -286,14 +314,16 @@ MEDIAPIPE_API void mp_destroy_packet(mp_packet* packet) {
     delete packet;
 }
 
-MEDIAPIPE_API size_t mp_get_packet_type_len(mp_packet* packet) {
-    mediapipe::TypeId type = packet->packet.GetTypeId();
-    return type.name().size();
+MEDIAPIPE_API const char* mp_get_packet_type(mp_packet* packet) {
+	mediapipe::TypeId type = packet->packet.GetTypeId();
+	std::string string = type.name();
+	char* buffer = new char[string.size() + 1];
+	std::strcpy(buffer, string.c_str());
+	return buffer;
 }
 
-MEDIAPIPE_API void mp_get_packet_type(mp_packet* packet, char* buffer) {
-    mediapipe::TypeId type = packet->packet.GetTypeId();
-    std::strcpy(buffer, type.name().c_str());
+MEDIAPIPE_API void mp_free_packet_type(const char* type) {
+	delete[] type;
 }
 
 MEDIAPIPE_API void mp_copy_packet_image(mp_packet* packet, uint8_t* out_data) {
@@ -306,7 +336,7 @@ MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_multi_face_landmarks(mp_packet
     return get_multi_face_landmarks<mediapipe::LandmarkList, mediapipe::Landmark>(packet);
 }
 
-MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_normalized_multi_face_landmarks(mp_packet* packet) {
+MEDIAPIPE_API mp_multi_face_landmark_list* mp_get_norm_multi_face_landmarks(mp_packet* packet) {
     return get_multi_face_landmarks<mediapipe::NormalizedLandmarkList, mediapipe::NormalizedLandmark>(packet);
 }
 
@@ -314,13 +344,33 @@ MEDIAPIPE_API void mp_destroy_multi_face_landmarks(mp_multi_face_landmark_list* 
     for (int i = 0; i < multi_face_landmarks->length; i++) {
         delete[] multi_face_landmarks->elements[i].elements;
     }
-    
+
     delete[] multi_face_landmarks->elements;
     delete multi_face_landmarks;
 }
 
-MEDIAPIPE_API void mp_print_last_error() {
-    std::cout << "[MediaPipe] " << last_error << std::endl;
+MEDIAPIPE_API mp_rect_list* mp_get_rects(mp_packet* packet) {
+    return get_rects<mediapipe::Rect>(packet);
+}
+
+MEDIAPIPE_API mp_rect_list* mp_get_norm_rects(mp_packet* packet) {
+    return get_rects<mediapipe::NormalizedRect>(packet);
+}
+
+MEDIAPIPE_API void mp_destroy_rects(mp_rect_list* list) {
+    delete[] list->elements;
+    delete list;
+}
+
+MEDIAPIPE_API const char* mp_get_last_error() {
+	std::string string = last_error.ToString();
+	char* buffer = new char[string.size() + 1];
+	std::strcpy(buffer, string.c_str());
+	return buffer;
+}
+
+MEDIAPIPE_API void mp_free_error(const char* message) {
+	delete[] message;
 }
 
 }
