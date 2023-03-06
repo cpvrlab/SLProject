@@ -79,7 +79,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenCV for Linux #
     ####################
 
-    set(OpenCV_VERSION "4.5.0")
+    set(OpenCV_VERSION "4.5.5")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -196,7 +196,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     ######################
     # OpenCV for Windows #
     #######################
-	set(OpenCV_VERSION "4.5.0")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+	set(OpenCV_VERSION "4.5.5")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
     #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.
@@ -529,7 +529,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 	#set(OpenCV_VERSION "3.4.1")
     #set(OpenCV_VERSION "4.1.1")
     #set(OpenCV_VERSION "4.5.0")
-    set(OpenCV_VERSION "4.5.2")
+    set(OpenCV_VERSION "4.5.5")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -877,7 +877,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     ##########################
 
     # Now download for MacOS-arm64
-    set(OpenCV_VERSION "4.5.2")
+    set(OpenCV_VERSION "4.5.5")
     set(OpenCV_PREBUILT_DIR "macArm64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
