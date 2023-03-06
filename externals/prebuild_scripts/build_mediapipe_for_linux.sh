@@ -18,12 +18,13 @@ clear
 
 if [ ! -d "$OPENCV_DIR" ]; then ./build_opencv_w_contrib_for_linux.sh "$OPENCV_VERSION"; fi
 
-cd mediapipe
-./build-mediapipe-x86_64-linux.sh --version $VERSION --config debug --opencv_dir "../$OPENCV_DIR"
+if not exist libmediapipe git clone https://github.com/cpvrlab/libmediapipe.git
+cd libmediapipe
+./build-x86_64-linux.sh --version $VERSION --config debug --opencv_dir "../$OPENCV_DIR"
 cd ..
 
 rm -rf "$PREBUILT_DIR"
-cp -r "mediapipe/build/mediapipe-$VERSION-x86_64-linux" "$PREBUILT_DIR"
+cp -r "libmediapipe/output/mediapipe-$VERSION-x86_64-linux" "$PREBUILT_DIR"
 
 rm -rf "$DATA_DIR"
-cp -r "mediapipe/build/data/mediapipe" "$DATA_DIR"
+cp -r "libmediapipe/output/data/mediapipe" "$DATA_DIR"
