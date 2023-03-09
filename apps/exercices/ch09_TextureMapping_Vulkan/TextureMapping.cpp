@@ -100,7 +100,7 @@ void printFPS()
     float fps        = calcFPS(timeNowSec - lastTimeSec);
     // if ((timeNowSec - updateTimeSec) >= 0.001f)
     {
-        sprintf(title, "fps: %5.0f", fps);
+        snprintf(title, sizeof(title), "fps: %5.0f", fps);
         glfwSetWindowTitle(window, title);
         //  updateTimeSec = timeNowSec;
     }

@@ -1567,7 +1567,8 @@ template<class T>
 SLstring SLMat4<T>::toString() const
 {
     SLchar cstr[500];
-    sprintf(cstr,
+    snprintf(cstr,
+        sizeof(cstr),
             "% 3.3f % 3.3f % 3.3f % 3.3f\n% 3.3f % 3.3f % 3.3f % 3.3f\n% 3.3f % 3.3f % 3.3f % 3.3f\n% 3.3f % 3.3f % 3.3f % 3.3f",
             _m[0],_m[4],_m[ 8],_m[12],
             _m[1],_m[5],_m[ 9],_m[13],

@@ -1781,26 +1781,29 @@ SLstring SLSceneView::windowTitle()
     {
         if (_raytracer.doContinuous())
         {
-            sprintf(title,
-                    "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
-                    _s->name().c_str(),
-                    _s->fps(),
-                    _raytracer.numThreads());
+            snprintf(title,
+                     sizeof(title),
+                     "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
+                     _s->name().c_str(),
+                     _s->fps(),
+                     _raytracer.numThreads());
         }
         else
         {
-            sprintf(title,
-                    "Ray Tracing: %s (Threads: %d)",
-                    _s->name().c_str(),
-                    _raytracer.numThreads());
+            snprintf(title,
+                     sizeof(title),
+                     "Ray Tracing: %s (Threads: %d)",
+                     _s->name().c_str(),
+                     _raytracer.numThreads());
         }
     }
     else if (_renderType == RT_pt)
     {
-        sprintf(title,
-                "Path Tracing: %s (Threads: %d)",
-                _s->name().c_str(),
-                _pathtracer.numThreads());
+        snprintf(title,
+                 sizeof(title),
+                 "Path Tracing: %s (Threads: %d)",
+                 _s->name().c_str(),
+                 _pathtracer.numThreads());
     }
     else
     {
@@ -1810,12 +1813,13 @@ SLstring SLSceneView::windowTitle()
         else
             format = "OpenGL Renderer: %s (fps: %4.1f, %u nodes of %u rendered)";
 
-        sprintf(title,
-                format.c_str(),
-                _s->name().c_str(),
-                _s->fps(),
-                _stats3D.numNodesOpaque + _stats3D.numNodesBlended,
-                _stats3D.numNodes);
+        snprintf(title,
+                 sizeof(title),
+                 format.c_str(),
+                 _s->name().c_str(),
+                 _s->fps(),
+                 _stats3D.numNodesOpaque + _stats3D.numNodesBlended,
+                 _stats3D.numNodes);
     }
     return profiling + SLstring(title) + profiling;
 }

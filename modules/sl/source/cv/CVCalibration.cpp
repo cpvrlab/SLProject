@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      CVCalibration.cpp
-//  Date:      Winter 2016
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch, Michael Goettlicher
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      CVCalibration.cpp
+//   Date:      Winter 2016
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch, Michael Goettlicher
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
@@ -236,15 +236,16 @@ bool CVCalibration::save(const string& calibDir,
     }
 
     char buf[1024];
-    sprintf(buf,
-            "flags:%s%s%s%s%s%s%s",
-            _calibFlags & cv::CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
-            _calibFlags & cv::CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
-            _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
-            _calibFlags & cv::CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "",
-            _calibFlags & cv::CALIB_RATIONAL_MODEL ? " +rational_model" : "",
-            _calibFlags & cv::CALIB_THIN_PRISM_MODEL ? " +thin_prism_model" : "",
-            _calibFlags & cv::CALIB_TILTED_MODEL ? " +tilted_model" : "");
+    snprintf(buf,
+             sizeof(buf),
+             "flags:%s%s%s%s%s%s%s",
+             _calibFlags & cv::CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
+             _calibFlags & cv::CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
+             _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
+             _calibFlags & cv::CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "",
+             _calibFlags & cv::CALIB_RATIONAL_MODEL ? " +rational_model" : "",
+             _calibFlags & cv::CALIB_THIN_PRISM_MODEL ? " +thin_prism_model" : "",
+             _calibFlags & cv::CALIB_TILTED_MODEL ? " +tilted_model" : "");
     fs.writeComment(buf, 0);
 
     fs << "CALIBFILEVERSION" << _CALIBFILEVERSION;
