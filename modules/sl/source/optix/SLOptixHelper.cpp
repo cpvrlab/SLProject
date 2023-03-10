@@ -57,6 +57,7 @@ string getPtxStringFromFile(string       filename,
     if (!readSourceFile(*ptx, sourceFilePath))
     {
         string err = "Couldn't open source file " + sourceFilePath;
+        cout << err << endl;
         throw std::runtime_error(err.c_str());
     }
 
@@ -72,6 +73,6 @@ float3 make_float3(const SLVec3f& f)
 {
     return {f.x, f.y, f.z};
 };
-    //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 #endif // SL_HAS_OPTIX

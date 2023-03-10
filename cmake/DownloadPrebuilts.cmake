@@ -227,8 +227,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     endforeach(lib)
 
     # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS} VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
 
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
@@ -331,10 +330,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
             ${assimp_DIR}/lib/assimp-mt.dll
             )
 
-    # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
@@ -433,10 +428,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
             )
 
     set(glfw_LIBS glfw3dll)
-
-    # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
