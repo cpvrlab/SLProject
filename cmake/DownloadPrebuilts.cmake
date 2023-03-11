@@ -227,7 +227,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     endforeach(lib)
 
     # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS} VS_DEBUGGER_WORKING_DIRECTORY "$(OutDir)")
+    #set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS} VS_DEBUGGER_WORKING_DIRECTORY "$(OutputDir)")
 
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")

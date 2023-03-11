@@ -45,7 +45,6 @@ CVCalibrationEstimator*      AppDemo::calibrationEstimator = nullptr;
 SLstring                     AppDemo::calibIniPath;
 SLstring                     AppDemo::calibFilePath;
 
-//! AppDemo::configPath is overwritten in slCreateAppAndScene.
 SLstring AppDemo::exePath;
 SLstring AppDemo::configPath;
 SLstring AppDemo::externalPath;
@@ -99,6 +98,7 @@ void AppDemo::createAppAndScene(SLstring appName,
     GlobalTimer::timerStart();
 
 #ifdef SL_HAS_OPTIX
+    SLOptix::exePath = AppDemo::exePath;
     SLOptix::createStreamAndContext();
 #endif
 }

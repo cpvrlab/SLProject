@@ -854,9 +854,10 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     {
         std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b)
                   {
-            if (!a) return false;
-            if (!b) return true;
-            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
+                      if (!a) return false;
+                      if (!b) return true;
+                      return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
+                  });
     }
 
     // draw the shapes directly with their wm transform
@@ -1529,7 +1530,10 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Down(SLint scrX1,
+                                 SLint scrY1,
+                                 SLint scrX2,
+                                 SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1559,7 +1563,10 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 SLSceneView::onTouch2Move gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Move(SLint scrX1,
+                                 SLint scrY1,
+                                 SLint scrX2,
+                                 SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1590,7 +1597,10 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 SLSceneView::onTouch2Up gets called whenever two fingers lift off a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Up(SLint scrX1,
+                               SLint scrY1,
+                               SLint scrX2,
+                               SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1779,6 +1789,8 @@ SLstring SLSceneView::windowTitle()
 
     if (_renderType == RT_rt)
     {
+        int numThreads = _raytracer.doDistributed() ? _raytracer.numThreads() : 1;
+
         if (_raytracer.doContinuous())
         {
             snprintf(title,
@@ -1786,7 +1798,7 @@ SLstring SLSceneView::windowTitle()
                      "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
                      _s->name().c_str(),
                      _s->fps(),
-                     _raytracer.numThreads());
+                     numThreads);
         }
         else
         {
@@ -1794,7 +1806,7 @@ SLstring SLSceneView::windowTitle()
                      sizeof(title),
                      "Ray Tracing: %s (Threads: %d)",
                      _s->name().c_str(),
-                     _raytracer.numThreads());
+                     numThreads);
         }
     }
     else if (_renderType == RT_pt)
@@ -2007,7 +2019,8 @@ SLbool SLSceneView::draw3DOptixPT()
  * wait a few frames until we can be sure that the executing menu command has
  * disappeared before we can save the screen.
  */
-void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
+void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename,
+                                         cv::Size targetSize)
 {
     if (_screenCaptureWaitFrames == 0)
     {

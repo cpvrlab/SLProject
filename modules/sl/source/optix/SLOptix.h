@@ -12,7 +12,10 @@
 #        define SLOPTIX_H
 #        include <optix_types.h>
 #        include <cuda.h>
+#        include <string>
 #        include <SLOptixDefinitions.h>
+
+using std::string;
 
 //-----------------------------------------------------------------------------
 //! SLOptix base instance for static Optix initialization
@@ -23,6 +26,7 @@ public:
     static void               createStreamAndContext();
     static OptixDeviceContext context;
     static CUstream           stream;
+    static string             exePath;
 };
 //-----------------------------------------------------------------------------
 #    endif // SLOPTIX_H
