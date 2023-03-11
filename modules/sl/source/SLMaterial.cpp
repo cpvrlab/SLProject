@@ -556,67 +556,67 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
             {
                 case TT_diffuse:
                 {
-                    sprintf(name, "u_matTextureDiffuse%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureDiffuse%d", texNb);
                     break;
                 }
                 case TT_specular:
                 {
-                    sprintf(name, "u_matTextureSpecular%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureSpecular%d", texNb);
                     break;
                 }
                 case TT_normal:
                 {
-                    sprintf(name, "u_matTextureNormal%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureNormal%d", texNb);
                     break;
                 }
                 case TT_height:
                 {
-                    sprintf(name, "u_matTextureHeight%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureHeight%d", texNb);
                     break;
                 }
                 case TT_occlusion:
                 {
-                    sprintf(name, "u_matTextureOcclusion%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureOcclusion%d", texNb);
                     break;
                 }
                 case TT_roughness:
                 {
-                    sprintf(name, "u_matTextureRoughness%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureRoughness%d", texNb);
                     break;
                 }
                 case TT_metallic:
                 {
-                    sprintf(name, "u_matTextureMetallic%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureMetallic%d", texNb);
                     break;
                 }
                 case TT_roughMetal:
                 {
-                    sprintf(name, "u_matTextureRoughMetal%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureRoughMetal%d", texNb);
                     break;
                 }
                 case TT_occluRoughMetal:
                 {
-                    sprintf(name, "u_matTextureOccluRoughMetal%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureOccluRoughMetal%d", texNb);
                     break;
                 }
                 case TT_emissive:
                 {
-                    sprintf(name, "u_matTextureEmissive%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureEmissive%d", texNb);
                     break;
                 }
                 case TT_environmentCubemap:
                 {
-                    sprintf(name, "u_matTextureEnvCubemap%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureEnvCubemap%d", texNb);
                     break;
                 }
                 case TT_font:
                 {
-                    sprintf(name, "u_matTextureFont%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureFont%d", texNb);
                     break;
                 }
                 default:
                 {
-                    sprintf(name, "u_matTextureDiffuse%d", texNb);
+                    snprintf(name, sizeof(name), "u_matTextureDiffuse%d", texNb);
                     break;
                 }
             }

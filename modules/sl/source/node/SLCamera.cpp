@@ -122,7 +122,6 @@ SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
     }
 
     // accelerate
-    SLfloat velMag    = _velocity.length();
     SLVec3f increment = _acceleration * dtS; // all units in m/s, convert MS to S
 
     // early out if we're braking and the velocity would fall < 0
@@ -134,7 +133,7 @@ SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
     }
 
     _velocity += increment - _drag * _velocity * dtS;
-    velMag = _velocity.length();
+    SLfloat velMag = _velocity.length();
 
     // don't go over max speed
     SLfloat maxSpeed = _maxSpeed > 0.0f ? _maxSpeed : _clipFar / 50.0f;

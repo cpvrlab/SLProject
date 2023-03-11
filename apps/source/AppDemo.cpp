@@ -29,7 +29,7 @@ SLDeviceRotation     AppDemo::devRot;
 SLDeviceLocation     AppDemo::devLoc;
 SLstring             AppDemo::name    = "SLProjectApp";
 SLstring             AppDemo::appTag  = "SLProject";
-SLstring             AppDemo::version = "3.3.000";
+SLstring             AppDemo::version = "3.4.000";
 #ifdef _DEBUG
 SLstring AppDemo::configuration = "Debug";
 #else
@@ -45,7 +45,6 @@ CVCalibrationEstimator*      AppDemo::calibrationEstimator = nullptr;
 SLstring                     AppDemo::calibIniPath;
 SLstring                     AppDemo::calibFilePath;
 
-//! AppDemo::configPath is overwritten in slCreateAppAndScene.
 SLstring AppDemo::exePath;
 SLstring AppDemo::configPath;
 SLstring AppDemo::externalPath;
@@ -99,6 +98,7 @@ void AppDemo::createAppAndScene(SLstring appName,
     GlobalTimer::timerStart();
 
 #ifdef SL_HAS_OPTIX
+    SLOptix::exePath = AppDemo::exePath;
     SLOptix::createStreamAndContext();
 #endif
 }

@@ -314,8 +314,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)_startX - x;
-        _deltaX = (int)_startY - y;
+        _deltaY = (int)(_startX - x);
+        _deltaX = (int)(_startY - y);
         onPaint();
     }
 }

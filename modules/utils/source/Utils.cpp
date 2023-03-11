@@ -338,7 +338,7 @@ bool endsWithString(const string& container, const string& endStr)
 }
 //-----------------------------------------------------------------------------
 // Returns inputDir with unified forward slashes
-string unifySlashes(const string& inputDir)
+string unifySlashes(const string& inputDir, bool withTrailingSlash)
 {
     string copy = inputDir;
     string curr;
@@ -354,7 +354,8 @@ string unifySlashes(const string& inputDir)
     }
 
     curr.append(copy);
-    if (!curr.empty() && curr.back() != '/')
+
+    if (withTrailingSlash && !curr.empty() && curr.back() != '/')
         curr.append("/");
 
     return curr;

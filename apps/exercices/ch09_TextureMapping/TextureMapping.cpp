@@ -421,7 +421,7 @@ bool onPaint()
     static float lastTimeSec = 0;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "Texture Mapping %3.1f", fps);
+    snprintf(title, sizeof(title), "Texture Mapping %3.1f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 
@@ -492,8 +492,8 @@ void onMouseMove(GLFWwindow* myWindow, double x, double y)
 
     if (_mouseLeftDown)
     {
-        _deltaY = (int)_startX - x;
-        _deltaX = (int)_startY - y;
+        _deltaY = (int)(_startX - x);
+        _deltaX = (int)(_startY - y);
         onPaint();
     }
 }

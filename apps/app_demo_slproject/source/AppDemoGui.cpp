@@ -133,9 +133,11 @@ static SLTransformNode* transformNode = nullptr;
 
 SLstring AppDemoGui::infoAbout = R"(
 Welcome to the SLProject demo app. It is developed at the Computer Science Department of the Bern University of Applied Sciences.
-The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing. The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. Click to close and use the menu to choose different scenes and view settings.
-For more information please visit: https://github.com/cpvrlab/SLProject
+The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing.
+The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
+Ray tracing and path tracing provide additional high quality transparencies, reflections and soft shadows.
+Click the X to close and use the menu File > Load Demo Scenes to choose other scenes that each show-case a specific feature of SLProject.
+For more information please visit: https://github.com/cpvrlab/SLProject/wiki
 )";
 
 SLstring AppDemoGui::infoCredits = R"(
@@ -386,7 +388,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
                     SLfloat updateAABBTime = s->updateAABBTimesMS().average();
-                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -402,40 +403,41 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                    sprintf(m + strlen(m), "Renderer   : OpenGL\n");
-                    sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
-                    sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
-                    sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                    sprintf(m + strlen(m), " Shadow    : %d\n", SLShadowMap::drawCalls);
-                    sprintf(m + strlen(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls - SLShadowMap::drawCalls);
-                    sprintf(m + strlen(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
-                    sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
-                    sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
-                    sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                    sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                    snprintf(m + strlen(m), sizeof(m), "Renderer   : OpenGL\n");
+                    snprintf(m + strlen(m), sizeof(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
+                    snprintf(m + strlen(m), sizeof(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                    snprintf(m + strlen(m), sizeof(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                    snprintf(m + strlen(m), sizeof(m), " Shadow    : %d\n", SLShadowMap::drawCalls);
+                    snprintf(m + strlen(m), sizeof(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls - SLShadowMap::drawCalls);
+                    snprintf(m + strlen(m), sizeof(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
+                    snprintf(m + strlen(m), sizeof(m), "FPS        : %5.1f\n", s->fps());
+                    snprintf(m + strlen(m), sizeof(m), "Frame time : %5.1f ms (100%%)\n", ft);
+                    snprintf(m + strlen(m), sizeof(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                    snprintf(m + strlen(m), sizeof(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
-                    sprintf(m + strlen(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
+                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
+                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
+                    snprintf(m + strlen(m), sizeof(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
 #endif
                     if (!s->animManager().allAnimNames().empty())
                     {
-                        sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                        sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
                     }
                     if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                     {
-                        sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                        sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                        sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
-                        sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
-                        sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                        sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                        sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "    Det1   : %5.1f ms\n", detect1Time);
+                        snprintf(m + strlen(m), sizeof(m), "    Det2   : %5.1f ms\n", detect2Time);
+                        snprintf(m + strlen(m), sizeof(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                        snprintf(m + strlen(m), sizeof(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
 
                     // Wrong value of displayed, need to use a profiler to measure (can't just measure time before and after the draw call and take the difference, not with the GPU)
@@ -444,14 +446,14 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
                         if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
                         {
-                            sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
-                            sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
+                            snprintf(m + strlen(m), sizeof(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
+                            snprintf(m + strlen(m), sizeof(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
                         }
                     }*/
-                    sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
-                    sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                    sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                    sprintf(m + strlen(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                    snprintf(m + strlen(m), sizeof(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
+                    snprintf(m + strlen(m), sizeof(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                    snprintf(m + strlen(m), sizeof(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                    snprintf(m + strlen(m), sizeof(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
                 }
                 else if (rType == RT_rt)
                 {
@@ -463,42 +465,42 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat      renderSec    = rt->renderSec();
                     SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
 
-                    sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
-                    sprintf(m + strlen(m), "Progress   :%3d%%\n", rt->progressPC());
-                    sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
-                    sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
-                    sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", renderSec);
-                    sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
-                    sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
-                    sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                    sprintf(m + strlen(m), "----------------------------\n");
-                    sprintf(m + strlen(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
-                    sprintf(m + strlen(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Refracted:%9d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "----------------------------\n");
-                    sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
+                    snprintf(m + strlen(m), sizeof(m), "Renderer   :Ray Tracer\n");
+                    snprintf(m + strlen(m), sizeof(m), "Progress   :%3d%%\n", rt->progressPC());
+                    snprintf(m + strlen(m), sizeof(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
+                    snprintf(m + strlen(m), sizeof(m), "FPS        :%0.2f\n", fps);
+                    snprintf(m + strlen(m), sizeof(m), "Frame Time :%0.3f sec.\n", renderSec);
+                    snprintf(m + strlen(m), sizeof(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
+                    snprintf(m + strlen(m), sizeof(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "Threads    :%d\n", rt->numThreads());
+                    snprintf(m + strlen(m), sizeof(m), "----------------------------\n");
+                    snprintf(m + strlen(m), sizeof(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
+                    snprintf(m + strlen(m), sizeof(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  Refracted:%9d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "----------------------------\n");
+                    snprintf(m + strlen(m), sizeof(m), "Max. depth :%u\n", SLRay::maxDepthReached);
+                    snprintf(m + strlen(m), sizeof(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
                 }
 #if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
                 else if (rType == RT_optix_rt)
                 {
                     SLOptixRaytracer* ort = sv->optixRaytracer();
-                    sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
-                    sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                    sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                    sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f / s->fps());
+                    snprintf(m + strlen(m), sizeof(m), "Renderer   :OptiX Ray Tracer\n");
+                    snprintf(m + strlen(m), sizeof(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                    snprintf(m + strlen(m), sizeof(m), "FPS        :%5.1f\n", s->fps());
+                    snprintf(m + strlen(m), sizeof(m), "Frame Time :%0.3f sec.\n", 1.0f / s->fps());
                 }
                 else if (rType == RT_optix_pt)
                 {
                     SLOptixPathtracer* opt = sv->optixPathtracer();
-                    sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
-                    sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                    sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
-                    sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
+                    snprintf(m + strlen(m), sizeof(m), "Renderer   :OptiX Ray Tracer\n");
+                    snprintf(m + strlen(m), sizeof(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                    snprintf(m + strlen(m), sizeof(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
+                    snprintf(m + strlen(m), sizeof(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
                 }
 #endif
                 else if (rType == RT_pt)
@@ -506,24 +508,23 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLPathtracer* pt           = sv->pathtracer();
                     SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
                     SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
-                    SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
                     SLuint        rayTotal     = SLRay::totalNumRays();
 
-                    sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
-                    sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
-                    sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
-                    sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
-                    sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
-                    sprintf(m + strlen(m), "Rays per ms:%0.0f\n", pt->raysPerMS());
-                    sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
-                    sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
-                    sprintf(m + strlen(m), "---------------------------\n");
-                    sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                    sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                    sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    snprintf(m + strlen(m), sizeof(m), "Renderer   :Path Tracer\n");
+                    snprintf(m + strlen(m), sizeof(m), "Progress   :%3d%%\n", pt->progressPC());
+                    snprintf(m + strlen(m), sizeof(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
+                    snprintf(m + strlen(m), sizeof(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
+                    snprintf(m + strlen(m), sizeof(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
+                    snprintf(m + strlen(m), sizeof(m), "Rays per ms:%0.0f\n", pt->raysPerMS());
+                    snprintf(m + strlen(m), sizeof(m), "Samples/pix:%d\n", pt->aaSamples());
+                    snprintf(m + strlen(m), sizeof(m), "Threads    :%d\n", pt->numThreads());
+                    snprintf(m + strlen(m), sizeof(m), "---------------------------\n");
+                    snprintf(m + strlen(m), sizeof(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                    snprintf(m + strlen(m), sizeof(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "  TIR      :%8d\n", SLRay::tirRays);
+                    snprintf(m + strlen(m), sizeof(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    snprintf(m + strlen(m), sizeof(m), "---------------------------\n");
                 }
 
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -573,29 +574,29 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
                 SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
 
-                sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
-                sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
-                sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
-                sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
-                sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
-                sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
-                sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
-                sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
-                sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
-                sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
-                sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
-                sprintf(m + strlen(m), "No. of Tri.   :%5u\n", stats3D.numTriangles);
-                sprintf(m + strlen(m), "CPU MB Total  :%6.2f (100%%)\n", cpuMBTotal);
-                sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
-                sprintf(m + strlen(m), "-   MB Meshes :%6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
-                sprintf(m + strlen(m), "-   MB Voxels :%6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
-                sprintf(m + strlen(m), "GPU MB Total  :%6.2f (100%%)\n", gpuMBTotal);
-                sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
-                sprintf(m + strlen(m), "-   MB VBO    :%6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
-                sprintf(m + strlen(m), "No. of Voxels :%d\n", stats3D.numVoxels);
-                sprintf(m + strlen(m), "-empty Voxels :%4.1f%%\n", voxelsEmpty);
-                sprintf(m + strlen(m), "Avg.Tri/Voxel :%4.1f\n", avgTriPerVox);
-                sprintf(m + strlen(m), "Max.Tri/Voxel :%d\n", stats3D.numVoxMaxTria);
+                snprintf(m + strlen(m), sizeof(m), "Name: %s\n", s->name().c_str());
+                snprintf(m + strlen(m), sizeof(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
+                snprintf(m + strlen(m), sizeof(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
+                snprintf(m + strlen(m), sizeof(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
+                snprintf(m + strlen(m), sizeof(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
+                snprintf(m + strlen(m), sizeof(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
+                snprintf(m + strlen(m), sizeof(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
+                snprintf(m + strlen(m), sizeof(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
+                snprintf(m + strlen(m), sizeof(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
+                snprintf(m + strlen(m), sizeof(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
+                snprintf(m + strlen(m), sizeof(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
+                snprintf(m + strlen(m), sizeof(m), "No. of Tri.   :%5u\n", stats3D.numTriangles);
+                snprintf(m + strlen(m), sizeof(m), "CPU MB Total  :%6.2f (100%%)\n", cpuMBTotal);
+                snprintf(m + strlen(m), sizeof(m), "-   MB Tex.   :%6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
+                snprintf(m + strlen(m), sizeof(m), "-   MB Meshes :%6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
+                snprintf(m + strlen(m), sizeof(m), "-   MB Voxels :%6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
+                snprintf(m + strlen(m), sizeof(m), "GPU MB Total  :%6.2f (100%%)\n", gpuMBTotal);
+                snprintf(m + strlen(m), sizeof(m), "-   MB Tex.   :%6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
+                snprintf(m + strlen(m), sizeof(m), "-   MB VBO    :%6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
+                snprintf(m + strlen(m), sizeof(m), "No. of Voxels :%d\n", stats3D.numVoxels);
+                snprintf(m + strlen(m), sizeof(m), "-empty Voxels :%4.1f%%\n", voxelsEmpty);
+                snprintf(m + strlen(m), sizeof(m), "Avg.Tri/Voxel :%4.1f\n", avgTriPerVox);
+                snprintf(m + strlen(m), sizeof(m), "Max.Tri/Voxel :%d\n", stats3D.numVoxMaxTria);
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -636,7 +637,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     for (auto* mat : sv->visibleMaterials3D())
                     {
                         SLVNode& matNodes = mat->nodesVisible3D();
-                        sprintf(m,
+                        snprintf(m,
+                                sizeof(m),
                                 "%s [%u n.]",
                                 mat->name().c_str(),
                                 (SLuint)matNodes.size());
@@ -713,53 +715,53 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (c->isMirroredV())
                     mirrored = "vertically";
 
-                sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                snprintf(m + strlen(m), sizeof(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
                                                                                      : vt == VT_FILE ? "File"
                                                                                                      : "Secondary Camera");
-                sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-                sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
-                sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
-                sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
-                sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
-                sprintf(m + strlen(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
-                sprintf(m + strlen(m), "Calibimg size: %d x %d\n", ac->calibration.imageSizeOriginal().width, ac->calibration.imageSizeOriginal().height);
-                sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
-                sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
-                sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
+                snprintf(m + strlen(m), sizeof(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+                snprintf(m + strlen(m), sizeof(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
+                snprintf(m + strlen(m), sizeof(m), "Size Index   : %d\n", ac->camSizeIndex());
+                snprintf(m + strlen(m), sizeof(m), "Mirrored     : %s\n", mirrored.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
+                snprintf(m + strlen(m), sizeof(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
+                snprintf(m + strlen(m), sizeof(m), "Calibimg size: %d x %d\n", ac->calibration.imageSizeOriginal().width, ac->calibration.imageSizeOriginal().height);
+                snprintf(m + strlen(m), sizeof(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
+                snprintf(m + strlen(m), sizeof(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
+                snprintf(m + strlen(m), sizeof(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
 
                 int         distortionSize = c->distortion().rows;
                 const float f              = 100.f;
-                sprintf(m + strlen(m), "dist.(*10e-2):\n");
-                sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
-                sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
+                snprintf(m + strlen(m), sizeof(m), "dist.(*10e-2):\n");
+                snprintf(m + strlen(m), sizeof(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
+                snprintf(m + strlen(m), sizeof(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
                 if (distortionSize >= 8)
-                    sprintf(m + strlen(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
+                    snprintf(m + strlen(m), sizeof(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
                 else
-                    sprintf(m + strlen(m), "k3           : %4.2f\n", c->k3() * f);
+                    snprintf(m + strlen(m), sizeof(m), "k3           : %4.2f\n", c->k3() * f);
 
                 if (distortionSize >= 12)
-                    sprintf(m + strlen(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
+                    snprintf(m + strlen(m), sizeof(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
                 if (distortionSize >= 14)
-                    sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
+                    snprintf(m + strlen(m), sizeof(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
 
-                sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
-                sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
-                sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
+                snprintf(m + strlen(m), sizeof(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
+                snprintf(m + strlen(m), sizeof(m), "Calib. state : %s\n", c->stateStr().c_str());
+                snprintf(m + strlen(m), sizeof(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
                 if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
                 {
-                    sprintf(m + strlen(m), "-------------:\n");
+                    snprintf(m + strlen(m), sizeof(m), "-------------:\n");
                     if (typeid(*trackedNode) == typeid(SLCamera))
                     {
                         SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
-                        sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
+                        snprintf(m + strlen(m), sizeof(m), "Dist. to zero: %4.2f\n", cameraPos.length());
                     }
                     else
                     {
                         SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
                         SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
                         SLVec3f camToObj  = objectPos - cameraPos;
-                        sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
+                        snprintf(m + strlen(m), sizeof(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                     }
                 }
 
@@ -965,42 +967,42 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLchar     m[2550]; // message character array
                 m[0] = 0;           // set zero length
 
-                sprintf(m + strlen(m), "SLProject Version: %s\n", AppDemo::version.c_str());
+                snprintf(m + strlen(m), sizeof(m), "SLProject Version: %s\n", AppDemo::version.c_str());
 #ifdef _DEBUG
-                sprintf(m + strlen(m), "Build Config.    : Debug\n");
+                snprintf(m + strlen(m), sizeof(m), "Build Config.    : Debug\n");
 #else
-                sprintf(m + strlen(m), "Build Config.    : Release\n");
+                snprintf(m + strlen(m), sizeof(m), "Build Config.    : Release\n");
 #endif
-                sprintf(m + strlen(m), "-----------------:\n");
-                sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
-                sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
-                sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
-                sprintf(m + strlen(m), "Computer Model   : %s\n", Utils::ComputerInfos::model.c_str());
-                sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
-                sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
-                sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
-                sprintf(m + strlen(m), "-----------------:\n");
-                sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
-                sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
-                sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-                sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
-                sprintf(m + strlen(m), "-----------------:\n");
-                sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-                sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
-                sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
-                sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
-                sprintf(m + strlen(m), "-----------------:\n");
+                snprintf(m + strlen(m), sizeof(m), "-----------------:\n");
+                snprintf(m + strlen(m), sizeof(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer Model   : %s\n", Utils::ComputerInfos::model.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
+                snprintf(m + strlen(m), sizeof(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
+                snprintf(m + strlen(m), sizeof(m), "-----------------:\n");
+                snprintf(m + strlen(m), sizeof(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
+                snprintf(m + strlen(m), sizeof(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
+                snprintf(m + strlen(m), sizeof(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
+                snprintf(m + strlen(m), sizeof(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+                snprintf(m + strlen(m), sizeof(m), "-----------------:\n");
+                snprintf(m + strlen(m), sizeof(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+                snprintf(m + strlen(m), sizeof(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
+                snprintf(m + strlen(m), sizeof(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
+                snprintf(m + strlen(m), sizeof(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
+                snprintf(m + strlen(m), sizeof(m), "-----------------:\n");
 
 #ifdef SL_BUILD_WAI
-                sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
+                snprintf(m + strlen(m), sizeof(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
 #    ifdef EIGEN_VECTORIZE
-                sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
+                snprintf(m + strlen(m), sizeof(m), "Eigen vectorize  : yes\n");
 #    else
-                sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+                snprintf(m + strlen(m), sizeof(m), "Eigen vectorize  : no\n");
 #    endif
 #endif
-                sprintf(m + strlen(m), "-----------------:\n");
-                sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
+                snprintf(m + strlen(m), sizeof(m), "-----------------:\n");
+                snprintf(m + strlen(m), sizeof(m), "ImGui Version    : %s\n", ImGui::GetVersion());
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1015,27 +1017,27 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLchar m[1024];             // message character array
                 m[0]                   = 0; // set zero length
                 SLVec3d offsetToOrigin = AppDemo::devLoc.originENU() - AppDemo::devLoc.locENU();
-                sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", AppDemo::devRot.isUsed() ? "yes" : "no");
-                sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", AppDemo::devRot.pitchDEG());
-                sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", AppDemo::devRot.yawDEG());
-                sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", AppDemo::devRot.rollDEG());
-                sprintf(m + strlen(m), "No. averaged     : %d\n", AppDemo::devRot.numAveraged());
-                // sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
-                // sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
-                sprintf(m + strlen(m), "Rot. Offset mode : %s\n", AppDemo::devRot.offsetModeStr().c_str());
-                sprintf(m + strlen(m), "------------------\n");
-                sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", AppDemo::devLoc.isUsed() ? "yes" : "no");
-                sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lat);
-                sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lon);
-                sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", AppDemo::devLoc.locLatLonAlt().alt);
-                sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", AppDemo::devLoc.altGpsM());
-                sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", AppDemo::devLoc.altDemM());
-                sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", AppDemo::devLoc.altDemM());
-                sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", AppDemo::devLoc.locAccuracyM());
-                sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
-                sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", AppDemo::devLoc.improveTime());
-                sprintf(m + strlen(m), "Loc. Offset mode : %s\n", AppDemo::devLoc.offsetModeStr().c_str());
-                sprintf(m + strlen(m), "Loc. Offset (m)  : %s\n", AppDemo::devLoc.offsetENU().toString(",", 1).c_str());
+                snprintf(m + strlen(m), sizeof(m), "Uses IMU Senor   : %s\n", AppDemo::devRot.isUsed() ? "yes" : "no");
+                snprintf(m + strlen(m), sizeof(m), "Pitch (deg)      : %3.1f\n", AppDemo::devRot.pitchDEG());
+                snprintf(m + strlen(m), sizeof(m), "Yaw   (deg)      : %3.1f\n", AppDemo::devRot.yawDEG());
+                snprintf(m + strlen(m), sizeof(m), "Roll  (deg)      : %3.1f\n", AppDemo::devRot.rollDEG());
+                snprintf(m + strlen(m), sizeof(m), "No. averaged     : %d\n", AppDemo::devRot.numAveraged());
+                // snprintf(m + strlen(m), sizeof(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
+                // snprintf(m + strlen(m), sizeof(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
+                snprintf(m + strlen(m), sizeof(m), "Rot. Offset mode : %s\n", AppDemo::devRot.offsetModeStr().c_str());
+                snprintf(m + strlen(m), sizeof(m), "------------------\n");
+                snprintf(m + strlen(m), sizeof(m), "Uses GPS Sensor  : %s\n", AppDemo::devLoc.isUsed() ? "yes" : "no");
+                snprintf(m + strlen(m), sizeof(m), "Latitude (deg)   : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lat);
+                snprintf(m + strlen(m), sizeof(m), "Longitude (deg)  : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lon);
+                snprintf(m + strlen(m), sizeof(m), "Alt. used (m)    : %10.2f\n", AppDemo::devLoc.locLatLonAlt().alt);
+                snprintf(m + strlen(m), sizeof(m), "Alt. GPS (m)     : %10.2f\n", AppDemo::devLoc.altGpsM());
+                snprintf(m + strlen(m), sizeof(m), "Alt. DEM (m)     : %10.2f\n", AppDemo::devLoc.altDemM());
+                snprintf(m + strlen(m), sizeof(m), "Alt. origin (m)  : %10.2f\n", AppDemo::devLoc.altDemM());
+                snprintf(m + strlen(m), sizeof(m), "Accuracy Rad.(m) : %6.1f\n", AppDemo::devLoc.locAccuracyM());
+                snprintf(m + strlen(m), sizeof(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
+                snprintf(m + strlen(m), sizeof(m), "Origin improve(s): %6.1f sec.\n", AppDemo::devLoc.improveTime());
+                snprintf(m + strlen(m), sizeof(m), "Loc. Offset mode : %s\n", AppDemo::devLoc.offsetModeStr().c_str());
+                snprintf(m + strlen(m), sizeof(m), "Loc. Offset (m)  : %s\n", AppDemo::devLoc.offsetENU().toString(",", 1).c_str());
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1081,7 +1083,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::Separator();
 
                 SLchar reset[255];
-                sprintf(reset, "Reset User Interface (DPI: %d)", sv->dpi());
+                snprintf(reset, sizeof(reset), "Reset User Interface (DPI: %d)", sv->dpi());
                 if (ImGui::MenuItem(reset))
                 {
                     SLstring fullPathFilename = AppDemo::configPath + "DemoGui.yml";
@@ -1146,7 +1148,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     std::time_t now = std::time(nullptr);
                     tm          tnow{};
                     memcpy(&tnow, std::localtime(&now), sizeof(tm));
-                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", tnow.tm_mday, tnow.tm_mon + 1, tnow.tm_year + 1900, tnow.tm_hour, tnow.tm_min);
+                    snprintf(strTime, sizeof(strTime), "Set now (%02d.%02d.%02d %02d:%02d)", tnow.tm_mday, tnow.tm_mon + 1, tnow.tm_year + 1900, tnow.tm_hour, tnow.tm_min);
                     if (ImGui::MenuItem(strTime))
                     {
                         adjustedTime = 0;
@@ -1154,7 +1156,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
                     }
 
-                    sprintf(strTime, "Set highest noon (21.07.%02d 12:00)", lt.tm_year - 100);
+                    snprintf(strTime, sizeof(strTime), "Set highest noon (21.07.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 6;
@@ -1167,7 +1169,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                                                              adjustedTime);
                     }
 
-                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year - 100);
+                    snprintf(strTime, sizeof(strTime), "Set lowest noon (21.12.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 11;
@@ -2127,7 +2129,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     videoAspect.y = capture->captureSize.height;
                 }
                 SLchar strSameAsVideo[256];
-                sprintf(strSameAsVideo, "Same as Video (%d:%d)", videoAspect.x, videoAspect.y);
+                snprintf(strSameAsVideo, sizeof(strSameAsVideo), "Same as Video (%d:%d)", videoAspect.x, videoAspect.y);
 
                 if (ImGui::MenuItem("Same as window", nullptr, sv->viewportRatio() == SLVec2i::ZERO))
                     sv->setViewportFromRatio(SLVec2i(0, 0), sv->viewportAlign(), false);
@@ -2262,7 +2264,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     for (int i = 0; i < (int)capture->camSizes.size(); ++i)
                     {
                         SLchar menuStr[256];
-                        sprintf(menuStr,
+                        snprintf(menuStr,
+                                sizeof(menuStr),
                                 "%d x %d",
                                 capture->camSizes[(uint)i].width,
                                 capture->camSizes[(uint)i].height);
@@ -2321,7 +2324,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Draw Detection", nullptr, tracker->drawDetection()))
                         tracker->drawDetection(!tracker->drawDetection());
 
-                if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
+                if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr) && featureTracker != nullptr)
                 {
                     if (ImGui::MenuItem("Force Relocation", nullptr, featureTracker->forceRelocation()))
                         featureTracker->forceRelocation(!featureTracker->forceRelocation());
@@ -3079,7 +3082,6 @@ void AppDemoGui::buildMenuEdit(SLScene* s, SLSceneView* sv)
 void AppDemoGui::buildMenuContext(SLScene* s, SLSceneView* sv)
 {
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) &&
         ImGui::IsMouseReleased(1))
@@ -3131,7 +3133,6 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
@@ -3152,7 +3153,6 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && !node->mesh();
@@ -3223,7 +3223,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     PROFILE_FUNCTION();
 
     assert(s->assetManager() && "No asset manager assigned to scene!");
-    SLAssetManager* am = s->assetManager();
 
     SLNode* singleNode       = s->singleNodeSelected();
     SLMesh* singleFullMesh   = s->singleMeshFullSelected();
@@ -4381,8 +4380,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         for (auto* shd : m->program()->shaders())
                         {
-                            SLfloat lineH = ImGui::GetTextLineHeight();
-
                             if (ImGui::TreeNode(shd->name().c_str()))
                             {
                                 SLchar* text = new char[shd->code().length() + 1];
@@ -4400,8 +4397,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         for (auto* shd : m->programTF()->shaders())
                         {
-                            SLfloat lineH = ImGui::GetTextLineHeight();
-
                             if (ImGui::TreeNode(shd->name().c_str()))
                             {
                                 SLchar* text = new char[shd->code().length() + 1];
@@ -4539,14 +4534,14 @@ void AppDemoGui::showTexInfos(SLGLTexture* tex)
                         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
                         SLfloat alpha = lut->alphas()[a].alpha;
                         SLchar  label[20];
-                        sprintf(label, "Alpha %lu", a);
+                        snprintf(label, sizeof(label), "Alpha %lu", a);
                         if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
                         {
                             lut->alphas()[a].alpha = alpha;
                             lut->generateTexture();
                         }
                         ImGui::SameLine();
-                        sprintf(label, "Pos. %lu", a);
+                        snprintf(label, sizeof(label), "Pos. %lu", a);
                         SLfloat pos = lut->alphas()[a].pos;
                         if (a > 0 && a < lut->alphas().size() - 1)
                         {
@@ -4870,7 +4865,7 @@ void AppDemoGui::showLUTColors(SLTexColorLUT* lut)
     {
         SLCol3f color = lut->colors()[c].color;
         SLchar  label[20];
-        sprintf(label, "Color %lu", c);
+        snprintf(label, sizeof(label), "Color %lu", c);
         if (ImGui::ColorEdit3(label, (float*)&color, cef))
         {
             lut->colors()[c].color = color;
@@ -4878,7 +4873,7 @@ void AppDemoGui::showLUTColors(SLTexColorLUT* lut)
         }
         ImGui::SameLine();
         ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-        sprintf(label, "Pos. %lu", c);
+        snprintf(label, sizeof(label), "Pos. %lu", c);
         SLfloat pos = lut->colors()[c].pos;
         if (c > 0 && c < lut->colors().size() - 1)
         {
