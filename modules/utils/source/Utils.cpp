@@ -274,13 +274,14 @@ string getDateTime1String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.2d.%.2d.%.2d-%.2d:%.2d",
-            t->tm_mday,
-            t->tm_mon + 1,
-            t->tm_year - 100,
-            t->tm_hour,
-            t->tm_min);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.2d.%.2d.%.2d-%.2d:%.2d",
+             t->tm_mday,
+             t->tm_mon + 1,
+             t->tm_year - 100,
+             t->tm_hour,
+             t->tm_min);
 
     return string(shortTime);
 }
@@ -293,14 +294,15 @@ string getDateTime2String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.4d%.2d%.2d-%.2d%.2d%.2d",
-            1900 + t->tm_year,
-            t->tm_mon + 1,
-            t->tm_mday,
-            t->tm_hour,
-            t->tm_min,
-            t->tm_sec);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.4d%.2d%.2d-%.2d%.2d%.2d",
+             1900 + t->tm_year,
+             t->tm_mon + 1,
+             t->tm_mday,
+             t->tm_hour,
+             t->tm_min,
+             t->tm_sec);
 
     return string(shortTime);
 }
@@ -1112,7 +1114,7 @@ void log(const char* tag, const char* format, ...)
 
     va_list argptr;
     va_start(argptr, format);
-    vsprintf(log, format, argptr);
+    vsnprintf(log, sizeof(log), format, argptr);
     va_end(argptr);
 
     char msg[4096];
