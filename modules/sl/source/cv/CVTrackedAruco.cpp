@@ -150,7 +150,6 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
 
             if (_drawDetection)
             {
-#ifndef __EMSCRIPTEN__
 #if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
 #else
                 cv::drawFrameAxes(imageRgb,
@@ -187,7 +186,6 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
                                           float         dpi,
                                           bool          showImage)
 {
-#ifndef __EMSCRIPTEN__
     cv::Ptr<cv::aruco::Dictionary> dictionary =
       cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
 
@@ -214,7 +212,6 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
     }
 
     imwrite(imgName, boardImage);
-#endif
 }
 //-----------------------------------------------------------------------------
 void CVTrackedAruco::drawArucoMarker(int dictionaryId,
@@ -222,7 +219,6 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
                                      int maxMarkerId,
                                      int markerSizePX)
 {
-#ifndef __EMSCRIPTEN__
     assert(dictionaryId > 0);
     assert(minMarkerId > 0);
     assert(minMarkerId < maxMarkerId);
@@ -244,7 +240,6 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
                                     i),
                 markerImg);
     }
-#endif
 }
 //-----------------------------------------------------------------------------
 
