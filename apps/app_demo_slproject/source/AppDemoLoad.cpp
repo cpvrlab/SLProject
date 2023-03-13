@@ -6432,7 +6432,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLint  size         = 20;
         SLint  numAstroboys = size * size;
         SLchar name[512];
-        sprintf(name, "Massive Skinned Animation Benchmark w. %d individual Astroboys", numAstroboys);
+        snprintf(name, sizeof(name), "Massive Skinned Animation Benchmark w. %d individual Astroboys", numAstroboys);
         s->name(name);
         s->info(s->name());
 
@@ -6517,13 +6517,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
             if (sceneID == SID_Benchmark5_ColumnsNoLOD)
             {
                 size = 10;
-                sprintf(name, "%d corinthian columns without LOD", size * size);
+                snprintf(name, sizeof(name), "%d corinthian columns without LOD", size * size);
                 s->name(name);
             }
             else
             {
                 size = 50;
-                sprintf(name, "%d corinthian columns with LOD", size * size);
+                snprintf(name, sizeof(name), "%d corinthian columns with LOD", size * size);
                 s->name(name);
             }
             s->info(s->name() + " with cascaded shadow mapping. In the Day-Time dialogue you can change the sun angle.");

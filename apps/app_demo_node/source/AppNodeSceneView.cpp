@@ -396,7 +396,7 @@ void AppNodeSceneView::updateInfoText()
     }
 
     keyBinds += "\nR: Reset \n";
-    sprintf(m + strlen(m), "%s", keyBinds.c_str());
+    snprintf(m + strlen(m), sizeof(m), "%s", keyBinds.c_str());
 
     SLTexFont* f         = SLAssetManager::getFont(1.2f, dpi());
     AppNodeGui::infoText = m;

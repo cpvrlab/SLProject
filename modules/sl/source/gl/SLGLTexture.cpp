@@ -1508,7 +1508,7 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
 
         // Debug output
         // SLchar filename[255];
-        // sprintf(filename,"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
+        // snprintf(filename,sizeof(filename),"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
         // img2.savePNG(filename);
 
         glTexImage2D((SLuint)target,

@@ -108,7 +108,7 @@ bool startsWithString(const string& container, const string& startStr);
 bool endsWithString(const string& container, const string& endStr);
 
 //! Returns the inputDir string with unified forward slashes, e.g.: "dirA/dirB/"
-string unifySlashes(const string& inputDir);
+string unifySlashes(const string& inputDir, bool withTrailingSlash = true);
 
 //! Returns true if content of file could be put in a vector of strings
 bool getFileContent(const string&   fileName,

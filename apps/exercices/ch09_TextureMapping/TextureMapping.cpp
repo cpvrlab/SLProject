@@ -421,7 +421,7 @@ bool onPaint()
     static float lastTimeSec = 0;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "Texture Mapping %3.1f", fps);
+    snprintf(title, sizeof(title), "Texture Mapping %3.1f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 

@@ -88,7 +88,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
                                              color.b,
                                              color.a));
 
-            SLRay::avgDepth += SLRay::depthReached;
+            SLRay::avgDepth += (SLfloat)SLRay::depthReached;
             SLRay::maxDepthReached = std::max(SLRay::depthReached,
                                               SLRay::maxDepthReached);
         }
@@ -105,7 +105,7 @@ SLbool SLRaytracer::renderClassic(SLSceneView* sv)
     }
 
     _renderSec = GlobalTimer::timeS() - tStart;
-    _raysPerMS.set(SLRay::totalNumRays() / _renderSec / 1000.0f);
+    _raysPerMS.set((SLfloat)SLRay::totalNumRays() / _renderSec / 1000.0f);
     _progressPC = 100;
 
     if (_doContinuous)
@@ -269,7 +269,7 @@ void SLRaytracer::renderSlices(const bool isMainThread, SLuint threadNum)
                                                  color.a));
                 //_mutex.unlock();
 
-                SLRay::avgDepth += SLRay::depthReached;
+                SLRay::avgDepth += (SLfloat)SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached,
                                                   SLRay::maxDepthReached);
             }
@@ -292,8 +292,8 @@ void SLRaytracer::renderSlices(const bool isMainThread, SLuint threadNum)
 }
 //-----------------------------------------------------------------------------
 /*!
-Renders slices of 4 rows multisampled until the full width of the image is
-rendered. Every pixel is multisampled for depth of field lens sampling. This
+Renders slices of 4 rows multi-sampled until the full width of the image is
+rendered. Every pixel is multi-sampled for depth of field lens sampling. This
 method can be called as a function by multiple threads.
 The _nextLine index is used and incremented by every thread. So it should be
 locked or an atomic index. I prefer not protecting it because it's faster.
@@ -361,7 +361,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread, SLuint threadNum)
                         color += trace(&primaryRay);
                         ////////////////////////////
 
-                        SLRay::avgDepth += SLRay::depthReached;
+                        SLRay::avgDepth += (SLfloat)SLRay::depthReached;
                         SLRay::maxDepthReached = std::max(SLRay::depthReached,
                                                           SLRay::maxDepthReached);
                     }
@@ -374,7 +374,7 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread, SLuint threadNum)
                 _images[0]->setPixeliRGB((SLint)x, y, CVVec4f(color.r, color.g, color.b, color.a));
                 //_mutex.unlock();
 
-                SLRay::avgDepth += SLRay::depthReached;
+                SLRay::avgDepth += (SLfloat)SLRay::depthReached;
                 SLRay::maxDepthReached = std::max(SLRay::depthReached, SLRay::maxDepthReached);
             }
 
@@ -607,7 +607,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 /*!
-This method fills the pixels into the vector pix that need to be subsampled
+This method fills the pixels into the vector pix that need to be sub-sampled
 because the contrast to its left and/or above neighbor is above a threshold.
 */
 void SLRaytracer::getAAPixels()
@@ -615,7 +615,7 @@ void SLRaytracer::getAAPixels()
     SLCol4f color, colorLeft, colorUp; // pixel colors to be compared
     SLVbool gotSampled;
     gotSampled.resize(_images[0]->width()); // Flags if above pixel got sampled
-    SLbool isSubsampled;                    // Flag if pixel got subsampled
+    SLbool isSubsampled;                    // Flag if pixel got sub-sampled
 
     // Nothing got sampled at beginning
     for (SLuint x = 0; x < _images[0]->width(); ++x)
@@ -652,7 +652,8 @@ void SLRaytracer::getAAPixels()
                 colorUp.set(colU[0], colU[1], colU[2], colU[3]);
                 if (color.diffRGB(colorUp) > _aaThreshold)
                 {
-                    if (!gotSampled[x]) _aaPixels.push_back(SLRTAAPixel((SLushort)x, (SLushort)y - 1));
+                    if (!gotSampled[x])
+                        _aaPixels.push_back(SLRTAAPixel((SLushort)x, (SLushort)y - 1));
                     if (!isSubsampled)
                     {
                         _aaPixels.push_back(SLRTAAPixel((SLushort)x, (SLushort)y));
@@ -720,7 +721,9 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread, SLuint threadNum)
                     else
                     {
                         SLRay primaryRay(_sv);
-                        setPrimaryRay(xpos + sx * f, ypos + sy * f, &primaryRay);
+                        setPrimaryRay(xpos + (SLfloat)sx * f,
+                                      ypos + (SLfloat)sy * f,
+                                      &primaryRay);
                         color += trace(&primaryRay);
                     }
                 }
@@ -956,7 +959,11 @@ void SLRaytracer::saveImage()
 {
     static SLint no = 0;
     SLchar       filename[255];
-    sprintf(filename, "Raytraced_%d_%d.png", _maxDepth, no++);
+    snprintf(filename,
+             sizeof(filename),
+             "Raytraced_%d_%d.png",
+             _maxDepth,
+             no++);
     _images[0]->savePNG(filename, 9, true, true);
 }
 //-----------------------------------------------------------------------------

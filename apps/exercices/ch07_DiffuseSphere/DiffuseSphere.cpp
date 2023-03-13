@@ -341,7 +341,13 @@ bool onPaint()
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
     string       prim        = _primitiveType == GL_TRIANGLES ? "GL_TRIANGLES" : "GL_TRIANGLE_STRIPS";
-    sprintf(title, "Sphere, %d x %d, fps: %4.0f, %s", _resolution, _resolution, fps, prim.c_str());
+    snprintf(title,
+            sizeof(title),
+            "Sphere, %d x %d, fps: %4.0f, %s",
+            _resolution,
+            _resolution,
+            fps,
+            prim.c_str());
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 

@@ -422,7 +422,11 @@ void SLPathtracer::saveImage()
 {
     static SLint no = 0;
     SLchar       filename[255];
-    sprintf(filename, "Pathtraced_%d_%d.png", _aaSamples, no++);
+    snprintf(filename,
+             sizeof(filename),
+             "Pathtraced_%d_%d.png",
+             _aaSamples,
+             no++);
     _images[0]->savePNG(filename);
 }
 //-----------------------------------------------------------------------------

@@ -75,6 +75,8 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 #endif
 
     // Default paths for all loaded resources
+    SLstring exe         = Utils::unifySlashes(cmdLineArgs.size() ? cmdLineArgs[0] : "", false);
+    AppDemo::exePath     = Utils::getDirName(exe);
     AppDemo::dataPath    = Utils::unifySlashes(dataPath);
     AppDemo::shaderPath  = shaderPath;
     AppDemo::modelPath   = modelPath;
@@ -85,6 +87,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 
     SLGLState* stateGL = SLGLState::instance();
 
+    SL_LOG("Path to exe      : %s", AppDemo::exePath.c_str());
     SL_LOG("Path to Models   : %s", modelPath.c_str());
     SL_LOG("Path to Shaders  : %s", shaderPath.c_str());
     SL_LOG("Path to Textures : %s", texturePath.c_str());
