@@ -1,12 +1,12 @@
-// #############################################################################
-//   File:      DiffuseSphere.cpp
-//   Purpose:   Core profile OpenGL application with diffuse lighted sphere with
-//              GLFW as the OS GUI interface (http://www.glfw.org/).
-//   Date:      December 2015 (HS15)
-//   Authors:   Marcus Hudritsch
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      DiffuseSphere.cpp
+//  Purpose:   Core profile OpenGL application with diffuse lighted sphere with
+//             GLFW as the OS GUI interface (http://www.glfw.org/).
+//  Date:      December 2015 (HS15)
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
@@ -342,12 +342,12 @@ bool onPaint()
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
     string       prim        = _primitiveType == GL_TRIANGLES ? "GL_TRIANGLES" : "GL_TRIANGLE_STRIPS";
     snprintf(title,
-            sizeof(title),
-            "Sphere, %d x %d, fps: %4.0f, %s",
-            _resolution,
-            _resolution,
-            fps,
-            prim.c_str());
+             sizeof(title),
+             "Sphere, %d x %d, fps: %4.0f, %s",
+             _resolution,
+             _resolution,
+             fps,
+             prim.c_str());
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 

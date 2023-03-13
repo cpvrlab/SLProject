@@ -26,7 +26,7 @@ SLIOReaderLocalStorage::SLIOReaderLocalStorage(SLstring path)
   : SLIOReaderMemory(path)
 {
     char* data;
-    int length;
+    int   length;
 
     // clang-format off
     MAIN_THREAD_EM_ASM({

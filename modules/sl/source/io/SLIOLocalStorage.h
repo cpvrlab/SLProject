@@ -42,7 +42,7 @@ class SLIOWriterLocalStorage : public SLIOWriterMemory
 {
 public:
     SLIOWriterLocalStorage(SLstring path);
-    void   flush();
+    void flush();
 };
 //-----------------------------------------------------------------------------
 #endif

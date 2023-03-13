@@ -1,11 +1,11 @@
-// #############################################################################
+//#############################################################################
 //   File:      SLGLTexture.cpp
 //   Date:      July 2014
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marcus Hudritsch
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 #include <SLGLState.h>
 #include <SLGLTexture.h>

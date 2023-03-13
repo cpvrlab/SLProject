@@ -1,12 +1,12 @@
-// #############################################################################
-//   File:      AppDemoGui.cpp
-//   Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
-//   Date:      Summer 2017
-//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//   Authors:   Marcus Hudritsch
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      AppDemoGui.cpp
+//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
+//  Date:      Summer 2017
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <AppDemoGui.h>
 #include <AppDemo.h>
@@ -405,7 +405,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
                     // Calculate percentage from frame time
                     SLfloat captureTimePC = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                    SLfloat updateTimePC = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateTimePC  = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
 #ifndef SL_EMSCRIPTEN
                     SLfloat trackingTimePC = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
                     SLfloat detectTimePC   = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
@@ -432,8 +432,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     snprintf(m + strlen(m), sizeof(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     snprintf(m + strlen(m), sizeof(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
 #ifdef SL_USE_ENTITIES
-                    SLfloat updateDODTime  = s->updateDODTimesMS().average();
-                    SLfloat updateDODTimePC  = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateDODTime   = s->updateDODTimesMS().average();
+                    SLfloat updateDODTimePC = Utils::clamp(updateDODTime / ft * 100.0f, 0.0f, 100.0f);
                     snprintf(m + strlen(m), sizeof(m), "  EntityWM : %5.1f ms (%3d%%)\n", updateDODTime, (SLint)updateDODTimePC);
 #endif
                     if (!s->animManager().allAnimNames().empty())
@@ -454,17 +454,6 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         snprintf(m + strlen(m), sizeof(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     }
 #endif
-
-                    // Wrong value of displayed, need to use a profiler to measure (can't just measure time before and after the draw call and take the difference, not with the GPU)
-                    /* if (s->singleMeshFullSelected() != nullptr)
-                    {
-                        SLParticleSystem* ps = s->singleMeshFullSelected()->mat()->ps();
-                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
-                        {
-                            snprintf(m + strlen(m), sizeof(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
-                            snprintf(m + strlen(m), sizeof(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
-                        }
-                    }*/
                     snprintf(m + strlen(m), sizeof(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     snprintf(m + strlen(m), sizeof(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     snprintf(m + strlen(m), sizeof(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
@@ -653,10 +642,10 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     {
                         SLVNode& matNodes = mat->nodesVisible3D();
                         snprintf(m,
-                                sizeof(m),
-                                "%s [%u n.]",
-                                mat->name().c_str(),
-                                (SLuint)matNodes.size());
+                                 sizeof(m),
+                                 "%s [%u n.]",
+                                 mat->name().c_str(),
+                                 (SLuint)matNodes.size());
 
                         if (matNodes.size())
                         {
@@ -731,8 +720,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     mirrored = "vertically";
 
                 snprintf(m + strlen(m), sizeof(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
-                                                                                     : vt == VT_FILE ? "File"
-                                                                                                     : "Secondary Camera");
+                                                                                                 : vt == VT_FILE ? "File"
+                                                                                                                 : "Secondary Camera");
                 snprintf(m + strlen(m), sizeof(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
                 snprintf(m + strlen(m), sizeof(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
                 snprintf(m + strlen(m), sizeof(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1745,10 +1734,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", nullptr, sid == SID_VideoTrackFeature2DMain))
                         s->onLoad(am, s, sv, SID_VideoTrackFeature2DMain);
+#ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Track Face (Main)", nullptr, sid == SID_VideoTrackFaceMain))
                         s->onLoad(am, s, sv, SID_VideoTrackFaceMain);
                     if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
+#endif
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);
 #ifdef SL_BUILD_WAI
@@ -1876,6 +1867,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
 #ifndef SL_EMSCRIPTEN
+                    // The large models are too large for emscripten
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
@@ -1957,10 +1949,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         loadSceneWithLargeModel(s, sv, "xyzrgb_dragon.zip", largeFile, SID_Benchmark1_LargeModel);
                     }
-#endif
-
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_Benchmark1_LargeModel))
                         s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
+#endif
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
@@ -2240,10 +2231,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     {
                         SLchar menuStr[256];
                         snprintf(menuStr,
-                                sizeof(menuStr),
-                                "%d x %d",
-                                capture->camSizes[(uint)i].width,
-                                capture->camSizes[(uint)i].height);
+                                 sizeof(menuStr),
+                                 "%d x %d",
+                                 capture->camSizes[(uint)i].width,
+                                 capture->camSizes[(uint)i].height);
                         if (ImGui::MenuItem(menuStr, nullptr, i == capture->activeCamSizeIndex))
                             if (i != capture->activeCamSizeIndex)
                                 ac->camSizeIndex(i);
@@ -4725,7 +4716,8 @@ void AppDemoGui::saveConfig()
         SL_LOG("New config file will be written: %s",
                fullPathAndFilename.c_str());
 
-    CVFileStorage fs(fullPathAndFilename, CVFileStorage::WRITE | CVFileStorage::MEMORY);
+    CVFileStorage fs(fullPathAndFilename,
+                     CVFileStorage::WRITE | CVFileStorage::MEMORY);
 
     if (!fs.isOpened())
     {
@@ -4762,7 +4754,9 @@ void AppDemoGui::saveConfig()
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     std::string configString = fs.releaseAndGetString();
-    SLFileStorage::writeString(fullPathAndFilename, IOK_config, configString);
+    SLFileStorage::writeString(fullPathAndFilename,
+                               IOK_config,
+                               configString);
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------

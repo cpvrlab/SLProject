@@ -1,12 +1,12 @@
-// #############################################################################
-//   File:      WebCamera.h
-//   Purpose:   Interface to access the camera through the browser.
-//   Date:      October 2022
-//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//   Authors:   Marino von Wattenwyl
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      WebCamera.h
+//  Purpose:   Interface to access the camera through the browser.
+//  Date:      October 2022
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <WebCamera.h>
 #include <emscripten.h>
@@ -76,7 +76,9 @@ CVMat WebCamera::read()
     // Recreate the image if the size has changed
     if (size.width != _image.cols || size.height != _image.rows)
     {
-        _image = CVMat(size.height, size.width, CV_8UC4);
+        _image            = CVMat(size.height,
+                       size.width,
+                       CV_8UC4);
         _waitingForResize = false;
     }
 
@@ -144,11 +146,11 @@ CVSize2i WebCamera::getSize()
 void WebCamera::setSize(CVSize2i size)
 {
     // Return if the stream is still loading
-    if(!isReady())
+    if (!isReady())
         return;
 
     // Return if we are already waiting for the resize
-    if(_waitingForResize)
+    if (_waitingForResize)
         return;
 
     // Return if the new size is equal to the old size

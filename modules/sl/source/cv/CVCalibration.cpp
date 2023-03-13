@@ -1,11 +1,11 @@
-// #############################################################################
+//#############################################################################
 //   File:      CVCalibration.cpp
 //   Date:      Winter 2016
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marcus Hudritsch, Michael Goettlicher
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 /*
 The OpenCV library version 3.4 or above with extra module must be present.

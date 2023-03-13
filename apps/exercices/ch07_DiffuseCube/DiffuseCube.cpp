@@ -1,12 +1,12 @@
-// #############################################################################
-//   File:      DiffuseCube.cpp
-//   Purpose:   Core profile OpenGL application with diffuse lighted cube with
-//              GLFW as the OS GUI interface (http://www.glfw.org/).
-//   Date:      September 2012 (HS12)
-//   Authors:   Marcus Hudritsch
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      DiffuseCube.cpp
+//  Purpose:   Core profile OpenGL application with diffuse lighted cube with
+//             GLFW as the OS GUI interface (http://www.glfw.org/).
+//  Date:      September 2012 (HS12)
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library

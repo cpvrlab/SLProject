@@ -1,11 +1,11 @@
-// #############################################################################
+//#############################################################################
 //   File:      cv/CVImage.cpp
 //   Date:      Spring 2017
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marcus Hudritsch
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 #include <cv/CVImage.h>
 #include <Utils.h>

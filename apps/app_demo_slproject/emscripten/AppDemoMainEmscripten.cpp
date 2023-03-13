@@ -160,13 +160,25 @@ EMSCRIPTEN_RESULT emOnMousePressed(int                         eventType,
             if (modifiers & K_alt && modifiers & K_ctrl)
                 slTouch2Down(svIndex, x - 20, y, x + 20, y);
             else
-                slMouseDown(svIndex, MB_left, x, y, modifiers);
+                slMouseDown(svIndex,
+                            MB_left,
+                            x,
+                            y,
+                            modifiers);
             break;
         case 1:
-            slMouseDown(svIndex, MB_middle, x, y, modifiers);
+            slMouseDown(svIndex,
+                        MB_middle,
+                        x,
+                        y,
+                        modifiers);
             break;
         case 2:
-            slMouseDown(svIndex, MB_right, x, y, modifiers);
+            slMouseDown(svIndex,
+                        MB_right,
+                        x,
+                        y,
+                        modifiers);
             break;
         default: break;
     }
@@ -188,13 +200,25 @@ EM_BOOL emOnMouseReleased(int                         eventType,
     switch (mouseEvent->button)
     {
         case 0:
-            slMouseUp(svIndex, MB_left, x, y, modifiers);
+            slMouseUp(svIndex,
+                      MB_left,
+                      x,
+                      y,
+                      modifiers);
             break;
         case 1:
-            slMouseUp(svIndex, MB_middle, x, y, modifiers);
+            slMouseUp(svIndex,
+                      MB_middle,
+                      x,
+                      y,
+                      modifiers);
             break;
         case 2:
-            slMouseUp(svIndex, MB_right, x, y, modifiers);
+            slMouseUp(svIndex,
+                      MB_right,
+                      x,
+                      y,
+                      modifiers);
             break;
         default: break;
     }
@@ -213,13 +237,25 @@ EM_BOOL emOnMouseDoubleClicked(int                         eventType,
     switch (mouseEvent->button)
     {
         case GLFW_MOUSE_BUTTON_LEFT:
-            slDoubleClick(svIndex, MB_left, x, y, modifiers);
+            slDoubleClick(svIndex,
+                          MB_left,
+                          x,
+                          y,
+                          modifiers);
             break;
         case GLFW_MOUSE_BUTTON_RIGHT:
-            slDoubleClick(svIndex, MB_right, x, y, modifiers);
+            slDoubleClick(svIndex,
+                          MB_right,
+                          x,
+                          y,
+                          modifiers);
             break;
         case GLFW_MOUSE_BUTTON_MIDDLE:
-            slDoubleClick(svIndex, MB_middle, x, y, modifiers);
+            slDoubleClick(svIndex,
+                          MB_middle,
+                          x,
+                          y,
+                          modifiers);
             break;
         default: break;
     }
@@ -235,9 +271,15 @@ EM_BOOL emOnMouseMove(int                         eventType,
     mouseY = (int)mouseEvent->targetY;
 
     if (mouseEvent->altKey && mouseEvent->ctrlKey)
-        slTouch2Move(svIndex, mouseX - 20, mouseY, mouseX + 20, mouseY);
+        slTouch2Move(svIndex,
+                     mouseX - 20,
+                     mouseY,
+                     mouseX + 20,
+                     mouseY);
     else
-        slMouseMove(svIndex, mouseX, mouseY);
+        slMouseMove(svIndex,
+                    mouseX,
+                    mouseY);
 
     return EM_TRUE;
 }
@@ -322,7 +364,11 @@ EM_BOOL emOnTouchStart(int                         eventType,
     {
         mouseX = (int)touchEvent->touches[0].clientX;
         mouseY = (int)touchEvent->touches[0].clientY;
-        slMouseDown(svIndex, MB_left, mouseX, mouseY, K_none);
+        slMouseDown(svIndex,
+                    MB_left,
+                    mouseX,
+                    mouseY,
+                    K_none);
         lastTouchDownTimeMS = touchEvent->timestamp;
     }
     else if (touchEvent->numTouches == 2)
@@ -347,7 +393,11 @@ EM_BOOL emOnTouchEnd(int                         eventType,
     {
         mouseX = (int)touchEvent->touches[0].clientX;
         mouseY = (int)touchEvent->touches[0].clientY;
-        slMouseUp(svIndex, MB_left, mouseX, mouseY, K_none);
+        slMouseUp(svIndex,
+                  MB_left,
+                  mouseX,
+                  mouseY,
+                  K_none);
 
         int    dx = std::abs(mouseX - lastTouchDownX);
         int    dy = std::abs(mouseY - lastTouchDownY);
@@ -355,8 +405,16 @@ EM_BOOL emOnTouchEnd(int                         eventType,
 
         if (dt > 800 && dx < 15 && dy < 15)
         {
-            slMouseDown(svIndex, MB_right, lastTouchDownX, lastTouchDownY, K_none);
-            slMouseUp(svIndex, MB_right, lastTouchDownX, lastTouchDownY, K_none);
+            slMouseDown(svIndex,
+                        MB_right,
+                        lastTouchDownX,
+                        lastTouchDownY,
+                        K_none);
+            slMouseUp(svIndex,
+                      MB_right,
+                      lastTouchDownX,
+                      lastTouchDownY,
+                      K_none);
         }
     }
     else if (touchEvent->numTouches == 2)
@@ -405,7 +463,9 @@ SLSceneView* createAppDemoSceneView(SLScene*        scene,
                                     int             curDPI,
                                     SLInputManager& inputManager)
 {
-    return (SLSceneView*)new AppDemoSceneView(scene, curDPI, inputManager);
+    return (SLSceneView*)new AppDemoSceneView(scene,
+                                              curDPI,
+                                              inputManager);
 }
 //-----------------------------------------------------------------------------
 bool onPaint()
@@ -424,7 +484,9 @@ bool onPaint()
         updateCanvas();
 
         if (!AppDemo::sceneViews.empty())
-            slResize(svIndex, canvasWidth, canvasHeight);
+            slResize(svIndex,
+                     canvasWidth,
+                     canvasHeight);
     }
 
     // If live video image is requested grab it and copy it

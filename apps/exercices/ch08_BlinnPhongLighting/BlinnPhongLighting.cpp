@@ -1,12 +1,12 @@
-// #############################################################################
-//   File:      PhongLighting.cpp
-//   Purpose:   Core profile OpenGL application with Phong lighted cube with
-//              GLFW as the OS GUI interface (http://www.glfw.org/).
-//   Date:      September 2012 (HS12)
-//   Authors:   Marcus Hudritsch
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      PhongLighting.cpp
+//  Purpose:   Core profile OpenGL application with Phong lighted cube with
+//             GLFW as the OS GUI interface (http://www.glfw.org/).
+//  Date:      September 2012 (HS12)
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
@@ -214,10 +214,10 @@ void onInit()
     _lightAmbi.set(0.2f, 0.2f, 0.2f);
     _lightDiff.set(1.0f, 1.0f, 1.0f);
     _lightSpec.set(1.0f, 1.0f, 1.0f);
-    _lightMatrix.translate(0,0,3);
+    _lightMatrix.translate(0, 0, 3);
     _lightSpotDeg = 10.0f; // 180.0f; // point light
     _lightSpotExp = 1.0f;
-    _lightAtt = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
+    _lightAtt     = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbi.set(1.0f, 0.0f, 0.0f);
     _matDiff.set(1.0f, 0.0f, 0.0f);
     _matSpec.set(1.0f, 1.0f, 1.0f);
