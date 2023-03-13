@@ -138,8 +138,10 @@ void SLGLImGui::init(const string& configPath)
     SLstring iniFile = configPath + "imgui.ini";
     if (SLFileStorage::exists(iniFile, IOK_config))
     {
-        SLstring iniContents = SLFileStorage::readIntoString(iniFile, IOK_config);
-        ImGui::LoadIniSettingsFromMemory(iniContents.c_str(), iniContents.size());
+        SLstring iniContents = SLFileStorage::readIntoString(iniFile,
+                                                             IOK_config);
+        ImGui::LoadIniSettingsFromMemory(iniContents.c_str(),
+                                         iniContents.size());
     }
 }
 //-----------------------------------------------------------------------------

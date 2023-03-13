@@ -16,9 +16,9 @@ All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-#include <cv/CVTrackedAruco.h>
-#include <Utils.h>
-#include <Profiler.h>
+#    include <cv/CVTrackedAruco.h>
+#    include <Utils.h>
+#    include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static variables
@@ -150,15 +150,15 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
 
             if (_drawDetection)
             {
-#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
-#else
+#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
+#    else
                 cv::drawFrameAxes(imageRgb,
                                   calib->cameraMat(),
                                   calib->distortion(),
                                   cv::Mat(rVecs[i]),
                                   cv::Mat(tVecs[i]),
                                   0.01f);
-#endif
+#    endif
             }
         }
     }

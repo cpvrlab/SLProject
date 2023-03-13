@@ -90,7 +90,10 @@ void SLGLOculusFB::generateFBO()
     glGenRenderbuffers(1, &_depthRbID);
     glBindRenderbuffer(GL_RENDERBUFFER, _depthRbID);
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID) || defined(SL_EMSCRIPTEN)
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _width, _height);
+    glRenderbufferStorage(GL_RENDERBUFFER,
+                          GL_DEPTH_COMPONENT16,
+                          _width,
+                          _height);
 #else
     glRenderbufferStorage(GL_RENDERBUFFER,
                           GL_DEPTH_COMPONENT32,
@@ -140,14 +143,25 @@ void SLGLOculusFB::updateSize(SLint scrWidth,
     else
     { // Resize the intermediate render targets
         glBindTexture(GL_TEXTURE_2D, _texID);
-        glTexImage2D(GL_TEXTURE_2D, 0, PF_rgba, _width, _height, 0, PF_rgba, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     PF_rgba,
+                     _width,
+                     _height,
+                     0,
+                     PF_rgba,
+                     GL_UNSIGNED_BYTE,
+                     nullptr);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         // Resize the depth render buffer
         glBindRenderbuffer(GL_RENDERBUFFER, _depthRbID);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID) || defined(SL_EMSCRIPTEN)
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _width, _height);
+        glRenderbufferStorage(GL_RENDERBUFFER,
+                              GL_DEPTH_COMPONENT16,
+                              _width,
+                              _height);
 #else
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, _width, _height);
 #endif

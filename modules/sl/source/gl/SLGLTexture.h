@@ -48,27 +48,27 @@ class SLGLProgram;
 //-----------------------------------------------------------------------------
 // Constants for HDR and BRDF LUT images
 #ifndef SL_EMSCRIPTEN
-#define SL_HDR_GL_INTERNAL_FORMAT GL_RGB16F
-#define SL_HDR_GL_FORMAT GL_RGB
-#define SL_HDR_GL_TYPE GL_FLOAT
-#define SL_HDR_PIXEL_BYTES 3
-#define SL_BRDF_LUT_GL_INTERNAL_FORMAT GL_RG16F
-#define SL_BRDF_LUT_GL_FORMAT GL_RG
-#define SL_BRDF_LUT_GL_TYPE GL_FLOAT
-#define SL_BRDF_LUT_PIXEL_BYTES 4
-#define SL_READ_PIXELS_GL_FORMAT GL_RGB
-#define SL_READ_PIXELS_CV_FORMAT PF_rgb
+#    define SL_HDR_GL_INTERNAL_FORMAT GL_RGB16F
+#    define SL_HDR_GL_FORMAT GL_RGB
+#    define SL_HDR_GL_TYPE GL_FLOAT
+#    define SL_HDR_PIXEL_BYTES 3
+#    define SL_BRDF_LUT_GL_INTERNAL_FORMAT GL_RG16F
+#    define SL_BRDF_LUT_GL_FORMAT GL_RG
+#    define SL_BRDF_LUT_GL_TYPE GL_FLOAT
+#    define SL_BRDF_LUT_PIXEL_BYTES 4
+#    define SL_READ_PIXELS_GL_FORMAT GL_RGB
+#    define SL_READ_PIXELS_CV_FORMAT PF_rgb
 #else
-#define SL_HDR_GL_INTERNAL_FORMAT GL_RGBA
-#define SL_HDR_GL_FORMAT GL_RGBA
-#define SL_HDR_GL_TYPE GL_UNSIGNED_BYTE
-#define SL_HDR_PIXEL_BYTES 4
-#define SL_BRDF_LUT_GL_INTERNAL_FORMAT GL_RGBA
-#define SL_BRDF_LUT_GL_FORMAT GL_RGBA
-#define SL_BRDF_LUT_GL_TYPE GL_UNSIGNED_BYTE
-#define SL_BRDF_LUT_PIXEL_BYTES 4
-#define SL_READ_PIXELS_GL_FORMAT GL_RGBA
-#define SL_READ_PIXELS_CV_FORMAT PF_rgba
+#    define SL_HDR_GL_INTERNAL_FORMAT GL_RGBA
+#    define SL_HDR_GL_FORMAT GL_RGBA
+#    define SL_HDR_GL_TYPE GL_UNSIGNED_BYTE
+#    define SL_HDR_PIXEL_BYTES 4
+#    define SL_BRDF_LUT_GL_INTERNAL_FORMAT GL_RGBA
+#    define SL_BRDF_LUT_GL_FORMAT GL_RGBA
+#    define SL_BRDF_LUT_GL_TYPE GL_UNSIGNED_BYTE
+#    define SL_BRDF_LUT_PIXEL_BYTES 4
+#    define SL_READ_PIXELS_GL_FORMAT GL_RGBA
+#    define SL_READ_PIXELS_CV_FORMAT PF_rgba
 #endif
 //-----------------------------------------------------------------------------
 //! Texture type enumeration & their filename appendix for auto type detection

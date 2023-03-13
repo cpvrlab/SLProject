@@ -499,7 +499,7 @@ void SLGLState::getGLError(const char* file,
 
         // Build error string as a concatenation of file, line & error
         char sLine[32];
-        snprintf(sLine, sizeof (sLine), "%d", line);
+        snprintf(sLine, sizeof(sLine), "%d", line);
 
         string newErr(file);
         newErr += ": line:";
@@ -628,6 +628,12 @@ void SLGLState::readPixels(void* buffer)
     GLint vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);
 
-    glReadPixels(vp[0], vp[1], vp[2], vp[3], SL_READ_PIXELS_GL_FORMAT, GL_UNSIGNED_BYTE, buffer);
+    glReadPixels(vp[0],
+                 vp[1],
+                 vp[2],
+                 vp[3],
+                 SL_READ_PIXELS_GL_FORMAT,
+                 GL_UNSIGNED_BYTE,
+                 buffer);
 }
 //-----------------------------------------------------------------------------

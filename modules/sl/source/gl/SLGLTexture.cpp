@@ -142,11 +142,11 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     image->load(width, height, PF_red, PF_red, data, true, false);
     _images.push_back(image);
 
-    _width                 = image->width();
-    _height                = image->height();
+    _width                 = (SLint)image->width();
+    _height                = (SLint)image->height();
     _depth                 = (SLint)_images.size();
     _uvIndex               = 0;
-    _bytesPerPixel         = image->bytesPerPixel();
+    _bytesPerPixel         = (SLint)image->bytesPerPixel();
     _min_filter            = min_filter;
     _mag_filter            = mag_filter;
     _wrap_s                = wrapS;
@@ -345,10 +345,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter            = min_filter;
@@ -404,10 +404,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter = min_filter;
@@ -484,10 +484,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter            = min_filter;
@@ -719,10 +719,10 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
@@ -768,10 +768,10 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
                                        isTopLeft);
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (int)_images[0]->width();
+        _height        = (int)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (int)_images[0]->bytesPerPixel();
     }
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
@@ -1346,8 +1346,8 @@ SLCol4f SLGLTexture::getTexelf(SLfloat u, SLfloat v, SLuint imgIndex)
         }
         else
         {
-            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
-                                                       (SLint)(v * _images[imgIndex]->height()));
+            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * (float)_images[imgIndex]->width()),
+                                                       (SLint)(v * (float)_images[imgIndex]->height()));
             return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
         }
     }
@@ -1377,8 +1377,8 @@ mapping either from a height map or a normal map
 SLVec2f SLGLTexture::dudv(SLfloat u, SLfloat v)
 {
     SLVec2f dudv(0, 0);
-    SLfloat du = 1.0f / _images[0]->width();
-    SLfloat dv = 1.0f / _images[0]->height();
+    SLfloat du = 1.0f / (SLfloat)_images[0]->width();
+    SLfloat dv = 1.0f / (SLfloat)_images[0]->height();
 
     if (_texType == TT_height)
     {
@@ -1544,7 +1544,7 @@ SLstring SLGLTexture::typeName()
         case TT_hdr: return "TT_hdr";
         case TT_environmentCubemap: return "TT_environmentCubemap";
         case TT_irradianceCubemap: return "TT_irradianceCubemap";
-        case TT_roughnessCubemap: return "TT_roughnessCubemap";
+        case TT_roughnessCubemap:
         case TT_brdfLUT: return "TT_roughnessCubemap";
         case TT_videoBkgd: return "TT_videoBkgd";
         default: return "TT_unknown";

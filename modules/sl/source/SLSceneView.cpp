@@ -855,6 +855,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     stateGL->depthMask(!alphaBlended);
 
 #ifdef SL_EMSCRIPTEN
+    // ??? Why?
     stateGL->depthMask(true);
     stateGL->depthTest(true);
 #endif
@@ -867,8 +868,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                   {
                       if (!a) return false;
                       if (!b) return true;
-                      return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-                  });
+                      return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
     }
 
     // draw the shapes directly with their wm transform
@@ -2055,10 +2055,14 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename,
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
 #else
-        CVMat   rgbImg     = CVMat(fbH, fbW, CV_8UC4, (void*)buffer.data(), stride);
+        CVMat   rgbImg     = CVMat(fbH,
+                             fbW,
+                             CV_8UC4,
+                             (void*)buffer.data(),
+                             stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_RGBA2RGB);
-        nrChannels = 3;
-        stride = nrChannels * fbW;
+        nrChannels  = 3;
+        stride      = nrChannels * fbW;
 #endif
 
         cv::flip(rgbImg, rgbImg, 0);
@@ -2089,8 +2093,16 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename,
             stream->write(data, size);
         };
 
-        SLIOStream* stream = SLFileStorage::open(pathFilename, IOK_image, IOM_write);
-        stbi_write_png_to_func(writer, (void*)stream, fbW, fbH, nrChannels, rgbImg.data, stride);
+        SLIOStream* stream = SLFileStorage::open(pathFilename,
+                                                 IOK_image,
+                                                 IOM_write);
+        stbi_write_png_to_func(writer,
+                               (void*)stream,
+                               fbW,
+                               fbH,
+                               nrChannels,
+                               rgbImg.data,
+                               stride);
         SLFileStorage::close(stream);
 #endif
 

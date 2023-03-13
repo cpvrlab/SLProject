@@ -531,9 +531,9 @@ int CVImage::glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL)
 {
     switch (pixelFormatGL)
     {
-        case PF_red: return CV_8UC1;
+        case PF_red:
         case PF_luminance: return CV_8UC1;
-        case PF_luminance_alpha: return CV_8UC2;
+        case PF_luminance_alpha:
         case PF_rg: return CV_8UC2;
         case PF_rgb: return CV_8UC3;
         case PF_rgba: return CV_8UC4;
