@@ -31,7 +31,6 @@ erleb-AR
 data/shaders/*.spv
 data/*erleb-AR*
 data/calibrations/*
-data/config/*
 data/images/*
 data/models/*
 data/opencv/*
