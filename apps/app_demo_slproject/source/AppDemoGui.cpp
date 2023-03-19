@@ -1703,15 +1703,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_AnimationSkeletal);
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
                         s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
-
-                    SLstring zip = "GLTF-FanucCRX.zip";
-
                     if (ImGui::MenuItem("Fanuc-CRX", nullptr, sid == SID_Robotics_FanucCRX_FK))
-                    {
                         s->onLoad(am, s, sv, SID_Robotics_FanucCRX_FK);
-                        //                        SLstring fileToLoad = AppDemo::configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
-                        //                        loadSceneWithLargeModel(s, sv, zip, fileToLoad, SID_Robotics_FanucCRX_FK);
-                    }
 
                     ImGui::EndMenu();
                 }
@@ -1961,18 +1954,9 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
                     if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
-                    {
                         s->onLoad(am, s, sv, SID_Benchmark5_ColumnsNoLOD);
-                        //                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        //                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark5_ColumnsNoLOD);
-                    }
                     if (ImGui::MenuItem("Columns with LOD", nullptr, sid == SID_Benchmark6_ColumnsLOD))
-                    {
                         s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
-                        //                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-                        //                        loadSceneWithLargeModel(s, sv, "GLTF-CorinthianColumn.zip", largeFile, SID_Benchmark6_ColumnsLOD);
-                    }
-
                     if (ImGui::MenuItem("Jan's Universe", nullptr, sid == SID_Benchmark7_JansUniverse))
                         s->onLoad(am, s, sv, SID_Benchmark7_JansUniverse);
                     if (stateGL->glHasGeometryShaders())
