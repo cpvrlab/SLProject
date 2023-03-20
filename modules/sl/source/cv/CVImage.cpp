@@ -399,8 +399,8 @@ void CVImage::load(const string& filename,
     int            height;
     int            numChannels;
     stbi_hdr_to_ldr_gamma(1.0f);
-    unsigned char* data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 4);
-    _cvMat              = CVMat(height, width, CV_8UC4, data);
+    unsigned char* data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 0);
+    _cvMat              = CVMat(height, width, CV_8UC(numChannels), data);
 #endif
 
     SLFileStorage::deleteBuffer(buffer);
@@ -462,18 +462,39 @@ void CVImage::load(const string& filename,
         // savePNG(_path + filename + "_InAlpha.png");
     }
 #else
-    _format             = PF_rgba;
-    _bytesPerPixel      = bytesPerPixel(_format);
 
-    if (loadGrayscaleIntoAlpha)
+    switch (_cvMat.type())
     {
-        for (int i = 0; i < 4 * _cvMat.cols * _cvMat.rows; i += 4)
+        case CV_8UC1: _format = PF_red; break;
+        case CV_8UC2: _format = PF_rg; break;
+        case CV_8UC3: _format = PF_rgb; break;
+        case CV_8UC4: _format = PF_rgba; break;
+    }
+
+    _bytesPerPixel = bytesPerPixel(_format);
+
+    if (_format == PF_red && loadGrayscaleIntoAlpha)
+    {
+        CVMat rgbaImg;
+        rgbaImg.create(_cvMat.rows, _cvMat.cols, CV_8UC4);
+
+        // Copy grayscale into alpha channel
+        for (int y = 0; y < rgbaImg.rows; ++y)
         {
-            _cvMat.data[i + 3] = _cvMat.data[i];
-            _cvMat.data[i + 0] = 0;
-            _cvMat.data[i + 1] = 0;
-            _cvMat.data[i + 2] = 0;
+            uchar* dst = rgbaImg.ptr<uchar>(y);
+            uchar* src = _cvMat.ptr<uchar>(y);
+
+            for (int x = 0; x < rgbaImg.cols; ++x)
+            {
+                uchar value = *src++;
+                *dst++ = value;
+                *dst++ = value;
+                *dst++ = value;
+                *dst++ = value;
+            }
         }
+
+        _format = PF_rgba;
     }
 #endif
 

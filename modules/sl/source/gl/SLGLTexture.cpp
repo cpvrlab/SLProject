@@ -630,6 +630,8 @@ void SLGLTexture::load(const SLstring& filename,
 #    elif defined(SL_OS_ANDROID)
             _compressionFormat = KTX_TTF_ETC2_RGBA;
 #    elif defined(SL_EMSCRIPTEN)
+            // The executable might run on desktop or on mobile, so we have to check
+            // the available compression extensions to pick the right format.
             if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_s3tc"))
                 _compressionFormat = KTX_TTF_BC3_RGBA;
             if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_etc"))
