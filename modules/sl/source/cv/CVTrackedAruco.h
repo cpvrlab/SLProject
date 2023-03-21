@@ -25,7 +25,7 @@ for a good top down information.
 #    include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
-//! ArUco Paramters loaded from configuration file.
+//! ArUco Parameters loaded from configuration file.
 class CVArucoParams
 {
 public:
@@ -33,7 +33,11 @@ public:
                       arucoDictionaryId(0),
                       filename("aruco_detector_params.yml")
     {
+#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         arucoParams = cv::aruco::DetectorParameters::create();
+#    else
+        arucoParams = cv::aruco::DetectorParameters();
+#    endif
     }
 
     bool loadFromFile(string calibIniPath)
@@ -47,6 +51,7 @@ public:
             return false;
         }
 
+#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         fs["adaptiveThreshWinSizeMin"] >> arucoParams->adaptiveThreshWinSizeMin;
         fs["adaptiveThreshWinSizeMax"] >> arucoParams->adaptiveThreshWinSizeMax;
         fs["adaptiveThreshWinSizeStep"] >> arucoParams->adaptiveThreshWinSizeStep;
@@ -56,8 +61,6 @@ public:
         fs["polygonalApproxAccuracyRate"] >> arucoParams->polygonalApproxAccuracyRate;
         fs["minCornerDistanceRate"] >> arucoParams->minCornerDistanceRate;
         fs["minDistanceToBorder"] >> arucoParams->minDistanceToBorder;
-        // fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
-        // fs["doCornerRefinement"] >> arucoParams->doCornerRefinement; //does not exist anymore in opencv 3.4.0
         fs["cornerRefinementMethod"] >> arucoParams->cornerRefinementMethod; // cv::aruco::CornerRefineMethod
         fs["cornerRefinementWinSize"] >> arucoParams->cornerRefinementWinSize;
         fs["cornerRefinementMaxIterations"] >> arucoParams->cornerRefinementMaxIterations;
@@ -68,13 +71,44 @@ public:
         fs["maxErroneousBitsInBorderRate"] >> arucoParams->maxErroneousBitsInBorderRate;
         fs["edgeLength"] >> edgeLength;
         fs["arucoDictionaryId"] >> arucoDictionaryId;
+#    else
+        fs["adaptiveThreshWinSizeMin"] >> arucoParams.adaptiveThreshWinSizeMin;
+        fs["adaptiveThreshWinSizeMax"] >> arucoParams.adaptiveThreshWinSizeMax;
+        fs["adaptiveThreshWinSizeStep"] >> arucoParams.adaptiveThreshWinSizeStep;
+        fs["adaptiveThreshConstant"] >> arucoParams.adaptiveThreshConstant;
+        fs["minMarkerPerimeterRate"] >> arucoParams.minMarkerPerimeterRate;
+        fs["maxMarkerPerimeterRate"] >> arucoParams.maxMarkerPerimeterRate;
+        fs["polygonalApproxAccuracyRate"] >> arucoParams.polygonalApproxAccuracyRate;
+        fs["minCornerDistanceRate"] >> arucoParams.minCornerDistanceRate;
+        fs["minDistanceToBorder"] >> arucoParams.minDistanceToBorder;
+        fs["cornerRefinementMethod"] >> arucoParams.cornerRefinementMethod; // cv::aruco::CornerRefineMethod
+        fs["cornerRefinementWinSize"] >> arucoParams.cornerRefinementWinSize;
+        fs["cornerRefinementMaxIterations"] >> arucoParams.cornerRefinementMaxIterations;
+        fs["cornerRefinementMinAccuracy"] >> arucoParams.cornerRefinementMinAccuracy;
+        fs["markerBorderBits"] >> arucoParams.markerBorderBits;
+        fs["perspectiveRemovePixelPerCell"] >> arucoParams.perspectiveRemovePixelPerCell;
+        fs["perspectiveRemoveIgnoredMarginPerCell"] >> arucoParams.perspectiveRemoveIgnoredMarginPerCell;
+        fs["maxErroneousBitsInBorderRate"] >> arucoParams.maxErroneousBitsInBorderRate;
+        fs["edgeLength"] >> edgeLength;
+        fs["arucoDictionaryId"] >> arucoDictionaryId;
+#    endif
+
+#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
+#    else
+        dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PredefinedDictionaryType(arucoDictionaryId));
+#    endif
 
         return true;
     }
 
-    cv::Ptr<cv::aruco::DetectorParameters> arucoParams; //!< detector parameter structure for aruco detection function
+#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     cv::Ptr<cv::aruco::Dictionary>         dictionary;  //!< predefined dictionary
+    cv::Ptr<cv::aruco::DetectorParameters> arucoParams; //!< detector parameter structure for aruco detection function
+#    else
+    cv::aruco::DetectorParameters arucoParams; //!< detector parameter structure for aruco detection function
+    cv::aruco::Dictionary         dictionary;  //!< predefined dictionary
+#    endif
 
     float  edgeLength;          //!< marker edge length
     int    arucoDictionaryId;   //!< id of aruco dictionary
