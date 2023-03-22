@@ -45,7 +45,6 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
     bind();
 
     glGenTextures(1, &_texID);
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(target, _texID);
     GET_GL_ERROR;
 
@@ -142,8 +141,8 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
  */
 void SLGLDepthBuffer::bindActive(SLuint texUnit) const
 {
+
     SLGLState* stateGL = SLGLState::instance();
-    // SL_LOG("SLGLDepthBf::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
     stateGL->activeTexture(GL_TEXTURE0 + texUnit);
     stateGL->bindTexture(_target, _texID);
 }

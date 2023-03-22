@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SLProject</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            touch-action: none;
+        }
+
+        #canvas {
+            position: absolute;
+            background-color: black;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        #loading-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: start;
+            align-items: end;
+            transition: opacity ease-in-out 0.5s;
+            pointer-events: none;
+        }
+
+        #loading-overlay:not(.visible) {
+            opacity: 0;
+        }
+
+        #loading-container {
+            width: 100%;
+            background: linear-gradient(to top, black 0%, transparent 100%);
+            box-sizing: content-box;
+            display: flex;
+            flex-direction: row;
+            justify-content: start;
+            align-items: center;
+            overflow: hidden;
+            padding: 100pt 10pt 10pt 10pt;
+        }
+
+        #loading-text {
+            color: white;
+            font-family: monospace;
+            font-size: 16pt;
+        }
+
+        #spinner {
+            border: 8px solid white;
+            border-top: 8px solid #6c6c6c;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s cubic-bezier(0.3, 0.7, 0.7, 0.3) infinite;
+            margin-right: 10pt;
+        }
+
+        #snapshot-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 75%);
+        }
+
+        #snapshot-overlay:not(.visible) {
+            display: none;
+        }
+
+        #snapshot-image {
+            max-width: 80%;
+            max-height: 80%;
+            border: 1px solid white;
+        }
+
+        #snapshot-download {
+            color: white;
+            font-family: monospace;
+            font-size: 20pt;
+            margin-top: 20pt;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(-180deg);
+            }
+            100% {
+                transform: rotate(180deg);
+            }
+        }
+
+        #capture-video {
+            display: none;
+        }
+
+        #capture-canvas {
+            display: none;
+        }
+
+        #not-supported-canvas {
+            position: absolute;
+            background-color: white;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #not-supported-canvas:not(.visible) {
+            display: none;
+        }
+
+        #not-supported-canvas > h1, h2 {
+            font-family: sans-serif;
+        }
+
+        #not-supported-canvas > h1 {
+            font-size: 48pt;
+            margin-bottom: 20pt;
+        }
+
+        #not-supported-canvas > h2 {
+            font-size: 24pt;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" tabindex="1" oncontextmenu="return false;"></canvas>
+<div id="loading-overlay" class="visible">
+    <div id="loading-container">
+        <div id="spinner"></div>
+        <p id="loading-text"></p>
+    </div>
+</div>
+<div id="snapshot-overlay">
+    <img id="snapshot-image" alt="Snapshot"/>
+    <a id="snapshot-download">Download</a>
+</div>
+<video id="capture-video" autoplay></video>
+<canvas id="capture-canvas"></canvas>
+
+<div id="not-supported-canvas">
+    <h1>:(</h1>
+    <h2>SLProject is not supported in your browser.</h2>
+</div>
+
+<script type="text/javascript">
+    let supported = true;
+
+    if (typeof OffscreenCanvas === 'undefined') {
+        supported = false;
+    }
+
+    if (supported) {
+        document.querySelector("#snapshot-overlay").addEventListener("click", event => {
+            event.target.classList.remove('visible');
+            URL.revokeObjectURL(snapshotURL);
+        });
+
+        var Module = {
+            canvas: document.querySelector("#canvas")
+        };
+
+        let script = document.createElement("script")
+        script.type = "text/javascript";
+        script.src = "app-Demo-SLProject.js";
+        document.querySelector("head").appendChild(script);
+    } else {
+        document.querySelector("#not-supported-canvas").classList.add("visible");
+    }
+</script>
+
+</body>
+</html>

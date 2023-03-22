@@ -10,10 +10,10 @@
 #include <cstring>
 #include <string>
 #include <iostream>
-#include <minizip/unzip.h>
-#include <minizip/zip.h>
 #include <functional>
 #include <Utils.h>
+#include <minizip/unzip.h>
+#include <minizip/zip.h>
 
 namespace ZipUtils
 {

@@ -13,7 +13,7 @@ set(UTILS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 include(${SL_PROJECT_ROOT}/cmake/CompileOptions.cmake)
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
-if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS" AND NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 	add_subdirectory(externals/zlib)
 endif()
 
@@ -71,11 +71,20 @@ set(sources
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ByteOrder.cpp
-		${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
+    )
+
+# Emscripten provides its own implementation of zlib
+#==============================================================================
+if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    set(sources
+        ${sources}
+        ${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/unzip.c
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/zip.c
     )
+endif()
+#==============================================================================
 
 if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
     set(headers
@@ -124,11 +133,19 @@ target_include_directories(${target}
     ${platform_specific_include_dirs}
     ${UTILS_ROOT}/externals/asio/include
     ${UTILS_ROOT}/externals/ftplibpp
-    ${UTILS_ROOT}/externals/zlib
-    ${UTILS_ROOT}/externals/zlib/contrib
+	${UTILS_ROOT}/externals/zlib/contrib
     ${openssl_INCLUDE_DIR}
     INTERFACE
     )
+
+if (NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    target_include_directories(${target}
+        PRIVATE
+        PUBLIC
+        ${UTILS_ROOT}/externals/zlib
+        INTERFACE
+    )
+endif()
 
 target_compile_definitions(${target}
   PRIVATE
@@ -157,8 +174,15 @@ target_link_libraries(${target}
     PUBLIC
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
-    zlib
     ${openssl_LIBS}
 
     INTERFACE
     )
+
+# Emscripten provides its own implementation of zlib
+if (NOT "${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    target_link_libraries(${target} PUBLIC zlib)
+else()
+    target_compile_options(${target} PUBLIC "-sUSE_ZLIB=1")
+    target_link_options(${target} PUBLIC "-sUSE_ZLIB=1")
+endif()

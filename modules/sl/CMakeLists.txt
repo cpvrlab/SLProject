@@ -154,6 +154,8 @@ file(GLOB sources
         source/gl/SLGLVertexBuffer.h
         source/input/SLAssimpImporter.cpp
         source/input/SLAssimpImporter.h
+        source/input/SLAssimpIOSystem.cpp
+        source/input/SLAssimpIOSystem.h
         source/input/SLDeviceLocation.cpp
         source/input/SLDeviceLocation.h
         source/input/SLDeviceRotation.cpp
@@ -168,6 +170,18 @@ file(GLOB sources
         source/input/SLInputManager.cpp
         source/input/SLInputManager.h
         source/input/SLUiInterface.h
+        source/io/SLFileStorage.cpp
+        source/io/SLFileStorage.h
+        source/io/SLIOBrowserPopup.cpp
+        source/io/SLIOBrowserPopup.h
+        source/io/SLIOFetch.cpp
+        source/io/SLIOFetch.h
+        source/io/SLIOLocalStorage.cpp
+        source/io/SLIOLocalStorage.h
+        source/io/SLIOMemory.cpp
+        source/io/SLIOMemory.h
+        source/io/SLIONative.cpp
+        source/io/SLIONative.h
         source/math/SLCurveBezier.cpp
         source/math/SLCurveBezier.h
         source/math/SLRect.h
@@ -252,6 +266,7 @@ file(GLOB sources
         source/ray/SLRaySamples2D.h
         source/ray/SLRaytracer.cpp
         source/ray/SLRaytracer.h
+        externals/stb/stb_image.h
         )
 
 if (SL_BUILD_WAI)
@@ -372,6 +387,7 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/modules/sl/source/cv
         ${SL_PROJECT_ROOT}/modules/sl/source/gl
         ${SL_PROJECT_ROOT}/modules/sl/source/input
+        ${SL_PROJECT_ROOT}/modules/sl/source/io
         ${SL_PROJECT_ROOT}/modules/sl/source/math
         ${SL_PROJECT_ROOT}/modules/sl/source/mesh
         ${SL_PROJECT_ROOT}/modules/sl/source/node
@@ -380,6 +396,7 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/modules/sl/source
         ${SL_PROJECT_ROOT}/modules/sl/cuda
         ${SL_PROJECT_ROOT}/modules/math/source
+        ${SL_PROJECT_ROOT}/modules/sl/externals/stb/
         ${OpenCV_INCLUDE_DIR}
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
@@ -449,4 +466,6 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     add_dependencies(${target} ptx)
 endif ()
 
-
+if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    target_link_options(${target} PUBLIC "-sFULL_ES3" "-sFETCH")
+endif ()

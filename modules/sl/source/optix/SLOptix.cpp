@@ -14,10 +14,10 @@
 
 //-----------------------------------------------------------------------------
 // Global statics
-
 OptixDeviceContext SLOptix::context = {};
 CUstream           SLOptix::stream  = {};
-//-----------------------------------------------------------------------------
+string             SLOptix::exePath;
+  //-----------------------------------------------------------------------------
 //! callback function for optix
 void context_log_cb(unsigned int level,
                     const char*  tag,

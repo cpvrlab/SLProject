@@ -81,17 +81,23 @@ private:
                                        SLSceneView*   sv,
                                        SLNodeEditMode editMode);
     static void   removeTransformNode(SLScene* s);
-    static void   showHorizon(SLScene*        s,
-                              SLSceneView*    sv);
+    static void   showHorizon(SLScene*     s,
+                              SLSceneView* sv);
     static void   hideHorizon(SLScene* s);
     static SLbool _horizonVisuEnabled;
-    static void   downloadModelAndLoadScene(SLScene*        s,
-                                            SLSceneView*    sv,
-                                            string          downloadFilename,
-                                            string          urlFolder,
-                                            string          dstFolder,
-                                            string          filenameToLoad,
-                                            SLSceneID       sceneIDToLoad);
+
+    static void loadSceneWithLargeModel(SLScene*     s,
+                                        SLSceneView* sv,
+                                        string       downloadFilename,
+                                        string       filenameToLoad,
+                                        SLSceneID    sceneIDToLoad);
+    static void downloadModelAndLoadScene(SLScene*     s,
+                                          SLSceneView* sv,
+                                          string       downloadFilename,
+                                          string       urlFolder,
+                                          string       dstFolder,
+                                          string       filenameToLoad,
+                                          SLSceneID    sceneIDToLoad);
 };
 //-----------------------------------------------------------------------------
 #endif

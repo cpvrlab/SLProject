@@ -7,6 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef __EMSCRIPTEN__
+
 #include <cv/CVTrackedArucoCube.h>
 #include <Utils.h>
 #include <Instrumentor.h>
@@ -138,3 +140,4 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
 }
 //-----------------------------------------------------------------------------
 
+#endif

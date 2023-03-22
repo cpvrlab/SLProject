@@ -7,6 +7,7 @@
 //              Please visit: http://opensource.org/licenses/GPL-3.0
 // #############################################################################
 
+#include <SL.h>
 #include <GlobalTimer.h>
 
 #include <CVCapture.h>
@@ -50,6 +51,7 @@
 #include <SLNodeLOD.h>
 #include <imgui_color_gradient.h> // For color over life, need to create own color interpolator
 #include <SLEntities.h>
+#include <SLFileStorage.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -741,17 +743,26 @@ void appDemoLoadScene(SLAssetManager* am,
 
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
-    // Reset non CVTracked and CVCapture infos
-    CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
-    // Reset asset pointer from previous scenes
+    // Reset non CVTracked and CVCapture infos
+    CVTracked::resetTimes(); // delete all tracker times
     delete tracker;
-    tracker      = nullptr;
+    tracker = nullptr;
+
+    // Reset asset pointer from previous scenes
     videoTexture = nullptr; // The video texture will be deleted by scene uninit
     trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
+
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
+
+    // reset existing sceneviews
+    for (auto* sceneview : AppDemo::sceneViews)
+        sceneview->unInit();
+
+    // Clear all data in the asset manager
+    am->clear();
 
     AppDemo::sceneID   = sceneID;
     SLGLState* stateGL = SLGLState::instance();
@@ -761,13 +772,6 @@ void appDemoLoadScene(SLAssetManager* am,
     SLstring modelPath  = AppDemo::modelPath;
     SLstring shaderPath = AppDemo::shaderPath;
     SLstring configPath = AppDemo::configPath;
-
-    // reset existing sceneviews
-    for (auto* sceneview : AppDemo::sceneViews)
-        sceneview->unInit();
-
-    // Clear all data in the asset manager
-    am->clear();
 
     // Initialize all preloaded stuff from SLScene
     s->init(am);
@@ -2901,17 +2905,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
       sceneID == SID_glTF_Sponza ||
       sceneID == SID_glTF_WaterBottle) //..........................................................
     {
-        SLstring clearCoatTest = configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
-        SLstring damagedHelmet = configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
-        SLstring flightHelmet  = configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
-        SLstring sponzaPalace  = configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
-        SLstring waterBottle   = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+        SLstring damagedHelmet = modelPath + "GLTF/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+        SLstring flightHelmet  = modelPath + "GLTF/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+        SLstring sponzaPalace  = modelPath + "GLTF/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
+        SLstring waterBottle   = modelPath + "GLTF/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
 
         if ( //(sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest)) ||
-          (sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet)) ||
-          (sceneID == SID_glTF_FlightHelmet && Utils::fileExists(flightHelmet)) ||
-          (sceneID == SID_glTF_Sponza && Utils::fileExists(sponzaPalace)) ||
-          (sceneID == SID_glTF_WaterBottle && Utils::fileExists(waterBottle)))
+          (sceneID == SID_glTF_DamagedHelmet && SLFileStorage::exists(damagedHelmet, IOK_model)) ||
+          (sceneID == SID_glTF_FlightHelmet && SLFileStorage::exists(flightHelmet, IOK_model)) ||
+          (sceneID == SID_glTF_Sponza && SLFileStorage::exists(sponzaPalace, IOK_model)) ||
+          (sceneID == SID_glTF_WaterBottle && SLFileStorage::exists(waterBottle, IOK_model)))
         {
             SLVec3f  camPos, lookAt;
             SLfloat  camClipFar = 100;
@@ -2961,7 +2964,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create HDR CubeMap and get precalculated textures from it
             SLSkybox* skybox = new SLSkybox(am,
                                             shaderPath,
-                                            configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
+                                            modelPath + "GLTF/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
             // Create a scene group node
@@ -3013,9 +3016,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Robotics_FanucCRX_FK) //...............................................
     {
-        SLstring modelFile = configPath + "models/GLTF-FanucCRX/Fanuc-CRX.gltf";
+        SLstring modelFile = modelPath + "GLTF/FanucCRX/Fanuc-CRX.gltf";
 
-        if (Utils::fileExists(modelFile))
+        if (SLFileStorage::exists(modelFile, IOK_model))
         {
             s->info("FANUC CRX Robot with Forward Kinematic");
 
@@ -3205,8 +3208,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                         mriImages,
                                         GL_LINEAR,
                                         GL_LINEAR,
+#ifndef SL_EMSCRIPTEN
                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+#else
+                                        GL_CLAMP_TO_EDGE,
+                                        GL_CLAMP_TO_EDGE,
+#endif
                                         "mri_head_front_to_back",
                                         true);
 
@@ -3606,7 +3614,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
     }
-
     else if (sceneID == SID_VideoTextureLive ||
              sceneID == SID_VideoTextureFile) //...................................................
     {
@@ -3779,6 +3786,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
+#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTrackArucoMain ||
              sceneID == SID_VideoTrackArucoScnd) //................................................
     {
@@ -3855,6 +3863,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
+#endif
     else if (sceneID == SID_VideoTrackFeature2DMain) //............................................
     {
         /*
@@ -3987,11 +3996,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
-                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
-                                     3);
-        trackedNode = cam1;
-        tracker->drawDetection(true);
+//        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
+//                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
+//                                     3);
+//        trackedNode = cam1;
+//        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
@@ -4020,7 +4029,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false);
         sv->camera(cam1);
     }
-#ifdef SL_BUILD_WAI
+#    ifdef SL_BUILD_WAI
     else if (sceneID == SID_VideoTrackWAI) //......................................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
@@ -4071,11 +4080,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create OpenCV Tracker for the box node
         std::string vocFileName;
-#    if USE_FBOW
+#        if USE_FBOW
         vocFileName = "voc_fbow.bin";
-#    else
+#        else
         vocFileName = "ORBvoc.bin";
-#    endif
+#        endif
         tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {AppDemo::calibIniPath, AppDemo::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
@@ -4085,7 +4094,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
-#endif
+#    endif
     else if (sceneID == SID_VideoSensorAR) //......................................................
     {
         // Set scene name and info string
@@ -4135,7 +4144,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
 
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         // activate rotation and gps sensor
         AppDemo::devRot.isUsed(true);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4143,14 +4152,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         AppDemo::devLoc.useOriginAltitude(true);
         AppDemo::devLoc.hasOrigin(false);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#else
+#    else
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
         AppDemo::devRot.zeroYawAtStart(true);
-#endif
+#    endif
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
-
     else if (sceneID == SID_ErlebARBernChristoffel) //.............................................
     {
         s->name("Christoffel Tower AR");
@@ -5393,7 +5401,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
-
     else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
@@ -5626,7 +5633,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint       numSamples   = 4;
+        SLuint numSamples = 4;
 #endif
 
         stringstream ss;
@@ -5718,7 +5725,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint       numSamples   = 6;
+        SLuint numSamples = 6;
 #endif
 
         // Scene
@@ -6281,9 +6288,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+        SLstring largeFile = modelPath + "PLY/xyzrgb_dragon/xyzrgb_dragon.ply";
 
-        if (Utils::fileExists(largeFile))
+        if (SLFileStorage::exists(largeFile, IOK_model))
         {
             s->name("Large Model Benchmark Scene");
             s->info("Large Model with 7.2 mio. triangles.");
@@ -6450,7 +6457,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLint  size         = 20;
         SLint  numAstroboys = size * size;
         SLchar name[512];
-        sprintf(name, "Massive Skinned Animation Benchmark w. %d individual Astroboys", numAstroboys);
+        snprintf(name, sizeof(name), "Massive Skinned Animation Benchmark w. %d individual Astroboys", numAstroboys);
         s->name(name);
         s->info(s->name());
 
@@ -6522,25 +6529,26 @@ resolution shadows near the camera and lower resolution shadows further away.");
     else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
              sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
     {
-        SLstring modelFile = configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-        SLstring texCFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
-        SLstring texNFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+        SLstring modelFile = modelPath + "GLTF/CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+        SLstring texCFile  = modelPath + "GLTF/CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = modelPath + "GLTF/CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
 
-        if (Utils::fileExists(modelFile) &&
-            Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
+        if (SLFileStorage::exists(modelFile, IOK_model) &&
+            SLFileStorage::exists(texCFile, IOK_image) &&
+            SLFileStorage::exists(texNFile, IOK_image))
         {
             SLchar name[512];
             SLint  size;
             if (sceneID == SID_Benchmark5_ColumnsNoLOD)
             {
                 size = 10;
-                sprintf(name, "%d corinthian columns without LOD", size * size);
+                snprintf(name, sizeof(name), "%d corinthian columns without LOD", size * size);
                 s->name(name);
             }
             else
             {
                 size = 50;
-                sprintf(name, "%d corinthian columns with LOD", size * size);
+                snprintf(name, sizeof(name), "%d corinthian columns with LOD", size * size);
                 s->name(name);
             }
             s->info(s->name() + " with cascaded shadow mapping. In the Day-Time dialogue you can change the sun angle.");
@@ -6684,9 +6692,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLuint const levels       = 6;
         SLuint const childCount   = 8;
 #else
-        const int    NUM_MAT_MESH = 20;
-        SLuint const levels       = 6;
-        SLuint const childCount   = 8;
+        const int NUM_MAT_MESH = 20;
+        SLuint const levels = 6;
+        SLuint const childCount = 8;
 #endif
         SLVMaterial materials(NUM_MAT_MESH);
         for (int i = 0; i < NUM_MAT_MESH; ++i)
@@ -6853,6 +6861,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         else
             CVCapture::instance()->start(sv->viewportWdivH());
     }
+
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 
 #ifdef SL_USE_ENTITIES_DEBUG

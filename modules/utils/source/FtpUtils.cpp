@@ -589,7 +589,6 @@ int getVersionInFilename(const string& filename)
 //     {
 //         int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
 //         cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
-//         //AppDemo::jobProgressNum(xferedPC);
 //     }
 //     else
 //     {

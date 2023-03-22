@@ -352,9 +352,11 @@ bool CVCalibrationEstimator::loadCalibParams()
 //-----------------------------------------------------------------------------
 void CVCalibrationEstimator::saveImage(cv::Mat imageGray)
 {
+#ifndef __EMSCRIPTEN__
     stringstream ss;
     ss << _calibImgOutputDir << "CalibImge_" << Utils::getDateTime2String() << ".jpg";
     cv::imwrite(ss.str(), imageGray);
+#endif
 }
 //-----------------------------------------------------------------------------
 void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv::Mat imageGray)

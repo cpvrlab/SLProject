@@ -11,6 +11,7 @@
 #include <SLGLState.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
+#include "SLFileStorage.h"
 
 //-----------------------------------------------------------------------------
 // Error Strings
@@ -45,14 +46,16 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
     _file     = filename;
 
     // Only load file at this moment, don't compile it.
-    if (Utils::fileExists(filename))
+    if (SLFileStorage::exists(filename, IOK_shader))
         load(filename);
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    _code = Utils::readTextFileIntoString("SLProject", filename);
+    SLIOBuffer buffer = SLFileStorage::readIntoBuffer(filename, IOK_shader);
+    _code             = SLstring(buffer.data, buffer.data + buffer.size);
+    SLFileStorage::deleteBuffer(buffer);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
     _code = removeComments(_code);
@@ -85,6 +88,7 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
     if (_code.empty())
     {
         SL_WARN_MSG("SLGLShader::createAndCompile: Nothing to compile!");
+        std::cout << "file: " << _file << std::endl;
         return false;
     }
 
@@ -158,20 +162,20 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         {
             if (Utils::containsString(path, "generatedShaders"))
             {
-                Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                SLFileStorage::writeString(_file, IOK_shader, _code);
                 SL_LOG("Exported Shader Program: %s", filename.c_str());
             }
         }
         else
             SL_WARN_MSG("**** No path to write shader ***");
 #else
-        if (!Utils::fileExists(_file))
+        if (!SLFileStorage::exists(_file, IOK_shader))
         {
             string filename = Utils::getFileName(_file);
             string path     = Utils::getDirName(_file);
             if (Utils::dirExists(path))
             {
-                Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                SLFileStorage::writeString(_file, IOK_shader, _code);
                 SL_LOG("Exported Shader Program: %s", filename.c_str());
             }
             else
@@ -272,9 +276,9 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
                 string filename = Utils::trimString(pragmaParts[2], "\"");
                 string path     = Utils::getPath(_file);
                 string pathFile = path + filename;
-                if (Utils::fileExists(pathFile))
+                if (SLFileStorage::exists(pathFile, IOK_shader))
                 {
-                    string includeCode = Utils::readTextFileIntoString("SLProject", pathFile);
+                    string includeCode = SLFileStorage::readIntoString(pathFile, IOK_shader);
                     includeCode        = removeComments(includeCode);
                     outCode += includeCode + '\n';
                 }

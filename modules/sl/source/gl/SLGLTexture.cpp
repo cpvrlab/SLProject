@@ -1,17 +1,18 @@
-// #############################################################################
+//#############################################################################
 //   File:      SLGLTexture.cpp
 //   Date:      July 2014
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marcus Hudritsch
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 #include <SLGLState.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
+#include "SLFileStorage.h"
 #include <Utils.h>
 #include <Profiler.h>
 
@@ -141,11 +142,11 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     image->load(width, height, PF_red, PF_red, data, true, false);
     _images.push_back(image);
 
-    _width                 = image->width();
-    _height                = image->height();
+    _width                 = (SLint)image->width();
+    _height                = (SLint)image->height();
     _depth                 = (SLint)_images.size();
     _uvIndex               = 0;
-    _bytesPerPixel         = image->bytesPerPixel();
+    _bytesPerPixel         = (SLint)image->bytesPerPixel();
     _min_filter            = min_filter;
     _mag_filter            = mag_filter;
     _wrap_s                = wrapS;
@@ -344,10 +345,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter            = min_filter;
@@ -403,10 +404,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter = min_filter;
@@ -483,10 +484,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     _min_filter            = min_filter;
@@ -577,7 +578,7 @@ void SLGLTexture::load(const SLstring& filename,
                        SLbool          flipVertical,
                        SLbool          loadGrayscaleIntoAlpha)
 {
-    if (!Utils::fileExists(filename))
+    if (!SLFileStorage::exists(filename, IOK_image))
     {
         SLstring msg = "SLGLTexture: File not found: " + filename;
         SL_EXIT_MSG(msg.c_str());
@@ -589,17 +590,27 @@ void SLGLTexture::load(const SLstring& filename,
     if (ext == "ktx2")
     {
 #ifdef SL_BUILD_WITH_KTX
-        _ktxFileName         = filename;
-        _compressedTexture   = true;
-        KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
-                                                              KTX_TEXTURE_CREATE_NO_FLAGS,
-                                                              (ktxTexture**)&_ktxTexture);
+        _ktxFileName       = filename;
+        _compressedTexture = true;
+
+        SLIOBuffer     buffer = SLFileStorage::readIntoBuffer(filename, IOK_image);
+        KTX_error_code error  = ktxTexture_CreateFromMemory(buffer.data,
+                                                           buffer.size,
+                                                           KTX_TEXTURE_CREATE_NO_FLAGS,
+                                                           (ktxTexture**)&_ktxTexture);
+        // KTX apparently takes ownership of the data, so no deallocation
+
         if (error != KTX_SUCCESS)
         {
             string errStr = "Error in SLGLTexture::load: " +
                             ktxErrorStr(error) + " in file: " + filename;
             SL_EXIT_MSG(errStr.c_str());
         }
+
+#    ifdef SL_EMSCRIPTEN
+        // WebGL doesn't support generating mipmaps for compressed textures
+        _ktxTexture->generateMipmaps = false;
+#    endif
 
         if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
@@ -618,6 +629,15 @@ void SLGLTexture::load(const SLstring& filename,
             _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
 #    elif defined(SL_OS_ANDROID)
             _compressionFormat = KTX_TTF_ETC2_RGBA;
+#    elif defined(SL_EMSCRIPTEN)
+            // The executable might run on desktop or on mobile, so we have to check
+            // the available compression extensions to pick the right format.
+            if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_s3tc"))
+                _compressionFormat = KTX_TTF_BC3_RGBA;
+            if (SLGLState::instance()->hasExtension("WEBGL_compressed_texture_etc"))
+                _compressionFormat = KTX_TTF_ETC2_RGBA;
+            else
+                SL_EXIT_MSG("No valid compression format found for this WebGL context");
 #    else
             _compressionFormat = KTX_TTF_BC3_RGBA;
 #    endif
@@ -681,28 +701,30 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
 {
     PROFILE_FUNCTION();
 
+    CVPixelFormatGL pixelFormat = PF_rgb;
+
     // Add image for the first time
     if (_images.empty())
         _images.push_back(new CVImage(camWidth,
                                       camHeight,
-                                      PF_rgb,
+                                      pixelFormat,
                                       "LiveVideoImageFromMemory"));
 
     // load returns true if size or format changes
     bool needsBuild = _images[0]->load(camWidth,
                                        camHeight,
                                        srcFormat,
-                                       PF_rgb,
+                                       pixelFormat,
                                        data,
                                        isContinuous,
                                        isTopLeft);
 
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (SLint)_images[0]->width();
+        _height        = (SLint)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (SLint)_images[0]->bytesPerPixel();
     }
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
@@ -748,10 +770,10 @@ SLbool SLGLTexture::copyVideoImage(SLint           camWidth,
                                        isTopLeft);
     if (!_images.empty())
     {
-        _width         = _images[0]->width();
-        _height        = _images[0]->height();
+        _width         = (int)_images[0]->width();
+        _height        = (int)_images[0]->height();
         _depth         = (SLint)_images.size();
-        _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesPerPixel = (int)_images[0]->bytesPerPixel();
     }
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
@@ -1008,7 +1030,7 @@ void SLGLTexture::build(SLint texUnit)
 
         // Handle special case for HDR textures
         if (_texType == TT_hdr)
-            _internalFormat = GL_RGB16F;
+            _internalFormat = SL_HDR_GL_INTERNAL_FORMAT;
 
         // Build textures
         if (_target == GL_TEXTURE_2D)
@@ -1023,7 +1045,7 @@ void SLGLTexture::build(SLint texUnit)
                          (SLsizei)_images[0]->height(),
                          0,
                          format,
-                         _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
+                         _texType == TT_hdr ? SL_HDR_GL_TYPE : GL_UNSIGNED_BYTE,
                          (GLvoid*)_images[0]->data());
             /////////////////////////////////////////////////////////////
 
@@ -1103,7 +1125,7 @@ void SLGLTexture::build(SLint texUnit)
                 glGenerateMipmap(GL_TEXTURE_2D);
 
                 // Mipmaps use 1/3 more memory on GPU
-                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * (4.0f / 3.0f));
             }
         }
 
@@ -1326,8 +1348,8 @@ SLCol4f SLGLTexture::getTexelf(SLfloat u, SLfloat v, SLuint imgIndex)
         }
         else
         {
-            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
-                                                       (SLint)(v * _images[imgIndex]->height()));
+            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * (float)_images[imgIndex]->width()),
+                                                       (SLint)(v * (float)_images[imgIndex]->height()));
             return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
         }
     }
@@ -1357,8 +1379,8 @@ mapping either from a height map or a normal map
 SLVec2f SLGLTexture::dudv(SLfloat u, SLfloat v)
 {
     SLVec2f dudv(0, 0);
-    SLfloat du = 1.0f / _images[0]->width();
-    SLfloat dv = 1.0f / _images[0]->height();
+    SLfloat du = 1.0f / (SLfloat)_images[0]->width();
+    SLfloat dv = 1.0f / (SLfloat)_images[0]->height();
 
     if (_texType == TT_height)
     {
@@ -1488,7 +1510,7 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
 
         // Debug output
         // SLchar filename[255];
-        // sprintf(filename,"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
+        // snprintf(filename,sizeof(filename),"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
         // img2.savePNG(filename);
 
         glTexImage2D((SLuint)target,
@@ -1524,7 +1546,7 @@ SLstring SLGLTexture::typeName()
         case TT_hdr: return "TT_hdr";
         case TT_environmentCubemap: return "TT_environmentCubemap";
         case TT_irradianceCubemap: return "TT_irradianceCubemap";
-        case TT_roughnessCubemap: return "TT_roughnessCubemap";
+        case TT_roughnessCubemap:
         case TT_brdfLUT: return "TT_roughnessCubemap";
         case TT_videoBkgd: return "TT_videoBkgd";
         default: return "TT_unknown";

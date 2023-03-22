@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 if (APPLE)
-	set(CMAKE_MACOSX_RPATH OFF)
+    set(CMAKE_MACOSX_RPATH OFF)
 endif (APPLE)
 
 set(SL_PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -31,16 +31,16 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
-option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded"     ON)
-option(SL_BUILD_WAI          "Specifies if the WAI library should be built"             ON)
-option(SL_BUILD_APPS         "Specifies if sample apps should be built"                 ON)
-option(SL_BUILD_EXERCISES    "Specifies if exercise apps should be built"               ON)
-option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"                 OFF)
-option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"              OFF)
-option(SL_BUILD_WITH_KTX     "Specifies if Kronos Texture library (ktx) should be used" ON)
-option(SL_BUILD_WITH_OPENSSL "Specifies if OpenSSL should be used"                      ON)
-option(SL_BUILD_WITH_ASSIMP  "Specifies if Assimp should be used"                       ON)
-option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically"       ON)
+option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded" ON)
+option(SL_BUILD_WAI "Specifies if the WAI library should be built" ON)
+option(SL_BUILD_APPS "Specifies if sample apps should be built" ON)
+option(SL_BUILD_EXERCISES "Specifies if exercise apps should be built" ON)
+option(SL_BUILD_VULKAN_APPS "Specifies if vulkan apps should be built" OFF)
+option(SL_BUILD_WITH_OPTIX "Specifies if Optix renderer should be built" OFF)
+option(SL_BUILD_WITH_KTX "Specifies if Kronos Texture library (ktx) should be used" ON)
+option(SL_BUILD_WITH_OPENSSL "Specifies if OpenSSL should be used" ON)
+option(SL_BUILD_WITH_ASSIMP "Specifies if Assimp should be used" ON)
+option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically" ON)
 
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
 message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
@@ -57,27 +57,64 @@ include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
 include(cmake/ConfigureMSVCCLion.cmake)
 include(cmake/ConfigureClangCl.cmake)
+include(cmake/DownloadData.cmake)
 
 if (SL_DOWNLOAD_PREBUILTS)
-	include(cmake/DownloadPrebuilts.cmake)
-endif()
+    include(cmake/DownloadPrebuilts.cmake)
+endif ()
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
-	message(STATUS "SL_APP: ${SL_APP}")
-	option(SL_APP
-		"Specifies which sample app should be built (used for android)"
-		SL_APP_ALL)
-endif()
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
+    message(STATUS "SL_APP: ${SL_APP}")
+    option(SL_APP
+            "Specifies which sample app should be built (used for android)"
+            SL_APP_ALL)
+endif ()
+
+if ("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
+    add_compile_options(
+            "-sUSE_PTHREADS"
+            #"-fsanitize=address"
+    )
+    add_link_options(
+            # The Wasm heap has a limited size.
+            # Enable growing the heap when allocating more than the initial heap size.
+            "-sALLOW_MEMORY_GROWTH=1"
+
+            # Enable assertions that provide information about errors.
+            "-sASSERTIONS"
+
+            # Enable support for pthreads, which are implemented using a pool of web workers.
+            "-sUSE_PTHREADS"
+
+            # Run the entire application in a web worker, so we can block while fetching.
+            # Functions that have to run on the main thread are proxied to it using messages.
+            "-sPROXY_TO_PTHREAD"
+
+            # The canvas that WebGL renders to has to be on the same thread as the WebGL context.
+            # This flags enables support for transferring canvases to a worker.
+            "-sOFFSCREENCANVAS_SUPPORT=1"
+
+            # Transfer the app canvas to the worker.
+            "-sOFFSCREENCANVASES_TO_PTHREAD='#canvas'"
+
+            # Strings are always decoded on the main thread, which accesses it using a SharedArrayBuffer.
+            # Chrome doesn't support decoding from SharedArrayBuffers, so we disable the JavaScript TextDecoder API.
+            # See https://github.com/emscripten-core/emscripten/issues/18034
+            "-sTEXTDECODER=0"
+
+            "-sEXIT_RUNTIME=0"
+    )
+endif ()
 
 add_subdirectory(modules/sens)
 add_subdirectory(modules/sl)
 add_subdirectory(modules/math)
 add_subdirectory(modules/utils)
 #add_subdirectory(experimental)
-if(SL_BUILD_WAI)
-	add_subdirectory(modules/wai)
-endif()
+if (SL_BUILD_WAI)
+    add_subdirectory(modules/wai)
+endif ()
 
 if (SL_BUILD_APPS)
-	add_subdirectory(apps)
-endif()
+    add_subdirectory(apps)
+endif ()

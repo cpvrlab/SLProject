@@ -142,7 +142,7 @@ void AverageTiming::doGetTimingMessage(char* m)
     {
         refTime = (*blocks.begin())->val.average();
         // insert number of measurement calls
-        sprintf(m + strlen(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
+        snprintf(m + strlen(m), sizeof(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
     }
 
     // calculate longest blockname
@@ -164,7 +164,7 @@ void AverageTiming::doGetTimingMessage(char* m)
         // for (int i = 0; i < block->posH; ++i)
         //     ss << " ";
         ss << "%s: %4.1f ms (%3d%%)\n";
-        sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
+        snprintf(m + strlen(m), sizeof(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }
 } //-----------------------------------------------------------------------------
 };

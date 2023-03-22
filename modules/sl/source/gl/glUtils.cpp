@@ -566,7 +566,7 @@ void glUtils::getGLError(const char* file,
 
         // Build error string as a concatenation of file, line & error
         char sLine[32];
-        sprintf(sLine, "%d", line);
+        snprintf(sLine, sizeof(sLine),"%d", line);
 
         string newErr(file);
         newErr += ": line:";

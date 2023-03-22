@@ -80,4 +80,5 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 
 Standard: Cpp11
+CommentPragmas:  '^[^ ]' #deletes space after //
 ...

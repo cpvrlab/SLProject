@@ -121,6 +121,7 @@ private:
     SLfloat  _fontPropDots;      //!< Active font size of proportional font
     SLfloat  _fontFixedDots;     //!< Active font size of fixed size font
     SLstring _fontDir;
+    SLstring _configPath;
 };
 //-----------------------------------------------------------------------------
 #endif

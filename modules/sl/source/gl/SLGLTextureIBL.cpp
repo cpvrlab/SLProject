@@ -127,8 +127,8 @@ void SLGLTextureIBL::build(SLint texUnit)
     if (_texType == TT_environmentCubemap ||
         _texType == TT_irradianceCubemap)
     {
-        _bytesPerPixel  = 3 * 2; // GL_RGB16F
-        _internalFormat = GL_RGB16F;
+        _bytesPerPixel  = SL_HDR_PIXEL_BYTES;
+        _internalFormat = SL_HDR_GL_INTERNAL_FORMAT;
 
         // Build the textures for the 6 faces of a cubemap with no data
         for (SLuint i = 0; i < 6; i++)
@@ -139,8 +139,8 @@ void SLGLTextureIBL::build(SLint texUnit)
                          _width,
                          _height,
                          0,
-                         GL_RGB,
-                         GL_FLOAT,
+                         SL_HDR_GL_FORMAT,
+                         SL_HDR_GL_TYPE,
                          nullptr);
         }
 
@@ -213,8 +213,8 @@ void SLGLTextureIBL::build(SLint texUnit)
         assert(_sourceTexture->texType() == TT_environmentCubemap &&
                "the source texture is not an environment map");
 
-        _bytesPerPixel  = 3 * 2; // GL_RGB16F
-        _internalFormat = GL_RGB16F;
+        _bytesPerPixel  = SL_HDR_PIXEL_BYTES;
+        _internalFormat = SL_HDR_GL_INTERNAL_FORMAT;
 
         for (unsigned int i = 0; i < 6; ++i)
         {
@@ -224,8 +224,8 @@ void SLGLTextureIBL::build(SLint texUnit)
                          _width,
                          _height,
                          0,
-                         GL_RGB,
-                         GL_FLOAT,
+                         SL_HDR_GL_FORMAT,
+                         SL_HDR_GL_TYPE,
                          nullptr);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -288,8 +288,8 @@ void SLGLTextureIBL::build(SLint texUnit)
     }
     else if (_texType == TT_brdfLUT)
     {
-        _bytesPerPixel  = 2 * 2; // GL_RG16F
-        _internalFormat = GL_RG16F;
+        _bytesPerPixel  = SL_BRDF_LUT_PIXEL_BYTES;
+        _internalFormat = SL_BRDF_LUT_GL_INTERNAL_FORMAT;
 
         glTexImage2D(_target,
                      0,
@@ -297,8 +297,8 @@ void SLGLTextureIBL::build(SLint texUnit)
                      _width,
                      _height,
                      0,
-                     GL_RG,
-                     GL_FLOAT,
+                     SL_BRDF_LUT_GL_FORMAT,
+                     SL_BRDF_LUT_GL_TYPE,
                      0);
         glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
@@ -469,13 +469,13 @@ void SLGLTextureIBL::readPixels(int width, int height, string name, bool savePNG
 {
     CVImage* image = new CVImage(width,
                                  height,
-                                 PF_rgb,
+                                 SL_READ_PIXELS_CV_FORMAT,
                                  name);
     glReadPixels(0,
                  0,
                  width,
                  height,
-                 GL_RGB,
+                 SL_READ_PIXELS_GL_FORMAT,
                  GL_UNSIGNED_BYTE,
                  image->data());
     GET_GL_ERROR;

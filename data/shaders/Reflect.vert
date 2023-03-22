@@ -20,28 +20,19 @@ uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
 uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
 uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
-uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
-uniform vec4   u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec4  u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4  u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec4  u_matSpec;    // specular color reflection coefficient (ks)
+uniform float u_matShin;    // shininess
 
-uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
-uniform vec4   u_matEmis;           // emissive color for self-shining materials
-uniform float  u_matShin;           // shininess exponent
-
-out     vec3   v_R_OS;              // Reflected ray in object space
-out     vec4   v_specColor;         // Specular color at vertex
-//-----------------------------------------------------------------------------
-// Replacement for the GLSL reflect function
-vec3 reflect2(vec3 I, vec3 N)
-{  return I - 2.0 * dot(N, I) * N;
-}
+out     vec3  v_R_OS;       // Reflected ray in object space
+out     vec4  v_specColor;  // Specular color at vertex
 //-----------------------------------------------------------------------------
 void main(void)
 {
     mat4 mvMatrix = u_vMatrix * u_mMatrix;
-    vec3 P_VS = vec3(mvMatrix * a_position);     // pos. in viewspace (VS)
-    vec3 I_VS = normalize(P_VS);                 // incident vector in VS
+    vec3 P_VS = vec3(mvMatrix * a_position);   // pos. in viewspace
+    vec3 I_VS = normalize(P_VS);               // incident vector in VS
 
     mat3 invMvMatrix = mat3(inverse(mvMatrix));
     mat3 nMatrix = transpose(invMvMatrix);
@@ -50,7 +41,7 @@ void main(void)
     // We have to rotate the relfected & refracted ray by the inverse
     // modelview matrix back into objekt space. Without that you would see
     // always the same reflections no matter from where you look
-    // Calculate reflection vector R and refracted transmission vector T
+    // Calculate reflection vector R
     v_R_OS = invMvMatrix * reflect(I_VS, N_VS); // = I - 2.0*dot(N,I)*N;
 
     // Specular color for light reflection

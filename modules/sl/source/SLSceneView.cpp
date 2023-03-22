@@ -1,23 +1,28 @@
-// #############################################################################
+//#############################################################################
 //   File:      SLSceneView.cpp
 //   Date:      July 2014
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marc Wacker, Marcus Hudritsch
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 #include <SLAnimManager.h>
 #include <SLCamera.h>
 #include <SLLight.h>
-#include <SLLightRect.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
+#include <SLFileStorage.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
 #include <Profiler.h>
 
 #include <utility>
+
+#ifdef SL_EMSCRIPTEN
+#    define STB_IMAGE_WRITE_IMPLEMENTATION
+#    include "stb_image_write.h"
+#endif
 
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
@@ -646,6 +651,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Update camera animation separately (smooth transition on key movement)
     // todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
     // A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
+
     SLbool camUpdated = _camera->camUpdate(this, elapsedTimeMS);
 
     //////////////////////
@@ -854,9 +860,9 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     {
         std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b)
                   {
-            if (!a) return false;
-            if (!b) return true;
-            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
+                      if (!a) return false;
+                      if (!b) return true;
+                      return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
     }
 
     // draw the shapes directly with their wm transform
@@ -1529,7 +1535,10 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Down(SLint scrX1,
+                                 SLint scrY1,
+                                 SLint scrX2,
+                                 SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1559,7 +1568,10 @@ SLbool SLSceneView::onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 SLSceneView::onTouch2Move gets called whenever two fingers touch a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Move(SLint scrX1,
+                                 SLint scrY1,
+                                 SLint scrX2,
+                                 SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1590,7 +1602,10 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 SLSceneView::onTouch2Up gets called whenever two fingers lift off a handheld
 screen.
 */
-SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
+SLbool SLSceneView::onTouch2Up(SLint scrX1,
+                               SLint scrY1,
+                               SLint scrX2,
+                               SLint scrY2)
 {
     if (!_s || !_s->root3D())
         return false;
@@ -1779,28 +1794,33 @@ SLstring SLSceneView::windowTitle()
 
     if (_renderType == RT_rt)
     {
+        int numThreads = _raytracer.doDistributed() ? _raytracer.numThreads() : 1;
+
         if (_raytracer.doContinuous())
         {
-            sprintf(title,
-                    "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
-                    _s->name().c_str(),
-                    _s->fps(),
-                    _raytracer.numThreads());
+            snprintf(title,
+                     sizeof(title),
+                     "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
+                     _s->name().c_str(),
+                     _s->fps(),
+                     numThreads);
         }
         else
         {
-            sprintf(title,
-                    "Ray Tracing: %s (Threads: %d)",
-                    _s->name().c_str(),
-                    _raytracer.numThreads());
+            snprintf(title,
+                     sizeof(title),
+                     "Ray Tracing: %s (Threads: %d)",
+                     _s->name().c_str(),
+                     numThreads);
         }
     }
     else if (_renderType == RT_pt)
     {
-        sprintf(title,
-                "Path Tracing: %s (Threads: %d)",
-                _s->name().c_str(),
-                _pathtracer.numThreads());
+        snprintf(title,
+                 sizeof(title),
+                 "Path Tracing: %s (Threads: %d)",
+                 _s->name().c_str(),
+                 _pathtracer.numThreads());
     }
     else
     {
@@ -1810,12 +1830,13 @@ SLstring SLSceneView::windowTitle()
         else
             format = "OpenGL Renderer: %s (fps: %4.1f, %u nodes of %u rendered)";
 
-        sprintf(title,
-                format.c_str(),
-                _s->name().c_str(),
-                _s->fps(),
-                _stats3D.numNodesOpaque + _stats3D.numNodesBlended,
-                _stats3D.numNodes);
+        snprintf(title,
+                 sizeof(title),
+                 format.c_str(),
+                 _s->name().c_str(),
+                 _s->fps(),
+                 _stats3D.numNodesOpaque + _stats3D.numNodesBlended,
+                 _stats3D.numNodes);
     }
     return profiling + SLstring(title) + profiling;
 }
@@ -2003,27 +2024,46 @@ SLbool SLSceneView::draw3DOptixPT()
  * wait a few frames until we can be sure that the executing menu command has
  * disappeared before we can save the screen.
  */
-void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
+void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename,
+                                         cv::Size targetSize)
 {
     if (_screenCaptureWaitFrames == 0)
     {
         SLint fbW = _viewportRect.width;
         SLint fbH = _viewportRect.height;
 
+#ifndef SL_EMSCRIPTEN
         GLsizei nrChannels = 3;
-        GLsizei stride     = nrChannels * fbW;
+#else
+        GLsizei nrChannels = 4;
+#endif
+
+        GLsizei stride = nrChannels * fbW;
         stride += (stride % 4) ? (4 - stride % 4) : 0;
         GLsizei       bufferSize = stride * fbH;
         vector<uchar> buffer(bufferSize);
 
         SLGLState::instance()->readPixels(buffer.data());
 
+#ifndef SL_EMSCRIPTEN
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
+#else
+        CVMat   rgbImg     = CVMat(fbH,
+                             fbW,
+                             CV_8UC4,
+                             (void*)buffer.data(),
+                             stride);
+        cv::cvtColor(rgbImg, rgbImg, cv::COLOR_RGBA2RGB);
+        nrChannels  = 3;
+        stride      = nrChannels * fbW;
+#endif
+
         cv::flip(rgbImg, rgbImg, 0);
         if (targetSize.width > 0 && targetSize.height > 0)
             cv::resize(rgbImg, rgbImg, targetSize);
 
+#ifndef SL_EMSCRIPTEN
         vector<int> compression_params;
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         compression_params.push_back(6);
@@ -2040,8 +2080,27 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
             msg += ex.what();
             Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
         }
+#else
+        auto writer = [](void* context, void* data, int size)
+        {
+            SLIOStream* stream = (SLIOStream*)context;
+            stream->write(data, size);
+        };
 
-#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+        SLIOStream* stream = SLFileStorage::open(pathFilename,
+                                                 IOK_image,
+                                                 IOM_write);
+        stbi_write_png_to_func(writer,
+                               (void*)stream,
+                               fbW,
+                               fbH,
+                               nrChannels,
+                               rgbImg.data,
+                               stride);
+        SLFileStorage::close(stream);
+#endif
+
+#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS) && !defined(SL_EMSCRIPTEN)
         _gui->drawMouseCursor(true);
 #endif
         _screenCaptureIsRequested = false;

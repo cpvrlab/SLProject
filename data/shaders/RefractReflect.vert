@@ -20,41 +20,22 @@ uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
 uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
 uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
-uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
-uniform vec4   u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec4  u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4  u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
+uniform vec4  u_matSpec;    // specular color reflection coefficient (ks)
+uniform float u_matShin;    // shininess
 
-uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
-uniform vec4   u_matEmis;           // emissive color for self-shining materials
-uniform float  u_matShin;           // shininess exponent
-
-out     vec3   v_R_OS;              // Reflected ray in object space
-out     vec3   v_T_OS;              // Refracted ray in object space
-out     float  v_F_Theta;           // Fresnel reflection coefficient
-out     vec4   v_specColor;         // Specular color at vertex
+out     vec3  v_R_OS;       // Reflected ray in object space
+out     vec3  v_T_OS;       // Refracted ray in object space
+out     float v_F_Theta;    // Fresnel reflection coefficient
+out     vec4  v_specColor;  // Specular color at vertex
 //-----------------------------------------------------------------------------
 // Schlick's approximation of the Fresnel reflection coefficient
-// theta: angle between normal & incident ray in radians in radians in radians in radians in radians
+// theta: angle between normal & incident ray in radians
 // F0: reflection coefficient at tetha=0
 float F_theta(float theta, float F0)
 {
     return F0 + (1.0-F0) * pow(1.0-theta, 5.0);
-}
-//-----------------------------------------------------------------------------
-// Replacement for the GLSL reflect function
-vec3 reflect2(vec3 I, vec3 N)
-{
-    return I - 2.0 * dot(N, I) * N;
-}
-//-----------------------------------------------------------------------------
-// Replacement for the GLSL refract function
-vec3 refract2(vec3 I, vec3 N, float eta)
-{
-    float NdotI = dot(N,I);
-    float k = 1.0 - eta * eta * (1.0 -  NdotI*NdotI);
-    if (k < 0.0) return vec3(0);
-    else return eta * I - (eta * NdotI + sqrt(k)) * N;
 }
 //-----------------------------------------------------------------------------
 void main(void)
@@ -62,6 +43,7 @@ void main(void)
     mat4 mvMatrix = u_vMatrix * u_mMatrix;
     vec3 P_VS = vec3(mvMatrix * a_position);   // pos. in viewspace
     vec3 I_VS = normalize(P_VS);               // incident vector in VS
+
     mat3 invMvMatrix = mat3(inverse(mvMatrix));
     mat3 nMatrix = transpose(invMvMatrix);
     vec3 N_VS = normalize(nMatrix * a_normal); // normal vector in VS
@@ -83,7 +65,6 @@ void main(void)
     float specFactor = pow(max(dot(N_VS,H), 0.0), u_matShin);
     v_specColor = u_lightSpec[0] * specFactor * u_matSpec;
 
-    // Finally transform the vertex position
     gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

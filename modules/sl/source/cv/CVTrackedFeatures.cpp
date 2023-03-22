@@ -20,6 +20,7 @@ for a good top down information.
 #include <cv/CVFeatureManager.h>
 #include <cv/CVTrackedFeatures.h>
 #include <Utils.h>
+#include <SLFileStorage.h>
 
 #if defined(SL_OS_WINDOWS)
 #    include <direct.h>
@@ -106,14 +107,23 @@ CVTrackedFeatures::~CVTrackedFeatures()
 void CVTrackedFeatures::loadMarker(string markerFilename)
 {
     // Load the file directly
-    if (!Utils::fileExists(markerFilename))
+    if (!SLFileStorage::exists(markerFilename, IOK_image))
     {
-        string msg = "CVTrackedFeatures::loadMarker: File not found: " + markerFilename;
-        Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+        string msg = "CVTrackedFeatures::loadMarker: File not found: " +
+                     markerFilename;
+        Utils::exitMsg("SLProject",
+                       msg.c_str(),
+                       __LINE__,
+                       __FILE__);
     }
 
     CVImage img(markerFilename);
+
+#ifndef SL_EMSCRIPTEN
     cvtColor(img.cvMat(), _marker.imageGray, cv::COLOR_RGB2GRAY);
+#else
+    cvtColor(img.cvMat(), _marker.imageGray, cv::COLOR_RGBA2GRAY);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*! Prepares the reference tracker:

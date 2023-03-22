@@ -45,7 +45,6 @@ CVCalibrationEstimator*      AppDemo::calibrationEstimator = nullptr;
 SLstring                     AppDemo::calibIniPath;
 SLstring                     AppDemo::calibFilePath;
 
-//! AppDemo::configPath is overwritten in slCreateAppAndScene.
 SLstring AppDemo::exePath;
 SLstring AppDemo::configPath;
 SLstring AppDemo::externalPath;
@@ -99,6 +98,7 @@ void AppDemo::createAppAndScene(SLstring appName,
     GlobalTimer::timerStart();
 
 #ifdef SL_HAS_OPTIX
+    SLOptix::exePath = AppDemo::exePath;
     SLOptix::createStreamAndContext();
 #endif
 }
@@ -111,8 +111,10 @@ any SLProject application.
 */
 void AppDemo::deleteAppAndScene()
 {
+    // The WebGL context is apparently already destroyed when we call this function
+#ifndef SL_EMSCRIPTEN
     assert(AppDemo::scene != nullptr &&
-           "You can delete an  only once");
+           "You can delete a scene only once");
 
     for (auto* sv : sceneViews)
         delete sv;
@@ -123,6 +125,7 @@ void AppDemo::deleteAppAndScene()
 
     delete assetManager;
     assetManager = nullptr;
+#endif
 
     if (gui)
     {
@@ -130,9 +133,12 @@ void AppDemo::deleteAppAndScene()
         gui = nullptr;
     }
 
+    // The WebGL context is apparently already destroyed when we call this function
+#ifndef SL_EMSCRIPTEN
     // delete default stuff:
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Starts parallel job if one is queued.

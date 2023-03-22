@@ -40,21 +40,21 @@ set(g2o_LINK_LIBS
         g2o_types_sim3
         g2o_types_slam3d
         g2o_types_slam3d_addons
-    )
+        )
 
 set(assimp_DIR)
 set(assimp_LINK_DIR)
 set(assimp_INCLUDE_DIR)
 set(assimp_LINK_LIBS
-    assimp
-    IrrXML)
+        assimp
+        IrrXML)
 
 set(vk_DIR)
 set(vk_INCLUDE_DIR)
 set(vk_LINK_DIR)
 set(vk_LINK_LIBS
         vulkan-1
-    )
+        )
 
 set(glfw_DIR)
 set(glfw_INCLUDE_DIR)
@@ -72,8 +72,22 @@ set(openssl_LINK_LIBS
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 
+function(download_lib LIB_NAME)
+    set(LIB_PREBUILT_DIR "${PREBUILT_PATH}/${LIB_NAME}")
+    set(LIB_ZIP "${LIB_NAME}.zip")
+
+    if (NOT EXISTS "${LIB_PREBUILT_DIR}")
+        message(STATUS "Downloading: ${LIB_ZIP}")
+        file(DOWNLOAD "${PREBUILT_URL}/${LIB_ZIP}" "${PREBUILT_PATH}/${LIB_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${LIB_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${LIB_ZIP}")
+    endif ()
+endfunction()
+
 #=======================================================================================================================
-if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     ####################
     # OpenCV for Linux #
@@ -87,7 +101,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # new include directory structure for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
-    endif()
+    endif ()
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
@@ -125,11 +139,11 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+            )
     set_target_properties(ssl PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+            )
 
     ####################
     # Vulkan for Linux #
@@ -146,7 +160,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
                 "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     set(vk_INCLUDE_DIR ${vk_DIR}/x86_64/include)
     set(vk_LINK_DIR ${vk_DIR}/x86_64/lib)   #don't forget to add the this link dir down at the bottom
@@ -164,22 +178,23 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
     set(glfw_LINK_DIR ${glfw_DIR}/${CMAKE_BUILD_TYPE})
     set(glfw_LIBS glfw3)
-    
+
     ####################
     # ktx for Linux    #
     ####################
-    
+
     set(ktx_VERSION "v4.0.0-beta7")
     set(ktx_DIR ${PREBUILT_PATH}/linux_ktx_${ktx_VERSION})
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
-        PROPERTIES
-        IMPORTED_LOCATION "${ktx_DIR}/release/libktx.so"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-        )
-        #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
+            PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
+    #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
 
     set(ktx_LIBS KTX::ktx)
+
 
     #######################
     # MediaPipe for Linux #
@@ -195,8 +210,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     ######################
     # OpenCV for Windows #
-    #######################
-	set(OpenCV_VERSION "4.5.5")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+    ######################
+
+    set(OpenCV_VERSION "4.5.5")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+    #set(OpenCV_VERSION "4.5.4")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
     #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.
@@ -210,18 +227,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         message(STATUS "Download opencv prebuilts: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-		
-		if( NOT EXISTS "${OpenCV_DIR}" )
-			message( SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version." )
-		endif()
+
+        if (NOT EXISTS "${OpenCV_DIR}")
+            message(SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version.")
+        endif ()
     endif ()
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
 
-    foreach(lib ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
                 optimized ${lib}${OpenCV_LIBS_POSTFIX}
@@ -234,11 +251,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 ${OpenCV_LIBS_to_copy_release}
                 ${OpenCV_LINK_DIR}/${lib}*.dll
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    #set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS} VS_DEBUGGER_WORKING_DIRECTORY "$(OutputDir)")
 
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
@@ -246,8 +262,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         #message(STATUS "Copy opencv release DLLs: ${OpenCV_LIBS_to_copy_release}")
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif()
+        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif ()
 
     ###################
     # g2o for Windows #
@@ -257,51 +273,51 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
     set(g2o_LINK_DIR ${g2o_DIR}/lib)   #don't forget to add the this link dir down at the bottom
 
-    foreach(lib ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib} PROPERTIES
-            IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
-            IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
-            IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
-            IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-        )
+                IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
+                IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
+                IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
+                IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+                )
         set(g2o_LIBS
-            ${g2o_LIBS}
-            ${lib}
-        )
-    endforeach(lib)
-	   
+                ${g2o_LIBS}
+                ${lib}
+                )
+    endforeach (lib)
+
     set(g2o_PREBUILT_ZIP "win64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-      
+
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     # For MSVC copy g2o dlls to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-		foreach(lib ${g2o_LINK_LIBS})
-			file(GLOB g2o_dll_to_copy_debug
-				${g2o_dll_to_copy_debug}
-				${g2o_DIR}/bin/${lib}*d.dll
-				)
-			file(GLOB g2o_dll_to_copy_release
-				${g2o_dll_to_copy_release}
-				${g2o_DIR}/bin/${lib}*.dll
-				)
-		endforeach(lib)
+        foreach (lib ${g2o_LINK_LIBS})
+            file(GLOB g2o_dll_to_copy_debug
+                    ${g2o_dll_to_copy_debug}
+                    ${g2o_DIR}/bin/${lib}*d.dll
+                    )
+            file(GLOB g2o_dll_to_copy_release
+                    ${g2o_dll_to_copy_release}
+                    ${g2o_DIR}/bin/${lib}*.dll
+                    )
+        endforeach (lib)
 
         #message(STATUS "Copy g2o debug DLLs: ${g2o_dll_to_copy_debug}")
         file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
         file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-		file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif()
+        file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif ()
 
     ######################
     # Assimp for Windows #
@@ -322,9 +338,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
 
-        if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
-        endif()
+        if (NOT EXISTS "${assimp_DIR}")
+            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
+        endif ()
     endif ()
 
     set(assimp_LIBS
@@ -341,16 +357,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
             ${assimp_DIR}/lib/assimp-mt.dll
             )
 
-    # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif()
+    endif ()
 
     #######################
     # OpenSSL for windows #
@@ -367,8 +379,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
     endif ()
     link_directories(${openssl_LINK_DIR})
@@ -376,11 +388,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto_static.lib"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto_static.lib"
+            )
     set_target_properties(ssl PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
+            )
     set(openssl_LIBS ssl crypto)
 
     ######################
@@ -398,12 +410,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     set(vk_INCLUDE_DIR ${vk_DIR}/Include)
     set(vk_LINK_DIR ${vk_DIR}/Lib)   #don't forget to add the this link dir down at the bottom
 
-    foreach(lib ${vk_LINK_LIBS})
+    foreach (lib ${vk_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib} PROPERTIES
                 IMPORTED_IMPLIB "${vk_LINK_DIR}/${lib}.lib"
@@ -413,7 +425,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 ${vk_LIBS}
                 ${lib}
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     ####################
     # GLFW for Windows #
@@ -430,9 +442,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(glfw_INCLUDE_DIR  ${glfw_DIR}/include)
+    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
     set(glfw_LINK_DIR ${glfw_DIR}/lib-vc2019) # don't forget to add the this link dir down at the bottom
 
     add_library(glfw3dll SHARED IMPORTED)
@@ -444,22 +456,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     set(glfw_LIBS glfw3dll)
 
-    # Set working dir for VS
-    set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
-            VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
     # For MSVC copy them to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif()
+    endif ()
 
     #######################
     # ktx for windows     #
     #######################
-	
-	set(ktx_VERSION "v4.0.0-beta7")
+
+    set(ktx_VERSION "v4.0.0-beta7")
     set(ktx_DIR ${PREBUILT_PATH}/win64_ktx_${ktx_VERSION})
     set(ktx_PREBUILT_ZIP "win64_ktx_${ktx_VERSION}.zip")
     set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
@@ -471,18 +479,18 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
-        PROPERTIES
-        IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
-        IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-        )
+            PROPERTIES
+            IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
+            IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
 
     set(ktx_LIBS KTX::ktx)
-	
+
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
@@ -519,14 +527,14 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     message(STATUS "Configure prebuilts for MacOS-x86_64")
 
-	set(COPY_LIBS_TO_CONFIG_FOLDER TRUE)
-	
+    set(COPY_LIBS_TO_CONFIG_FOLDER TRUE)
+
     ###########################
     # OpenCV for MacOS-x86_64 #
     ###########################
 
     # Now download for MacOS
-	#set(OpenCV_VERSION "3.4.1")
+    #set(OpenCV_VERSION "3.4.1")
     #set(OpenCV_VERSION "4.1.1")
     #set(OpenCV_VERSION "4.5.0")
     set(OpenCV_VERSION "4.5.5")
@@ -538,108 +546,108 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     # new include directory structure for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
-    endif()
+    endif ()
 
     if (NOT EXISTS "${OpenCV_DIR}")
         message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} 
-			PROPERTIES 
-			IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.dylib"
-			IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.dylib")
-			
-		#message(STATUS ${lib})
+        set_target_properties(${lib}
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.dylib"
+                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.dylib")
+
+        #message(STATUS ${lib})
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
                 optimized ${lib}
                 debug ${lib})
-    endforeach(lib)
-	
-	if (COPY_LIBS_TO_CONFIG_FOLDER)
-		file(GLOB OpenCV_LIBS_to_copy_debug
-		        ${OpenCV_LIBS_to_copy_debug}
-		        ${OpenCV_DIR}/Debug/libopencv_*.dylib
-		        )
-		file(GLOB OpenCV_LIBS_to_copy_release
-		        ${OpenCV_LIBS_to_copy_release}
-		        ${OpenCV_DIR}/Release/libopencv_*.dylib
-		        )
+    endforeach (lib)
 
-		if(${CMAKE_GENERATOR} STREQUAL Xcode)
-		    file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-		    file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-			file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-		endif()
-	endif()
+    if (COPY_LIBS_TO_CONFIG_FOLDER)
+        file(GLOB OpenCV_LIBS_to_copy_debug
+                ${OpenCV_LIBS_to_copy_debug}
+                ${OpenCV_DIR}/Debug/libopencv_*.dylib
+                )
+        file(GLOB OpenCV_LIBS_to_copy_release
+                ${OpenCV_LIBS_to_copy_release}
+                ${OpenCV_DIR}/Release/libopencv_*.dylib
+                )
+
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+        endif ()
+    endif ()
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
-        ${SL_PROJECT_ROOT}/data/config/info.plist)
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+            ${SL_PROJECT_ROOT}/data/config/info.plist)
+    if (${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    else()
+    else ()
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
-    endif()
+    endif ()
 
     ########################
     # g2o for MacOS-x86_64 #
     ########################
-	
+
     #Download g2o for MacOS
     set(g2o_DIR ${PREBUILT_PATH}/mac64_g2o)
     set(g2o_PREBUILT_ZIP "mac64_g2o.zip")
     set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-	set(g2o_LINK_DIR ${g2o_DIR}) 
+    set(g2o_LINK_DIR ${g2o_DIR})
 
     if (NOT EXISTS "${g2o_DIR}")
         message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
-        set_target_properties(lib${lib} 
-			PROPERTIES 
-			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.dylib"
-			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.dylib")
-			
-        set(g2o_LIBS
-            ${g2o_LIBS}
-            lib${lib}
-            )
-    endforeach(lib)
-	
-	if (COPY_TO_CONFIG_FOLDER)	
-	    file(GLOB g2o_LIBS_to_copy_debug
-	            ${g2o_LIBS_to_copy_debug}
-	            ${g2o_DIR}/Debug/lib${lib}.dylib
-	            )
-	    file(GLOB g2o_LIBS_to_copy_release
-	            ${g2o_LIBS_to_copy_release}
-	            ${g2o_DIR}/Release/lib${lib}.dylib
-	            )
+        set_target_properties(lib${lib}
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.dylib"
+                IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.dylib")
 
-	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${g2o_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-	        file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-	    endif()
-	endif()
+        set(g2o_LIBS
+                ${g2o_LIBS}
+                lib${lib}
+                )
+    endforeach (lib)
+
+    if (COPY_TO_CONFIG_FOLDER)
+        file(GLOB g2o_LIBS_to_copy_debug
+                ${g2o_LIBS_to_copy_debug}
+                ${g2o_DIR}/Debug/lib${lib}.dylib
+                )
+        file(GLOB g2o_LIBS_to_copy_release
+                ${g2o_LIBS_to_copy_release}
+                ${g2o_DIR}/Release/lib${lib}.dylib
+                )
+
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${g2o_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+        endif ()
+    endif ()
 
     ###########################
     # Assimp for MacOS-x86_64 #
@@ -660,41 +668,41 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
 
-        if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
-        endif()
+        if (NOT EXISTS "${assimp_DIR}")
+            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
+        endif ()
     endif ()
 
-	foreach(lib ${assimp_LINK_LIBS})
-		add_library(${lib} SHARED IMPORTED)
-		set_target_properties(${lib} 
-			PROPERTIES
-			IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
-			IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib )
-			
-	    set(assimp_LIBS
-	        ${assimp_LIBS}
-			${lib})	
-	endforeach()
+    foreach (lib ${assimp_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
+                IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib)
 
-	if (COPY_LIBS_TO_CONFIG_FOLDER)
-	    file(GLOB assimp_LIBS_to_copy_debug
-	            ${assimp_LIBS_to_copy_debug}
-	            ${assimp_DIR}/Debug/libassimpd*.dylib
-	            ${assimp_DIR}/Debug/libIrrXMLd.dylib
-	            )
-	    file(GLOB assimp_LIBS_to_copy_release
-	            ${assimp_LIBS_to_copy_release}
-	            ${assimp_DIR}/Release/libassimp*.dylib
-	            ${assimp_DIR}/Release/libIrrXML.dylib
-	            )
+        set(assimp_LIBS
+                ${assimp_LIBS}
+                ${lib})
+    endforeach ()
 
-	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-	    endif()
-	endif()
+    if (COPY_LIBS_TO_CONFIG_FOLDER)
+        file(GLOB assimp_LIBS_to_copy_debug
+                ${assimp_LIBS_to_copy_debug}
+                ${assimp_DIR}/Debug/libassimpd*.dylib
+                ${assimp_DIR}/Debug/libIrrXMLd.dylib
+                )
+        file(GLOB assimp_LIBS_to_copy_release
+                ${assimp_LIBS_to_copy_release}
+                ${assimp_DIR}/Release/libassimp*.dylib
+                ${assimp_DIR}/Release/libIrrXML.dylib
+                )
+
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+        endif ()
+    endif ()
 
     ###########################
     # Vulkan for MacOS-x86_64 #
@@ -715,7 +723,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     set(vk_INCLUDE_DIR ${vk_DIR}/macOS/include)
     set(vk_LINK_DIR ${vk_DIR}/macOS/lib)   #don't forget to add the this link dir down at the bottom
@@ -724,7 +732,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set_target_properties(libvulkan PROPERTIES IMPORTED_LOCATION "${vk_LINK_DIR}/libvulkan.dylib")
     set(vk_LIBS libvulkan)
 
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+    if (${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libMoltenVK.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${vk_LINK_DIR}/libshaderc_shared.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
@@ -746,7 +754,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(COPY ${vk_LINK_DIR}/libshaderc_shared.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libvulkan.1.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${vk_LINK_DIR}/libvulkan.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    endif()
+    endif ()
 
     #########################
     # GLFW for MacOS-x86_64 #
@@ -764,21 +772,21 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(glfw_INCLUDE_DIR  ${glfw_DIR}/include)
+    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
     set(glfw_LINK_DIR ${glfw_DIR})   #don't forget to add the this link dir down at the bottom
 
     add_library(libglfw.3 SHARED IMPORTED)
     set_target_properties(libglfw.3 PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/Release/libglfw.3.dylib")
     set(glfw_LIBS libglfw.3)
-	
-	if (COPY_LIBS_TO_CONFIG_FOLDER)
-	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-	    endif()
-	endif()
+
+    if (COPY_LIBS_TO_CONFIG_FOLDER)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        endif ()
+    endif ()
 
     ########################
     # ktx for MacOS-x86_64 #
@@ -795,15 +803,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
-        PROPERTIES
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-        )
+            PROPERTIES
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
 
     set(ktx_LIBS KTX::ktx)
 
@@ -823,13 +831,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR})   #don't forget to add the this link dir down at the bottom
     link_directories(${openssl_LINK_DIR})
 
-    foreach(lib ${openssl_LINK_LIBS})
+    foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
@@ -858,14 +866,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
     set(MediaPipe_LIBS mediapipe)
 	
-	if (COPY_LIBS_TO_CONFIG_FOLDER)
-	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-	    endif()
-	endif()
-
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
+        if (COPY_LIBS_TO_CONFIG_FOLDER)
+                if(${CMAKE_GENERATOR} STREQUAL Xcode)
+                file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+                file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+                endif()
+        endif()
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64") #-----------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for MacOS-arm64 -----------------------------------")
@@ -877,7 +884,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     ##########################
 
     # Now download for MacOS-arm64
-    set(OpenCV_VERSION "4.5.5")
+    set(OpenCV_VERSION "4.7.0")
+    #set(OpenCV_VERSION "4.5.2")
     set(OpenCV_PREBUILT_DIR "macArm64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -886,7 +894,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     # new include directory structure for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
-    endif()
+    endif ()
 
     if (NOT EXISTS "${OpenCV_DIR}")
         message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
@@ -897,7 +905,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
@@ -909,7 +917,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${OpenCV_LIBS}
                 optimized ${lib}
                 debug ${lib})
-    endforeach(lib)
+    endforeach (lib)
 
     if (COPY_LIBS_TO_CONFIG_FOLDER)
         file(GLOB OpenCV_LIBS_to_copy_debug
@@ -921,23 +929,23 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${OpenCV_DIR}/Release/libopencv_*.dylib
                 )
 
-        if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
             file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
             file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
             file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE
             ${SL_PROJECT_ROOT}/data/config/info.plist)
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
+    if (${CMAKE_GENERATOR} STREQUAL Xcode)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    else()
+    else ()
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
-    endif()
+    endif ()
 
 
     #######################
@@ -959,7 +967,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib}
                 PROPERTIES
@@ -970,7 +978,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${g2o_LIBS}
                 lib${lib}
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     if (COPY_TO_CONFIG_FOLDER)
         file(GLOB g2o_LIBS_to_copy_debug
@@ -982,12 +990,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${g2o_DIR}/Release/lib${lib}.dylib
                 )
 
-        if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
             file(COPY ${g2o_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
             file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
             file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     ##########################
     # Assimp for MacOS-arm64 #
@@ -1007,22 +1015,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
 
-        if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not exist!" )
-        endif()
+        if (NOT EXISTS "${assimp_DIR}")
+            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not exist!")
+        endif ()
     endif ()
 
-    foreach(lib ${assimp_LINK_LIBS})
+    foreach (lib ${assimp_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
                 IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
-                IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib )
+                IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib)
 
         set(assimp_LIBS
                 ${assimp_LIBS}
                 ${lib})
-    endforeach()
+    endforeach ()
 
     if (COPY_LIBS_TO_CONFIG_FOLDER)
         file(GLOB assimp_LIBS_to_copy_debug
@@ -1036,12 +1044,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${assimp_DIR}/Release/libIrrXML.dylib
                 )
 
-        if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
             file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
             file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
             file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif()
-    endif()
+        endif ()
+    endif ()
 
     ###########################
     # openssl for MacOS-arm64 #
@@ -1059,13 +1067,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR})   #don't forget to add the this link dir down at the bottom
     link_directories(${openssl_LINK_DIR})
 
-    foreach(lib ${openssl_LINK_LIBS})
+    foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
@@ -1079,7 +1087,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${openssl_LIBS}
                 ${lib}
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     ########################
     # GLFW for MacOS-arm64 #
@@ -1097,9 +1105,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(glfw_INCLUDE_DIR  ${glfw_DIR}/include)
+    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
     set(glfw_LINK_DIR ${glfw_DIR})   #don't forget to add the this link dir down at the bottom
 
     add_library(libglfw.3.3 SHARED IMPORTED)
@@ -1107,11 +1115,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(glfw_LIBS libglfw.3.3)
 
     if (COPY_LIBS_TO_CONFIG_FOLDER)
-        if(${CMAKE_GENERATOR} STREQUAL Xcode)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
             file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
             file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        endif()
-    endif()
+        endif ()
+    endif ()
 
 
     #######################
@@ -1129,7 +1137,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
@@ -1161,7 +1169,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 	    endif()
 	endif()
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for iOS_arm64 -------------------------------------")
 
@@ -1174,26 +1182,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
-        set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include/opencv4")
+    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include/opencv4")
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
         message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
-            PROPERTIES
-            IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
-            IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
-            INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
-        )
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
+                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
+                )
 
         #ATTENTION: debug and optimized seams to mess things up in ios
         #set(OpenCV_LIBS
@@ -1201,31 +1209,31 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
         #        optimized ${lib}
         #        debug ${lib})
         set(OpenCV_LIBS
-            ${OpenCV_LIBS}
-            ${lib})
-    endforeach(lib)
+                ${OpenCV_LIBS}
+                ${lib})
+    endforeach (lib)
 
     #add special libs
     set(OpenCV_LINK_LIBS_IOS
-        libwebp
-        libjpeg-turbo
-        libpng
-        libtiff
-        zlib
-    )
+            libwebp
+            libjpeg-turbo
+            libpng
+            libtiff
+            zlib
+            )
 
-    foreach(lib ${OpenCV_LINK_LIBS_IOS})
+    foreach (lib ${OpenCV_LINK_LIBS_IOS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
-            PROPERTIES
-            IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
-            IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
-        )
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
+                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
+                )
 
         set(OpenCV_LIBS
-            ${OpenCV_LIBS}
-            ${lib})
-    endforeach(lib)
+                ${OpenCV_LIBS}
+                ${lib})
+    endforeach (lib)
 
     ###############
     # g2o for iOS #
@@ -1244,23 +1252,23 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
-	
-    foreach(lib ${g2o_LINK_LIBS})
+
+    foreach (lib ${g2o_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib} 
-			PROPERTIES 
-			#we use Release libs for both configurations
-			IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
-			IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
-			INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-		)
-				
+        set_target_properties(${lib}
+                PROPERTIES
+                #we use Release libs for both configurations
+                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
+                IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+                )
+
         set(g2o_LIBS
-            ${g2o_LIBS}
-            ${lib}
-            )
-    endforeach(lib)
-	
+                ${g2o_LIBS}
+                ${lib}
+                )
+    endforeach (lib)
+
     ##################
     # Assimp for iOS #
     ##################
@@ -1280,24 +1288,24 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
 
-        if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
-        endif()
+        if (NOT EXISTS "${assimp_DIR}")
+            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
+        endif ()
     endif ()
-	
-	foreach(lib ${assimp_LINK_LIBS})
-		add_library(${lib} STATIC IMPORTED)
-		set_target_properties(${lib} 
-			PROPERTIES
-			IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
-			IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a" 
-			INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include" 
-		)
-			
-	    set(assimp_LIBS
-	        ${assimp_LIBS}
-			${lib})	
-	endforeach()
+
+    foreach (lib ${assimp_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
+                IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include"
+                )
+
+        set(assimp_LIBS
+                ${assimp_LIBS}
+                ${lib})
+    endforeach ()
 
     ###################
     # openssl for iOS #
@@ -1315,13 +1323,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
-    set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
     link_directories(${openssl_LINK_DIR})
 
-    foreach(lib ${openssl_LINK_LIBS})
+    foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
@@ -1335,7 +1343,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 ${openssl_LIBS}
                 ${lib}
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     ###################
     # ktx for iOS     #
@@ -1352,26 +1360,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     add_library(KTX::ktx STATIC IMPORTED)
     set_target_properties(KTX::ktx
-        PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-        )
+            PROPERTIES
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
 
     add_library(KTX::zstd STATIC IMPORTED)
     set_target_properties(KTX::zstd
-        PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
-        )
+            PROPERTIES
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
+            )
 
     set(ktx_LIBS KTX::ktx KTX::zstd)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
     ######################
     # OpenCV for Android #
@@ -1388,54 +1396,54 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if (NOT EXISTS "${OpenCV_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
     endif ()
 
     set(OpenCV_LINK_LIBS
-        ${OpenCV_LINK_LIBS}
-        cpufeatures
-        IlmImf
-        libpng
-        libprotobuf
-        libtiff
-        libwebp
-        tegra_hal)
+            ${OpenCV_LINK_LIBS}
+            cpufeatures
+            IlmImf
+            libpng
+            libprotobuf
+            libtiff
+            libwebp
+            tegra_hal)
 
     # new link libraries for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_LINK_LIBS
-            ${OpenCV_LINK_LIBS}
-            ittnotify
-            libjpeg-turbo
-            quirc)
+                ${OpenCV_LINK_LIBS}
+                ittnotify
+                libjpeg-turbo
+                quirc)
 
         # new link libraries for opencv 4.5
         if ("${OpenCV_VERSION}" MATCHES "^4\.[5-9]+\.[0-9]+$")
             set(OpenCV_LINK_LIBS
-                ${OpenCV_LINK_LIBS}
-                ade
-                libopenjp2)
-        else()
+                    ${OpenCV_LINK_LIBS}
+                    ade
+                    libopenjp2)
+        else ()
             set(OpenCV_LINK_LIBS
-                ${OpenCV_LINK_LIBS}
-                libjasper)
-        endif()
-    else()
+                    ${OpenCV_LINK_LIBS}
+                    libjasper)
+        endif ()
+    else ()
         set(OpenCV_LINK_LIBS
-            ${OpenCV_LINK_LIBS}
-            libjpeg
-            libjasper)
-    endif()
+                ${OpenCV_LINK_LIBS}
+                libjpeg
+                libjasper)
+    endif ()
 
-    foreach(lib ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
                 lib_${lib})
-    endforeach(lib)
+    endforeach (lib)
 
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
 
@@ -1452,21 +1460,21 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if (NOT EXISTS "${g2o_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
         add_library(lib_${lib} SHARED IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES
-            IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
-        )
+                IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
+                )
         set(g2o_LIBS
-            ${g2o_LIBS}
-            lib_${lib}
-        )
-    endforeach(lib)
+                ${g2o_LIBS}
+                lib_${lib}
+                )
+    endforeach (lib)
 
     ######################
     # assimp for Android #
@@ -1482,30 +1490,30 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if (NOT EXISTS "${assimp_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
     endif ()
 
     #foreach(lib ${assimp_LINK_LIBS})
-        #add_library(lib_${lib} STATIC IMPORTED)
-        ##set_target_properties(lib_${lib} PROPERTIES
-        #    IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
-        #)
-        #set(assimp_LIBS
-        #    ${assimp_LIBS}
-        #    lib_${lib}
-        #)
+    #add_library(lib_${lib} STATIC IMPORTED)
+    ##set_target_properties(lib_${lib} PROPERTIES
+    #    IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
+    #)
+    #set(assimp_LIBS
+    #    ${assimp_LIBS}
+    #    lib_${lib}
+    #)
     #endforeach(lib)
     add_library(ASSIMP::assimp SHARED IMPORTED)
     set_target_properties(ASSIMP::assimp PROPERTIES
-        IMPORTED_LOCATION "${assimp_LINK_DIR}/libassimp.so"
-        INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
-    )
+            IMPORTED_LOCATION "${assimp_LINK_DIR}/libassimp.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
     set(assimp_LIBS
-        ${assimp_LIBS}
-        ASSIMP::assimp
-    )
+            ${assimp_LIBS}
+            ASSIMP::assimp
+            )
 
     #######################
     # openssl for Android #
@@ -1523,8 +1531,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
+                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
     endif ()
 
@@ -1532,11 +1540,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+            )
     set_target_properties(ssl PROPERTIES
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
-    )
+            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+            )
     set(openssl_LIBS ssl crypto)
 
     ########################
@@ -1554,19 +1562,76 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
                 "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
                 WORKING_DIRECTORY "${PREBUILT_PATH}")
         file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif()
+    endif ()
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
-        PROPERTIES
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-        )
+            PROPERTIES
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
+
+    set(ktx_LIBS KTX::ktx)
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    #########################
+    # OpenCV for Emscripten #
+    #########################
+
+    set(OpenCV_VERSION "4.6.0")
+    set(OpenCV_PREBUILT_DIR "emscripten_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
+    set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
+
+    # new include directory structure for opencv 4
+    if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
+        set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
+    endif ()
+
+    list(REMOVE_ITEM OpenCV_LINK_LIBS
+            "opencv_aruco"
+            "opencv_face"
+            "opencv_highgui"
+            "opencv_imgcodecs"
+            "opencv_videoio"
+            "opencv_xfeatures2d")
+
+    set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
+
+    download_lib(${OpenCV_PREBUILT_DIR})
+
+    #########################
+    # Assimp for Emscripten #
+    #########################
+
+    set(assimp_VERSION "v5.0.0")
+    set(assimp_PREBUILT_DIR "emscripten_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_LINK_DIR "${assimp_DIR}/lib")
+    set(assimp_LIBS ${assimp_LINK_LIBS})
+
+    download_lib(${assimp_PREBUILT_DIR})
+
+    ######################
+    # ktx for Emscripten #
+    ######################
+
+    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_PREBUILT_DIR "emscripten_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    add_library(KTX::ktx STATIC IMPORTED)
+    set_target_properties(KTX::ktx
+            PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
 
     set(ktx_LIBS KTX::ktx)
 
-endif()
+    download_lib(${ktx_PREBUILT_DIR})
+endif ()
 #==============================================================================
 
 link_directories(${OpenCV_LINK_DIR})

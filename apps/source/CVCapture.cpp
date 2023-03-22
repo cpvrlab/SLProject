@@ -69,6 +69,7 @@ is the only and main camera.
 */
 CVSize2i CVCapture::open(int deviceNum)
 {
+#ifndef SL_EMSCRIPTEN
     try
     {
         _captureDevice.open(deviceNum);
@@ -99,6 +100,21 @@ CVSize2i CVCapture::open(int deviceNum)
     {
         Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
     }
+#else
+    WebCameraFacing facing;
+    if (_videoType == VT_MAIN) facing = WebCameraFacing::BACK;
+    else if(_videoType == VT_SCND) facing = WebCameraFacing::FRONT;
+    _webCamera.open(facing);
+
+    // We can't query the actual resolution of the camera because that is considered a security risk.
+    // Therefore, we list some common resolutions. If the camera doesn't support the requested resolution,
+    // the browser will simply switch to a supported one.
+    camSizes           = {CVSize2i(640, 480),
+                CVSize2i(1280, 720),
+                CVSize2i(1920, 1080)};
+    activeCamSizeIndex = 0;
+#endif
+
     return CVSize2i(0, 0);
 }
 //-----------------------------------------------------------------------------
@@ -108,6 +124,7 @@ setting the the CVCapture::videoType to VT_FILE.
 */
 CVSize2i CVCapture::openFile()
 {
+#ifndef SL_EMSCRIPTEN
     try
     { // Load the file directly
         if (!Utils::fileExists(videoFilename))
@@ -141,13 +158,17 @@ CVSize2i CVCapture::openFile()
     {
         Utils::log("SLProject", "CVCapture::openFile: Exception during OpenCV video capture creation with video file: %s", e.what());
     }
+#endif
+
     return CVSize2i(0, 0);
 }
 //-----------------------------------------------------------------------------
 //! starts the video capturing
 void CVCapture::start(float viewportWdivH)
 {
-#ifdef APP_USES_CVCAPTURE
+#if defined(SL_EMSCRIPTEN)
+    open(VT_MAIN);
+#elif defined(APP_USES_CVCAPTURE)
     if (_videoType != VT_NONE)
     {
         if (!isOpened())
@@ -175,10 +196,24 @@ void CVCapture::start(float viewportWdivH)
 #endif
 }
 //-----------------------------------------------------------------------------
+bool CVCapture::isOpened()
+{
+#ifndef SL_EMSCRIPTEN
+    return _captureDevice.isOpened();
+#else
+    return _webCamera.isOpened();
+#endif
+}
+//-----------------------------------------------------------------------------
 void CVCapture::release()
 {
+#ifndef SL_EMSCRIPTEN
     if (_captureDevice.isOpened())
         _captureDevice.release();
+#else
+    if (_webCamera.isOpened())
+        _webCamera.close();
+#endif
 
     videoFilename = "";
 }
@@ -196,6 +231,7 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
+#ifndef SL_EMSCRIPTEN
     try
     {
         if (_captureDevice.isOpened())
@@ -212,10 +248,10 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
                 else
                     return false;
             }
-#if defined(ANDROID)
+#    if defined(ANDROID)
             // Convert BGR to RGB on mobile phones
             cvtColor(CVCapture::lastFrame, CVCapture::lastFrame, cv::COLOR_BGR2RGB, 3);
-#endif
+#    endif
             adjustForSL(viewportWdivH);
         }
         else
@@ -234,6 +270,19 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
         Utils::log("SLProject", "Exception during OpenCV video capture creation: %s", e.what());
         return false;
     }
+#else
+    if (!_webCamera.isOpened())
+    {
+        SL_LOG("Web camera is not open!");
+        return false;
+    }
+
+    if (activeCamera->camSizeIndex() != -1)
+        _webCamera.setSize(camSizes[activeCamera->camSizeIndex()]);
+
+    lastFrame = _webCamera.read();
+    adjustForSL(viewportWdivH);
+#endif
 
     return true;
 }
@@ -242,12 +291,12 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 cameras on their own. We only adjust the color space. See the app_demo_slproject/ios and
 app_demo_slproject/android projects for the usage.
 */
-void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
-                                  const int         width,
-                                  const int         height,
+void CVCapture::loadIntoLastFrame(const float           viewportWdivH,
+                                  const int             width,
+                                  const int             height,
                                   const CVPixelFormatGL newFormat,
-                                  const uchar*      data,
-                                  const bool        isContinuous)
+                                  const uchar*          data,
+                                  const bool            isContinuous)
 {
     CVCapture::startCaptureTimeMS = _timer.elapsedTimeInMilliSec();
 
@@ -414,7 +463,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
             height = (int)((float)lastFrame.cols / outWdivH);
             cropH  = (int)((float)(lastFrame.rows - height) * 0.5f);
 
-            // Height must be devidable by 4
+            // Height must be dividable by 4
             hModulo4 = height % 4;
             if (hModulo4 == 1) height--;
             if (hModulo4 == 2)
@@ -463,13 +512,16 @@ void CVCapture::adjustForSL(float viewportWdivH)
     // We just could take the Y channel.
     // Android image copy loop #4
 
-    cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
+    if (!lastFrame.empty())
+        cv::cvtColor(lastFrame, lastFrameGray, cv::COLOR_BGR2GRAY);
 
+#ifndef SL_EMSCRIPTEN
     // Reset calibrated image size
     if (lastFrame.size() != activeCamera->calibration.imageSize())
     {
         activeCamera->calibration.adaptForNewResolution(lastFrame.size(), true);
     }
+#endif
 
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }
@@ -929,6 +981,7 @@ void CVCapture::setCameraSize(int sizeIndex,
 //! Moves the current frame position in a video file.
 void CVCapture::moveCapturePosition(int n)
 {
+#ifndef SL_EMSCRIPTEN
     if (_videoType != VT_FILE) return;
 
     int frameIndex = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
@@ -938,26 +991,35 @@ void CVCapture::moveCapturePosition(int n)
     if (frameIndex > frameCount) frameIndex = frameCount;
 
     _captureDevice.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+#endif
 }
 //-----------------------------------------------------------------------------
 //! Returns the next frame index number
 int CVCapture::nextFrameIndex()
 {
+#ifndef SL_EMSCRIPTEN
     int result = 0;
 
     if (_videoType == VT_FILE)
         result = (int)_captureDevice.get(cv::CAP_PROP_POS_FRAMES);
 
     return result;
+#else
+    return 0;
+#endif
 }
 //-----------------------------------------------------------------------------
 int CVCapture::videoLength()
 {
+#ifndef SL_EMSCRIPTEN
     int result = 0;
 
     if (_videoType == VT_FILE)
         result = (int)_captureDevice.get(cv::CAP_PROP_FRAME_COUNT);
 
     return result;
+#else
+    return 0;
+#endif
 }
 //------------------------------------------------------------------------------

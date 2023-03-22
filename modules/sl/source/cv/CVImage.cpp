@@ -1,15 +1,21 @@
-// #############################################################################
+//#############################################################################
 //   File:      cv/CVImage.cpp
 //   Date:      Spring 2017
 //   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //   Authors:   Marcus Hudritsch
 //   License:   This software is provided under the GNU General Public License
 //              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
 
 #include <cv/CVImage.h>
 #include <Utils.h>
 #include <algorithm> // std::max
+#include <SLFileStorage.h>
+
+#ifdef __EMSCRIPTEN__
+#    define STB_IMAGE_IMPLEMENTATION
+#    include "stb_image.h"
+#endif
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -380,7 +386,24 @@ void CVImage::load(const string& filename,
     _bytesInFile = Utils::getFileSize(filename);
 
     // load the image format as stored in the file
-    _cvMat = cv::imread(filename, -1);
+
+    SLIOBuffer buffer   = SLFileStorage::readIntoBuffer(filename, IOK_image);
+    CVMat      inputMat = CVMat(1, (int)buffer.size, CV_8UC1, buffer.data);
+
+#ifndef __EMSCRIPTEN__
+    _cvMat = cv::imdecode(inputMat, cv::ImreadModes::IMREAD_UNCHANGED);
+#else
+    unsigned char* encodedData = buffer.data;
+    int            size        = (int)buffer.size;
+    int            width;
+    int            height;
+    int            numChannels;
+    stbi_hdr_to_ldr_gamma(1.0f);
+    unsigned char* data = stbi_load_from_memory(encodedData, size, &width, &height, &numChannels, 0);
+    _cvMat              = CVMat(height, width, CV_8UC(numChannels), data);
+#endif
+
+    SLFileStorage::deleteBuffer(buffer);
 
     if (!_cvMat.data)
     {
@@ -388,6 +411,7 @@ void CVImage::load(const string& filename,
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
+#ifndef __EMSCRIPTEN__
     // Convert greater component depth than 8 bit to 8 bit, only if the image is not HDR
     if (_cvMat.depth() > CV_8U && ext != "hdr")
         _cvMat.convertTo(_cvMat, CV_8U, 1.0 / 256.0);
@@ -437,6 +461,42 @@ void CVImage::load(const string& filename,
         // string filename = Utils::getFileNameWOExt(pathfilename);
         // savePNG(_path + filename + "_InAlpha.png");
     }
+#else
+
+    switch (_cvMat.type())
+    {
+        case CV_8UC1: _format = PF_red; break;
+        case CV_8UC2: _format = PF_rg; break;
+        case CV_8UC3: _format = PF_rgb; break;
+        case CV_8UC4: _format = PF_rgba; break;
+    }
+
+    _bytesPerPixel = bytesPerPixel(_format);
+
+    if (_format == PF_red && loadGrayscaleIntoAlpha)
+    {
+        CVMat rgbaImg;
+        rgbaImg.create(_cvMat.rows, _cvMat.cols, CV_8UC4);
+
+        // Copy grayscale into alpha channel
+        for (int y = 0; y < rgbaImg.rows; ++y)
+        {
+            uchar* dst = rgbaImg.ptr<uchar>(y);
+            uchar* src = _cvMat.ptr<uchar>(y);
+
+            for (int x = 0; x < rgbaImg.cols; ++x)
+            {
+                uchar value = *src++;
+                *dst++ = value;
+                *dst++ = value;
+                *dst++ = value;
+                *dst++ = value;
+            }
+        }
+
+        _format = PF_rgba;
+    }
+#endif
 
     _bytesPerLine  = bytesPerLine((uint)_cvMat.cols, _format, _cvMat.isContinuous());
     _bytesPerImage = _bytesPerLine * (uint)_cvMat.rows;
@@ -492,9 +552,9 @@ int CVImage::glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL)
 {
     switch (pixelFormatGL)
     {
-        case PF_red: return CV_8UC1;
+        case PF_red:
         case PF_luminance: return CV_8UC1;
-        case PF_luminance_alpha: return CV_8UC2;
+        case PF_luminance_alpha:
         case PF_rg: return CV_8UC2;
         case PF_rgb: return CV_8UC3;
         case PF_rgba: return CV_8UC4;
@@ -567,6 +627,7 @@ void CVImage::savePNG(const string& filename,
                       const bool    flipY,
                       const bool    convertToRGB)
 {
+#ifndef __EMSCRIPTEN__
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(compressionLevel);
@@ -588,6 +649,7 @@ void CVImage::savePNG(const string& filename,
         msg += ex.what();
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -603,6 +665,7 @@ void CVImage::saveJPG(const string& filename,
                       const bool    flipY,
                       const bool    convertBGR2RGB)
 {
+#ifndef __EMSCRIPTEN__
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
     compression_params.push_back(cv::IMWRITE_JPEG_PROGRESSIVE);
@@ -625,6 +688,7 @@ void CVImage::saveJPG(const string& filename,
         msg += ex.what();
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
+#endif
 }
 //-----------------------------------------------------------------------------
 //! getPixeli returns the pixel color at the integer pixel coordinate x, y

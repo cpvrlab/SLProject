@@ -13,6 +13,7 @@
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <SLScene.h>
+#include <SLFileStorage.h>
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
     if (loadConfigCB)
         loadConfigCB(dpi);
 
-    // Load GUI fonts depending on the resolution
+    // load GUI fonts depending on the resolution
     loadFonts(SLGLImGui::fontPropDots, SLGLImGui::fontFixedDots, fontDir);
 }
 //-----------------------------------------------------------------------------
@@ -69,7 +70,7 @@ SLGLImGui::~SLGLImGui()
     if (_saveConfig)
         _saveConfig();
 
-    // destroy imgui context after your last imgui call
+    // Destroy imgui context after your last imgui call
     ImGui::DestroyContext();
 }
 //-----------------------------------------------------------------------------
@@ -94,10 +95,11 @@ void SLGLImGui::init(const string& configPath)
     _mousePressed[0]   = false;
     _mousePressed[1]   = false;
     _mousePressed[2]   = false;
+    _configPath        = configPath;
 
-    ImGuiIO&              io       = ImGui::GetIO();
-    static const SLstring inifile  = configPath + "imgui.ini";
-    io.IniFilename                 = inifile.c_str();
+    ImGuiIO& io                    = ImGui::GetIO();
+    io.IniSavingRate               = 1.0f;
+    io.IniFilename                 = NULL; // Disable ini config saving because we handle that ourselves
     io.KeyMap[ImGuiKey_Tab]        = K_tab;
     io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
     io.KeyMap[ImGuiKey_RightArrow] = K_right;
@@ -122,7 +124,7 @@ void SLGLImGui::init(const string& configPath)
     io.DisplaySize             = ImVec2(0, 0);
     io.DisplayFramebufferScale = ImVec2(1, 1);
 
-#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS) || defined(SL_EMSCRIPTEN)
     io.MouseDrawCursor = false;
 #else
     io.MouseDrawCursor = true;
@@ -131,6 +133,16 @@ void SLGLImGui::init(const string& configPath)
     // Change default style to show the widget border
     ImGuiStyle& style     = ImGui::GetStyle();
     style.FrameBorderSize = 1;
+
+    // Load ImGui config from imgui.ini
+    SLstring iniFile = configPath + "imgui.ini";
+    if (SLFileStorage::exists(iniFile, IOK_config))
+    {
+        SLstring iniContents = SLFileStorage::readIntoString(iniFile,
+                                                             IOK_config);
+        ImGui::LoadIniSettingsFromMemory(iniContents.c_str(),
+                                         iniContents.size());
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the proportional and fixed size font depending on the passed DPI
@@ -146,15 +158,23 @@ void SLGLImGui::loadFonts(SLfloat  fontPropDotsToLoad,
 
     // Load proportional font for menue and text displays
     SLstring DroidSans = fontDir + "DroidSans.ttf";
-    if (Utils::fileExists(DroidSans))
-        io.Fonts->AddFontFromFileTTF(DroidSans.c_str(), fontPropDotsToLoad);
+    if (SLFileStorage::exists(DroidSans, IOK_font))
+    {
+        SLIOBuffer buffer = SLFileStorage::readIntoBuffer(DroidSans, IOK_font);
+        io.Fonts->AddFontFromMemoryTTF(buffer.data, (int)buffer.size, fontPropDotsToLoad);
+        // ImGui takes ownership of the buffer, so no memory deallocation
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", DroidSans.c_str());
 
     // Load fixed size font for statistics windows
     SLstring ProggyClean = fontDir + "ProggyClean.ttf";
-    if (Utils::fileExists(ProggyClean))
-        io.Fonts->AddFontFromFileTTF(ProggyClean.c_str(), fontFixedDotsToLoad);
+    if (SLFileStorage::exists(ProggyClean, IOK_font))
+    {
+        SLIOBuffer buffer = SLFileStorage::readIntoBuffer(ProggyClean, IOK_font);
+        io.Fonts->AddFontFromMemoryTTF(buffer.data, (int)buffer.size, fontFixedDotsToLoad);
+        // ImGui takes ownership of the buffer, so no memory deallocation
+    }
     else
         SL_LOG("\n*** Error ***: \nFont doesn't exist: %s\n", ProggyClean.c_str());
 
@@ -310,6 +330,11 @@ void SLGLImGui::createOpenGLObjects()
 //! Deletes all OpenGL objects for drawing the imGui
 void SLGLImGui::deleteOpenGLObjects()
 {
+#ifdef SL_EMSCRIPTEN
+    // The WebGL context is apparently already destroyed when we call this function
+    return;
+#endif
+
     if (_vaoHandle)
         glDeleteVertexArrays(1, &_vaoHandle);
     _vaoHandle = 0;
@@ -396,6 +421,17 @@ void SLGLImGui::onInitNewFrame(SLScene* s, SLSceneView* sv)
 
     // Start the frame
     ImGui::NewFrame();
+
+    // Save ImGui config to imgui.ini
+    if (ImGui::GetIO().WantSaveIniSettings)
+    {
+        SLstring    iniFile = _configPath + "imgui.ini";
+        size_t      iniContentsSize;
+        const char* rawIniContents = ImGui::SaveIniSettingsToMemory(&iniContentsSize);
+        SLstring    iniContents(rawIniContents, rawIniContents + iniContentsSize);
+        SLFileStorage::writeString(iniFile, IOK_config, iniContents);
+        ImGui::GetIO().WantSaveIniSettings = false;
+    }
 
     // Call the _build function. The whole UI is constructed here
     // This function is provided by the top-level project.

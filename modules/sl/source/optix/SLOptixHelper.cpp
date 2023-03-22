@@ -13,6 +13,7 @@
 #    include <fstream>
 #    include <sstream>
 #    include <cuda_runtime.h>
+#    include <SLOptix.h>
 #    include <SLOptixHelper.h>
 
 //-----------------------------------------------------------------------------
@@ -48,15 +49,16 @@ string getPtxStringFromFile(string       filename,
     if (log)
         *log = NULL;
 
-    string *ptx, sourceFilePath;
-    sourceFilePath = "../modules/sl" + getPtxFilename(filename);
-
-    ptx = new string();
+    string* ptx            = new string();
+    string  sourceFilePath = SLOptix::exePath +
+                            "../modules/sl" +
+                            getPtxFilename(filename);
 
     // Try to open source PTX file
     if (!readSourceFile(*ptx, sourceFilePath))
     {
         string err = "Couldn't open source file " + sourceFilePath;
+        cout << err << endl;
         throw std::runtime_error(err.c_str());
     }
 
@@ -66,12 +68,12 @@ string getPtxStringFromFile(string       filename,
 float4 make_float4(const SLVec4f& f)
 {
     return {f.x, f.y, f.z, f.w};
-};
+}
 //-----------------------------------------------------------------------------
 float3 make_float3(const SLVec3f& f)
 {
     return {f.x, f.y, f.z};
-};
-    //-----------------------------------------------------------------------------
+}
+//-----------------------------------------------------------------------------
 
 #endif // SL_HAS_OPTIX

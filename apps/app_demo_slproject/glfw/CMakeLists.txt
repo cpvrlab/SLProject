@@ -56,6 +56,7 @@ target_include_directories(
 		${SL_PROJECT_ROOT}/modules/sl/source/cv
 		${SL_PROJECT_ROOT}/modules/sl/source/gl
 		${SL_PROJECT_ROOT}/modules/sl/source/input
+		${SL_PROJECT_ROOT}/modules/sl/source/io
 		${SL_PROJECT_ROOT}/modules/sl/source/mesh
 		${SL_PROJECT_ROOT}/modules/sl/source/node
 		${SL_PROJECT_ROOT}/modules/sl/source/optix

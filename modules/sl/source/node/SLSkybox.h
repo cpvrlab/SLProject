@@ -72,4 +72,4 @@ private:
     SLbool       _isBuilt; //!< flag for late HDR skybox building
 };
 //-----------------------------------------------------------------------------
-#endif // #define SLSKYBOX_H
+#endif //#define SLSKYBOX_H

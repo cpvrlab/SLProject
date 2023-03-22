@@ -1,11 +1,11 @@
 //#############################################################################
-//  File:      SLGLState.cpp
-//  Purpose:   Singleton class implementation for global OpenGL replacement
-//  Date:      July 2014
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
+//   File:      SLGLState.cpp
+//   Purpose:   Singleton class implementation for global OpenGL replacement
+//   Date:      July 2014
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <SLGLState.h>
@@ -50,6 +50,8 @@ void SLGLState::initAll()
     _glSLVersionNO = getSLVersionNO();
     _glIsES2       = (_glVersion.find("OpenGL ES 2") != string::npos);
     _glIsES3       = (_glVersion.find("OpenGL ES 3") != string::npos);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_glMaxTexUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_glMaxTexSize);
 
 // Get extensions
 #ifndef APP_USES_GLES
@@ -84,11 +86,11 @@ void SLGLState::initAll()
     _clearColor.set(-1, -1, -1, -1);
 
     // Reset all cached states to an invalid state
-    _programID     = 0;
-    _colorMaskR    = -1;
-    _colorMaskG    = -1;
-    _colorMaskB    = -1;
-    _colorMaskA    = -1;
+    _programID  = 0;
+    _colorMaskR = -1;
+    _colorMaskG = -1;
+    _colorMaskB = -1;
+    _colorMaskA = -1;
 
     _isInitialized = true;
 
@@ -429,20 +431,18 @@ void SLGLState::bindTexture(SLenum target, SLuint textureID)
  */
 void SLGLState::activeTexture(SLenum textureUnit)
 {
-    // (luc) If there we call glActiveTexture and glBindTexture from outside,
-    // This will lead to problems as the global state in SLGLState will not be
-    // equivalent to the OpenGL state.
-    // We should solve this by querying opengl for the last binded texture.
-    // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
-    // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
+    if ((textureUnit - GL_TEXTURE0) > _glMaxTexUnits)
+        SL_LOG("******* To many texture units: %i used of %i",
+               (SLint)textureUnit - GL_TEXTURE0,
+               _glMaxTexUnits);
 
-    // if (textureUnit != _textureUnit)
-    {
-        glActiveTexture(textureUnit);
-        _textureUnit = textureUnit;
+    assert((textureUnit - GL_TEXTURE0) <= _glMaxTexUnits &&
+           "To many texture units!");
 
-        GET_GL_ERROR;
-    }
+    glActiveTexture(textureUnit);
+    _textureUnit = textureUnit;
+
+    GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::unbindAnythingAndFlush unbinds all shaderprograms and buffers in
@@ -499,7 +499,7 @@ void SLGLState::getGLError(const char* file,
 
         // Build error string as a concatenation of file, line & error
         char sLine[32];
-        sprintf(sLine, "%d", line);
+        snprintf(sLine, sizeof(sLine), "%d", line);
 
         string newErr(file);
         newErr += ": line:";
@@ -619,12 +619,21 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
 void SLGLState::readPixels(void* buffer)
 {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
+
+#ifndef SL_EMSCRIPTEN
     glReadBuffer(GL_FRONT);
+#endif
 
     // Get viewport size
     GLint vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);
 
-    glReadPixels(vp[0], vp[1], vp[2], vp[3], GL_RGB, GL_UNSIGNED_BYTE, buffer);
+    glReadPixels(vp[0],
+                 vp[1],
+                 vp[2],
+                 vp[3],
+                 SL_READ_PIXELS_GL_FORMAT,
+                 GL_UNSIGNED_BYTE,
+                 buffer);
 }
 //-----------------------------------------------------------------------------

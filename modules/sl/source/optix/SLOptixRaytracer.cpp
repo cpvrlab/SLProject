@@ -251,12 +251,6 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
             OptixProgramGroup hitgroup_radicance = _radiance_hit_group;
             OptixProgramGroup hitgroup_occlusion = _occlusion_hit_group;
 
-            // if (mesh->name() == "line")
-            //{
-            //     hitgroup_radicance = _radiance_line_hit_group;
-            //     hitgroup_occlusion = _occlusion_line_hit_group;
-            // }
-
             HitSbtRecord radiance_hg_sbt;
             OPTIX_CHECK(optixSbtRecordPackHeader(hitgroup_radicance, &radiance_hg_sbt));
             radiance_hg_sbt.data = mesh->createHitData();
@@ -271,13 +265,10 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
         _hitBuffer.alloc_and_upload(hitRecords);
 
         if (doDistributed)
-        {
             sbt.raygenRecord = _rayGenDistributedBuffer.devicePointer();
-        }
         else
-        {
             sbt.raygenRecord = _rayGenClassicBuffer.devicePointer();
-        }
+
         sbt.missRecordBase              = _missBuffer.devicePointer();
         sbt.missRecordStrideInBytes     = sizeof(MissSbtRecord);
         sbt.missRecordCount             = RAY_TYPE_COUNT;

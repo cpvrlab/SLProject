@@ -1,17 +1,18 @@
-//#############################################################################
-//  File:      Utils.cpp
-//  Authors:   Marcus Hudritsch
-//  Date:      May 2019
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      Utils.cpp
+//   Authors:   Marcus Hudritsch
+//   Date:      May 2019
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <Utils.h>
 #include <cstddef>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <iomanip>
 #include <string>
 #include <cstdarg>
@@ -19,8 +20,12 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <asio.hpp>
-#include <asio/ip/tcp.hpp>
+#include <thread>
+
+#ifndef __EMSCRIPTEN__
+#    include <asio.hpp>
+#    include <asio/ip/tcp.hpp>
+#endif
 
 #if defined(_WIN32)
 #    if _MSC_VER >= 1912
@@ -50,9 +55,26 @@ namespace fs = std::experimental::filesystem;
 #    include <unistd.h> //getcwd
 #    include <sys/types.h>
 #    include <sys/stat.h>
+#elif defined(__EMSCRIPTEN__)
+#    include <emscripten.h>
+#    include <dirent.h>
+#    include <unistd.h>
+#    include <sys/types.h>
+#    include <sys/stat.h>
 #endif
 
+#ifndef __EMSCRIPTEN__
 using asio::ip::tcp;
+#endif
+
+#ifdef __EMSCRIPTEN__
+// clang-format off
+EM_JS(void, alert, (const char* string), {
+    alert(UTF8ToString(string));
+})
+// clang-format on
+#endif
+
 using std::fstream;
 
 namespace Utils
@@ -252,13 +274,14 @@ string getDateTime1String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.2d.%.2d.%.2d-%.2d:%.2d",
-            t->tm_mday,
-            t->tm_mon + 1,
-            t->tm_year - 100,
-            t->tm_hour,
-            t->tm_min);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.2d.%.2d.%.2d-%.2d:%.2d",
+             t->tm_mday,
+             t->tm_mon + 1,
+             t->tm_year - 100,
+             t->tm_hour,
+             t->tm_min);
 
     return string(shortTime);
 }
@@ -271,14 +294,15 @@ string getDateTime2String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.4d%.2d%.2d-%.2d%.2d%.2d",
-            1900 + t->tm_year,
-            t->tm_mon + 1,
-            t->tm_mday,
-            t->tm_hour,
-            t->tm_min,
-            t->tm_sec);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.4d%.2d%.2d-%.2d%.2d%.2d",
+             1900 + t->tm_year,
+             t->tm_mon + 1,
+             t->tm_mday,
+             t->tm_hour,
+             t->tm_min,
+             t->tm_sec);
 
     return string(shortTime);
 }
@@ -286,7 +310,11 @@ string getDateTime2String()
 // Returns the hostname from boost asio
 string getHostName()
 {
+#ifndef __EMSCRIPTEN__
     return asio::ip::host_name();
+#else
+    return "0.0.0.0";
+#endif
 }
 //-----------------------------------------------------------------------------
 // Returns a formatted string as sprintf
@@ -338,7 +366,7 @@ bool endsWithString(const string& container, const string& endStr)
 }
 //-----------------------------------------------------------------------------
 // Returns inputDir with unified forward slashes
-string unifySlashes(const string& inputDir)
+string unifySlashes(const string& inputDir, bool withTrailingSlash)
 {
     string copy = inputDir;
     string curr;
@@ -354,7 +382,8 @@ string unifySlashes(const string& inputDir)
     }
 
     curr.append(copy);
-    if (!curr.empty() && curr.back() != '/')
+
+    if (withTrailingSlash && !curr.empty() && curr.back() != '/')
         curr.append("/");
 
     return curr;
@@ -767,7 +796,9 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
 // Returns true if a directory exists.
 bool dirExists(const string& path)
 {
-#if defined(USE_STD_FILESYSTEM)
+#if defined(__EMSCRIPTEN__)
+    return true;
+#elif defined(USE_STD_FILESYSTEM)
     return fs::exists(path) && fs::is_directory(path);
 #else
     struct stat info
@@ -872,7 +903,9 @@ void removeFile(const string& path)
 // Returns true if a file exists.
 bool fileExists(const string& pathfilename)
 {
-#if defined(USE_STD_FILESYSTEM)
+#if defined(__EMSCRIPTEN__)
+    return false;
+#elif defined(USE_STD_FILESYSTEM)
     return fs::exists(pathfilename);
 #else
     struct stat info
@@ -938,6 +971,8 @@ string getAppsWritableDir(string appName)
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
     return configDir + "/";
+#elif defined(__EMSCRIPTEN__)
+    return "?";
 #else
 #    error "No port to this OS"
 #endif
@@ -962,7 +997,7 @@ string getCurrentWorkingDir()
     free(buffer);
     return "";
 #    endif
-#else
+#elif !defined(__EMSCRIPTEN__)
     size_t size   = 256;
     char*  buffer = (char*)malloc(size);
     if (getcwd(buffer, size) == buffer)
@@ -970,6 +1005,8 @@ string getCurrentWorkingDir()
 
     free(buffer);
     return "";
+#else
+    return "/";
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -1077,7 +1114,7 @@ void log(const char* tag, const char* format, ...)
 
     va_list argptr;
     va_start(argptr, format);
-    vsprintf(log, format, argptr);
+    vsnprintf(log, sizeof(log), format, argptr);
     va_end(argptr);
 
     char msg[4096];
@@ -1112,8 +1149,10 @@ void exitMsg(const char* tag,
                         msg,
                         line,
                         file);
+#elif defined(__EMSCRIPTEN__)
+    std::string message = "SLProject error";
+    alert(message.c_str());
 #else
-
     log(tag,
         "Exit %s at line %d in %s\n",
         msg,
@@ -1165,6 +1204,40 @@ void errorMsg(const char* tag,
         msg,
         line,
         file);
+#endif
+}
+//-----------------------------------------------------------------------------
+// Shows the a spinner icon message. So far only used with emscripten
+void showSpinnerMsg(string msg)
+{
+#ifdef __EMSCRIPTEN__
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        let resource = UTF8ToString($0);
+        document.querySelector("#loading-text").innerHTML = resource;
+
+        if (globalThis.hideTimer === null) {
+            document.querySelector("#loading-overlay").classList.add("visible");
+        } else {
+            clearTimeout(globalThis.hideTimer);
+        }
+    }, msg.c_str());
+    // clang-format on
+#endif
+}
+//-----------------------------------------------------------------------------
+// Hides the previous spinner icon message. So far only used with emscripten
+void hideSpinnerMsg()
+{
+#ifdef __EMSCRIPTEN__
+    // clang-format off
+    MAIN_THREAD_EM_ASM({
+        globalThis.hideTimer = setTimeout(function () {
+              globalThis.hideTimer = null;
+              document.querySelector("#loading-overlay").classList.remove("visible");
+          }, 500);
+    });
+    // clang-format on
 #endif
 }
 //-----------------------------------------------------------------------------
@@ -1260,7 +1333,7 @@ std::string ComputerInfos::get()
     {
         case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
         case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
-        case 12: arch = "ARM64"; break;                             // PROCESSOR_ARCHITECTURE_ARM64
+        case 12: arch = "ARM64"; break; // PROCESSOR_ARCHITECTURE_ARM64
         case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
         case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
         default: arch = "???";

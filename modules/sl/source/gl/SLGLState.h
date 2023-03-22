@@ -31,6 +31,8 @@
 #    include <GL/gl3w.h>
 #elif defined(SL_OS_LINUX)
 #    include <GL/gl3w.h>
+#elif defined(SL_EMSCRIPTEN)
+#    include <GLES3/gl3.h>
 #else
 #    error "SL has not been ported to this OS"
 #endif
@@ -47,7 +49,8 @@ class SLMaterial;
 static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
-#if defined(DEBUG) || defined(_DEBUG)
+// glGetError turns WebGL rendering into a slideshow, so we disable it when compiling with Emscripten
+#if (defined(DEBUG) || defined(_DEBUG)) && !defined(SL_EMSCRIPTEN)
 #    define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
 #else
 #    define GET_GL_ERROR
@@ -131,6 +134,8 @@ public:
     SLbool   glIsES() const { return _glIsES2 || _glIsES3; }
     SLbool   glIsES2() const { return _glIsES2; }
     SLbool   glIsES3() const { return _glIsES3; }
+    SLint    glMaxTexUnits() const { return _glMaxTexUnits; }
+    SLint    glMaxTexSize() const { return _glMaxTexSize; }
     SLbool   glHasGeometryShaders() const { return (_glIsES3 && _glVersionNOf > 3.1f) || (!glIsES() && _glVersionNOf >= 4.1f); }
     SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
     SLVec4i  viewport() { return _viewport; }
@@ -169,6 +174,8 @@ private:
     SLstring _glExtensions;  //!< OpenGL extensions string
     SLbool   _glIsES2;       //!< Flag if OpenGL ES2
     SLbool   _glIsES3;       //!< Flag if OpenGL ES3
+    SLint    _glMaxTexUnits; //!< glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_glMaxTexUnits);
+    SLint    _glMaxTexSize;  //!< glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_glMaxTexSize);
 
     // read/write states
     SLbool  _blend;                     //!< blending default false;

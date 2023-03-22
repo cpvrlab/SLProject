@@ -1,13 +1,13 @@
-// #############################################################################
-//   File:      TextureMapping.cpp
-//   Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
-//              specular lighting shaders with Textures.
-//   Date:      February 2014
-//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//   Authors:   Marcus Hudritsch
-//   License:   This software is provided under the GNU General Public License
-//              Please visit: http://opensource.org/licenses/GPL-3.0
-// #############################################################################
+//#############################################################################
+//  File:      TextureMapping.cpp
+//  Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
+//             specular lighting shaders with Textures.
+//  Date:      February 2014
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
 
 #include <Utils.h>
 #include <GL/gl3w.h>    // OpenGL headers
@@ -421,7 +421,7 @@ bool onPaint()
     static float lastTimeSec = 0;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "Texture Mapping %3.1f", fps);
+    snprintf(title, sizeof(title), "Texture Mapping %3.1f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 

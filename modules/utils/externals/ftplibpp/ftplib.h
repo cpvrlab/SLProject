@@ -9,7 +9,7 @@
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Lesser General Public License as        * 
+ *   it under the terms of the GNU Lesser General Public License as        *
  *   published by the Free Software Foundation; either version 2.1 of the  *
  *   License, or (at your option) any later version.                       *
  *                                                                         *
@@ -48,13 +48,17 @@ typedef int SOCKET;
 #    define fopen64 fopen
 #else
 #    ifdef NOLFS
-#        define off64_t long
-#        define fseeko64 fseek
+#        ifndef off64_t
+#            define off64_t long
+#        endif
+#        ifndef fseeko64
+#            define fseeko64 fseek
+#        endif
 #        define fopen64 fopen
 #    endif
 #endif
 
-//SSL
+// SSL
 typedef struct ssl_st     SSL;
 typedef struct ssl_ctx_st SSL_CTX;
 typedef struct bio_st     BIO;
@@ -66,22 +70,22 @@ typedef struct x509_st    X509;
 #    define _FTPLIB_SSL_CLIENT_METHOD_ TLSv1_2_client_method
 #endif
 
-//using namespace std;
+// using namespace std;
 
-//SSL
+// SSL
 typedef struct ssl_st     SSL;
 typedef struct ssl_ctx_st SSL_CTX;
 typedef struct bio_st     BIO;
 typedef struct x509_st    X509;
 
 /**
-  *@author mkulke
-  */
+ *@author mkulke
+ */
 
 typedef int (*FtpCallbackXfer)(off64_t xfered, void* arg);
 typedef int (*FtpCallbackIdle)(void* arg);
 typedef void (*FtpCallbackLog)(char* str, void* arg, bool out);
-//SSL
+// SSL
 typedef bool (*FtpCallbackCert)(void* arg, X509* cert);
 
 struct ftphandle
@@ -102,7 +106,7 @@ struct ftphandle
     off64_t         cbbytes;
     off64_t         xfered1;
     char            response[256];
-    //SSL
+    // SSL
     SSL*            ssl;
     SSL_CTX*        ctx;
     BIO*            sbio;
@@ -114,13 +118,13 @@ struct ftphandle
     bool    correctpasv;
 };
 
-//#if defined(_WIN32)
-//class DLLIMPORT ftplib
+// #if defined(_WIN32)
+// class DLLIMPORT ftplib
 //{
-//#else
+// #else
 class ftplib
 {
-    //#endif
+    // #endif
 public:
     enum accesstype
     {

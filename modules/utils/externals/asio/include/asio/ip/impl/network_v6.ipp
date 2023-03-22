@@ -101,7 +101,7 @@ std::string network_v6::to_string(asio::error_code& ec) const
 #if defined(ASIO_HAS_SECURE_RTL)
   sprintf_s(prefix_len, sizeof(prefix_len), "/%u", prefix_length_);
 #else // defined(ASIO_HAS_SECURE_RTL)
-  sprintf(prefix_len, "/%u", prefix_length_);
+  snprintf(prefix_len, sizeof(prefix_len), "/%u", prefix_length_);
 #endif // defined(ASIO_HAS_SECURE_RTL)
   return address_.to_string() + prefix_len;
 }

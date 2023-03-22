@@ -7,18 +7,21 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-//#include <AppDemo.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
+#include <cv/CVTracked.h>
 #include <cv/CVTrackedAruco.h>
 #include <SLGLTexture.h>
 #include <cv/CVCalibrationEstimator.h>
 #include <AppDemoSceneView.h>
 #include <AppDemo.h>
-#include <FtpUtils.h>
 #include <GlobalTimer.h>
 #include <Profiler.h>
+
+#ifndef SL_EMSCRIPTEN
+#include <FtpUtils.h>
+#endif
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -121,6 +124,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                     if (ac->calibration.save(AppDemo::calibFilePath, mainCalibFilename))
                     {
 
+#ifndef SL_EMSCRIPTEN
                         if (!FtpUtils::uploadFile(AppDemo::calibFilePath,
                                                   mainCalibFilename,
                                                   AppDemo::CALIB_FTP_HOST,
@@ -131,6 +135,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
                         {
                             Utils::log("WAIApp", errorMsg.c_str());
                         }
+#endif
                     }
                     else
                     {
@@ -326,7 +331,10 @@ bool onUpdateVideo()
         else
             SL_WARN_MSG("No video texture to copy to.");
 
+#ifndef SL_EMSCRIPTEN
         CVTracked::trackingTimesMS.set(GlobalTimer::timeMS() - trackingTimeStartMS);
+#endif
+
         return true;
     }
 
