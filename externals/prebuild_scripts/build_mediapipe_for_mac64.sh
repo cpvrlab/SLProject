@@ -5,7 +5,7 @@
 # ####################################################
 
 VERSION=v0.8.11
-OPENCV_VERSION=4.5.5
+OPENCV_VERSION=4.7.0
 
 # This will break if the OpenCV script is changed
 OPENCV_DIR="opencv/build/mac64_debug_$OPENCV_VERSION/install"
