@@ -11,7 +11,7 @@
 #define CVTRACKEDMEDIAPIPEHANDS_H
 
 #include <cv/CVTracked.h>
-#include "mediapipe.h"
+#include <mediapipe.h>
 
 //-----------------------------------------------------------------------------
 class CVTrackedMediaPipeHands : public CVTracked

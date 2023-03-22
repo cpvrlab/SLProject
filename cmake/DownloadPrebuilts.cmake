@@ -206,7 +206,7 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
     set(MediaPipe_LIBS mediapipe)
 
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
     ######################
     # OpenCV for Windows #
@@ -241,8 +241,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     foreach (lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
-                optimized ${lib}${OpenCV_LIBS_POSTFIX}
-                debug ${lib}${OpenCV_LIBS_POSTFIX}d)
+                optimized ${lib} ${OpenCV_LIBS_POSTFIX}
+                debug ${lib} ${OpenCV_LIBS_POSTFIX}d)
         file(GLOB OpenCV_LIBS_to_copy_debug
                 ${OpenCV_LIBS_to_copy_debug}
                 ${OpenCV_LINK_DIR}/${lib}*d.dll
@@ -495,7 +495,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif()
+    endif ()
 
     #########################
     # MediaPipe for Windows #
@@ -520,9 +520,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    endif()
-	
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
+    endif ()
+
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for MacOS-x86_64")
@@ -851,7 +851,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${openssl_LIBS}
                 ${lib}
                 )
-    endforeach(lib)
+    endforeach (lib)
 
     ##############################
     # MediaPipe for MacOS-x86_64 #
@@ -865,13 +865,13 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     add_library(libmediapipe SHARED IMPORTED)
     set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
     set(MediaPipe_LIBS mediapipe)
-	
-        if (COPY_LIBS_TO_CONFIG_FOLDER)
-                if(${CMAKE_GENERATOR} STREQUAL Xcode)
-                file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-                file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-                endif()
-        endif()
+
+    if (COPY_LIBS_TO_CONFIG_FOLDER)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        endif ()
+    endif ()
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64") #-----------------------------------------------------------------
 
@@ -1125,6 +1125,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     #######################
     # ktx for MacOS-arm64 #
     #######################
+
     set(ktx_VERSION "v4.0.0-beta7-cpvr")
     set(ktx_DIR ${PREBUILT_PATH}/macArm64_ktx_${ktx_VERSION})
     set(ktx_PREBUILT_ZIP "macArm64_ktx_${ktx_VERSION}.zip")
@@ -1155,21 +1156,32 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_DIR ${PREBUILT_PATH}/macArm64_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_PREBUILT_ZIP "macArm64_mediapipe_${MediaPipe_VERSION}.zip")
+    set(MediaPipe_URL ${PREBUILT_URL}/${MediaPipe_PREBUILT_ZIP})
     set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
     set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+
+    if (NOT EXISTS "${MediaPipe_DIR}")
+        message(STATUS "Downloading: ${MediaPipe_PREBUILT_ZIP}")
+        file(DOWNLOAD "${MediaPipe_URL}" "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
+    endif ()
 
     add_library(libmediapipe SHARED IMPORTED)
     set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
     set(MediaPipe_LIBS mediapipe)
-	
-	if (COPY_LIBS_TO_CONFIG_FOLDER)
-	    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-	        file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-	    endif()
-	endif()
 
-elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
+    if (COPY_LIBS_TO_CONFIG_FOLDER)
+        if (${CMAKE_GENERATOR} STREQUAL Xcode)
+            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        endif ()
+    endif ()
+
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #------------------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for iOS_arm64 -------------------------------------")
 

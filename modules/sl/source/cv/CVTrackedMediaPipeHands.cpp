@@ -120,7 +120,11 @@ void CVTrackedMediaPipeHands::drawResults(mp_multi_face_landmark_list* landmarks
             float x2 = (float)imageRgb.cols * p2.x;
             float y2 = (float)imageRgb.rows * p2.y;
 
-            cv::line(imageRgb, {(int)x1, (int)y1}, {(int)x2, (int)y2}, CV_RGB(0, 255, 0), 2);
+            cv::line(imageRgb,
+                     {(int)x1, (int)y1},
+                     {(int)x2, (int)y2},
+                     CV_RGB(0, 255, 0),
+                     2);
         }
 
         for (int j = 0; j < hand.length; j++)
@@ -128,9 +132,13 @@ void CVTrackedMediaPipeHands::drawResults(mp_multi_face_landmark_list* landmarks
             auto  p      = hand.elements[j];
             float x      = (float)imageRgb.cols * p.x;
             float y      = (float)imageRgb.rows * p.y;
-            float radius = 3.0f + 25.0f * -p.z;
+            float radius = std::max(3.0f + 25.0f * -p.z, 1.0f);
 
-            cv::circle(imageRgb, CVPoint((int)x, (int)y), (int)radius, CV_RGB(255, 0, 0), -1);
+            cv::circle(imageRgb,
+                       CVPoint((int)x, (int)y),
+                       (int)radius,
+                       CV_RGB(255, 0, 0),
+                       -1);
         }
     }
 }

@@ -61,8 +61,6 @@ extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
 extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
 extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
-// #define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
-
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
 static auto vectorGetter = [](void* vec, int idx, const char** out_text)
@@ -1733,8 +1731,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
                         
-                    if (ImGui::MenuItem("Track MediaPipe (Main)", nullptr, sid == SID_VideoTrackMediaPipeMain))
-                        s->onLoad(am, s, sv, SID_VideoTrackMediaPipeMain);
+                    if (ImGui::MenuItem("Track Hands w. Mediapipe (Main)", nullptr, sid == SID_VideoTrackMediaPipeHandsMain))
+                        s->onLoad(am, s, sv, SID_VideoTrackMediaPipeHandsMain);
 #endif
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);

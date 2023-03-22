@@ -33,6 +33,7 @@ data/*erleb-AR*
 data/calibrations/*
 data/images/*
 data/models/*
+data/mediapipe/*
 data/opencv/*
 data/videos/*
 data/screenshots/*

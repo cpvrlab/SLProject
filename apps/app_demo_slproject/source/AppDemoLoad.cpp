@@ -4005,11 +4005,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
-    else if (sceneID == SID_VideoTrackMediaPipeMain) //............................................
+    else if (sceneID == SID_VideoTrackMediaPipeHandsMain) //.......................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
-        s->name("Track MediaPipe (main cam.)");
-        s->info("Experimental MediaPipe integration.");
+        s->name("Tracking Hands with MediaPipe (main cam.)");
+        s->info("Tracking Hands with MediaPipe. Please be patient for recognition ...");
 
         videoTexture = new SLGLTexture(am,
                                        texPath + "LiveVideoError.png",
