@@ -170,7 +170,7 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(vk_LIBS libvulkan)
 
     ####################
-    # GLFW for Linux #
+    # GLFW for Linux   #
     ####################
 
     set(glfw_VERSION "3.3.2")
@@ -537,7 +537,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     #set(OpenCV_VERSION "3.4.1")
     #set(OpenCV_VERSION "4.1.1")
     #set(OpenCV_VERSION "4.5.0")
-    set(OpenCV_VERSION "4.5.5")
+    set(OpenCV_VERSION "4.5.2")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
