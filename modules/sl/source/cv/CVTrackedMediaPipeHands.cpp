@@ -7,6 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+
+#ifndef __EMSCRIPTEN__
 #include "CVTrackedMediaPipeHands.h"
 
 //-----------------------------------------------------------------------------
@@ -143,3 +145,4 @@ void CVTrackedMediaPipeHands::drawResults(mp_multi_face_landmark_list* landmarks
     }
 }
 //-----------------------------------------------------------------------------
+#endif //__EMSCRIPTEN__

@@ -3996,15 +3996,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-//        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
-//                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
-//                                     3);
-//        trackedNode = cam1;
-//        tracker->drawDetection(true);
+        //        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
+        //                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
+        //                                     3);
+        //        trackedNode = cam1;
+        //        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
+#ifndef __EMSCRIPTEN__
     else if (sceneID == SID_VideoTrackMediaPipeHandsMain) //.......................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
@@ -4029,7 +4030,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false);
         sv->camera(cam1);
     }
-#    ifdef SL_BUILD_WAI
+#endif
+#ifdef SL_BUILD_WAI
     else if (sceneID == SID_VideoTrackWAI) //......................................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
@@ -4080,11 +4082,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create OpenCV Tracker for the box node
         std::string vocFileName;
-#        if USE_FBOW
+#    if USE_FBOW
         vocFileName = "voc_fbow.bin";
-#        else
+#    else
         vocFileName = "ORBvoc.bin";
-#        endif
+#    endif
         tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {AppDemo::calibIniPath, AppDemo::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
@@ -4094,7 +4096,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
-#    endif
+#endif
     else if (sceneID == SID_VideoSensorAR) //......................................................
     {
         // Set scene name and info string
@@ -4144,7 +4146,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->camera(cam1);
 
-#    if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         // activate rotation and gps sensor
         AppDemo::devRot.isUsed(true);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4152,10 +4154,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         AppDemo::devLoc.useOriginAltitude(true);
         AppDemo::devLoc.hasOrigin(false);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#    else
+#else
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
         AppDemo::devRot.zeroYawAtStart(true);
-#    endif
+#endif
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
@@ -5633,7 +5635,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 4;
+        SLuint       numSamples   = 4;
 #endif
 
         stringstream ss;
@@ -5725,7 +5727,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 6;
+        SLuint       numSamples   = 6;
 #endif
 
         // Scene
@@ -6692,9 +6694,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLuint const levels       = 6;
         SLuint const childCount   = 8;
 #else
-        const int NUM_MAT_MESH = 20;
-        SLuint const levels = 6;
-        SLuint const childCount = 8;
+        const int    NUM_MAT_MESH = 20;
+        SLuint const levels       = 6;
+        SLuint const childCount   = 8;
 #endif
         SLVMaterial materials(NUM_MAT_MESH);
         for (int i = 0; i < NUM_MAT_MESH; ++i)

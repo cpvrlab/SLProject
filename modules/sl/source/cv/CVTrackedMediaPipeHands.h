@@ -10,6 +10,7 @@
 #ifndef CVTRACKEDMEDIAPIPEHANDS_H
 #define CVTRACKEDMEDIAPIPEHANDS_H
 
+#ifndef __EMSCRIPTEN__
 #include <cv/CVTracked.h>
 #include <mediapipe.h>
 
@@ -33,4 +34,5 @@ private:
     mp_poller*   _landmarksPoller;
 };
 //-----------------------------------------------------------------------------
+#endif // __EMSCRIPTEN__
 #endif // CVTRACKEDMEDIAPIPEHANDS_H
