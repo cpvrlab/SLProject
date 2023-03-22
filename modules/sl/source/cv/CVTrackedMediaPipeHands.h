@@ -10,8 +10,6 @@
 #ifndef CVTRACKEDMEDIAPIPEHANDS_H
 #define CVTRACKEDMEDIAPIPEHANDS_H
 
-#ifdef SL_BUILD_WITH_MEDIAPIPE
-
 #include <cv/CVTracked.h>
 #include <mediapipe.h>
 
