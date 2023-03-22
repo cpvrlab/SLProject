@@ -1730,9 +1730,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackFaceMain);
                     if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
-                        
+#    ifdef SL_BUILD_WITH_MEDIAPIPE
                     if (ImGui::MenuItem("Track Hands w. Mediapipe (Main)", nullptr, sid == SID_VideoTrackMediaPipeHandsMain))
                         s->onLoad(am, s, sv, SID_VideoTrackMediaPipeHandsMain);
+#    endif
 #endif
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);

@@ -453,7 +453,6 @@ target_link_libraries(${target}
         ${optix_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
-        ${MediaPipe_LIBS}
         lib-Utils
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
@@ -464,6 +463,10 @@ target_link_libraries(${target}
 
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     add_dependencies(${target} ptx)
+endif ()
+
+if (SL_BUILD_WITH_MEDIAPIPE)
+    target_link_libraries(${target} PUBLIC ${MediaPipe_LIBS})
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")

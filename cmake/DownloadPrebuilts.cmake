@@ -212,7 +212,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # OpenCV for Windows #
     ######################
 
-    set(OpenCV_VERSION "4.5.5")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+    set(OpenCV_VERSION "4.7.0")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.5.4")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
@@ -241,8 +241,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     foreach (lib ${OpenCV_LINK_LIBS})
         set(OpenCV_LIBS
                 ${OpenCV_LIBS}
-                optimized ${lib} ${OpenCV_LIBS_POSTFIX}
-                debug ${lib} ${OpenCV_LIBS_POSTFIX}d)
+                optimized "${lib}${OpenCV_LIBS_POSTFIX}"
+                debug "${lib}${OpenCV_LIBS_POSTFIX}d")
         file(GLOB OpenCV_LIBS_to_copy_debug
                 ${OpenCV_LIBS_to_copy_debug}
                 ${OpenCV_LINK_DIR}/${lib}*d.dll

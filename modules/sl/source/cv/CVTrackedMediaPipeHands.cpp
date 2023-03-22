@@ -9,6 +9,8 @@
 
 #include "CVTrackedMediaPipeHands.h"
 
+#ifdef SL_BUILD_WITH_MEDIAPIPE
+
 //-----------------------------------------------------------------------------
 #define CHECK_MP_RESULT(result) \
     if (!result) \
@@ -143,3 +145,5 @@ void CVTrackedMediaPipeHands::drawResults(mp_multi_face_landmark_list* landmarks
     }
 }
 //-----------------------------------------------------------------------------
+
+#endif
