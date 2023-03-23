@@ -70,11 +70,13 @@ cmake \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_opencv_world=false \
 -DBUILD_ZLIB=false \
--DBUILD_PNG=true \
--DWITH_PNG=true \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
+-DWITH_PNG=true \
+-DBUILD_PNG=true \
+-DWITH_OPENEXR=true \
+-DBUILD_OPENEXR=true \
 -DOPENCV_ENABLE_NONFREE=true \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..
@@ -103,11 +105,13 @@ cmake \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_opencv_world=false \
 -DBUILD_ZLIB=false \
--DBUILD_PNG=true \
--DWITH_PNG=true \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
+-DWITH_PNG=true \
+-DBUILD_PNG=true \
+-DWITH_OPENEXR=true \
+-DBUILD_OPENEXR=true \
 -DOPENCV_ENABLE_NONFREE=true \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..

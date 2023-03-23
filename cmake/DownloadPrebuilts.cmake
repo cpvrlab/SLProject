@@ -537,8 +537,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     #set(OpenCV_VERSION "3.4.1")
     #set(OpenCV_VERSION "4.1.1")
     #set(OpenCV_VERSION "4.5.0")
-    #set(OpenCV_VERSION "4.5.2")
-    set(OpenCV_VERSION "4.7.0")
+    set(OpenCV_VERSION "4.5.2")
+    #set(OpenCV_VERSION "4.7.0") // does not work with ffmpeg
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -860,8 +860,19 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_DIR ${PREBUILT_PATH}/mac64_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_PREBUILT_ZIP "mac64_mediapipe_${MediaPipe_VERSION}.zip")
+    set(MediaPipe_URL ${PREBUILT_URL}/${MediaPipe_PREBUILT_ZIP})
     set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
     set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+
+    if (NOT EXISTS "${MediaPipe_DIR}")
+        message(STATUS "Downloading: ${MediaPipe_PREBUILT_ZIP}")
+        file(DOWNLOAD "${MediaPipe_URL}" "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
+    endif ()
 
     add_library(libmediapipe SHARED IMPORTED)
     set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
@@ -873,6 +884,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
             file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         endif ()
     endif ()
+
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64") #-----------------------------------------------------------------
 
