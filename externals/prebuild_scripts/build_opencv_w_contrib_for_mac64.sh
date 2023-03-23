@@ -70,6 +70,8 @@ cmake \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_opencv_world=false \
 -DBUILD_ZLIB=false \
+-DBUILD_PNG=true \
+-DWITH_PNG=true \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
@@ -101,6 +103,8 @@ cmake \
 -DBUILD_opencv_java_bindings_generator=false \
 -DBUILD_opencv_world=false \
 -DBUILD_ZLIB=false \
+-DBUILD_PNG=true \
+-DWITH_PNG=true \
 -DBUILD_PERF_TESTS=false \
 -DBUILD_TESTS=false \
 -DWITH_MATLAB=false \
