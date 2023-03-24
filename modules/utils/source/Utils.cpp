@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      Utils.cpp
-//  Authors:   Marcus Hudritsch
-//  Date:      May 2019
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      Utils.cpp
+//   Authors:   Marcus Hudritsch
+//   Date:      May 2019
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <Utils.h>
 #include <cstddef>
@@ -252,13 +252,14 @@ string getDateTime1String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.2d.%.2d.%.2d-%.2d:%.2d",
-            t->tm_mday,
-            t->tm_mon + 1,
-            t->tm_year - 100,
-            t->tm_hour,
-            t->tm_min);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.2d.%.2d.%.2d-%.2d:%.2d",
+             t->tm_mday,
+             t->tm_mon + 1,
+             t->tm_year - 100,
+             t->tm_hour,
+             t->tm_min);
 
     return string(shortTime);
 }
@@ -271,14 +272,15 @@ string getDateTime2String()
     struct tm* t = localtime(&tm);
 
     static char shortTime[50];
-    sprintf(shortTime,
-            "%.4d%.2d%.2d-%.2d%.2d%.2d",
-            1900 + t->tm_year,
-            t->tm_mon + 1,
-            t->tm_mday,
-            t->tm_hour,
-            t->tm_min,
-            t->tm_sec);
+    snprintf(shortTime,
+             sizeof(shortTime),
+             "%.4d%.2d%.2d-%.2d%.2d%.2d",
+             1900 + t->tm_year,
+             t->tm_mon + 1,
+             t->tm_mday,
+             t->tm_hour,
+             t->tm_min,
+             t->tm_sec);
 
     return string(shortTime);
 }
@@ -1078,7 +1080,7 @@ void log(const char* tag, const char* format, ...)
 
     va_list argptr;
     va_start(argptr, format);
-    vsprintf(log, format, argptr);
+    vsnprintf(log, sizeof(log), format, argptr);
     va_end(argptr);
 
     char msg[4096];
@@ -1261,7 +1263,7 @@ std::string ComputerInfos::get()
     {
         case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
         case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
-        case 12: arch = "ARM64"; break;                             // PROCESSOR_ARCHITECTURE_ARM64
+        case 12: arch = "ARM64"; break; // PROCESSOR_ARCHITECTURE_ARM64
         case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
         case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
         default: arch = "???";

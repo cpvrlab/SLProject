@@ -37,6 +37,7 @@ data/calibrations/orb-slam-state-*
 data/calibrations/street*
 data/calibrations/ORBvoc.txt
 data/calibrations/imgs
+data/mediapipe/*
 data/videos
 data/screenshots
 data/slam-maps
