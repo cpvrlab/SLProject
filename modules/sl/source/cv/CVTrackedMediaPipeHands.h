@@ -7,7 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef SL_BUILD_WITH_MEDIAPIPE
+#ifdef SL_HAS_MEDIAPIPE
 #ifndef CVTRACKEDMEDIAPIPEHANDS_H
 #define CVTRACKEDMEDIAPIPEHANDS_H
 
@@ -36,4 +36,4 @@ private:
 //-----------------------------------------------------------------------------
 
 #endif // CVTRACKEDMEDIAPIPEHANDS_H
-#endif // SL_BUILD_WITH_MEDIAPIPE
+#endif // SL_HAS_MEDIAPIPE

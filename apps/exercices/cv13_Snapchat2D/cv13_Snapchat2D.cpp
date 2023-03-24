@@ -234,16 +234,74 @@ int main()
             // Create and draw the Delaunay triangulation
             vector<vector<uint>> triIndexes1;
             createDelaunay(frame, subdiv, landmarks[0], false, triIndexes1);
-            drawDelaunay(frame, subdiv, Scalar(255, 255, 255));
+            //drawDelaunay(frame, subdiv, Scalar(255, 255, 255));
 
             /////////////////////////////////////////////////////////////
             // Warp some triangles with some points you want to change //
             /////////////////////////////////////////////////////////////
 
-            // ???
+            //drawDelaunay(frame, subdiv, Scalar(255, 255, 255));
+
+            /////////////////////////////////////////////////////////////
+            // Warp some triangles with some points you want to change //
+            /////////////////////////////////////////////////////////////
+
+            // Convert frame to float for warping
+            frame.convertTo(frame, CV_32FC3, 1 / 255.0);
+
+            // Create copy for warped image
+            Mat imgW = Mat::ones(frame.size(), frame.type());
+
+            // Warp points
+            vector<Point2f> wPoints = landmarks[0];
+
+            ///////////////
+            // Warp Eyes //
+            ///////////////
+
+            // Indexes of eye points
+            vector<uint> iEyeL = {37, 38, 41, 40, 36, 39};
+            vector<uint> iEyeR = {43, 44, 47, 46, 42, 45};
+
+            // eye center points
+            Point2f centerL = (wPoints[iEyeL[0]] + wPoints[iEyeL[3]]) * 0.5f;
+            Point2f centerR = (wPoints[iEyeR[0]] + wPoints[iEyeR[3]]) * 0.5f;
+            //circle(frame, centerL, 3, cv::Scalar(0, 255, 255), -1);
+            //circle(frame, centerR, 3, cv::Scalar(0, 255, 255), -1);
+
+            // Scale eye points outwards
+            float eyeScale = 1.8f;
+            for (int i = 0; i < iEyeL.size(); ++i)
+                wPoints[iEyeL[i]] = ((landmarks[0][iEyeL[i]] - centerL) * eyeScale) + centerL;
+
+            for (int i = 0; i < iEyeR.size(); ++i)
+                wPoints[iEyeR[i]] = ((landmarks[0][iEyeR[i]] - centerR) * eyeScale) + centerR;
+
+            ////////////////
+            // Warp Mouth //
+            ////////////////
+
+            // Indexes of mouth points
+            vector<uint> iMouth      = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67};
+            Point2f      centerMouth = wPoints[66];
+
+            // Scale mouth points inwards
+            float mouthScale = 1.4f;
+            for (int i = 0; i < iMouth.size(); ++i)
+                wPoints[iMouth[i]] = ((landmarks[0][iMouth[i]] - centerMouth) * mouthScale) + centerMouth;
+
+            // Draw rect of first face
+            //rectangle(frame, faces[0], cv::Scalar(255, 0, 0), 2);
+
+            // Draw landmarks of first face
+            //for(int j=0; j < 68; j++)
+            //circle(frame, wPoints[j], 3, cv::Scalar(0, 0, 255), -1);
+
+            // Warp all triangles
+            warpImage(frame, imgW, landmarks[0], wPoints, triIndexes1);
 
             // Display results
-            imshow("Snapchat2D", frame);
+            imshow("Snapchat2D", imgW);
         }
 
         // Wait for key to exit loop

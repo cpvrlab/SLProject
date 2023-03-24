@@ -102,16 +102,18 @@ CVSize2i CVCapture::open(int deviceNum)
     }
 #else
     WebCameraFacing facing;
-    if (_videoType == VT_MAIN) facing = WebCameraFacing::BACK;
-    else if(_videoType == VT_SCND) facing = WebCameraFacing::FRONT;
+    if (_videoType == VT_MAIN)
+        facing = WebCameraFacing::BACK;
+    else if (_videoType == VT_SCND)
+        facing = WebCameraFacing::FRONT;
     _webCamera.open(facing);
 
     // We can't query the actual resolution of the camera because that is considered a security risk.
     // Therefore, we list some common resolutions. If the camera doesn't support the requested resolution,
     // the browser will simply switch to a supported one.
     camSizes           = {CVSize2i(640, 480),
-                CVSize2i(1280, 720),
-                CVSize2i(1920, 1080)};
+                          CVSize2i(1280, 720),
+                          CVSize2i(1920, 1080)};
     activeCamSizeIndex = 0;
 #endif
 
@@ -902,30 +904,35 @@ void CVCapture::loadCalibrations(const string& computerInfo,
 
     // load opencv camera calibration for main and secondary camera
 #if defined(APP_USES_CVCAPTURE)
+
     // try to download from ftp if no calibration exists locally
     string fullPathAndFilename = Utils::unifySlashes(configPath) + mainCalibFilename;
-    if (!Utils::fileExists(fullPathAndFilename))
+    if (Utils::fileExists(fullPathAndFilename))
+    {
+        if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
+        {
+            // instantiate a guessed calibration
+            // mainCam.calibration = CVCalibration()
+        }
+    }
+    else
     {
         /*
         //todo: move this download call out of cvcaputure (during refactoring of this class)
         string errorMsg;
         if (!FtpUtils::downloadFileLatestVersion(AppDemo::calibFilePath,
-                                                 mainCalibFilename,
-                                                 AppDemo::CALIB_FTP_HOST,
-                                                 AppDemo::CALIB_FTP_USER,
-                                                 AppDemo::CALIB_FTP_PWD,
-                                                 AppDemo::CALIB_FTP_DIR,
-                                                 errorMsg))
+                                              mainCalibFilename,
+                                              AppDemo::CALIB_FTP_HOST,
+                                              AppDemo::CALIB_FTP_USER,
+                                              AppDemo::CALIB_FTP_PWD,
+                                              AppDemo::CALIB_FTP_DIR,
+                                              errorMsg))
         {
-            Utils::log("SLProject", errorMsg.c_str());
+         Utils::log("SLProject", errorMsg.c_str());
         }
-         */
+        */
     }
-    if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
-    {
-        // instantiate a guessed calibration
-        // mainCam.calibration = CVCalibration()
-    }
+
     activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else

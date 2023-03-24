@@ -9,6 +9,11 @@ set(target lib-SLProject)
 
 set(platform_specific_include_dirs)
 
+
+#########################
+# CUDA and OPTIX Checks #
+#########################
+
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
@@ -38,6 +43,25 @@ file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerCamera.cu
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
         )
+
+########################
+# Define for Mediapipe #
+########################
+
+if (SL_BUILD_WITH_MEDIAPIPE)
+    message(STATUS "Build with Mediapipe")
+    set(DEFAULT_COMPILE_DEFINITIONS
+            ${DEFAULT_COMPILE_DEFINITIONS}
+            SL_HAS_MEDIAPIPE)
+else ()
+    message(STATUS "Build without Mediapipe")
+    unset(SL_HAS_MEDIAPIPE)
+endif ()
+
+
+#############################
+# Source files of SLProject #
+#############################
 
 file(GLOB sources
         cuda/SLOptixHelper.h

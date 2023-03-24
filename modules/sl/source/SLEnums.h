@@ -159,7 +159,7 @@ enum SLSceneID
     SID_VideoTrackFeature2DScnd,
     SID_VideoTrackFaceMain,
     SID_VideoTrackFaceScnd,
-#ifdef SL_BUILD_WITH_MEDIAPIPE
+#ifdef SL_HAS_MEDIAPIPE
     SID_VideoTrackMediaPipeHandsMain,
 #endif
     SID_VideoSensorAR,
