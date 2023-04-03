@@ -502,24 +502,25 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #########################
 
     set(MediaPipe_VERSION "v0.8.11")
-    set(MediaPipe_DIR ${PREBUILT_PATH}/win64_mediapipe_${MediaPipe_VERSION})
-    set(MediaPipe_LINK_DIR "${MediaPipe_DIR}/lib")   #don't forget to add the this link dir down at the bottom
+    set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR})
+    set(MediaPipe_LINK_DIR "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib")   #don't forget to add the this link dir down at the bottom
     set(MediaPipe_INCLUDE_DIR "${MediaPipe_DIR}/include")
+
+    download_lib(${MediaPipe_PREBUILT_DIR})
 
     add_library(MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe
             PROPERTIES
-            IMPORTED_IMPLIB "${MediaPipe_DIR}/lib/mediapipe.lib"
-            IMPORTED_LOCATION "${MediaPipe_DIR}/bin/mediapipe.dll"
+            IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
+            IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
 
     set(MediaPipe_LIBS mediapipe)
 
-    file(GLOB MediaPipe_DLLS ${MediaPipe_DIR}/bin/*.dll)
-
+    file(GLOB MediaPipe_DLLS ${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/*.dll)
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
     endif ()
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
