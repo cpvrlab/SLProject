@@ -23,8 +23,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
-                abiFilters 'arm64-v8a'
-                arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA=true", "-DAPP_USES_GLES=true", "-DSL_BUILD_WAI=ON"
+                arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA=true", "-DAPP_USES_GLES=true", "-DSL_BUILD_WAI=ON", "-DSL_BUILD_WITH_MEDIAPIPE=ON"
             }
         }
     }
