@@ -14,18 +14,22 @@ clear
 
 rm -rf "$PREBUILT_DIR"
 rm -rf "$DATA_DIR"
+mkdir "$PREBUILT_DIR"
+mkdir "$PREBUILT_DIR/debug"
+mkdir "$PREBUILT_DIR/release"
 
 if [ ! -d libmediapipe ]; then git clone https://github.com/cpvrlab/libmediapipe.git; fi
 cd libmediapipe
 ./build-aarch64-android.sh --version $VERSION --config debug
 cd ..
 
-cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/include" "$PREBUILT_DIR/lib"
-cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/lib" "$PREBUILT_DIR/debug/lib"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/include" "$PREBUILT_DIR/include"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/lib/"* "$PREBUILT_DIR/debug"
 cp -r "libmediapipe/output/data/mediapipe" "$DATA_DIR"
 
 cd libmediapipe
 ./build-aarch64-android.sh --version $VERSION --config release
 cd ..
 
-cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/lib" "$PREBUILT_DIR/release/lib"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-aarch64-android/lib/"* "$PREBUILT_DIR/release"
+
