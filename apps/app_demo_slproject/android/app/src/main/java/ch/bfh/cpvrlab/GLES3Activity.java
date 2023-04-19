@@ -72,6 +72,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             GLES3Lib.extractAPK();
         } catch (IOException e) {
             Log.e(TAG, "Error extracting files from the APK archive: " + e.getMessage());
+            Log.e(TAG, Log.getStackTraceString(e));
         }
 
         // Create view
@@ -124,7 +125,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
             }, PERMISSIONS_MULTIPLE_REQUEST);
         }
 
-
+        GLES3Lib.initMediaPipeAssetManager(this, getCacheDir().getAbsolutePath());
     }
 
     // After on onCreate

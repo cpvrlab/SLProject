@@ -16,6 +16,8 @@
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 
+#include "mediapipe.h"
+
 //-----------------------------------------------------------------------------
 // Some global variable for the JNI interface
 JNIEnv* environment; //! Pointer to JAVA environment used in ray tracing callback
@@ -54,6 +56,7 @@ JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onSetupExternalDir(JNIEnv* e
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_copyVideoYUVPlanes(JNIEnv* env, jclass obj, jint srcW, jint srcH, jbyteArray yBuf, jint ySize, jint yPixStride, jint yLineStride, jbyteArray uBuf, jint uSize, jint uPixStride, jint uLineStride, jbyteArray vBuf, jint vSize, jint vPixStride, jint vLineStride);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setCameraSize(JNIEnv* env, jclass obj, jint sizeIndex, jint sizeIndexMax, jint width, jint height);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setDeviceParameter(JNIEnv* env, jclass obj, jstring parameter, jstring value);
+JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_initMediaPipeAssetManager(JNIEnv* env, jclass obj, jobject assetManager, jstring cacheDirPath);
 };
 
 //-----------------------------------------------------------------------------
@@ -346,3 +349,9 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setDeviceParamete
     slSetDeviceParameter(par.c_str(), val.c_str());
 }
 //-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_initMediaPipeAssetManager(JNIEnv* env,
+                                                                                         jclass  obj,
+                                                                                         jobject assetManager,
+                                                                                         jstring cacheDirPath) {
+    mp_init_asset_manager(env, assetManager, cacheDirPath);
+}

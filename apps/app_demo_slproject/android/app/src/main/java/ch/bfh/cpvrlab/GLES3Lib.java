@@ -11,9 +11,9 @@
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
 package ch.bfh.cpvrlab;
 
-import android.content.res.AssetManager;
-import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
+import android.content.res.AssetManager;
 import android.util.Log;
 
 import java.io.File;
@@ -22,12 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.String;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
-
-import static android.content.Context.ACTIVITY_SERVICE;
 
 // Java class that encapsulates the native C-functions into SLProject
 public class GLES3Lib {
@@ -79,6 +76,7 @@ public class GLES3Lib {
     public static native void    onSetupExternalDir (String externalDirPath);
     public static native void    setCameraSize      (int sizeIndex, int sizeIndexMax, int width, int height);
     public static native void    setDeviceParameter (String parameter, String value);
+    public static native void    initMediaPipeAssetManager(Context androidContext, String cacheDirPath);
 
     /**
      * The Raytracing Callback function is used to repaint the ray tracing image during the
@@ -115,11 +113,13 @@ public class GLES3Lib {
         File directory = new File(path, assetFolder);
         createEmptyDirectory(directory);
         String[] assets = assetManager.list(assetFolder);
-        for (String asset : assets){
-            if (asset.contains(".")){
+
+        for (String asset : assets) {
+            // FIXME: How do we determine if an asset is a directory?
+            if (asset.contains(".") && !asset.equals("2.0")) {
                 // assumes file
-                File destinationFile = new File(directory, asset);
                 InputStream in = assetManager.open(assetFolder + File.separator + asset);
+                File destinationFile = new File(directory, asset);
                 copy(in, destinationFile);
             } else {
                 // assume directory
