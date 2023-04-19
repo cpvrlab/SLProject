@@ -1599,6 +1599,31 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
             )
 
     set(ktx_LIBS KTX::ktx)
+
+    #########################
+    # MediaPipe for Android #
+    #########################
+
+    set(MediaPipe_VERSION "v0.8.11")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/andV8_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
+    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+
+    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe::MediaPipe
+        PROPERTIES
+        IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DUR}"
+    ) 
+
+    add_library(MediaPipe::OpenCV_Java4 SHARED IMPORTED)
+    set_target_properties(MediaPipe::OpenCV_Java4
+        PROPERTIES
+        IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libopencv_java4.so"
+    )
+
+    set(MediaPipe_LIBS MediaPipe::MediaPipe MediaPipe::OpenCV_Java4)
+
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     #########################
     # OpenCV for Emscripten #
