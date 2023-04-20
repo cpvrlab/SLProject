@@ -75,14 +75,30 @@ set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 function(download_lib LIB_NAME)
     set(LIB_PREBUILT_DIR "${PREBUILT_PATH}/${LIB_NAME}")
     set(LIB_ZIP "${LIB_NAME}.zip")
+    set(LIB_LOCK_PATH "${PREBUILT_PATH}/${LIB_NAME}.lock")
 
     if (NOT EXISTS "${LIB_PREBUILT_DIR}")
-        message(STATUS "Downloading: ${LIB_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${LIB_ZIP}" "${PREBUILT_PATH}/${LIB_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${LIB_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${LIB_ZIP}")
+        if (NOT EXISTS "${LIB_LOCK_PATH}")
+            # Lock the zip so only one CMake process downloads it
+            # CLion for example runs one CMake process for every configuration in parallel,
+            # which leads to file writing errors when all processes try to write the file simultaneously.
+            file(TOUCH "${LIB_LOCK_PATH}")
+
+            message(STATUS "Downloading: ${LIB_ZIP}")
+            file(DOWNLOAD "${PREBUILT_URL}/${LIB_ZIP}" "${PREBUILT_PATH}/${LIB_ZIP}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                    "${PREBUILT_PATH}/${LIB_ZIP}"
+                    WORKING_DIRECTORY "${PREBUILT_PATH}")
+            file(REMOVE "${PREBUILT_PATH}/${LIB_ZIP}")
+
+            file(REMOVE "${LIB_LOCK_PATH}")
+
+            if (NOT EXISTS "${LIB_PREBUILT_DIR}")
+                message(SEND_ERROR "Error downloading ${LIB_ZIPT}! Build required version yourself to location ${LIB_PREBUILT_DIR} using script in directory externals/prebuild_scripts or try another version.")
+            endif ()
+        else ()
+            message(STATUS "${LIB_ZIP} is being downloaded by another CMake process")
+        endif ()
     endif ()
 endfunction()
 
@@ -226,20 +242,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
-    if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "Download opencv prebuilts: ${OpenCV_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-
-        if (NOT EXISTS "${OpenCV_DIR}")
-            message(SEND_ERROR "Downloading Prebuilds failed! OpenCV prebuilds for version ${OpenCV_VERSION} do not extist! Build required version yourself to location ${OpenCV_DIR} using script in directory externals/prebuild_scipts or try another OpenCV version.")
-        endif ()
-    endif ()
+    download_lib("${OpenCV_PREBUILT_DIR}")
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
 
@@ -274,9 +278,12 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # g2o for Windows #
     ###################
 
-    set(g2o_DIR ${PREBUILT_PATH}/win64_g2o)
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/lib)   #don't forget to add the this link dir down at the bottom
+    set(g2o_PREBUILT_DIR "win64_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
+    set(g2o_LINK_DIR "${g2o_DIR}/lib")   #don't forget to add the this link dir down at the bottom
+
+    download_lib("${g2o_PREBUILT_DIR}")
 
     foreach (lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
@@ -292,17 +299,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
                 ${lib}
                 )
     endforeach (lib)
-
-    set(g2o_PREBUILT_ZIP "win64_g2o.zip")
-    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${g2o_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
 
     # For MSVC copy g2o dlls to working dir
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
@@ -333,20 +329,9 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_LINK_DIR "${assimp_DIR}/lib")   #don't forget to add the this link dir down at the bottom
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
     #set(assimp_LINK_LIBS_WIN assimp-mt)
 
-    if (NOT EXISTS "${assimp_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-
-        if (NOT EXISTS "${assimp_DIR}")
-            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
-        endif ()
-    endif ()
+    download_lib("${assimp_PREBUILT_DIR}")
 
     set(assimp_LIBS
             ${assimp_LIBS}
@@ -374,20 +359,14 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #######################
 
     set(openssl_VERSION "1.1.1h")
-    set(openssl_PREBUILT_DIR "win64_openssl")
-    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl_${openssl_VERSION})
-    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
+    set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
+    set(openssl_LINK_DIR "${openssl_DIR}/lib")
     set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
 
-    if (NOT EXISTS "${openssl_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
+    download_lib("${openssl_PREBUILT_DIR}")
+
     link_directories(${openssl_LINK_DIR})
 
     add_library(crypto STATIC IMPORTED)
@@ -405,20 +384,12 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     ######################
 
     set(vk_VERSION "1.2.162.1")
-    set(vk_DIR ${PREBUILT_PATH}/win64_vulkan_${vk_VERSION})
-    set(vk_PREBUILT_ZIP "win64_vulkan_${vk_VERSION}.zip")
-    set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${vk_DIR}")
-        file(DOWNLOAD "${vk_URL}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
-    endif ()
-
+    set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
+    set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
     set(vk_INCLUDE_DIR ${vk_DIR}/Include)
     set(vk_LINK_DIR ${vk_DIR}/Lib)   #don't forget to add the this link dir down at the bottom
+
+    download_lib("${vk_PREBUILT_DIR}")
 
     foreach (lib ${vk_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
@@ -437,20 +408,12 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     ####################
 
     set(glfw_VERSION "3.3.2")
-    set(glfw_DIR ${PREBUILT_PATH}/win64_glfw_${glfw_VERSION})
-    set(glfw_PREBUILT_ZIP "win64_glfw_${glfw_VERSION}.zip")
-    set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
+    set(glfw_PREBUILT_DIR "win64_glfw_${glfw_VERSION}")
+    set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
+    set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
+    set(glfw_LINK_DIR "${glfw_DIR}/lib-vc2019") # don't forget to add the this link dir down at the bottom
 
-    if (NOT EXISTS "${glfw_DIR}")
-        file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-    endif ()
-
-    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
-    set(glfw_LINK_DIR ${glfw_DIR}/lib-vc2019) # don't forget to add the this link dir down at the bottom
+    download_lib("${glfw_PREBUILT_DIR}")
 
     add_library(glfw3dll SHARED IMPORTED)
     set_target_properties(glfw3dll PROPERTIES
@@ -473,18 +436,10 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #######################
 
     set(ktx_VERSION "v4.0.0-beta7")
-    set(ktx_DIR ${PREBUILT_PATH}/win64_ktx_${ktx_VERSION})
-    set(ktx_PREBUILT_ZIP "win64_ktx_${ktx_VERSION}.zip")
-    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+    set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
 
-    if (NOT EXISTS "${ktx_DIR}")
-        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
-        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif ()
+    download_lib("${ktx_PREBUILT_DIR}")
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
@@ -508,9 +463,9 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
 
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
-    set(MediaPipe_DIR ${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR})
+    set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
 
-    download_lib(${MediaPipe_PREBUILT_DIR})
+    download_lib("${MediaPipe_PREBUILT_DIR}")
 
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe

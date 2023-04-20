@@ -11,11 +11,16 @@ set(DATA_MODELS_PATH "${SL_PROJECT_ROOT}/data/images")
 
 if (NOT EXISTS "${DATA_MODELS_PATH}" AND NOT EXISTS "${DATA_IMAGES_PATH}")
     if (NOT EXISTS "${DATA_LOCK_PATH}")
-        file(TOUCH "${DATA_LOCK_PATH}") # Lock the zip so only one CMake process downloads the directory
+        # Lock the zip so only one CMake process downloads it
+        # CLion for example runs one CMake process for every configuration in parallel,
+        # which leads to file writing errors when all processes try to write the file simultaneously.
+        file(TOUCH "${DATA_LOCK_PATH}")
+
         message(STATUS "Downloading data zip...")
         file(DOWNLOAD "${DATA_URL}" "${DATA_ZIP_PATH}" SHOW_PROGRESS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf "${DATA_ZIP_PATH}" WORKING_DIRECTORY "${SL_PROJECT_ROOT}")
         file(REMOVE "${DATA_ZIP_PATH}")
+        
         file(REMOVE "${DATA_LOCK_PATH}")
     else ()
         message(STATUS "Data zip is being downloaded by another CMake process")
