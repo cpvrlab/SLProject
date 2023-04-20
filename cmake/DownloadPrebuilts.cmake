@@ -202,9 +202,14 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_DIR ${PREBUILT_PATH}/linux_mediapipe_${MediaPipe_VERSION})
-    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
-    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
-    set(MediaPipe_LIBS mediapipe)
+
+    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe::MediaPipe
+            PROPERTIES
+            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include"
+            )
+    set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
@@ -504,19 +509,16 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
     set(MediaPipe_DIR ${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR})
-    set(MediaPipe_LINK_DIR "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib")   #don't forget to add the this link dir down at the bottom
-    set(MediaPipe_INCLUDE_DIR "${MediaPipe_DIR}/include")
 
     download_lib(${MediaPipe_PREBUILT_DIR})
 
-    add_library(MediaPipe SHARED IMPORTED)
-    set_target_properties(MediaPipe
+    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
             IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
             IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
-
-    set(MediaPipe_LIBS mediapipe)
+    set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
     file(GLOB MediaPipe_DLLS ${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/*.dll)
     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
@@ -863,8 +865,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(MediaPipe_DIR ${PREBUILT_PATH}/mac64_mediapipe_${MediaPipe_VERSION})
     set(MediaPipe_PREBUILT_ZIP "mac64_mediapipe_${MediaPipe_VERSION}.zip")
     set(MediaPipe_URL ${PREBUILT_URL}/${MediaPipe_PREBUILT_ZIP})
-    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
-    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
 
     if (NOT EXISTS "${MediaPipe_DIR}")
         message(STATUS "Downloading: ${MediaPipe_PREBUILT_ZIP}")
@@ -875,14 +875,17 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
     endif ()
 
-    add_library(libmediapipe SHARED IMPORTED)
-    set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
-    set(MediaPipe_LIBS mediapipe)
+    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe::MediaPipe
+            PROPERTIES
+            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+    set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
     if (COPY_LIBS_TO_CONFIG_FOLDER)
         if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         endif ()
     endif ()
 
@@ -1172,8 +1175,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(MediaPipe_DIR ${PREBUILT_PATH}/macArm64_mediapipe_${MediaPipe_VERSION})
     set(MediaPipe_PREBUILT_ZIP "macArm64_mediapipe_${MediaPipe_VERSION}.zip")
     set(MediaPipe_URL ${PREBUILT_URL}/${MediaPipe_PREBUILT_ZIP})
-    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
-    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
 
     if (NOT EXISTS "${MediaPipe_DIR}")
         message(STATUS "Downloading: ${MediaPipe_PREBUILT_ZIP}")
@@ -1184,14 +1185,17 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
     endif ()
 
-    add_library(libmediapipe SHARED IMPORTED)
-    set_target_properties(libmediapipe PROPERTIES IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.dylib")
-    set(MediaPipe_LIBS mediapipe)
+    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+    set_target_properties(MediaPipe::MediaPipe
+            PROPERTIES
+            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+    set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
     if (COPY_LIBS_TO_CONFIG_FOLDER)
         if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${MediaPipe_LINK_DIR}libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
         endif ()
     endif ()
 
@@ -1607,7 +1611,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_PREBUILT_DIR "andV8_mediapipe_${MediaPipe_VERSION}")
     set(MediaPipe_DIR ${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR})
-    set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
 
     download_lib(${MediaPipe_PREBUILT_DIR})
 
@@ -1616,7 +1619,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
         PROPERTIES
         IMPORTED_LOCATION_RELEASE "${MediaPipe_DIR}/release/libmediapipe.so"
         IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/libmediapipe.so"
-        INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DUR}"
+        INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include"
     ) 
 
     add_library(MediaPipe::OpenCV_Java4 SHARED IMPORTED)
@@ -1694,4 +1697,3 @@ link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
-link_directories(${MediaPipe_LINK_DIR})

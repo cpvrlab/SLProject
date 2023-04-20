@@ -45,7 +45,6 @@ target_include_directories(
     ${SL_PROJECT_ROOT}/modules/utils/externals/zlib
     ${OpenCV_INCLUDE_DIR}
     ${assimp_INCLUDE_DIR}
-    ${MediaPipe_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
