@@ -17,40 +17,40 @@
 //! Collection of functions for accessing files stored in memory
 namespace SLIOMemory
 {
-bool               exists(SLstring path);
-std::vector<char>& get(SLstring path);
-void               set(SLstring path, const std::vector<char>& data);
-void               clear(SLstring path);
+bool               exists(std::string path);
+std::vector<char>& get(std::string path);
+void               set(std::string path, const std::vector<char>& data);
+void               clear(std::string path);
 }
 //-----------------------------------------------------------------------------
 //! SLIOStream implementation for reading from memory
 class SLIOReaderMemory : public SLIOStream
 {
 public:
-    SLIOReaderMemory(SLstring path);
+    SLIOReaderMemory(std::string path);
     size_t read(void* buffer, size_t size);
     size_t tell();
     bool   seek(size_t offset, Origin origin);
     size_t size();
 
 protected:
-    SLstring _path;
-    size_t   _position;
+    std::string _path;
+    size_t      _position;
 };
 //-----------------------------------------------------------------------------
 //! SLIOStream implementation for reading to memory
 class SLIOWriterMemory : public SLIOStream
 {
 public:
-    SLIOWriterMemory(SLstring path);
+    SLIOWriterMemory(std::string path);
     size_t write(const void* buffer, size_t size);
     size_t tell();
     bool   seek(size_t offset, Origin origin);
     void   flush();
 
 protected:
-    SLstring _path;
-    size_t   _position;
+    std::string _path;
+    size_t      _position;
 };
 //-----------------------------------------------------------------------------
 #endif

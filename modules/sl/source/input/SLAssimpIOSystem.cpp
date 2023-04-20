@@ -30,8 +30,6 @@ aiReturn SLAssimpIOStream::Seek(size_t pOffset, aiOrigin pOrigin)
         streamOrigin = SLIOStream::IOO_cur;
     else if (pOrigin == aiOrigin_END)
         streamOrigin = SLIOStream::IOO_end;
-    else
-        SL_EXIT_MSG("Invalid seek origin");
 
     bool successful = _stream->seek(pOffset, streamOrigin);
     return successful ? aiReturn_SUCCESS : aiReturn_FAILURE;
@@ -73,8 +71,6 @@ Assimp::IOStream* SLAssimpIOSystem::Open(const char* pFile, const char* pMode)
         streamMode = IOM_read;
     else if (pMode[0] == 'w')
         streamMode = IOM_write;
-    else
-        SL_EXIT_MSG("Invalid open mode");
 
     SLIOStream* stream = SLFileStorage::open(pFile, IOK_model, streamMode);
     return new SLAssimpIOStream(stream);

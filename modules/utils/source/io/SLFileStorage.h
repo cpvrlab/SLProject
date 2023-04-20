@@ -10,9 +10,10 @@
 #ifndef SLPROJECT_SLFILESTORAGE_H
 #define SLPROJECT_SLFILESTORAGE_H
 
-#include <SL.h>
+#include <Utils.h>
+#include <string>
 
-#ifndef SL_EMSCRIPTEN
+#ifndef __EMSCRIPTEN__
 #    define SL_STORAGE_FS
 #    include <fstream>
 #else
@@ -76,13 +77,13 @@ public:
 //! Collection of functions to open, use and close streams
 namespace SLFileStorage
 {
-SLIOStream* open(SLstring path, SLIOStreamKind kind, SLIOStreamMode mode);
+SLIOStream* open(std::string path, SLIOStreamKind kind, SLIOStreamMode mode);
 void        close(SLIOStream* stream);
-bool        exists(SLstring path, SLIOStreamKind kind);
-SLIOBuffer  readIntoBuffer(SLstring path, SLIOStreamKind kind);
+bool        exists(std::string path, SLIOStreamKind kind);
+SLIOBuffer  readIntoBuffer(std::string path, SLIOStreamKind kind);
 void        deleteBuffer(SLIOBuffer& buffer);
-SLstring    readIntoString(SLstring path, SLIOStreamKind kind);
-void        writeString(SLstring path, SLIOStreamKind kind, const SLstring& string);
+std::string readIntoString(std::string path, SLIOStreamKind kind);
+void        writeString(std::string path, SLIOStreamKind kind, const std::string& string);
 }
 //-----------------------------------------------------------------------------
 #endif

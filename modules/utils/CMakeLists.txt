@@ -57,11 +57,17 @@ set(headers
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLFileStorage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOBrowserPopup.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOFetch.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOLocalStorage.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOMemory.h
 #		${CMAKE_CURRENT_SOURCE_DIR}/source/CoordSystemConversions.h
 		${UTILS_ROOT}/externals/ftplibpp/ftplib.h
     )
 set(sources
         ${sources}
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIONative.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/AverageTiming.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FileLog.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
@@ -71,6 +77,12 @@ set(sources
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ByteOrder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLFileStorage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOBrowserPopup.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOFetch.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOLocalStorage.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIOMemory.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/io/SLIONative.cpp
     )
 
 # Emscripten provides its own implementation of zlib
@@ -130,6 +142,7 @@ target_include_directories(${target}
 
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/io
     ${platform_specific_include_dirs}
     ${UTILS_ROOT}/externals/asio/include
     ${UTILS_ROOT}/externals/ftplibpp

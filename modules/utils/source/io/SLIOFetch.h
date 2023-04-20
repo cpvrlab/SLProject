@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLIOBrowserDisplay.h
+//  File:      SLIOFetch.h
 //  Date:      October 2022
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,27 +7,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLPROJECT_SLIOBROWSERPOPUP_H
-#define SLPROJECT_SLIOBROWSERPOPUP_H
+#ifndef SLPROJECT_SLIOFETCH_H
+#define SLPROJECT_SLIOFETCH_H
 
 #include <SLFileStorage.h>
 #include <SLIOMemory.h>
 
 #ifdef SL_STORAGE_WEB
-//-----------------------------------------------------------------------------
-//! SLIOStream implementation to display PNG files in a browser popup
+//! SLIOStream implementation for downloading files from a web server
 /*!
- * The popup with the PNG image is opened when SLIOWriterBrowserPopup::flush
- * is called. The popup contains a link for the user to download the file.
+ * The constructor downloads the file via HTTP and stores it in memory. When
+ * downloading, a loading screen is displayed to the user because it blocks
+ * the entire application.
  */
-class SLIOWriterBrowserPopup : public SLIOWriterMemory
+//-----------------------------------------------------------------------------
+class SLIOReaderFetch : public SLIOReaderMemory
 {
 public:
-    SLIOWriterBrowserPopup(SLstring path);
-    ~SLIOWriterBrowserPopup();
-    void   flush();
+    static bool exists(std::string url);
+
+    SLIOReaderFetch(std::string url);
+    ~SLIOReaderFetch();
 };
 //-----------------------------------------------------------------------------
 #endif
 
-#endif // SLPROJECT_SLIOBROWSERPOPUP_H
+#endif // SLPROJECT_SLIOFETCH_H

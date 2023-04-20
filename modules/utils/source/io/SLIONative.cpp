@@ -11,9 +11,10 @@
 
 #ifndef SL_EMSCRIPTEN
 //-----------------------------------------------------------------------------
-SLIOReaderNative::SLIOReaderNative(SLstring path)
+SLIOReaderNative::SLIOReaderNative(std::string path)
   : _stream(path, std::ios::binary)
 {
+    //assert(!_stream.fail());
 }
 //-----------------------------------------------------------------------------
 size_t SLIOReaderNative::read(void* buffer, size_t size)
@@ -36,8 +37,6 @@ bool SLIOReaderNative::seek(size_t offset, Origin origin)
         nativeOrigin = std::ios::cur;
     else if (origin == IOO_end)
         nativeOrigin = std::ios::end;
-    else
-        SL_EXIT_MSG("Invalid seek origin");
 
     return (bool)_stream.seekg((std::streamsize)offset, nativeOrigin);
 }
@@ -51,7 +50,7 @@ size_t SLIOReaderNative::size()
     return size;
 }
 //-----------------------------------------------------------------------------
-SLIOWriterNative::SLIOWriterNative(SLstring path)
+SLIOWriterNative::SLIOWriterNative(std::string path)
   : _stream(path, std::ios::binary)
 {
 }
@@ -78,8 +77,6 @@ bool SLIOWriterNative::seek(size_t offset, Origin origin)
         nativeOrigin = std::ios::cur;
     else if (origin == IOO_end)
         nativeOrigin = std::ios::end;
-    else
-        SL_EXIT_MSG("Invalid seek origin");
 
     return (bool)_stream.seekp((std::streamsize)offset, nativeOrigin);
 }

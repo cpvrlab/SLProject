@@ -14,7 +14,7 @@
 #    include <emscripten/fetch.h>
 #    include <iostream>
 //-----------------------------------------------------------------------------
-bool SLIOReaderFetch::exists(SLstring url)
+bool SLIOReaderFetch::exists(std::string url)
 {
     emscripten_fetch_attr_t attr;
     emscripten_fetch_attr_init(&attr);
@@ -26,7 +26,7 @@ bool SLIOReaderFetch::exists(SLstring url)
     return exists;
 }
 //-----------------------------------------------------------------------------
-SLIOReaderFetch::SLIOReaderFetch(SLstring url)
+SLIOReaderFetch::SLIOReaderFetch(std::string url)
   : SLIOReaderMemory(url)
 {
     Utils::showSpinnerMsg(url);

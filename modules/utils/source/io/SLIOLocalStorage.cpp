@@ -11,7 +11,7 @@
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-bool SLIOLocalStorage::exists(SLstring path)
+bool SLIOLocalStorage::exists(std::string path)
 {
     // clang-format off
     return MAIN_THREAD_EM_ASM_INT({
@@ -22,7 +22,7 @@ bool SLIOLocalStorage::exists(SLstring path)
     // clang-format on
 }
 //-----------------------------------------------------------------------------
-SLIOReaderLocalStorage::SLIOReaderLocalStorage(SLstring path)
+SLIOReaderLocalStorage::SLIOReaderLocalStorage(std::string path)
   : SLIOReaderMemory(path)
 {
     char* data;
@@ -52,7 +52,7 @@ SLIOReaderLocalStorage::~SLIOReaderLocalStorage()
     SLIOMemory::clear(_path);
 }
 //-----------------------------------------------------------------------------
-SLIOWriterLocalStorage::SLIOWriterLocalStorage(SLstring path)
+SLIOWriterLocalStorage::SLIOWriterLocalStorage(std::string path)
   : SLIOWriterMemory(path)
 {
 }

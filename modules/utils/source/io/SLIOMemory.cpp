@@ -14,29 +14,29 @@
 #    include <unordered_map>
 #    include <vector>
 //-----------------------------------------------------------------------------
-std::unordered_map<SLstring, std::vector<char>> memoryFiles;
+std::unordered_map<std::string, std::vector<char>> memoryFiles;
 //-----------------------------------------------------------------------------
-bool SLIOMemory::exists(SLstring path)
+bool SLIOMemory::exists(std::string path)
 {
     return memoryFiles.count(path);
 }
 //-----------------------------------------------------------------------------
-std::vector<char>& SLIOMemory::get(SLstring path)
+std::vector<char>& SLIOMemory::get(std::string path)
 {
     return memoryFiles[path];
 }
 //-----------------------------------------------------------------------------
-void SLIOMemory::set(SLstring path, const std::vector<char>& data)
+void SLIOMemory::set(std::string path, const std::vector<char>& data)
 {
     memoryFiles[path] = data;
 }
 //-----------------------------------------------------------------------------
-void SLIOMemory::clear(SLstring path)
+void SLIOMemory::clear(std::string path)
 {
     memoryFiles.erase(path);
 }
 //-----------------------------------------------------------------------------
-SLIOReaderMemory::SLIOReaderMemory(SLstring path)
+SLIOReaderMemory::SLIOReaderMemory(std::string path)
   : _path(path)
 {
 }
@@ -78,7 +78,7 @@ size_t SLIOReaderMemory::size()
     return memoryFiles[_path].size();
 }
 //-----------------------------------------------------------------------------
-SLIOWriterMemory::SLIOWriterMemory(SLstring path)
+SLIOWriterMemory::SLIOWriterMemory(std::string path)
   : _path(path),
     _position(0)
 {

@@ -18,7 +18,7 @@
 //! Collection of functions for accessing browser local storage
 namespace SLIOLocalStorage
 {
-bool exists(SLstring path);
+bool exists(std::string path);
 }
 //-----------------------------------------------------------------------------
 //! SLIOStream implementation for reading from browser local storage
@@ -29,7 +29,7 @@ bool exists(SLstring path);
 class SLIOReaderLocalStorage : public SLIOReaderMemory
 {
 public:
-    SLIOReaderLocalStorage(SLstring path);
+    SLIOReaderLocalStorage(std::string path);
     ~SLIOReaderLocalStorage();
 };
 //-----------------------------------------------------------------------------
@@ -41,7 +41,7 @@ public:
 class SLIOWriterLocalStorage : public SLIOWriterMemory
 {
 public:
-    SLIOWriterLocalStorage(SLstring path);
+    SLIOWriterLocalStorage(std::string path);
     void flush();
 };
 //-----------------------------------------------------------------------------

@@ -13,7 +13,7 @@
 
 #ifdef SL_STORAGE_WEB
 //-----------------------------------------------------------------------------
-SLIOWriterBrowserPopup::SLIOWriterBrowserPopup(SLstring path)
+SLIOWriterBrowserPopup::SLIOWriterBrowserPopup(std::string path)
   : SLIOWriterMemory(path)
 {
     assert(Utils::endsWithString(path, ".png") && "SLIOWriteBrowserDisplay only supports PNG files");
@@ -30,7 +30,7 @@ void SLIOWriterBrowserPopup::flush()
     const char*        data   = buffer.data();
     size_t             length = buffer.size();
 
-    SLstring filename = Utils::getFileName(_path);
+    std::string filename = Utils::getFileName(_path);
 
     // clang-format off
     MAIN_THREAD_EM_ASM({

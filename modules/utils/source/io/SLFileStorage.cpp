@@ -31,7 +31,7 @@
  * @param mode Mode to open the stream in
  * @return Opened stream ready for I/O
  */
-SLIOStream* SLFileStorage::open(SLstring       path,
+SLIOStream* SLFileStorage::open(std::string    path,
                                 SLIOStreamKind kind,
                                 SLIOStreamMode mode)
 {
@@ -115,7 +115,7 @@ void SLFileStorage::close(SLIOStream* stream)
  * @param kind Kind of file
  * @return True if the file exists
  */
-bool SLFileStorage::exists(SLstring path, SLIOStreamKind kind)
+bool SLFileStorage::exists(std::string path, SLIOStreamKind kind)
 {
 #if defined(SL_STORAGE_FS)
     return Utils::fileExists(path);
@@ -142,7 +142,7 @@ bool SLFileStorage::exists(SLstring path, SLIOStreamKind kind)
  * @param kind Kind of the file to read
  * @return Buffer holding the file contents and size
  */
-SLIOBuffer SLFileStorage::readIntoBuffer(SLstring path, SLIOStreamKind kind)
+SLIOBuffer SLFileStorage::readIntoBuffer(std::string path, SLIOStreamKind kind)
 {
     SLIOStream*    stream = open(path, kind, IOM_read);
     size_t         size   = stream->size();
@@ -174,11 +174,11 @@ void SLFileStorage::deleteBuffer(SLIOBuffer& buffer)
  * @param kind Kind of the file to read
  * @return String containing the contents of the file
  */
-SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
+std::string SLFileStorage::readIntoString(std::string path, SLIOStreamKind kind)
 {
     SLIOStream* stream = open(path, kind, IOM_read);
     size_t      size   = stream->size();
-    SLstring    string;
+    std::string string;
     string.resize(size);
     stream->read((void*)string.data(), size);
     close(stream);
@@ -196,9 +196,9 @@ SLstring SLFileStorage::readIntoString(SLstring path, SLIOStreamKind kind)
  * @param kind The kind of the file to write to
  * @param string The string to write to the file
  */
-void SLFileStorage::writeString(SLstring        path,
-                                SLIOStreamKind  kind,
-                                const SLstring& string)
+void SLFileStorage::writeString(std::string        path,
+                                SLIOStreamKind     kind,
+                                const std::string& string)
 {
     SLIOStream* stream = open(path, kind, IOM_write);
     stream->write(string.c_str(), string.size());

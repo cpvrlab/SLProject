@@ -12,13 +12,13 @@
 
 #include <SLFileStorage.h>
 
-#ifndef SL_EMSCRIPTEN
+#ifdef SL_STORAGE_FS
 //! SLIOStream implementation for reading from native files
 //-----------------------------------------------------------------------------
 class SLIOReaderNative : public SLIOStream
 {
 public:
-    SLIOReaderNative(SLstring path);
+    SLIOReaderNative(std::string path);
     size_t read(void* buffer, size_t size);
     size_t tell();
     bool   seek(size_t offset, Origin origin);
@@ -32,7 +32,7 @@ private:
 class SLIOWriterNative : public SLIOStream
 {
 public:
-    SLIOWriterNative(SLstring path);
+    SLIOWriterNative(std::string path);
     size_t write(const void* buffer, size_t size);
     size_t tell();
     bool   seek(size_t offset, Origin origin);
