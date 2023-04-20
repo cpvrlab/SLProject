@@ -7,7 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef SL_HAS_MEDIAPIPE
+#ifdef SL_BUILD_WITH_MEDIAPIPE
 #include <CVTrackedMediaPipeHands.h>
 
 //-----------------------------------------------------------------------------

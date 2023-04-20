@@ -44,21 +44,6 @@ file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
         )
 
-########################
-# Define for Mediapipe #
-########################
-
-if (SL_BUILD_WITH_MEDIAPIPE)
-    message(STATUS "Build with Mediapipe")
-    set(DEFAULT_COMPILE_DEFINITIONS
-            ${DEFAULT_COMPILE_DEFINITIONS}
-            SL_HAS_MEDIAPIPE)
-else ()
-    message(STATUS "Build without Mediapipe")
-    unset(SL_HAS_MEDIAPIPE)
-endif ()
-
-
 #############################
 # Source files of SLProject #
 #############################

@@ -4005,7 +4005,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
-#ifdef SL_HAS_MEDIAPIPE
+#ifdef SL_BUILD_WITH_MEDIAPIPE
     else if (sceneID == SID_VideoTrackMediaPipeHandsMain) //.......................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
