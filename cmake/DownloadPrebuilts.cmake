@@ -1605,21 +1605,25 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     #########################
 
     set(MediaPipe_VERSION "v0.8.11")
-    set(MediaPipe_DIR ${PREBUILT_PATH}/andV8_mediapipe_${MediaPipe_VERSION})
+    set(MediaPipe_PREBUILT_DIR "andV8_mediapipe_${MediaPipe_VERSION}")
+    set(MediaPipe_DIR ${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR})
     set(MediaPipe_INCLUDE_DIR ${MediaPipe_DIR}/include)
-    set(MediaPipe_LINK_DIR ${MediaPipe_DIR}/lib)
+
+    download_lib(${MediaPipe_PREBUILT_DIR})
 
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
         PROPERTIES
-        IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libmediapipe.so"
+        IMPORTED_LOCATION_RELEASE "${MediaPipe_DIR}/release/libmediapipe.so"
+        IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/libmediapipe.so"
         INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DUR}"
     ) 
 
     add_library(MediaPipe::OpenCV_Java4 SHARED IMPORTED)
     set_target_properties(MediaPipe::OpenCV_Java4
         PROPERTIES
-        IMPORTED_LOCATION "${MediaPipe_LINK_DIR}/libopencv_java4.so"
+        IMPORTED_LOCATION_RELEASE "${MediaPipe_DIR}/release/libopencv_java4.so"
+        IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/libopencv_java4.so"
     )
 
     set(MediaPipe_LIBS MediaPipe::MediaPipe MediaPipe::OpenCV_Java4)
