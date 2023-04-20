@@ -44,7 +44,7 @@ public:
         _values.clear();
         _values.resize(numValues, initValue);
         _oneOverNumValues  = 1.0f / (float)_values.size();
-        _sum               = initValue * numValues;
+        _sum               = (T)(initValue * numValues);
         _average           = initValue;
         _currentValueIndex = 0;
     }

@@ -92,7 +92,7 @@ int Bezier(const char* label, float P[5], float StaEnd[4]) {
       if (i == 1 || i == 9 || i == 17)
         ImGui::Separator();
       if (ImGui::MenuItem(presets[i].name, NULL, P[4] == i)) {
-        P[4] = i;
+        P[4] = (float)i;
         reload = 1;
       }
     }
@@ -154,12 +154,12 @@ int Bezier(const char* label, float P[5], float StaEnd[4]) {
               Style.FrameRounding);
 
   // background grid
-  for (int i = 0; i <= Canvas.x; i += (Canvas.x / 4)) {
+  for (int i = 0; i <= Canvas.x; i += (int)(Canvas.x / 4.0f)) {
     DrawList->AddLine(ImVec2(bb.Min.x + i, bb.Min.y),
                       ImVec2(bb.Min.x + i, bb.Max.y),
                       GetColorU32(ImGuiCol_TextDisabled));
   }
-  for (int i = 0; i <= Canvas.y; i += (Canvas.y / 4)) {
+  for (int i = 0; i <= Canvas.y; i += (int)(Canvas.y / 4.0f)) {
     DrawList->AddLine(ImVec2(bb.Min.x, bb.Min.y + i),
                       ImVec2(bb.Max.x, bb.Min.y + i),
                       GetColorU32(ImGuiCol_TextDisabled));
@@ -191,7 +191,7 @@ int Bezier(const char* label, float P[5], float StaEnd[4]) {
       SetTooltip("(%4.3f, %4.3f)", P[selected * 2 + 0], P[selected * 2 + 1]);
 
       if (/*hovered &&*/ (IsMouseClicked(0) || IsMouseDragging(0))) {
-        float canvasScale = 1.0 / ImGui::GetFontSize();
+        float canvasScale = 1.0f / ImGui::GetFontSize();
         float& px = (P[selected * 2 + 0] +=
                      GetIO().MouseDelta.x / (Canvas.x * canvasScale));
         float& py = (P[selected * 2 + 1] -=
