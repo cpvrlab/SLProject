@@ -62,3 +62,15 @@ target_link_libraries(
 #
 include(CopyResourcesAppDemoSLProject)
 copy_resources_slprojectdemo("${CMAKE_CURRENT_LIST_DIR}/src/main/assets/data")
+
+file(GLOB_RECURSE
+    MEDIAPIPE_ASSETS
+    ${SL_PROJECT_ROOT}/data/mediapipe/*.tflite
+    ${SL_PROJECT_ROOT}/data/mediapipe/*.txt
+)
+
+foreach (ASSET_PATH ${MEDIAPIPE_ASSETS})
+    get_filename_component(ASSET_FILENAME "${ASSET_PATH}" NAME)
+    message(STATUS "${TARGET_DIR}/${ASSET_FILENAME}")
+    file(COPY "${ASSET_PATH}" DESTINATION "${CMAKE_CURRENT_LIST_DIR}/src/main/assets")
+endforeach ()

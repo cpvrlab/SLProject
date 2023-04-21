@@ -30,7 +30,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/Particle*.png
 			${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
 			${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
-			${SL_PROJECT_ROOT}/data/images/textures/Testmap_1024_C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/Testmap_1024_*.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/TexNotFound.png
 			${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png
@@ -39,6 +39,9 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/gold-scuffed*.png
 			${SL_PROJECT_ROOT}/data/images/textures/env_barce_rooftop.hdr
+			${SL_PROJECT_ROOT}/data/mediapipe/*.binarypb
+			${SL_PROJECT_ROOT}/data/mediapipe/*.tflite
+			${SL_PROJECT_ROOT}/data/mediapipe/*.txt
 	    )
 
 	file(GLOB_RECURSE 
@@ -115,7 +118,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 		
 	foreach(FILE_TO_COPY ${RESOURCES})
 		get_filename_component(PATH_TO_COPY ${FILE_TO_COPY} DIRECTORY)
-		file(COPY "${SL_PROJECT_DATA_ROOT}/${FILE_TO_COPY}" DESTINATION "${TARGET_DIR}/${PATH_TO_COPY}")	
-	endforeach()	
+		file(COPY "${SL_PROJECT_DATA_ROOT}/${FILE_TO_COPY}" DESTINATION "${TARGET_DIR}/${PATH_TO_COPY}")
+	endforeach()
 
 endfunction(copy_resources_slprojectdemo)
