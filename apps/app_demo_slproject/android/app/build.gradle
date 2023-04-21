@@ -22,6 +22,7 @@ android {
         }
         externalNativeBuild {
             cmake {
+                version "3.3"
                 cppFlags "-frtti -fexceptions -std=c++14 -w -Wno-error=format-security"
                 arguments "-DANDROID_STL=c++_shared", "-DSL_GUI_JAVA=true", "-DAPP_USES_GLES=true", "-DSL_BUILD_WAI=ON", "-DSL_BUILD_WITH_MEDIAPIPE=ON"
             }
@@ -57,6 +58,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
+    ndkVersion '21.4.7075529'
 }
 
 dependencies {
