@@ -10,7 +10,7 @@
 #ifndef SLGLTEXTUREGENERATED_H
 #define SLGLTEXTUREGENERATED_H
 
-#include <cv/CVImage.h>
+#include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>

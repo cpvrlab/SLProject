@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <cv/CVImage.h> // for image loading
+#include <CVImage.h> // for image loading
 #include <glUtils.h>
 #include <Utils.h>
 

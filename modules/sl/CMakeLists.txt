@@ -93,38 +93,6 @@ file(GLOB sources
         source/animation/SLAnimTrack.h
         source/animation/SLAnimation.cpp
         source/animation/SLAnimation.h
-        source/cv/CVCalibration.cpp
-        source/cv/CVCalibration.h
-        source/cv/CVCalibrationEstimator.cpp
-        source/cv/CVCalibrationEstimator.h
-        source/cv/CVCamera.cpp
-        source/cv/CVCamera.h
-        source/cv/CVFeatureManager.cpp
-        source/cv/CVFeatureManager.h
-        source/cv/CVImage.cpp
-        source/cv/CVImage.h
-        source/cv/CVImageGeoTiff.cpp
-        source/cv/CVImageGeoTiff.h
-        source/cv/CVRaulMurExtNode.cpp
-        source/cv/CVRaulMurExtNode.h
-        source/cv/CVRaulMurOrb.cpp
-        source/cv/CVRaulMurOrb.h
-        source/cv/CVTracked.cpp
-        source/cv/CVTracked.h
-        source/cv/CVTrackedAruco.cpp
-        source/cv/CVTrackedAruco.h
-        source/cv/CVTrackedArucoCube.h
-        source/cv/CVTrackedArucoCube.cpp
-        source/cv/CVTrackedChessboard.cpp
-        source/cv/CVTrackedChessboard.h
-        source/cv/CVTrackedFaces.cpp
-        source/cv/CVTrackedFaces.h
-        source/cv/CVTrackedFeatures.cpp
-        source/cv/CVTrackedFeatures.h
-        source/cv/CVTrackedMediaPipeHands.cpp
-        source/cv/CVTrackedMediaPipeHands.h
-        source/cv/CVTypedefs.h
-        source/cv/CVTypes.h
         source/gl/SLGLDepthBuffer.cpp
         source/gl/SLGLDepthBuffer.h
         source/gl/SLGLEnums.h
@@ -266,14 +234,6 @@ file(GLOB sources
         externals/stb/stb_image.h
         )
 
-if (SL_BUILD_WAI)
-    set(sources
-            ${sources}
-            source/cv/CVTrackedWAI.cpp
-            source/cv/CVTrackedWAI.h
-            )
-endif ()
-
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
@@ -381,7 +341,6 @@ target_include_directories(${target}
         ${platform_specific_include_dirs}
         ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
         ${SL_PROJECT_ROOT}/modules/sl/source/animation
-        ${SL_PROJECT_ROOT}/modules/sl/source/cv
         ${SL_PROJECT_ROOT}/modules/sl/source/gl
         ${SL_PROJECT_ROOT}/modules/sl/source/input
         ${SL_PROJECT_ROOT}/modules/sl/source/io
@@ -394,12 +353,10 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/modules/sl/cuda
         ${SL_PROJECT_ROOT}/modules/math/source
         ${SL_PROJECT_ROOT}/modules/sl/externals/stb/
-        ${OpenCV_INCLUDE_DIR}
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
         ${assimp_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/externals/nlohmann
         ${SL_PROJECT_ROOT}/externals/eigen
         ${SL_PROJECT_ROOT}/externals/libigl/include
         ${DEFAULT_INCLUDE_DIRECTORIES}
@@ -443,7 +400,6 @@ target_link_libraries(${target}
 
         PUBLIC
         ${PlatformLinkLibs}
-        ${OpenCV_LIBS}
         ${CUDA_LIBRARIES}
         ${CUDA_CUDA_LIBRARY}
         ${optix_LIBRARY}
@@ -451,6 +407,7 @@ target_link_libraries(${target}
         ${assimp_LIBS}
         lib-Utils
         lib-SLMath
+        slproject_cv
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
 

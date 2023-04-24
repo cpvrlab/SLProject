@@ -10,7 +10,7 @@
 
 #include <SLGLState.h>
 #include <SLMaterial.h>
-#include <cv/CVImage.h>
+#include <CVImage.h>
 #ifdef SL_OS_ANDROID
 #    include <android/log.h>
 #endif

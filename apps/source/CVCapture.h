@@ -21,11 +21,11 @@ for a good top down information.
 */
 
 #include <SL.h>
-#include <cv/CVTypedefs.h>
-#include <cv/CVImage.h>
+#include <CVTypedefs.h>
+#include <CVImage.h>
 #include <Averaged.h>
 #include <opencv2/opencv.hpp>
-#include <cv/CVCamera.h>
+#include <CVCamera.h>
 #include <HighResTimer.h>
 
 #ifdef SL_EMSCRIPTEN

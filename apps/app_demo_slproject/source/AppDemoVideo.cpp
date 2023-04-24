@@ -10,10 +10,10 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
-#include <cv/CVTracked.h>
-#include <cv/CVTrackedAruco.h>
+#include <CVTracked.h>
+#include <CVTrackedAruco.h>
 #include <SLGLTexture.h>
-#include <cv/CVCalibrationEstimator.h>
+#include <CVCalibrationEstimator.h>
 #include <AppDemoSceneView.h>
 #include <AppDemo.h>
 #include <GlobalTimer.h>

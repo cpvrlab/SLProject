@@ -21,7 +21,7 @@
 #include <chrono>
 #include <Utils.h>
 #include <SL.h>         // Basic SL type definitions
-#include <cv/CVImage.h> // Image class for image loading
+#include <CVImage.h> // Image class for image loading
 
 #define IS_DEBUGMODE_ON true
 

@@ -10,7 +10,7 @@
 #ifndef SLAPPLICATION_H
 #define SLAPPLICATION_H
 
-#include <cv/CVTypes.h>
+#include <CVTypes.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>

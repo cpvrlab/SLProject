@@ -13,8 +13,8 @@
 #include <SL.h>
 
 #include <CVCapture.h>
-#include <cv/CVImage.h>
-#include <cv/CVTrackedFeatures.h>
+#include <CVImage.h>
+#include <CVTrackedFeatures.h>
 #include <SLAssetManager.h>
 #include <SLAnimPlayback.h>
 #include <SLGLDepthBuffer.h>

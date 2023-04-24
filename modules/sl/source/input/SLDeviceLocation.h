@@ -15,7 +15,7 @@
 #include <SLLightDirect.h>
 #include <SLAlgo.h>
 #include <HighResTimer.h>
-#include <cv/CVImageGeoTiff.h>
+#include <CVImageGeoTiff.h>
 
 class SLNode;
 

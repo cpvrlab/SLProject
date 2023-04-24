@@ -11,12 +11,12 @@
 #include <GlobalTimer.h>
 
 #include <CVCapture.h>
-#include <cv/CVTrackedAruco.h>
-#include <cv/CVTrackedChessboard.h>
-#include <cv/CVTrackedFaces.h>
-#include <cv/CVTrackedFeatures.h>
-#include <cv/CVTrackedMediaPipeHands.h>
-#include <cv/CVCalibrationEstimator.h>
+#include <CVTrackedAruco.h>
+#include <CVTrackedChessboard.h>
+#include <CVTrackedFaces.h>
+#include <CVTrackedFeatures.h>
+#include <CVTrackedMediaPipeHands.h>
+#include <CVCalibrationEstimator.h>
 
 #include <SLAlgo.h>
 #include <AppDemo.h>

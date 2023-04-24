@@ -11,7 +11,7 @@
 #define SLGLTEXTURE_H
 
 #include <SLObject.h>
-#include <cv/CVImage.h>
+#include <CVImage.h>
 #include <SLGLVertexArray.h>
 #include <SLMat4.h>
 #include <atomic>
