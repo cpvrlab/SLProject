@@ -29,7 +29,7 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
     PRIVATE
     ${PlatformLinkLibs}
-    lib-Utils
+    sl_utils
     PUBLIC
     INTERFACE
     )

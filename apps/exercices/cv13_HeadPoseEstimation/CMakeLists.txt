@@ -21,14 +21,6 @@ set_target_properties(${target}
         FOLDER "apps/exercices"
         )
 
-target_include_directories(${target}
-        PRIVATE
-        ${OpenCV_INCLUDE_DIR}
-        ${glfw_INCLUDE_DIR}
-        PUBLIC
-        INTERFACE
-        )
-
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 target_link_libraries(${target}
