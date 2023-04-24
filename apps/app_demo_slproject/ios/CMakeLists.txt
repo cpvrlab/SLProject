@@ -151,7 +151,6 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/modules/sl/source
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
         ${SL_PROJECT_ROOT}/modules/sl/externals/imgui
         ${SL_PROJECT_ROOT}/modules/sl/externals/spa
         ${SL_PROJECT_ROOT}/modules/utils/externals/dirent
@@ -165,12 +164,13 @@ target_include_directories(
 
 target_link_libraries(
         ${target}
-        #PRIVATE
-		PUBLIC
-        lib-SLProject
+        PRIVATE
+		
+        PUBLIC
+        sl
         ${PlatformLinkLibs}
-        lib-SLExternal
-        lib-Utils
+        sl_external
+        sl_utils
         ${OpenCV_LIBS}
 
 		${AVFOUNDATION}

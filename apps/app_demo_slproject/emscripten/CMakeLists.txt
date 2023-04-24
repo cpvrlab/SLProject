@@ -53,10 +53,10 @@ target_include_directories(
 target_link_libraries(
         ${target}
         PRIVATE
-        lib-SLProject
+        sl
         ${PlatformLinkLibs}
-        lib-SLExternal
-        lib-Utils
+        sl_external
+        sl_utils
         ${OpenCV_LIBS}
         ${glfw_LIBS}
         PUBLIC

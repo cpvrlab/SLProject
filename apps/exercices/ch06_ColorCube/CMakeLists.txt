@@ -10,13 +10,11 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.h
         ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVTypedefs.h
-        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.h
         )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.cpp
         ${SL_PROJECT_ROOT}/modules/sl/source/sl/SL.cpp
-        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
         )
 
@@ -60,8 +58,8 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
         PRIVATE
         ${PlatformLinkLibs}
-        lib-SLExternal
-        lib-Utils
+        sl
+        sl_utils
         ${OpenCV_LIBS}
         ${glfw_LIBS}
         PUBLIC

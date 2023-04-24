@@ -20,10 +20,10 @@ endif()
 add_subdirectory(tests)
 
 #
-# CMake configuration for lib-Utils
+# CMake configuration for libsl_utils
 #
 
-set(target lib-Utils)
+set(target sl_utils)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")

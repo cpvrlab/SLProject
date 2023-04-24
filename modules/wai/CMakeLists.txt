@@ -137,7 +137,7 @@ target_link_libraries(${target}
     ${META_PROJECT_NAME}::lib-DBoW2
     ${META_PROJECT_NAME}::lib-Utils
     ${META_PROJECT_NAME}::lib-DUtils
-    lib-SLMath
+    sl_math
 
     INTERFACE
     )

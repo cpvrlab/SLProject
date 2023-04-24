@@ -1,4 +1,8 @@
-set(TARGET slproject_cv)
+#
+# CMake configuration for libsl_cv
+#
+
+set(TARGET sl_cv)
 
 file(GLOB SOURCES
         source/CVCalibration.cpp
@@ -40,7 +44,6 @@ if (SL_BUILD_WAI)
             source/CVTrackedWAI.h)
 endif ()
 
-message(${SOURCES})
 add_library(${TARGET} ${SOURCES})
 
 target_include_directories(${TARGET} PUBLIC
@@ -49,11 +52,11 @@ target_include_directories(${TARGET} PUBLIC
 
 target_link_libraries(${TARGET} PUBLIC
     ${OpenCV_LIBS}
-    lib-Utils
-    lib-SLMath)
+    sl_math
+    sl_utils)
 
 if (SL_BUILD_WAI)
-    target_link_libraries(${TARGET} PUBLIC ${META_PROJECT_NAME}::lib-WAI)
+    target_link_libraries(${TARGET} PUBLIC sl_wai)
 endif ()
 
 if (SL_BUILD_WITH_MEDIAPIPE)

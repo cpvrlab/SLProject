@@ -1,11 +1,11 @@
 #
-# CMake configuration for lib-SLProject
+# CMake configuration for libsl
 #
 
 #add_compile_options("-w")
 add_subdirectory(externals)
 
-set(target lib-SLProject)
+set(target sl)
 
 set(platform_specific_include_dirs)
 
@@ -390,11 +390,11 @@ target_link_libraries(${target}
         ${CUDA_LIBRARIES}
         ${CUDA_CUDA_LIBRARY}
         ${optix_LIBRARY}
-        ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
-        lib-Utils
-        lib-SLMath
-        slproject_cv
+        sl_math
+        sl_cv
+        sl_utils
+        sl_external
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
 

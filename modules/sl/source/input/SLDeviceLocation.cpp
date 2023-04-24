@@ -258,7 +258,7 @@ void SLDeviceLocation::isUsed(SLbool use)
 //! Calculates the solar angles at origin at local time
 /*! Calculates the zenith and azimuth angle in deg. of the sun at the origin at
  the local time using the Solar Position Algorithm from:
- https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
+ https://midcdmz.nrel.gov/spa/ that is part of libsl_external.
 */
 SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
                                               std::time_t time)

@@ -1,8 +1,8 @@
 #
-# CMake configuration for lib-SLMath
+# CMake configuration for sl_math
 #
 
-set(target lib-SLMath)
+set(target sl_math)
 
 file(GLOB headers
         source/SLAlgo.h
@@ -85,8 +85,8 @@ target_link_libraries(${target}
 
         PUBLIC
         ${PlatformLinkLibs}
-        ${META_PROJECT_NAME}::lib-SLExternal
-        lib-Utils
+        sl_external
+        sl_utils
         ${DEFAULT_LINKER_OPTIONS}
 
         INTERFACE

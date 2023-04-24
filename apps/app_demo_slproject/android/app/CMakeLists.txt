@@ -39,12 +39,9 @@ target_include_directories(
     ${SL_PROJECT_ROOT}/apps/source
     ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${SL_PROJECT_ROOT}/modules/sl/source
-    ${SL_PROJECT_ROOT}/externals/lib-SLExternal
     ${SL_PROJECT_ROOT}/modules/sl/externals/imgui
     ${SL_PROJECT_ROOT}/modules/sl/externals/spa
     ${SL_PROJECT_ROOT}/modules/utils/externals/zlib
-    ${OpenCV_INCLUDE_DIR}
-    ${assimp_INCLUDE_DIR}
     ${DEFAULT_INCLUDE_DIRECTORIES}
     )
 
@@ -53,7 +50,7 @@ target_link_libraries(
     ${DEFAULT_LIBRARIES}
     libc++_shared.so
     ${OpenCV_LIBS}
-    ${META_PROJECT_NAME}::lib-SLProject
+    ${META_PROJECT_NAME}::sl
     z
     )
 

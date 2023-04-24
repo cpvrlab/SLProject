@@ -61,9 +61,9 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
         PRIVATE
         ${PlatformLinkLibs}
-        lib-SLExternal
-        lib-Utils
-        lib-SLMath
+        sl_external
+        sl_utils
+        sl_math
         ${OpenCV_LIBS}
         ${glfw_LIBS}
         PUBLIC

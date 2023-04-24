@@ -53,7 +53,7 @@ include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 target_link_libraries(${target}
         PRIVATE
         ${PlatformLinkLibs}
-        lib-SLExternal
+        sl_external
         ${glfw_LIBS}
         PUBLIC
         INTERFACE

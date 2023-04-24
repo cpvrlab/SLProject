@@ -1,8 +1,8 @@
 # 
-# CMake configuration for lib-SLExternal
+# CMake configuration for libsl_external
 #
 
-set(target lib-SLExternal)
+set(target sl_external)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path  "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -25,7 +25,7 @@ set(sources
         ${include_path}/imgui/imgui.cpp
         ${include_path}/imgui/imgui_demo.cpp
         ${include_path}/imgui/imgui_draw.cpp
-		${include_path}/imgui/imgui_tables.cpp
+        ${include_path}/imgui/imgui_tables.cpp
         ${include_path}/imgui/imgui_widgets.cpp
         ${include_path}/imgui-addons/bezier.cpp
         ${include_path}/imgui-addons/imgui_color_gradient.cpp
