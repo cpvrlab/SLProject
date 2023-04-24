@@ -82,7 +82,7 @@ function(download_lib LIB_NAME)
             # Lock the zip so only one CMake process downloads it
             # CLion for example runs one CMake process for every configuration in parallel,
             # which leads to file writing errors when all processes try to write the file simultaneously.
-            file(TOUCH "${LIB_LOCK_PATH}")
+            file(WRITE "${LIB_LOCK_PATH}" "")
 
             message(STATUS "Downloading ${LIB_ZIP}")
             file(DOWNLOAD "${PREBUILT_URL}/${LIB_ZIP}" "${PREBUILT_PATH}/${LIB_ZIP}")
@@ -1027,17 +1027,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     #set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")   #don't forget to add the this link dir down at the bottom
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${OpenCV_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-    endif ()
 
     set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
@@ -1076,43 +1067,33 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     endif ()
 
     foreach (lib ${OpenCV_LINK_LIBS})
-        add_library(lib_${lib} STATIC IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                lib_${lib})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+            IMPORTED_LOCATION "${OpenCV_LINK_DIR}/lib${lib}.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIR}")
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
 
-    set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+    download_lib("${OpenCV_PREBUILT_DIR}")
 
     ###################
     # g2o for Android #
     ###################
 
     set(g2o_PREBUILT_DIR "andV8_g2o")
-    set(g2o_DIR ${PREBUILT_PATH}/andV8_g2o)
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})   #don't forget to add the this link dir down at the bottom
-    set(g2o_PREBUILT_ZIP "${g2o_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${g2o_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
+    set(g2o_LINK_DIR "${g2o_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")
 
     foreach (lib ${g2o_LINK_LIBS})
-        add_library(lib_${lib} SHARED IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
                 IMPORTED_LOCATION "${g2o_LINK_DIR}/lib${lib}.so"
-                )
-        set(g2o_LIBS
-                ${g2o_LIBS}
-                lib_${lib}
-                )
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib("${g2o_PREBUILT_DIR}")
 
     ######################
     # assimp for Android #
@@ -1120,38 +1101,17 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
 
     set(assimp_VERSION "v5.0.0")
     set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
-    set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
-    set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/Release/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    set(assimp_LINK_DIR "${assimp_DIR}/Release/${ANDROID_ABI}")
 
-    if (NOT EXISTS "${assimp_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-    endif ()
-
-    #foreach(lib ${assimp_LINK_LIBS})
-    #add_library(lib_${lib} STATIC IMPORTED)
-    ##set_target_properties(lib_${lib} PROPERTIES
-    #    IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
-    #)
-    #set(assimp_LIBS
-    #    ${assimp_LIBS}
-    #    lib_${lib}
-    #)
-    #endforeach(lib)
     add_library(ASSIMP::assimp SHARED IMPORTED)
     set_target_properties(ASSIMP::assimp PROPERTIES
             IMPORTED_LOCATION "${assimp_LINK_DIR}/libassimp.so"
-            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
-            )
-    set(assimp_LIBS
-            ${assimp_LIBS}
-            ASSIMP::assimp
-            )
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+    set(assimp_LIBS ${assimp_LIBS} ASSIMP::assimp)
+
+    download_lib("${assimp_PREBUILT_DIR}")
 
     #######################
     # openssl for Android #
@@ -1159,58 +1119,41 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
 
     set(openssl_VERSION "1.1.1h")
     set(openssl_PREBUILT_DIR "andV8_openssl_${openssl_VERSION}")
-    set(openssl_DIR ${PREBUILT_PATH}/${openssl_PREBUILT_DIR})
-    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "andV8_openssl_${openssl_VERSION}.zip")
-    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${openssl_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
-
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
+    set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
+    set(openssl_LINK_DIR "${openssl_DIR}/lib")
 
     add_library(crypto STATIC IMPORTED)
-    add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
             IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
-            )
+            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+    
+    add_library(ssl STATIC IMPORTED)
     set_target_properties(ssl PROPERTIES
             IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
-            )
+            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+    
     set(openssl_LIBS ssl crypto)
 
-    ########################
-    # ktx for Android      #
-    ########################
-    set(ktx_VERSION "v4.0.0-beta7-cpvr")
-    set(ktx_DIR ${PREBUILT_PATH}/andV8_ktx_${ktx_VERSION})
-    set(ktx_PREBUILT_ZIP "andV8_ktx_${ktx_VERSION}.zip")
-    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+    download_lib("${openssl_PREBUILT_DIR}")
 
-    if (NOT EXISTS "${ktx_DIR}")
-        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
-        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif ()
+    ###################
+    # KTX for Android #
+    ###################
+
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_PREBUILT_DIR "andV8_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.so"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
-
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include")
     set(ktx_LIBS KTX::ktx)
+
+    download_lib("${ktx_PREBUILT_DIR}")
 
     #########################
     # MediaPipe for Android #
@@ -1240,6 +1183,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #----------------------------
     set(MediaPipe_LIBS MediaPipe::MediaPipe MediaPipe::OpenCV_Java4)
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
+    
     #########################
     # OpenCV for Emscripten #
     #########################
