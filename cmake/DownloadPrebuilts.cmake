@@ -577,7 +577,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(glfw_VERSION "3.3.2")
     set(glfw_PREBUILT_DIR "mac64_glfw_${glfw_VERSION}")
     set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
-    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
+    set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
 
     add_library(glfw SHARED IMPORTED)
     set_target_properties(glfw PROPERTIES
@@ -594,14 +594,15 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     set(ktx_VERSION "v4.0.0-beta7-cpvr")
     set(ktx_PREBUILT_DIR "mac64_ktx_${ktx_VERSION}")
-    set(ktx_DIR "${PREBUILT_PATH}/mac64_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    set(ktx_INCLUDE_DIR "${ktx_DIR}/include")
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
             IMPORTED_LOCATION "${ktx_DIR}/release/libktx.dylib"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include")
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}")
     set(ktx_LIBS KTX::ktx)
 
     download_lib("${ktx_PREBUILT_DIR}")
@@ -634,16 +635,17 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(MediaPipe_VERSION "v0.8.11")
     set(MediaPipe_PREBUILT_DIR "mac64_mediapipe_${MediaPipe_VERSION}")
     set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
+    set(MediaPipe_INCLUDE_DIR "${MediaPipe_DIR}/include")
 
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
             IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
-            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DIR}")
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
-    #download_lib("${MediaPipe_PREBUILT_DIR}")
-    #copy_dylibs("${MediaPipe_LIBS}")
+    download_lib("${MediaPipe_PREBUILT_DIR}")
+    copy_dylibs("${MediaPipe_LIBS}")
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64") #-----------------------------------------------------------------
@@ -656,58 +658,27 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     # OpenCV for MacOS-arm64 #
     ##########################
 
-    # Now download for MacOS-arm64
     set(OpenCV_VERSION "4.7.0")
-    #set(OpenCV_VERSION "4.5.2")
     set(OpenCV_PREBUILT_DIR "macArm64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     # new include directory structure for opencv 4
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
     endif ()
 
-    if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-    endif ()
-
     foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${OpenCV_DIR}/release/lib${lib}.dylib"
                 IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.dylib"
-                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.dylib")
-
-        #message(STATUS ${lib})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                optimized ${lib}
-                debug ${lib})
+                INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIR}")
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
 
-    if (COPY_LIBS_TO_CONFIG_FOLDER)
-        file(GLOB OpenCV_LIBS_to_copy_debug
-                ${OpenCV_LIBS_to_copy_debug}
-                ${OpenCV_DIR}/Debug/libopencv_*.dylib
-                )
-        file(GLOB OpenCV_LIBS_to_copy_release
-                ${OpenCV_LIBS_to_copy_release}
-                ${OpenCV_DIR}/Release/libopencv_*.dylib
-                )
-
-        if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-            file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif ()
-    endif ()
+    download_lib("${OpenCV_PREBUILT_DIR}")
+    copy_dylibs("${OpenCV_LIBS}")
 
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
@@ -720,55 +691,24 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
     endif ()
 
-
     #######################
     # g2o for MacOS-arm64 #
     #######################
 
-    set(g2o_DIR ${PREBUILT_PATH}/macArm64_g2o)
-    set(g2o_PREBUILT_ZIP "macArm64_g2o.zip")
-    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR})
-
-    if (NOT EXISTS "${g2o_DIR}")
-        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
-
+    set(g2o_PREBUILT_DIR "macArm64_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
+    
     foreach (lib ${g2o_LINK_LIBS})
-        add_library(lib${lib} SHARED IMPORTED)
-        set_target_properties(lib${lib}
-                PROPERTIES
-                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.dylib"
-                IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.dylib")
-
-        set(g2o_LIBS
-                ${g2o_LIBS}
-                lib${lib}
-                )
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${g2o_DIR}/Debug/lib${lib}.dylib"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
     endforeach (lib)
 
-    if (COPY_TO_CONFIG_FOLDER)
-        file(GLOB g2o_LIBS_to_copy_debug
-                ${g2o_LIBS_to_copy_debug}
-                ${g2o_DIR}/Debug/lib${lib}.dylib
-                )
-        file(GLOB g2o_LIBS_to_copy_release
-                ${g2o_LIBS_to_copy_release}
-                ${g2o_DIR}/Release/lib${lib}.dylib
-                )
-
-        if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${g2o_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-            file(COPY ${g2o_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif ()
-    endif ()
+    download_lib("${g2o_PREBUILT_DIR}")
+    copy_dylibs("${g2o_LIBS}")
 
     ##########################
     # Assimp for MacOS-arm64 #
@@ -778,182 +718,94 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(assimp_PREBUILT_DIR "macArm64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${assimp_DIR}")
-        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-
-        if (NOT EXISTS "${assimp_DIR}")
-            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not exist!")
-        endif ()
-    endif ()
 
     foreach (lib ${assimp_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION ${assimp_DIR}/Release/lib${lib}.dylib
                 IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
-                IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib)
-
-        set(assimp_LIBS
-                ${assimp_LIBS}
-                ${lib})
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+        set(assimp_LIBS ${assimp_LIBS} ${lib})
     endforeach ()
 
-    if (COPY_LIBS_TO_CONFIG_FOLDER)
-        file(GLOB assimp_LIBS_to_copy_debug
-                ${assimp_LIBS_to_copy_debug}
-                ${assimp_DIR}/Debug/libassimp*d.dylib
-                ${assimp_DIR}/Debug/libIrrXMLd.dylib
-                )
-        file(GLOB assimp_LIBS_to_copy_release
-                ${assimp_LIBS_to_copy_release}
-                ${assimp_DIR}/Release/libassimp*.dylib
-                ${assimp_DIR}/Release/libIrrXML.dylib
-                )
-
-        if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-            file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-        endif ()
-    endif ()
+    download_lib("${assimp_PREBUILT_DIR}")
+    copy_dylibs("${assimp_LIBS}")
 
     ###########################
     # openssl for MacOS-arm64 #
     ###########################
 
     set(openssl_VERSION "1.1.1g")
-    set(openssl_DIR ${PREBUILT_PATH}/macArm64_openssl_${openssl_VERSION})
-    set(openssl_PREBUILT_ZIP "macArm64_openssl_${openssl_VERSION}.zip")
-    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${openssl_DIR}")
-        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
-        file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
-
-    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR})   #don't forget to add the this link dir down at the bottom
-    link_directories(${openssl_LINK_DIR})
+    set(openssl_PREBUILT_DIR "macArm64_openssl_${openssl_VERSION}")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
 
     foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
-                #we use Release libs for both configurations
-                IMPORTED_LOCATION_DEBUG "${openssl_LINK_DIR}/Release/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${openssl_LINK_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-                )
-
-        set(openssl_LIBS
-                ${openssl_LIBS}
-                ${lib}
-                )
+                IMPORTED_LOCATION "${openssl_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+        set(openssl_LIBS ${openssl_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib("${openssl_PREBUILT_DIR}")
 
     ########################
     # GLFW for MacOS-arm64 #
     ########################
 
     set(glfw_VERSION "3.3.2")
-    set(glfw_DIR ${PREBUILT_PATH}/macArm64_glfw_${glfw_VERSION})
-    set(glfw_PREBUILT_ZIP "macArm64_glfw_${glfw_VERSION}.zip")
-    set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
+    set(glfw_PREBUILT_DIR "macArm64_glfw_${glfw_VERSION}")
+    set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
+    set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
 
-    if (NOT EXISTS "${glfw_DIR}")
-        message(STATUS "Downloading: ${glfw_PREBUILT_ZIP}")
-        file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
-    endif ()
+    add_library(glfw SHARED IMPORTED)
+    set_target_properties(glfw PROPERTIES
+            IMPORTED_LOCATION "${glfw_DIR}/Release/libglfw.3.3.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}")
+    set(glfw_LIBS glfw)
 
-    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
-    set(glfw_LINK_DIR ${glfw_DIR})   #don't forget to add the this link dir down at the bottom
-
-    add_library(libglfw.3.3 SHARED IMPORTED)
-    set_target_properties(libglfw.3.3 PROPERTIES IMPORTED_LOCATION "${glfw_LINK_DIR}/Release/libglfw.3.3.dylib")
-    set(glfw_LIBS libglfw.3.3)
-
-    if (COPY_LIBS_TO_CONFIG_FOLDER)
-        if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${glfw_LINK_DIR}/Release/libglfw.3.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        endif ()
-    endif ()
-
+    download_lib("${glfw_PREBUILT_DIR}")
+    copy_dylibs("${glfw_LIBS}")
 
     #######################
-    # ktx for MacOS-arm64 #
+    # KTX for MacOS-arm64 #
     #######################
 
     set(ktx_VERSION "v4.0.0-beta7-cpvr")
-    set(ktx_DIR ${PREBUILT_PATH}/macArm64_ktx_${ktx_VERSION})
-    set(ktx_PREBUILT_ZIP "macArm64_ktx_${ktx_VERSION}.zip")
-    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${ktx_DIR}")
-        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
-        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif ()
+    set(ktx_PREBUILT_DIR "macArm64_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    set(ktx_INCLUDE_DIR "${ktx_DIR}/include")
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.dylib"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
-
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}")
     set(ktx_LIBS KTX::ktx)
+
+    download_lib("${ktx_PREBUILT_DIR}")
+    copy_dylibs("${ktx_LIBS}")
 
     #############################
     # MediaPipe for MacOS-arm64 #
     #############################
 
     set(MediaPipe_VERSION "v0.8.11")
-    set(MediaPipe_DIR ${PREBUILT_PATH}/macArm64_mediapipe_${MediaPipe_VERSION})
-    set(MediaPipe_PREBUILT_ZIP "macArm64_mediapipe_${MediaPipe_VERSION}.zip")
-    set(MediaPipe_URL ${PREBUILT_URL}/${MediaPipe_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${MediaPipe_DIR}")
-        message(STATUS "Downloading: ${MediaPipe_PREBUILT_ZIP}")
-        file(DOWNLOAD "${MediaPipe_URL}" "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${MediaPipe_PREBUILT_ZIP}")
-    endif ()
+    set(MediaPipe_PREBUILT_DIR "macArm64_mediapipe_${MediaPipe_VERSION}")
+    set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
+    set(MediaPipe_INCLUDE_DIR "${MediaPipe_DIR}/include")
 
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
             IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
-            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DIR}")
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
-    if (COPY_LIBS_TO_CONFIG_FOLDER)
-        if (${CMAKE_GENERATOR} STREQUAL Xcode)
-            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-            file(COPY ${MediaPipe_DIR}/lib/libmediapipe.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        endif ()
-    endif ()
+    download_lib("${MediaPipe_PREBUILT_DIR}")
+    copy_dylibs("${MediaPipe_LIBS}")
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #------------------------------------------------------------------------
 
