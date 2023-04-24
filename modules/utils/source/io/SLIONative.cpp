@@ -9,7 +9,7 @@
 
 #include <SLIONative.h>
 
-#ifndef SL_EMSCRIPTEN
+#ifdef SL_STORAGE_FS
 //-----------------------------------------------------------------------------
 SLIOReaderNative::SLIOReaderNative(std::string path)
   : _stream(path, std::ios::binary)

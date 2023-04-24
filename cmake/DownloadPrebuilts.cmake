@@ -1199,6 +1199,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
         set(OpenCV_INCLUDE_DIR "${OpenCV_INCLUDE_DIR}/opencv4")
     endif ()
 
+    # some OpenCV modules cannot be built for Emscripten
     list(REMOVE_ITEM OpenCV_LINK_LIBS
             "opencv_aruco"
             "opencv_face"
@@ -1207,7 +1208,13 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
             "opencv_videoio"
             "opencv_xfeatures2d")
 
-    set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
+    foreach (lib ${OpenCV_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+            IMPORTED_LOCATION "${OpenCV_LINK_DIR}/lib${lib}.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIR}")
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
+    endforeach (lib)
 
     download_lib(${OpenCV_PREBUILT_DIR})
 
@@ -1219,25 +1226,31 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     set(assimp_PREBUILT_DIR "emscripten_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_LINK_DIR "${assimp_DIR}/lib")
-    set(assimp_LIBS ${assimp_LINK_LIBS})
+
+    foreach (lib ${assimp_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${assimp_DIR}/lib/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+        set(assimp_LIBS ${assimp_LIBS} ${lib})
+    endforeach ()
 
     download_lib(${assimp_PREBUILT_DIR})
 
     ######################
-    # ktx for Emscripten #
+    # KTX for Emscripten #
     ######################
 
     set(ktx_VERSION "v4.0.0-beta7")
     set(ktx_PREBUILT_DIR "emscripten_ktx_${ktx_VERSION}")
     set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    set(ktx_INCLUDE_DIR "${ktx_DIR}/include")
+
     add_library(KTX::ktx STATIC IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
             IMPORTED_LOCATION "${ktx_DIR}/release/libktx.a"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
-
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}")
     set(ktx_LIBS KTX::ktx)
 
     download_lib(${ktx_PREBUILT_DIR})

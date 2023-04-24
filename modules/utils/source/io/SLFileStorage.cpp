@@ -43,7 +43,7 @@ SLIOStream* SLFileStorage::open(std::string    path,
     else
         return nullptr;
 #elif defined(SL_STORAGE_WEB)
-    SL_LOG("OPENING \"%s\", (%d)", path.c_str(), kind);
+    Utils::log("I/O", "OPENING \"%s\", (%d)", path.c_str(), kind);
 
     if (mode == IOM_read)
     {
