@@ -102,6 +102,19 @@ function(download_lib LIB_NAME)
     endif ()
 endfunction()
 
+function(copy_dlls LIBS)
+    if (NOT ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC"))
+        return ()
+    endif ()
+
+    foreach (LIB ${LIBS})
+        get_target_property(DLL_PATH ${LIB} LOCATION_${CMAKE_BUILD_TYPE})
+        file(COPY ${DLL_PATH} DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+        get_filename_component(DLL_FILENAME ${DLL_PATH} NAME)
+        message(STATUS "Copied ${DLL_FILENAME}")
+    endforeach ()
+endfunction()
+
 #=======================================================================================================================
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
@@ -150,7 +163,6 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
-
 
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
@@ -240,39 +252,25 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
+    set(OpenCV_LIB_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
-
-    download_lib("${OpenCV_PREBUILT_DIR}")
 
     string(REPLACE "." "" OpenCV_LIBS_POSTFIX ${OpenCV_VERSION})
 
     foreach (lib ${OpenCV_LINK_LIBS})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                optimized "${lib}${OpenCV_LIBS_POSTFIX}"
-                debug "${lib}${OpenCV_LIBS_POSTFIX}d")
-        file(GLOB OpenCV_LIBS_to_copy_debug
-                ${OpenCV_LIBS_to_copy_debug}
-                ${OpenCV_LINK_DIR}/${lib}*d.dll
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_IMPLIB "${OpenCV_LIB_DIR}/${lib}${OpenCV_LIBS_POSTFIX}.lib"
+                IMPORTED_LOCATION "${OpenCV_LIB_DIR}/${lib}${OpenCV_LIBS_POSTFIX}.dll"
+                IMPORTED_IMPLIB_DEBUG "${OpenCV_LIB_DIR}/${lib}${OpenCV_LIBS_POSTFIX}d.lib"
+                IMPORTED_LOCATION_DEBUG "${OpenCV_LIB_DIR}/${lib}${OpenCV_LIBS_POSTFIX}d.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIR}"
                 )
-        file(GLOB OpenCV_LIBS_to_copy_release
-                ${OpenCV_LIBS_to_copy_release}
-                ${OpenCV_LINK_DIR}/${lib}*.dll
-                )
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
 
-    # Set working dir for VS
-    #set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS} VS_DEBUGGER_WORKING_DIRECTORY "$(OutputDir)")
-
-    # For MSVC copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        #message(STATUS "Copy opencv debug DLLs: ${OpenCV_LIBS_to_copy_debug}")
-        file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        #message(STATUS "Copy opencv release DLLs: ${OpenCV_LIBS_to_copy_release}")
-        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif ()
+    download_lib("${OpenCV_PREBUILT_DIR}")
+    copy_dlls("${OpenCV_LIBS}")
 
     ###################
     # g2o for Windows #
@@ -281,44 +279,23 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(g2o_PREBUILT_DIR "win64_g2o")
     set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
     set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
-    set(g2o_LINK_DIR "${g2o_DIR}/lib")   #don't forget to add the this link dir down at the bottom
-
-    download_lib("${g2o_PREBUILT_DIR}")
+    set(g2o_LIB_DIR "${g2o_DIR}/lib")
+    set(g2o_BIN_DIR "${g2o_DIR}/bin")
 
     foreach (lib ${g2o_LINK_LIBS})
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib} PROPERTIES
-                IMPORTED_IMPLIB_DEBUG "${g2o_LINK_DIR}/${lib}_d.lib"
-                IMPORTED_IMPLIB "${g2o_LINK_DIR}/${lib}.lib"
-                IMPORTED_LOCATION_DEBUG "${g2o_LINK_DIR}/${lib}_d.dll"
-                IMPORTED_LOCATION "${g2o_LINK_DIR}/${lib}.dll"
+                IMPORTED_IMPLIB "${g2o_LIB_DIR}/${lib}.lib"
+                IMPORTED_LOCATION "${g2o_BIN_DIR}/${lib}.dll"
+                IMPORTED_IMPLIB_DEBUG "${g2o_LIB_DIR}/${lib}_d.lib"
+                IMPORTED_LOCATION_DEBUG "${g2o_BIN_DIR}/${lib}_d.dll"
                 INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
                 )
-        set(g2o_LIBS
-                ${g2o_LIBS}
-                ${lib}
-                )
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
     endforeach (lib)
 
-    # For MSVC copy g2o dlls to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        foreach (lib ${g2o_LINK_LIBS})
-            file(GLOB g2o_dll_to_copy_debug
-                    ${g2o_dll_to_copy_debug}
-                    ${g2o_DIR}/bin/${lib}*d.dll
-                    )
-            file(GLOB g2o_dll_to_copy_release
-                    ${g2o_dll_to_copy_release}
-                    ${g2o_DIR}/bin/${lib}*.dll
-                    )
-        endforeach (lib)
-
-        #message(STATUS "Copy g2o debug DLLs: ${g2o_dll_to_copy_debug}")
-        file(COPY ${g2o_dll_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        #message(STATUS "Copy g2o release DLLs: ${g2o_dll_to_copy_release}")
-        file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${g2o_dll_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif ()
+    download_lib("${g2o_PREBUILT_DIR}")
+    copy_dlls("${g2o_LIBS}")
 
     ######################
     # Assimp for Windows #
@@ -327,57 +304,45 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LINK_DIR "${assimp_DIR}/lib")   #don't forget to add the this link dir down at the bottom
+    set(assimp_LIB_DIR "${assimp_DIR}/lib")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    #set(assimp_LINK_LIBS_WIN assimp-mt)
+
+    add_library(assimp SHARED IMPORTED)
+    set_target_properties(assimp PROPERTIES
+            IMPORTED_IMPLIB "${assimp_LIB_DIR}/assimp-mt.lib"
+            IMPORTED_LOCATION "${assimp_LIB_DIR}/assimp-mt.dll"
+            IMPORTED_IMPLIB_DEBUG "${assimp_LIB_DIR}/assimp-mtd.lib"
+            IMPORTED_LOCATION_DEBUG "${assimp_LIB_DIR}/assimp-mtd.dll"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
+    set(assimp_LIBS assimp)
 
     download_lib("${assimp_PREBUILT_DIR}")
-
-    set(assimp_LIBS
-            ${assimp_LIBS}
-            optimized assimp-mt
-            debug assimp-mtd)
-
-    file(GLOB assimp_LIBS_to_copy_debug
-            ${assimp_LIBS_to_copy_debug}
-            ${assimp_DIR}/lib/assimp-mtd.dll
-            )
-    file(GLOB assimp_LIBS_to_copy_release
-            ${assimp_LIBS_to_copy_release}
-            ${assimp_DIR}/lib/assimp-mt.dll
-            )
-
-    # For MSVC copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif ()
+    copy_dlls("${assimp_LIBS}")
 
     #######################
-    # OpenSSL for windows #
+    # OpenSSL for Windows #
     #######################
 
     set(openssl_VERSION "1.1.1h")
     set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
     set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
+    set(openssl_LIB_DIR "${openssl_DIR}/lib")
     set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
-    set(openssl_LINK_DIR "${openssl_DIR}/lib")
-    set(openssl_LIBS ssl crypto)
-
-    download_lib("${openssl_PREBUILT_DIR}")
-
-    link_directories(${openssl_LINK_DIR})
 
     add_library(crypto STATIC IMPORTED)
-    add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto_static.lib"
+            IMPORTED_LOCATION "${openssl_LIB_DIR}/libcrypto_static.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
             )
+    add_library(ssl STATIC IMPORTED)
     set_target_properties(ssl PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
+            IMPORTED_LOCATION "${openssl_LIB_DIR}/libssl_static.lib"
+            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
             )
-    set(openssl_LIBS ssl crypto)
+    set(openssl_LIBS crypto ssl)
+
+    download_lib("${openssl_PREBUILT_DIR}")
 
     ######################
     # Vulkan for Windows #
@@ -386,22 +351,20 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(vk_VERSION "1.2.162.1")
     set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
     set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
-    set(vk_INCLUDE_DIR ${vk_DIR}/Include)
-    set(vk_LINK_DIR ${vk_DIR}/Lib)   #don't forget to add the this link dir down at the bottom
-
-    download_lib("${vk_PREBUILT_DIR}")
+    set(vk_INCLUDE_DIR "${vk_DIR}/Include")
+    set(vk_LIB_DIR "${vk_DIR}/Lib")
 
     foreach (lib ${vk_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
+        add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib} PROPERTIES
-                IMPORTED_IMPLIB "${vk_LINK_DIR}/${lib}.lib"
+                IMPORTED_LOCATION "${vk_LIB_DIR}/${lib}.lib"
                 INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
                 )
-        set(vk_LIBS
-                ${vk_LIBS}
-                ${lib}
-                )
+        set(vk_LIBS ${vk_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib("${vk_PREBUILT_DIR}")
+    copy_dlls("${vk_LIBS}")
 
     ####################
     # GLFW for Windows #
@@ -411,9 +374,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(glfw_PREBUILT_DIR "win64_glfw_${glfw_VERSION}")
     set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
     set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
-    set(glfw_LINK_DIR "${glfw_DIR}/lib-vc2019") # don't forget to add the this link dir down at the bottom
-
-    download_lib("${glfw_PREBUILT_DIR}")
+    set(glfw_LINK_DIR "${glfw_DIR}/lib-vc2019")
 
     add_library(glfw3dll SHARED IMPORTED)
     set_target_properties(glfw3dll PROPERTIES
@@ -421,25 +382,18 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             IMPORTED_LOCATION "${glfw_LINK_DIR}/glfw3.dll"
             INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}"
             )
-
     set(glfw_LIBS glfw3dll)
 
-    # For MSVC copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif ()
+    download_lib("${glfw_PREBUILT_DIR}")
+    copy_dlls("${glfw_LIBS}")
 
-    #######################
-    # ktx for windows     #
-    #######################
+    ###################
+    # KTX for Windows #
+    ###################
 
     set(ktx_VERSION "v4.0.0-beta7")
     set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
     set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
-
-    download_lib("${ktx_PREBUILT_DIR}")
 
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
@@ -448,14 +402,10 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
             INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
             )
-
     set(ktx_LIBS KTX::ktx)
 
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
-        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
-    endif ()
+    download_lib("${ktx_PREBUILT_DIR}")
+    copy_dlls("${ktx_LIBS}")
 
     #########################
     # MediaPipe for Windows #
@@ -465,8 +415,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
     set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
 
-    download_lib("${MediaPipe_PREBUILT_DIR}")
-
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
@@ -475,10 +423,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
-    file(GLOB MediaPipe_DLLS ${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/*.dll)
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
-        file(COPY ${MediaPipe_DLLS} DESTINATION ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-    endif ()
+    download_lib("${MediaPipe_PREBUILT_DIR}")
+    copy_dlls("${MediaPipe_LIBS}")
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
