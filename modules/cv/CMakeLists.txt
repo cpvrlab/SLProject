@@ -36,10 +36,11 @@ file(GLOB SOURCES
 
 if (SL_BUILD_WAI)
     set(SOURCES ${SOURCES}
-            source/cv/CVTrackedWAI.cpp
-            source/cv/CVTrackedWAI.h)
+            source/CVTrackedWAI.cpp
+            source/CVTrackedWAI.h)
 endif ()
 
+message(${SOURCES})
 add_library(${TARGET} ${SOURCES})
 
 target_include_directories(${TARGET} PUBLIC
@@ -50,3 +51,11 @@ target_link_libraries(${TARGET} PUBLIC
     ${OpenCV_LIBS}
     lib-Utils
     lib-SLMath)
+
+if (SL_BUILD_WAI)
+    target_link_libraries(${TARGET} PUBLIC ${META_PROJECT_NAME}::lib-WAI)
+endif ()
+
+if (SL_BUILD_WITH_MEDIAPIPE)
+    target_link_libraries(${TARGET} PUBLIC ${MediaPipe_LIBS})
+endif ()

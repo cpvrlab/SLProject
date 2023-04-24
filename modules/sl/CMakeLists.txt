@@ -328,12 +328,6 @@ set_target_properties(${target}
         ${DEFAULT_PROJECT_OPTIONS}
         )
 
-if (SL_BUILD_WAI)
-    set(DEFAULT_INCLUDE_DIRECTORIES
-            ${DEFAULT_INCLUDE_DIRECTORIES}
-            ${SL_PROJECT_ROOT}/lib-WAI/source)
-endif ()
-
 target_include_directories(${target}
         PRIVATE
 
@@ -355,7 +349,6 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/modules/sl/externals/stb/
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
-        ${assimp_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/externals/eigen
         ${SL_PROJECT_ROOT}/externals/libigl/include
@@ -382,12 +375,6 @@ target_compile_options(${target}
 
         INTERFACE
         )
-
-if (SL_BUILD_WAI)
-    set(PlatformLinkLibs
-            ${PlatformLinkLibs}
-            ${META_PROJECT_NAME}::lib-WAI)
-endif ()
 
 if (SL_BUILD_WITH_KTX)
     set(PlatformLinkLibs
@@ -416,10 +403,6 @@ target_link_libraries(${target}
 
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     add_dependencies(${target} ptx)
-endif ()
-
-if (SL_BUILD_WITH_MEDIAPIPE)
-    target_link_libraries(${target} PUBLIC ${MediaPipe_LIBS})
 endif ()
 
 if ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
