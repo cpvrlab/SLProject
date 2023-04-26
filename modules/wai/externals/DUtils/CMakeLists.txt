@@ -1,8 +1,8 @@
 #
-# CMake congifuration for lib-DUtils
+# CMake congifuration for libsl_dutils
 #
 
-set(target lib-DUtils)
+set(target sl_dutils)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/Random.h

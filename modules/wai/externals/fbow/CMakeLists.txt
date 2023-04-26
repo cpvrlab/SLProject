@@ -1,9 +1,9 @@
 #
-# CMake congifuration for lib-fbow
+# CMake congifuration for libsl_fbow
 # MODIFIED BY vwm1: Fixed runtime linking when using clang-cl
 #
 
-set(target lib-fbow)
+set(target sl_fbow)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu.h
@@ -149,7 +149,7 @@ IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU"
     message( STATUS "GNU COMPILER")
     MESSAGE( STATUS "-------------------------------------------------------------------------------" )
 
-    # When compiling with clang-cl, use the DLL-specific version of the run-time library to link against lib-WAI
+    # When compiling with clang-cl, use the DLL-specific version of the run-time library to link against libsl_wai
     # https://stackoverflow.com/a/18635749
     if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")

@@ -17,13 +17,6 @@ set_target_properties(${target}
     FOLDER "external"
     )
 
-target_include_directories(${target}
-    PRIVATE
-    PUBLIC
-    ${UTILS_ROOT}/lib-Utils/source
-    INTERFACE
-    )
-
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 target_link_libraries(${target}

@@ -1,8 +1,8 @@
 #
-# CMake congifuration for lib-DBoW2
+# CMake congifuration for libsl_dbow2
 #
 
-set(target lib-DBoW2)
+set(target sl_dbow2)
 
 file(GLOB headers
     ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/BowVector.h
@@ -75,8 +75,7 @@ target_link_libraries(${target}
 
     PUBLIC
     ${DEFAULT_LINKER_OPTIONS}
-    #${OpenCV_LIBS}
-    ${Lib-DUtils}
+    sl_dutils
 
     INTERFACE
     )

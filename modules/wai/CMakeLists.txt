@@ -1,5 +1,5 @@
 #
-# CMake congifuration for lib-WAI
+# CMake congifuration for libsl_wai
 #
 
 # add dependencies
@@ -7,7 +7,7 @@ add_subdirectory(externals/DUtils)
 add_subdirectory(externals/DBoW2)
 add_subdirectory(externals/fbow)
 
-set(target lib-WAI)
+set(target sl_wai)
 
 set(headers
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAICompassAlignment.h
@@ -133,10 +133,10 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     ${OpenCV_LIBS}
     ${g2o_LIBS}
-    ${META_PROJECT_NAME}::lib-fbow
-    ${META_PROJECT_NAME}::lib-DBoW2
-    ${META_PROJECT_NAME}::lib-Utils
-    ${META_PROJECT_NAME}::lib-DUtils
+    ${META_PROJECT_NAME}::sl_fbow
+    ${META_PROJECT_NAME}::sl_dbow2
+    ${META_PROJECT_NAME}::sl_utils
+    ${META_PROJECT_NAME}::sl_dutils
     sl_math
 
     INTERFACE

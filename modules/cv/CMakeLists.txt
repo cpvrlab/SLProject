@@ -48,6 +48,7 @@ add_library(${TARGET} ${SOURCES})
 
 target_include_directories(${TARGET} PUBLIC
     source
+    externals/stb
     ${SL_PROJECT_ROOT}/externals/nlohmann)
 
 target_link_libraries(${TARGET} PUBLIC
