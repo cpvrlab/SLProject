@@ -66,6 +66,7 @@ externals/prebuilt/*
 intermediate/
 cmake-build*/
 *Snapchat3D/
+.cache/
 
 Profile_*
 
