@@ -350,7 +350,6 @@ target_include_directories(${target}
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
         ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/externals/eigen
         ${SL_PROJECT_ROOT}/externals/libigl/include
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
@@ -388,7 +387,7 @@ target_link_libraries(${target}
         PUBLIC
         ${PlatformLinkLibs}
         ${CUDA_LIBRARIES}
-        ${CUDA_CUDA_LIBRARY}
+        #${CUDA_CUDA_LIBRARY}
         ${optix_LIBRARY}
         ${assimp_LIBS}
         sl_math

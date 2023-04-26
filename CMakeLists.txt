@@ -2,7 +2,7 @@
 # CMake top-level configuration of SLProject
 #
 
-cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 if (APPLE)
     set(CMAKE_MACOSX_RPATH OFF)
@@ -60,6 +60,7 @@ include(cmake/CompileOptions.cmake)
 include(cmake/ConfigureMSVCCLion.cmake)
 include(cmake/ConfigureClangCl.cmake)
 include(cmake/DownloadData.cmake)
+include(cmake/FetchExternals.cmake)
 
 if (SL_DOWNLOAD_PREBUILTS)
     include(cmake/DownloadPrebuilts.cmake)

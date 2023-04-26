@@ -100,7 +100,6 @@ target_include_directories(${target}
         ${OpenCV_INCLUDE_DIR}
         ${g2o_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/externals
-        ${SL_PROJECT_ROOT}/externals/eigen
 
     INTERFACE
     )

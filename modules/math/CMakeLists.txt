@@ -54,8 +54,7 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/libigl/include
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/source
-        ${SL_PROJECT_ROOT}/externals/eigen
-		${CMAKE_CURRENT_SOURCE_DIR}/externals
+	${CMAKE_CURRENT_SOURCE_DIR}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
@@ -87,6 +86,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         sl_external
         sl_utils
+        Eigen3::Eigen
         ${DEFAULT_LINKER_OPTIONS}
 
         INTERFACE
