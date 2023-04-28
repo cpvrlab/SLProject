@@ -47,7 +47,7 @@ endif ()
 add_library(${TARGET} ${SOURCES})
 
 target_include_directories(${TARGET} PUBLIC
-    source
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
     externals/stb
     ${SL_PROJECT_ROOT}/externals/nlohmann)
 

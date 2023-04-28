@@ -1,3 +1,20 @@
+function (sl_add_exercise EXERCISE_NAME)
+    set(MULTI_VALUE_ARGS HEADERS SOURCES SHADERS LIBRARIES)
+    cmake_parse_arguments(EXERCISE "" "" "${MULTI_VALUE_ARGS}" ${ARGN})
+
+    file(GLOB HEADERS ${EXERCISE_SOURCES})
+    file(GLOB SOURCES ${EXERCISE_SOURCES})
+    file(GLOB SHADERS ${EXERCISE_SOURCES})
+    add_executable(${EXERCISE_NAME} ${HEADERS} ${SOURCES} ${SHADERS})
+
+    set_target_properties(${EXERCISE_NAME} PROPERTIES ${DEFAULT_PROJECT_OPTIONS} FOLDER "apps/exercices")
+    target_include_directories(${EXERCISE_NAME} PRIVATE ${SL_PROJECT_ROOT}/apps/exercices)
+    include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
+    target_link_libraries(${EXERCISE_NAME} PRIVATE ${PlatformLinkLibs} ${EXERCISE_LIBRARIES})
+    target_compile_definitions(${EXERCISE_NAME} PUBLIC ${DEFAULT_COMPILE_DEFINITIONS})
+    target_compile_options(${EXERCISE_NAME} PUBLIC ${DEFAULT_COMPILE_OPTIONS})
+endfunction ()
+
 add_subdirectory(ch00_new_cpp_features)
 add_subdirectory(ch06_ColorCube)
 add_subdirectory(ch07_DiffuseCube)
@@ -16,6 +33,7 @@ add_subdirectory(cv13_FacialLandmarkDetection)
 add_subdirectory(cv13_HeadPoseEstimation)
 add_subdirectory(cv13_Snapchat2D)
 add_subdirectory(cv15_YoloV3)
+
 if (SL_BUILD_VULKAN_APPS)
     add_subdirectory(ch09_TextureMapping_Vulkan)
 endif ()
