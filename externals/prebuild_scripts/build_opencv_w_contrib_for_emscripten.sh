@@ -62,21 +62,6 @@ python3 ./platforms/js/build_js.py $BUILD_D \
 
 cmake --build $BUILD_D --target install
 
-# cmake \
-# -DCMAKE_CONFIGURATION_TYPES=Debug \
-# -DBUILD_WITH_DEBUG_INFO=true \
-# -DCMAKE_INSTALL_PREFIX=./install \
-# -DBUILD_opencv_python_bindings_generator=false \
-# -DBUILD_opencv_python2=false \
-# -DBUILD_opencv_java_bindings_generator=false \
-# -DBUILD_opencv_cudacodec=OFF \
-# -DBUILD_PERF_TESTS=false \
-# -DBUILD_TESTS=false \
-# -DWITH_MATLAB=false \
-# -DOPENCV_ENABLE_NONFREE=true \
-# -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
-# ../..
-
 python3 ./platforms/js/build_js.py $BUILD_R \
     --emscripten_dir $EMSCRIPTEN \
     --build_wasm \
