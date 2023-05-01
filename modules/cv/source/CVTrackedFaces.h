@@ -10,8 +10,6 @@
 #ifndef CVTrackedFaces_H
 #define CVTrackedFaces_H
 
-#ifndef __EMSCRIPTEN__
-
 /*
 The OpenCV library version 3.4 with extra module must be present.
 If the application captures the live video stream with OpenCV you have
@@ -59,5 +57,4 @@ private:
     int                  _smoothLength;    //!< Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------
-#endif
 #endif // CVTrackedFaces_H

@@ -27,47 +27,47 @@ for a good top down information.
 
 #ifdef __EMSCRIPTEN__
 #    include <list>
-#else
-#    include <opencv2/face.hpp>
-#    include <opencv2/xfeatures2d.hpp>
 #endif
+
+#include <opencv2/face.hpp>
+#include <opencv2/xfeatures2d.hpp>
 
 using std::vector;
 
 //-----------------------------------------------------------------------------
-typedef cv::Mat         CVMat;
-typedef cv::Rect        CVRect;
-typedef cv::Rect2f      CVRect2f;
-typedef cv::Point       CVPoint;
-typedef cv::Point2i     CVPoint2i;
-typedef cv::Point2f     CVPoint2f;
-typedef cv::Point2d     CVPoint2d;
-typedef cv::Point3f     CVPoint3f;
-typedef cv::Point3d     CVPoint3d;
-typedef cv::Vec2b       CVVec2b;
-typedef cv::Vec3b       CVVec3b;
-typedef cv::Vec4b       CVVec4b;
-typedef cv::Vec2f       CVVec2f;
-typedef cv::Vec2d       CVVec2d;
-typedef cv::Vec3f       CVVec3f;
-typedef cv::Vec3d       CVVec3d;
-typedef cv::Vec4f       CVVec4f;
-typedef cv::Size        CVSize;
-typedef cv::Size2i      CVSize2i;
-typedef cv::Size2f      CVSize2f;
-typedef cv::Matx33f     CVMatx33f;
-typedef cv::Matx44f     CVMatx44f;
-typedef cv::KeyPoint    CVKeyPoint;
-typedef cv::FileStorage CVFileStorage;
-typedef cv::DMatch      CVDMatch;
-typedef cv::InputArray  CVInputArray;
-typedef cv::OutputArray CVOutputArray;
-typedef cv::Feature2D   CVFeature2D;
+typedef cv::Mat               CVMat;
+typedef cv::Rect              CVRect;
+typedef cv::Rect2f            CVRect2f;
+typedef cv::Point             CVPoint;
+typedef cv::Point2i           CVPoint2i;
+typedef cv::Point2f           CVPoint2f;
+typedef cv::Point2d           CVPoint2d;
+typedef cv::Point3f           CVPoint3f;
+typedef cv::Point3d           CVPoint3d;
+typedef cv::Vec2b             CVVec2b;
+typedef cv::Vec3b             CVVec3b;
+typedef cv::Vec4b             CVVec4b;
+typedef cv::Vec2f             CVVec2f;
+typedef cv::Vec2d             CVVec2d;
+typedef cv::Vec3f             CVVec3f;
+typedef cv::Vec3d             CVVec3d;
+typedef cv::Vec4f             CVVec4f;
+typedef cv::Size              CVSize;
+typedef cv::Size2i            CVSize2i;
+typedef cv::Size2f            CVSize2f;
+typedef cv::Matx33f           CVMatx33f;
+typedef cv::Matx44f           CVMatx44f;
+typedef cv::KeyPoint          CVKeyPoint;
+typedef cv::FileStorage       CVFileStorage;
+typedef cv::DMatch            CVDMatch;
+typedef cv::InputArray        CVInputArray;
+typedef cv::OutputArray       CVOutputArray;
+typedef cv::Feature2D         CVFeature2D;
 typedef cv::CascadeClassifier CVCascadeClassifier;
 #ifndef __EMSCRIPTEN__
-typedef cv::VideoCapture   CVVideoCapture;
-typedef cv::face::Facemark CVFacemark;
+typedef cv::VideoCapture CVVideoCapture;
 #endif
+typedef cv::face::Facemark CVFacemark;
 
 // 1D STL vectors
 typedef vector<cv::Mat>      CVVMat;

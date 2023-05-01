@@ -7,8 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef __EMSCRIPTEN__
-
 #include <CVTrackedArucoCube.h>
 #include <Utils.h>
 #include <Instrumentor.h>
@@ -77,17 +75,17 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         // Rotate face to cube space
         SLVec3f translation = faceViewMatrix.translation();
         if (arucoIDs[i] == 0)
-            ; // front (no rotation)
+            ;                                            // front (no rotation)
         else if (arucoIDs[i] == 1)
-            faceViewMatrix.rotate(-90, SLVec3f::AXISY); // right
+            faceViewMatrix.rotate(-90, SLVec3f::AXISY);  // right
         else if (arucoIDs[i] == 2)
             faceViewMatrix.rotate(-180, SLVec3f::AXISY); // back
         else if (arucoIDs[i] == 3)
-            faceViewMatrix.rotate(90, SLVec3f::AXISY); // left
+            faceViewMatrix.rotate(90, SLVec3f::AXISY);   // left
         else if (arucoIDs[i] == 4)
-            faceViewMatrix.rotate(90, SLVec3f::AXISX); // top
+            faceViewMatrix.rotate(90, SLVec3f::AXISX);   // top
         else if (arucoIDs[i] == 5)
-            faceViewMatrix.rotate(-90, SLVec3f::AXISX); // bottom
+            faceViewMatrix.rotate(-90, SLVec3f::AXISX);  // bottom
         else
         {
             SL_LOG("ArUco cube: Invalid ID: %d", arucoIDs[i]);
@@ -139,5 +137,3 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     return false;
 }
 //-----------------------------------------------------------------------------
-
-#endif

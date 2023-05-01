@@ -19,10 +19,10 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#ifndef __EMSCRIPTEN__
-#    include <CVTypedefs.h>
-#    include <CVTracked.h>
-#    include <opencv2/aruco.hpp>
+#include <CVTypedefs.h>
+#include <CVTracked.h>
+#include <SLFileStorage.h>
+#include <opencv2/aruco.hpp>
 
 //-----------------------------------------------------------------------------
 //! ArUco Parameters loaded from configuration file.
@@ -33,17 +33,19 @@ public:
                       arucoDictionaryId(0),
                       filename("aruco_detector_params.yml")
     {
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         arucoParams = cv::aruco::DetectorParameters::create();
-#    else
+#else
         arucoParams = cv::aruco::DetectorParameters();
-#    endif
+#endif
     }
 
     bool loadFromFile(string calibIniPath)
     {
         string        path = calibIniPath + filename;
-        CVFileStorage fs(path, cv::FileStorage::READ);
+
+        SLstring      paramString = SLFileStorage::readIntoString(path, IOK_config);
+        CVFileStorage fs(paramString, CVFileStorage::READ | CVFileStorage::MEMORY);
         if (!fs.isOpened())
         {
             cout << "Could not find parameter file for ArUco tracking!" << endl;
@@ -51,7 +53,7 @@ public:
             return false;
         }
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         fs["adaptiveThreshWinSizeMin"] >> arucoParams->adaptiveThreshWinSizeMin;
         fs["adaptiveThreshWinSizeMax"] >> arucoParams->adaptiveThreshWinSizeMax;
         fs["adaptiveThreshWinSizeStep"] >> arucoParams->adaptiveThreshWinSizeStep;
@@ -71,7 +73,7 @@ public:
         fs["maxErroneousBitsInBorderRate"] >> arucoParams->maxErroneousBitsInBorderRate;
         fs["edgeLength"] >> edgeLength;
         fs["arucoDictionaryId"] >> arucoDictionaryId;
-#    else
+#else
         fs["adaptiveThreshWinSizeMin"] >> arucoParams.adaptiveThreshWinSizeMin;
         fs["adaptiveThreshWinSizeMax"] >> arucoParams.adaptiveThreshWinSizeMax;
         fs["adaptiveThreshWinSizeStep"] >> arucoParams.adaptiveThreshWinSizeStep;
@@ -91,24 +93,24 @@ public:
         fs["maxErroneousBitsInBorderRate"] >> arucoParams.maxErroneousBitsInBorderRate;
         fs["edgeLength"] >> edgeLength;
         fs["arucoDictionaryId"] >> arucoDictionaryId;
-#    endif
+#endif
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
         dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(arucoDictionaryId));
-#    else
+#else
         dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PredefinedDictionaryType(arucoDictionaryId));
-#    endif
+#endif
 
         return true;
     }
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     cv::Ptr<cv::aruco::Dictionary>         dictionary;  //!< predefined dictionary
     cv::Ptr<cv::aruco::DetectorParameters> arucoParams; //!< detector parameter structure for aruco detection function
-#    else
+#else
     cv::aruco::DetectorParameters arucoParams; //!< detector parameter structure for aruco detection function
     cv::aruco::Dictionary         dictionary;  //!< predefined dictionary
-#    endif
+#endif
 
     float  edgeLength;          //!< marker edge length
     int    arucoDictionaryId;   //!< id of aruco dictionary
@@ -164,9 +166,8 @@ protected:
 private:
     static bool paramsLoaded; //!< Flag for loaded parameters
 
-    int    _arucoID; //!< Aruco Marker ID for this node
+    int    _arucoID;          //!< Aruco Marker ID for this node
     string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
-#endif
 #endif // CVTrackedAruco_H

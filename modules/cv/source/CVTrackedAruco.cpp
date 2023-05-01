@@ -7,7 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef __EMSCRIPTEN__
 /*
 The OpenCV library version 3.4 or above with extra module must be present.
 If the application captures the live video stream with OpenCV you have
@@ -16,9 +15,9 @@ All classes that use OpenCV begin with CV.
 See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
-#    include <CVTrackedAruco.h>
-#    include <Utils.h>
-#    include <Profiler.h>
+#include <CVTrackedAruco.h>
+#include <Utils.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static variables
@@ -79,7 +78,7 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
                            __FILE__);
     }
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
         Utils::warnMsg("SLProject",
@@ -88,7 +87,7 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
                        __FILE__);
         return false;
     }
-#    endif
+#endif
 
     ////////////
     // Detect //
@@ -102,20 +101,20 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
     objectViewMats.clear();
     CVVVPoint2f corners, rejected;
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     cv::aruco::detectMarkers(croppedImageGray,
                              params.dictionary,
                              corners,
                              arucoIDs,
                              params.arucoParams,
                              rejected);
-#    else
+#else
     cv::aruco::ArucoDetector detector(params.dictionary, params.arucoParams);
     detector.detectMarkers(croppedImageGray,
                            corners,
                            arucoIDs,
                            rejected);
-#    endif
+#endif
 
     for (auto& corner : corners)
     {
@@ -161,15 +160,15 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
 
             if (_drawDetection)
             {
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
-#    else
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 6
+#else
                 cv::drawFrameAxes(imageRgb,
                                   calib->cameraMat(),
                                   calib->distortion(),
                                   cv::Mat(rVecs[i]),
                                   cv::Mat(tVecs[i]),
                                   0.01f);
-#    endif
+#endif
             }
         }
     }
@@ -197,7 +196,7 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
                                           float         dpi,
                                           bool          showImage)
 {
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
     cv::Ptr<cv::aruco::GridBoard>  board      = cv::aruco::GridBoard::create(numMarkersX,
                                                                        numMarkersY,
@@ -220,7 +219,7 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
         imshow("board", boardImage);
         cv::waitKey(0);
     }
-#    else
+#else
     cv::aruco::Dictionary dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::PredefinedDictionaryType(dictionaryId));
     cv::aruco::GridBoard  board      = cv::aruco::GridBoard(cv::Size(numMarkersX, numMarkersY),
                                                       markerEdgeM,
@@ -241,14 +240,18 @@ void CVTrackedAruco::drawArucoMarkerBoard(int           dictionaryId,
                                boardImage,
                                0,
                                1);
+#    ifndef __EMSCRIPTEN__
     if (showImage)
     {
         imshow("board", boardImage);
         cv::waitKey(0);
     }
 #    endif
+#endif
 
+#ifndef __EMSCRIPTEN__
     imwrite(imgName, boardImage);
+#endif
 }
 //-----------------------------------------------------------------------------
 void CVTrackedAruco::drawArucoMarker(int dictionaryId,
@@ -260,7 +263,7 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
     assert(minMarkerId > 0);
     assert(minMarkerId < maxMarkerId);
 
-#    if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
+#if CV_MAJOR_VERSION < 4 || CV_MINOR_VERSION < 7
     cv::Ptr<cv::aruco::Dictionary> dict = getPredefinedDictionary(cv::aruco::PREDEFINED_DICTIONARY_NAME(dictionaryId));
     if (maxMarkerId > dict->bytesList.rows)
         maxMarkerId = dict->bytesList.rows;
@@ -270,13 +273,15 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
     for (int i = minMarkerId; i < maxMarkerId; ++i)
     {
         cv::aruco::drawMarker(dict, i, markerSizePX, markerImg, 1);
+#    ifndef __EMSCRIPTEN__
         imwrite(Utils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png",
                                     dictionaryId,
                                     markerSizePX,
                                     i),
                 markerImg);
+#    endif
     }
-#    else
+#else
     cv::aruco::Dictionary dict = getPredefinedDictionary(cv::aruco::PredefinedDictionaryType(dictionaryId));
     if (maxMarkerId > dict.bytesList.rows)
         maxMarkerId = dict.bytesList.rows;
@@ -290,14 +295,14 @@ void CVTrackedAruco::drawArucoMarker(int dictionaryId,
                                        markerSizePX,
                                        markerImg,
                                        1);
+#    ifndef __EMSCRIPTEN__
         imwrite(Utils::formatString("ArucoMarker_Dict%d_%dpx_Id%d.png",
                                     dictionaryId,
                                     markerSizePX,
                                     i),
                 markerImg);
-    }
 #    endif
+    }
+#endif
 }
 //-----------------------------------------------------------------------------
-
-#endif

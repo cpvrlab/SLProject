@@ -3786,7 +3786,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTrackArucoMain ||
              sceneID == SID_VideoTrackArucoScnd) //................................................
     {
@@ -3863,7 +3862,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
-#endif
     else if (sceneID == SID_VideoTrackFeature2DMain) //............................................
     {
         /*
@@ -3932,6 +3930,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         AppDemo::devRot.isUsed(true);
     }
+#ifndef SL_EMSCRIPTEN
     else if (sceneID == SID_VideoTrackFaceMain ||
              sceneID == SID_VideoTrackFaceScnd) //.................................................
     {
@@ -3996,15 +3995,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        //        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
-        //                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
-        //                                     3);
-        //        trackedNode = cam1;
-        //        tracker->drawDetection(true);
+        tracker     = new CVTrackedFaces(AppDemo::calibIniPath + "haarcascade_frontalface_alt2.xml",
+                                     AppDemo::calibIniPath + "lbfmodel.yaml",
+                                     3);
+        trackedNode = cam1;
+        tracker->drawDetection(true);
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
     }
+#endif
 #ifdef SL_BUILD_WITH_MEDIAPIPE
     else if (sceneID == SID_VideoTrackMediaPipeHandsMain) //.......................................
     {
@@ -4159,7 +4159,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         AppDemo::devRot.zeroYawAtStart(true);
 #endif
 
-        sv->doWaitOnIdle(false); // for constant video feed
+        sv->doWaitOnIdle(false);                    // for constant video feed
     }
     else if (sceneID == SID_ErlebARBernChristoffel) //.............................................
     {

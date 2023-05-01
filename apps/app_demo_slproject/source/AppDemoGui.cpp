@@ -1714,11 +1714,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 #ifndef SL_EMSCRIPTEN
                     if (ImGui::MenuItem("Texture from Video File", nullptr, sid == SID_VideoTextureFile))
                         s->onLoad(am, s, sv, SID_VideoTextureFile);
+#endif
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
                         s->onLoad(am, s, sv, SID_VideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackArucoScnd);
-#endif
                     if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                         s->onLoad(am, s, sv, SID_VideoTrackChessMain);
                     if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
@@ -1730,10 +1730,10 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_VideoTrackFaceMain);
                     if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
                         s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
-#    ifdef SL_BUILD_WITH_MEDIAPIPE
+#endif
+#ifdef SL_BUILD_WITH_MEDIAPIPE
                     if (ImGui::MenuItem("Track Hands w. Mediapipe (Main)", nullptr, sid == SID_VideoTrackMediaPipeHandsMain))
                         s->onLoad(am, s, sv, SID_VideoTrackMediaPipeHandsMain);
-#    endif
 #endif
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
                         s->onLoad(am, s, sv, SID_VideoSensorAR);

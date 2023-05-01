@@ -10,13 +10,11 @@
 #ifndef SLPROJECT_CVTRACKEDARUCOCUBE_H
 #define SLPROJECT_CVTRACKEDARUCOCUBE_H
 
-#ifndef __EMSCRIPTEN__
-
-#    include <CVTypedefs.h>
-#    include <CVTrackedAruco.h>
+#include <CVTypedefs.h>
+#include <CVTrackedAruco.h>
 
 // TODO: Replace with OpenCV classes, SL not allowed in OpenCV module
-#    include <SLQuat4.h>
+#include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
 class AveragedQuat4f
@@ -115,5 +113,4 @@ public:
     CVRect _roi = CVRect(0, 0, 0, 0);
 };
 //-----------------------------------------------------------------------------
-#endif
 #endif // SLPROJECT_CVTRACKEDARUCOCUBE_H
