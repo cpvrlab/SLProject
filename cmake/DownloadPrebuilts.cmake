@@ -1188,10 +1188,9 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     # OpenCV for Emscripten #
     #########################
 
-    set(OpenCV_VERSION "4.6.0")
+    set(OpenCV_VERSION "4.7.0")
     set(OpenCV_PREBUILT_DIR "emscripten_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/lib")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
 
     # new include directory structure for opencv 4
@@ -1201,17 +1200,15 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
 
     # some OpenCV modules cannot be built for Emscripten
     list(REMOVE_ITEM OpenCV_LINK_LIBS
-            "opencv_aruco"
-            "opencv_face"
             "opencv_highgui"
             "opencv_imgcodecs"
-            "opencv_videoio"
-            "opencv_xfeatures2d")
+            "opencv_videoio")
 
     foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib} PROPERTIES
-            IMPORTED_LOCATION "${OpenCV_LINK_DIR}/lib${lib}.a"
+            IMPORTED_LOCATION "${OpenCV_DIR}/release/lib${lib}.a"
+            IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
             INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_INCLUDE_DIR}")
         set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
