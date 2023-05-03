@@ -37,7 +37,6 @@ target_include_directories(
     PUBLIC
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include
     ${SL_PROJECT_ROOT}/apps/source
-    ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
     ${SL_PROJECT_ROOT}/modules/sl/source
     ${SL_PROJECT_ROOT}/modules/sl/externals/imgui
     ${SL_PROJECT_ROOT}/modules/sl/externals/spa
