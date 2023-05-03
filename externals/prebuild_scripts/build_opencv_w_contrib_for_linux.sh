@@ -56,16 +56,22 @@ cd $BUILD_D
 # Run cmake to configure and generate the make files
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
--DBUILD_WITH_DEBUG_INFO=true \
+-DBUILD_WITH_DEBUG_INFO=ON \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
 -DBUILD_opencv_cudacodec=OFF \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
--DOPENCV_ENABLE_NONFREE=true \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
+-DBUILD_ZLIB=ON \
+-DBUILD_PNG=ON \
+-DBUILD_JPEG=ON \
+-DBUILD_TIFF=ON \
+-DBUILD_WEBP=ON \
+-DBUILD_OPENEXR=ON \
+-DOPENCV_ENABLE_NONFREE=ON \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..
 
@@ -84,16 +90,22 @@ cd $BUILD_R
 # Run cmake to configure and generate the make files
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Release \
--DBUILD_WITH_DEBUG_INFO=false \
+-DBUILD_WITH_DEBUG_INFO=OFF \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
 -DBUILD_opencv_cudacodec=OFF \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
--DOPENCV_ENABLE_NONFREE=true \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
+-DBUILD_ZLIB=ON \
+-DBUILD_PNG=ON \
+-DBUILD_JPEG=ON \
+-DBUILD_TIFF=ON \
+-DBUILD_WEBP=ON \
+-DBUILD_OPENEXR=ON \
+-DOPENCV_ENABLE_NONFREE=ON \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 ../..
 

@@ -60,14 +60,19 @@ cd BUILD-%OPENCV_VERSION%-vs
 cmake ^
 -G %CMAKE_GENERATOR% ^
 -A %CMAKE_ARCHITECTURE% ^
--DWITH_CUDA=off ^
+-DWITH_CUDA=OFF ^
 -DOPENCV_EXTRA_MODULES_PATH=..\..\opencv_contrib\modules ^
--DWITH_FFMPEG=true ^
--DBUILD_opencv_python_bindings_generator=off ^
--DBUILD_opencv_java=off ^
--DBUILD_opencv_python=off ^
--DOPENCV_ENABLE_NONFREE=on ^
--DWITH_GSTREAMER=off ^
+-DWITH_FFMPEG=ON ^
+-DBUILD_opencv_python_bindings_generator=OFF ^
+-DBUILD_opencv_java=OFF ^
+-DBUILD_opencv_python=OFF ^
+-DBUILD_PNG=ON ^
+-DBUILD_JPEG=ON ^
+-DBUILD_TIFF=ON ^
+-DBUILD_WEBP=ON ^
+-DBUILD_OPENEXR=ON ^
+-DOPENCV_ENABLE_NONFREE=ON ^
+-DWITH_GSTREAMER=OFF ^
 -DCMAKE_INSTALL_PREFIX=%OPENCV_INSTALL_DIR% ..
 
 MSBuild INSTALL.vcxproj -maxcpucount:%MAX_NUM_CPU_CORES% /p:Configuration=Debug

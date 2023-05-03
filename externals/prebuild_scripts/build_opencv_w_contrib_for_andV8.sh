@@ -61,16 +61,21 @@ cmake \
 -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
 -DCMAKE_BUILD_TYPE=Debug \
 -DANDROID_ABI=arm64-v8a \
--DWITH_CUDA=off \
+-DWITH_CUDA=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
--DBUILD_ANDROID_EXAMPLES=off \
--DOPENCV_ENABLE_NONFREE=true \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
+-DBUILD_PNG=ON \
+-DBUILD_JPEG=ON \
+-DBUILD_TIFF=ON \
+-DBUILD_WEBP=ON \
+-DBUILD_OPENEXR=ON \
+-DBUILD_ANDROID_EXAMPLES=OFF \
+-DOPENCV_ENABLE_NONFREE=ON \
 -DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
@@ -90,18 +95,23 @@ cd $BUILD_R
 cmake \
 -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
 -DCMAKE_BUILD_TYPE=Release \
--DBUILD_WITH_DEBUG_INFO=false \
+-DBUILD_WITH_DEBUG_INFO=OFF \
 -DANDROID_ABI=arm64-v8a \
--DWITH_CUDA=off \
+-DWITH_CUDA=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DBUILD_opencv_python_bindings_generator=false \
--DBUILD_opencv_python2=false \
--DBUILD_opencv_java_bindings_generator=false \
--DBUILD_PERF_TESTS=false \
--DBUILD_TESTS=false \
--DWITH_MATLAB=false \
--DBUILD_ANDROID_EXAMPLES=off \
--DOPENCV_ENABLE_NONFREE=true \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DWITH_MATLAB=OFF \
+-DBUILD_PNG=ON \
+-DBUILD_JPEG=ON \
+-DBUILD_TIFF=ON \
+-DBUILD_WEBP=ON \
+-DBUILD_OPENEXR=ON \
+-DBUILD_ANDROID_EXAMPLES=OFF \
+-DOPENCV_ENABLE_NONFREE=ON \
 -DANDROID_SDK_ROOT=$HOME/Android/Sdk/ \
 ../..
 
