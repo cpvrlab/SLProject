@@ -65,8 +65,8 @@ set(openssl_DIR)
 set(openssl_INCLUDE_DIR)
 set(openssl_LINK_DIR)
 set(openssl_LINK_LIBS
-        crypto
         ssl
+        crypto
         )
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
@@ -162,11 +162,21 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     #################
     # g2o for Linux #
     #################
+    
+    set(g2o_PREBUILT_DIR "linux_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
 
-    set(g2o_DIR ${PREBUILT_PATH}/linux_g2o)
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
-    set(g2o_LIBS ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${g2o_DIR}/Release/lib${lib}.so"
+                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.so"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
+    endforeach (lib)
+    
+    build_external_lib("build_g2o_for_linux.sh" "" "${g2o_PREBUILT_DIR}")
 
     ####################
     # Assimp for Linux #
@@ -177,14 +187,20 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
     
-    foreach (lib ${assimp_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-                IMPORTED_LOCATION ${assimp_DIR}/release/lib${lib}.so
-                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/debug/lib${lib}d.so
-                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
-        set(assimp_LIBS ${assimp_LIBS} ${lib})
-    endforeach () 
+    add_library(assimp::assimp SHARED IMPORTED)
+    set_target_properties(assimp::assimp PROPERTIES
+            IMPORTED_LOCATION "${assimp_DIR}/Release/libassimp.so"
+            IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/libassimp.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
+    add_library(assimp::irrxml STATIC IMPORTED)
+    set_target_properties(assimp::irrxml PROPERTIES
+            IMPORTED_LOCATION "${assimp_DIR}/Release/libIrrXML.a"
+            IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/libIrrXML.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
+
+    set(assimp_LIBS assimp::assimp assimp::irrxml)
     
     build_external_lib("build_assimp_for_linux.sh" "${assimp_VERSION}" "${assimp_PREBUILT_DIR}")
 
@@ -192,20 +208,20 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenSSL for Linux #
     #####################
 
-    set(openssl_VERSION "1.1.1h")
-    set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
+    set(openssl_PREBUILT_DIR "linux_openssl")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS ssl crypto)
 
-    add_library(crypto STATIC IMPORTED)
-    add_library(ssl STATIC IMPORTED)
-    set_target_properties(crypto PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
-            )
-    set_target_properties(ssl PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
-            )
+    foreach (lib ${openssl_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                IMPORTED_LOCATION "${openssl_DIR}/lib/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+        set(openssl_LIBS ${openssl_LIBS} ${lib})
+    endforeach (lib)
+    
+    build_external_lib("build_openssl_for_linux.sh" "OpenSSL_1_1_1h" "${openssl_PREBUILT_DIR}")
 
     ####################
     # Vulkan for Linux #
@@ -240,13 +256,13 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
     set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
     
-    add_library(glfw SHARED IMPORTED)
+    add_library(glfw STATIC IMPORTED)
     set_target_properties(glfw PROPERTIES
-            IMPORTED_LOCATION "${glfw_DIR}/release/libglfw3.so"
-            IMPORTED_LOCATION_DEBUG "${glfw_DIR}/debug/libglfw3.so"
+            IMPORTED_LOCATION "${glfw_DIR}/Release/libglfw3.a"
+            IMPORTED_LOCATION_DEBUG "${glfw_DIR}/Debug/libglfw3.a"
             INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}"
             )
-    set(glfw_LIBS glfw3dll)
+    set(glfw_LIBS glfw)
     
     build_external_lib("build_glfw_for_linux.sh" "${glfw_VERSION}" "${glfw_PREBUILT_DIR}")
 
