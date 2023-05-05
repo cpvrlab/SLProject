@@ -72,7 +72,15 @@ set(openssl_LINK_LIBS
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 
-function(download_lib LIB_NAME)
+function (build_external_lib SCRIPT_NAME SCRIPT_ARG LIB_NAME) 
+    if (NOT EXISTS "${PREBUILT_PATH}/${LIB_NAME}")        
+        execute_process(COMMAND "./${SCRIPT_NAME}" "${SCRIPT_ARG}"
+            WORKING_DIRECTORY "${SL_PROJECT_ROOT}/externals/prebuild_scripts"
+            )
+    endif ()
+endfunction ()
+
+function (download_lib LIB_NAME)
     set(LIB_PREBUILT_DIR "${PREBUILT_PATH}/${LIB_NAME}")
     set(LIB_ZIP "${LIB_NAME}.zip")
     set(LIB_LOCK_PATH "${PREBUILT_PATH}/${LIB_NAME}.lock")
@@ -102,7 +110,7 @@ function(download_lib LIB_NAME)
     endif ()
 endfunction()
 
-function(copy_dlls LIBS)
+function (copy_dlls LIBS)
     if (NOT ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC"))
         return ()
     endif ()
@@ -135,8 +143,9 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenCV for Linux #
     ####################
 
-    set(OpenCV_VERSION "4.5.5")
-    set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
+    set(OpenCV_VERSION "4.7.0")
+    set(OpenCV_PREBUILT_DIR "linux_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
 
@@ -147,6 +156,8 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+    
+    build_external_lib("build_opencv_w_contrib_for_linux.sh" "${OpenCV_VERSION}" "${OpenCV_PREBUILT_DIR}")
 
     #################
     # g2o for Linux #
@@ -162,10 +173,20 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     ####################
 
     set(assimp_VERSION "v5.0.0")
-    set(assimp_DIR ${PREBUILT_PATH}/linux_assimp_${assimp_VERSION})
+    set(assimp_PREBUILT_DIR "linux_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
-    set(assimp_LIBS assimp)
+    
+    foreach (lib ${assimp_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION ${assimp_DIR}/release/lib${lib}.so
+                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/debug/lib${lib}d.so
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+        set(assimp_LIBS ${assimp_LIBS} ${lib})
+    endforeach () 
+    
+    build_external_lib("build_assimp_for_linux.sh" "${assimp_VERSION}" "${assimp_PREBUILT_DIR}")
 
     #####################
     # OpenSSL for Linux #
@@ -210,22 +231,33 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set_target_properties(libvulkan PROPERTIES IMPORTED_LOCATION "${vk_LINK_DIR}/libvulkan.so")
     set(vk_LIBS libvulkan)
 
-    ####################
-    # GLFW for Linux   #
-    ####################
+    ##################
+    # GLFW for Linux #
+    ##################
 
     set(glfw_VERSION "3.3.2")
-    set(glfw_DIR ${PREBUILT_PATH}/linux_glfw_${glfw_VERSION})
-    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
-    set(glfw_LINK_DIR ${glfw_DIR}/${CMAKE_BUILD_TYPE})
-    set(glfw_LIBS glfw3)
+    set(glfw_PREBUILT_DIR "linux_glfw_${glfw_VERSION}")
+    set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
+    set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
+    
+    add_library(glfw SHARED IMPORTED)
+    set_target_properties(glfw PROPERTIES
+            IMPORTED_LOCATION "${glfw_DIR}/release/libglfw3.so"
+            IMPORTED_LOCATION_DEBUG "${glfw_DIR}/debug/libglfw3.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}"
+            )
+    set(glfw_LIBS glfw3dll)
+    
+    build_external_lib("build_glfw_for_linux.sh" "${glfw_VERSION}" "${glfw_PREBUILT_DIR}")
 
     ####################
     # ktx for Linux    #
     ####################
 
     set(ktx_VERSION "v4.0.0-beta7")
-    set(ktx_DIR ${PREBUILT_PATH}/linux_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_DIR "linux_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
@@ -233,9 +265,9 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
             )
     #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
-
     set(ktx_LIBS KTX::ktx)
-
+    
+    build_external_lib("build_ktx_for_linux.sh" "${ktx_VERSION}" "${ktx_PREBUILT_DIR}")
 
     #######################
     # MediaPipe for Linux #
@@ -251,6 +283,12 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include"
             )
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
+    
+    link_directories(${OpenCV_LINK_DIR})
+    link_directories(${g2o_LINK_DIR})
+    link_directories(${assimp_LINK_DIR})
+    link_directories(${vk_LINK_DIR})
+    link_directories(${glfw_LINK_DIR})
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
@@ -1253,9 +1291,3 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     download_lib(${ktx_PREBUILT_DIR})
 endif ()
 #==============================================================================
-
-link_directories(${OpenCV_LINK_DIR})
-link_directories(${g2o_LINK_DIR})
-link_directories(${assimp_LINK_DIR})
-link_directories(${vk_LINK_DIR})
-link_directories(${glfw_LINK_DIR})
