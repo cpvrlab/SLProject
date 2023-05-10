@@ -343,95 +343,103 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # g2o for Windows #
     ###################
 
-    set(g2o_PREBUILT_DIR "win64_g2o")
-    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
-    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
-    set(g2o_LIB_DIR "${g2o_DIR}/lib")
-    set(g2o_BIN_DIR "${g2o_DIR}/bin")
-
-    foreach (lib ${g2o_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-                IMPORTED_IMPLIB "${g2o_LIB_DIR}/${lib}.lib"
-                IMPORTED_LOCATION "${g2o_BIN_DIR}/${lib}.dll"
-                IMPORTED_IMPLIB_DEBUG "${g2o_LIB_DIR}/${lib}_d.lib"
-                IMPORTED_LOCATION_DEBUG "${g2o_BIN_DIR}/${lib}_d.dll"
-                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-                )
-        set(g2o_LIBS ${g2o_LIBS} ${lib})
-    endforeach (lib)
-
-    download_lib("${g2o_PREBUILT_DIR}")
-    copy_dlls("${g2o_LIBS}")
+    if (SL_BUILD_WAI)
+        set(g2o_PREBUILT_DIR "win64_g2o")
+        set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+        set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
+        set(g2o_LIB_DIR "${g2o_DIR}/lib")
+        set(g2o_BIN_DIR "${g2o_DIR}/bin")
+    
+        foreach (lib ${g2o_LINK_LIBS})
+            add_library(${lib} SHARED IMPORTED)
+            set_target_properties(${lib} PROPERTIES
+                    IMPORTED_IMPLIB "${g2o_LIB_DIR}/${lib}.lib"
+                    IMPORTED_LOCATION "${g2o_BIN_DIR}/${lib}.dll"
+                    IMPORTED_IMPLIB_DEBUG "${g2o_LIB_DIR}/${lib}_d.lib"
+                    IMPORTED_LOCATION_DEBUG "${g2o_BIN_DIR}/${lib}_d.dll"
+                    INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+                    )
+            set(g2o_LIBS ${g2o_LIBS} ${lib})
+        endforeach (lib)
+    
+        download_lib("${g2o_PREBUILT_DIR}")
+        copy_dlls("${g2o_LIBS}")
+    endif ()
 
     ######################
     # Assimp for Windows #
     ######################
 
-    set(assimp_VERSION "5.0")
-    set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
-    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LIB_DIR "${assimp_DIR}/lib")
-    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-
-    add_library(assimp SHARED IMPORTED)
-    set_target_properties(assimp PROPERTIES
-            IMPORTED_IMPLIB "${assimp_LIB_DIR}/assimp-mt.lib"
-            IMPORTED_LOCATION "${assimp_LIB_DIR}/assimp-mt.dll"
-            IMPORTED_IMPLIB_DEBUG "${assimp_LIB_DIR}/assimp-mtd.lib"
-            IMPORTED_LOCATION_DEBUG "${assimp_LIB_DIR}/assimp-mtd.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
-            )
-    set(assimp_LIBS assimp)
-
-    download_lib("${assimp_PREBUILT_DIR}")
-    copy_dlls("${assimp_LIBS}")
+    if (SL_BUILD_WITH_ASSIMP)
+        set(assimp_VERSION "5.0")
+        set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
+        set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+        set(assimp_LIB_DIR "${assimp_DIR}/lib")
+        set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    
+        add_library(assimp SHARED IMPORTED)
+        set_target_properties(assimp PROPERTIES
+                IMPORTED_IMPLIB "${assimp_LIB_DIR}/assimp-mt.lib"
+                IMPORTED_LOCATION "${assimp_LIB_DIR}/assimp-mt.dll"
+                IMPORTED_IMPLIB_DEBUG "${assimp_LIB_DIR}/assimp-mtd.lib"
+                IMPORTED_LOCATION_DEBUG "${assimp_LIB_DIR}/assimp-mtd.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+                )
+        set(assimp_LIBS assimp)
+    
+        download_lib("${assimp_PREBUILT_DIR}")
+        copy_dlls("${assimp_LIBS}")
+    endif ()
 
     #######################
     # OpenSSL for Windows #
     #######################
 
-    set(openssl_VERSION "1.1.1h")
-    set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
-    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
-    set(openssl_LIB_DIR "${openssl_DIR}/lib")
-    set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
-
-    add_library(crypto STATIC IMPORTED)
-    set_target_properties(crypto PROPERTIES
-            IMPORTED_LOCATION "${openssl_LIB_DIR}/libcrypto_static.lib"
-            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-            )
-    add_library(ssl STATIC IMPORTED)
-    set_target_properties(ssl PROPERTIES
-            IMPORTED_LOCATION "${openssl_LIB_DIR}/libssl_static.lib"
-            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-            )
-    set(openssl_LIBS crypto ssl)
-
-    download_lib("${openssl_PREBUILT_DIR}")
+    if (SL_BUILD_WITH_OPENSSL)
+        set(openssl_VERSION "1.1.1h")
+        set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
+        set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
+        set(openssl_LIB_DIR "${openssl_DIR}/lib")
+        set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
+    
+        add_library(crypto STATIC IMPORTED)
+        set_target_properties(crypto PROPERTIES
+                IMPORTED_LOCATION "${openssl_LIB_DIR}/libcrypto_static.lib"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+        add_library(ssl STATIC IMPORTED)
+        set_target_properties(ssl PROPERTIES
+                IMPORTED_LOCATION "${openssl_LIB_DIR}/libssl_static.lib"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+        set(openssl_LIBS crypto ssl)
+    
+        download_lib("${openssl_PREBUILT_DIR}")
+    endif ()
 
     ######################
     # Vulkan for Windows #
     ######################
 
-    set(vk_VERSION "1.2.162.1")
-    set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
-    set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
-    set(vk_INCLUDE_DIR "${vk_DIR}/Include")
-    set(vk_LIB_DIR "${vk_DIR}/Lib")
-
-    foreach (lib ${vk_LINK_LIBS})
-        add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-                IMPORTED_LOCATION "${vk_LIB_DIR}/${lib}.lib"
-                INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
-                )
-        set(vk_LIBS ${vk_LIBS} ${lib})
-    endforeach (lib)
-
-    download_lib("${vk_PREBUILT_DIR}")
-    copy_dlls("${vk_LIBS}")
+    if (SL_BUILD_VULKAN_APPS)
+        set(vk_VERSION "1.2.162.1")
+        set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
+        set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
+        set(vk_INCLUDE_DIR "${vk_DIR}/Include")
+        set(vk_LIB_DIR "${vk_DIR}/Lib")
+    
+        foreach (lib ${vk_LINK_LIBS})
+            add_library(${lib} STATIC IMPORTED)
+            set_target_properties(${lib} PROPERTIES
+                    IMPORTED_LOCATION "${vk_LIB_DIR}/${lib}.lib"
+                    INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
+                    )
+            set(vk_LIBS ${vk_LIBS} ${lib})
+        endforeach (lib)
+    
+        download_lib("${vk_PREBUILT_DIR}")
+        copy_dlls("${vk_LIBS}")
+    endif ()
 
     ####################
     # GLFW for Windows #
@@ -458,40 +466,44 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # KTX for Windows #
     ###################
 
-    set(ktx_VERSION "v4.0.0-beta7")
-    set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
-    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
-
-    add_library(KTX::ktx SHARED IMPORTED)
-    set_target_properties(KTX::ktx
-            PROPERTIES
-            IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
-            IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
-    set(ktx_LIBS KTX::ktx)
-
-    download_lib("${ktx_PREBUILT_DIR}")
-    copy_dlls("${ktx_LIBS}")
+    if (SL_BUILD_WITH_KTX)
+        set(ktx_VERSION "v4.0.0-beta7")
+        set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
+        set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    
+        add_library(KTX::ktx SHARED IMPORTED)
+        set_target_properties(KTX::ktx
+                PROPERTIES
+                IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
+                IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+                )
+        set(ktx_LIBS KTX::ktx)
+    
+        download_lib("${ktx_PREBUILT_DIR}")
+        copy_dlls("${ktx_LIBS}")
+    endif ()
 
     #########################
     # MediaPipe for Windows #
     #########################
 
-    set(MediaPipe_VERSION "v0.8.11")
-    set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
-    set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
-
-    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
-    set_target_properties(MediaPipe::MediaPipe
-            PROPERTIES
-            IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
-            IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
-    set(MediaPipe_LIBS MediaPipe::MediaPipe)
-
-    download_lib("${MediaPipe_PREBUILT_DIR}")
-    copy_dlls("${MediaPipe_LIBS}")
+    if (SL_BUILD_WITH_MEDIAPIPE)
+        set(MediaPipe_VERSION "v0.8.11")
+        set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
+        set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
+    
+        add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+        set_target_properties(MediaPipe::MediaPipe
+                PROPERTIES
+                IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
+                IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+        set(MediaPipe_LIBS MediaPipe::MediaPipe)
+    
+        download_lib("${MediaPipe_PREBUILT_DIR}")
+        copy_dlls("${MediaPipe_LIBS}")
+    endif ()
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
