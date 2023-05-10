@@ -27,9 +27,15 @@ set(META_PROJECT_NAME "SLProject")
 project(${META_PROJECT_NAME} C CXX)
 
 # Set output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+if (WIN32)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+else ()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+endif ()
 
 option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded" ON)
 option(SL_BUILD_WAI "Specifies if the WAI library should be built" ON)
@@ -57,7 +63,6 @@ message(STATUS "LIBIGL_USE_STATIC_LIBRARY: ${LIBIGL_USE_STATIC_LIBRARY}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
-include(cmake/ConfigureMSVCCLion.cmake)
 include(cmake/ConfigureClangCl.cmake)
 include(cmake/DownloadData.cmake)
 
