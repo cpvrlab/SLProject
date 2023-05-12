@@ -65,14 +65,22 @@ set(openssl_DIR)
 set(openssl_INCLUDE_DIR)
 set(openssl_LINK_DIR)
 set(openssl_LINK_LIBS
-        crypto
         ssl
+        crypto
         )
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 
-function(download_lib LIB_NAME)
+function (build_external_lib SCRIPT_NAME SCRIPT_ARG LIB_NAME) 
+    if (NOT EXISTS "${PREBUILT_PATH}/${LIB_NAME}")        
+        execute_process(COMMAND "./${SCRIPT_NAME}" "${SCRIPT_ARG}"
+            WORKING_DIRECTORY "${SL_PROJECT_ROOT}/externals/prebuild_scripts"
+            )
+    endif ()
+endfunction ()
+
+function (download_lib LIB_NAME)
     set(LIB_PREBUILT_DIR "${PREBUILT_PATH}/${LIB_NAME}")
     set(LIB_ZIP "${LIB_NAME}.zip")
     set(LIB_LOCK_PATH "${PREBUILT_PATH}/${LIB_NAME}.lock")
@@ -102,7 +110,7 @@ function(download_lib LIB_NAME)
     endif ()
 endfunction()
 
-function(copy_dlls LIBS)
+function (copy_dlls LIBS)
     if (NOT ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC"))
         return ()
     endif ()
@@ -135,8 +143,9 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenCV for Linux #
     ####################
 
-    set(OpenCV_VERSION "4.5.5")
-    set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
+    set(OpenCV_VERSION "4.7.0")
+    set(OpenCV_PREBUILT_DIR "linux_opencv_${OpenCV_VERSION}")
+    set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
 
@@ -147,44 +156,72 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
 
     set(OpenCV_LIBS ${OpenCV_LINK_LIBS})
     set(OpenCV_LIBS_DEBUG ${OpenCV_LIBS})
+    
+    build_external_lib("build_opencv_w_contrib_for_linux.sh" "${OpenCV_VERSION}" "${OpenCV_PREBUILT_DIR}")
 
     #################
     # g2o for Linux #
     #################
+    
+    set(g2o_PREBUILT_DIR "linux_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
 
-    set(g2o_DIR ${PREBUILT_PATH}/linux_g2o)
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-    set(g2o_LINK_DIR ${g2o_DIR}/${CMAKE_BUILD_TYPE})
-    set(g2o_LIBS ${g2o_LINK_LIBS})
+    foreach (lib ${g2o_LINK_LIBS})
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${g2o_DIR}/Release/lib${lib}.so"
+                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Debug/lib${lib}.so"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
+    endforeach (lib)
+    
+    build_external_lib("build_g2o_for_linux.sh" "" "${g2o_PREBUILT_DIR}")
 
     ####################
     # Assimp for Linux #
     ####################
 
     set(assimp_VERSION "v5.0.0")
-    set(assimp_DIR ${PREBUILT_PATH}/linux_assimp_${assimp_VERSION})
+    set(assimp_PREBUILT_DIR "linux_assimp_${assimp_VERSION}")
+    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
-    set(assimp_LIBS assimp)
+    
+    add_library(assimp::assimp SHARED IMPORTED)
+    set_target_properties(assimp::assimp PROPERTIES
+            IMPORTED_LOCATION "${assimp_DIR}/Release/libassimp.so"
+            IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/libassimp.so"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
+    add_library(assimp::irrxml STATIC IMPORTED)
+    set_target_properties(assimp::irrxml PROPERTIES
+            IMPORTED_LOCATION "${assimp_DIR}/Release/libIrrXML.a"
+            IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/libIrrXML.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+            )
+
+    set(assimp_LIBS assimp::assimp assimp::irrxml)
+    
+    build_external_lib("build_assimp_for_linux.sh" "${assimp_VERSION}" "${assimp_PREBUILT_DIR}")
 
     #####################
     # OpenSSL for Linux #
     #####################
 
-    set(openssl_VERSION "1.1.1h")
-    set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
+    set(openssl_PREBUILT_DIR "linux_openssl")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS ssl crypto)
 
-    add_library(crypto STATIC IMPORTED)
-    add_library(ssl STATIC IMPORTED)
-    set_target_properties(crypto PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
-            )
-    set_target_properties(ssl PROPERTIES
-            IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
-            )
+    foreach (lib ${openssl_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                IMPORTED_LOCATION "${openssl_DIR}/lib/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+        set(openssl_LIBS ${openssl_LIBS} ${lib})
+    endforeach (lib)
+    
+    build_external_lib("build_openssl_for_linux.sh" "OpenSSL_1_1_1h" "${openssl_PREBUILT_DIR}")
 
     ####################
     # Vulkan for Linux #
@@ -210,22 +247,33 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set_target_properties(libvulkan PROPERTIES IMPORTED_LOCATION "${vk_LINK_DIR}/libvulkan.so")
     set(vk_LIBS libvulkan)
 
-    ####################
-    # GLFW for Linux   #
-    ####################
+    ##################
+    # GLFW for Linux #
+    ##################
 
     set(glfw_VERSION "3.3.2")
-    set(glfw_DIR ${PREBUILT_PATH}/linux_glfw_${glfw_VERSION})
-    set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
-    set(glfw_LINK_DIR ${glfw_DIR}/${CMAKE_BUILD_TYPE})
-    set(glfw_LIBS glfw3)
+    set(glfw_PREBUILT_DIR "linux_glfw_${glfw_VERSION}")
+    set(glfw_DIR "${PREBUILT_PATH}/${glfw_PREBUILT_DIR}")
+    set(glfw_INCLUDE_DIR "${glfw_DIR}/include")
+    
+    add_library(glfw STATIC IMPORTED)
+    set_target_properties(glfw PROPERTIES
+            IMPORTED_LOCATION "${glfw_DIR}/Release/libglfw3.a"
+            IMPORTED_LOCATION_DEBUG "${glfw_DIR}/Debug/libglfw3.a"
+            INTERFACE_INCLUDE_DIRECTORIES "${glfw_INCLUDE_DIR}"
+            )
+    set(glfw_LIBS glfw)
+    
+    build_external_lib("build_glfw_for_linux.sh" "${glfw_VERSION}" "${glfw_PREBUILT_DIR}")
 
     ####################
     # ktx for Linux    #
     ####################
 
     set(ktx_VERSION "v4.0.0-beta7")
-    set(ktx_DIR ${PREBUILT_PATH}/linux_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_DIR "linux_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
@@ -233,9 +281,9 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
             )
     #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
-
     set(ktx_LIBS KTX::ktx)
-
+    
+    build_external_lib("build_ktx_for_linux.sh" "${ktx_VERSION}" "${ktx_PREBUILT_DIR}")
 
     #######################
     # MediaPipe for Linux #
@@ -251,6 +299,12 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include"
             )
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
+    
+    link_directories(${OpenCV_LINK_DIR})
+    link_directories(${g2o_LINK_DIR})
+    link_directories(${assimp_LINK_DIR})
+    link_directories(${vk_LINK_DIR})
+    link_directories(${glfw_LINK_DIR})
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
@@ -289,95 +343,103 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # g2o for Windows #
     ###################
 
-    set(g2o_PREBUILT_DIR "win64_g2o")
-    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
-    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
-    set(g2o_LIB_DIR "${g2o_DIR}/lib")
-    set(g2o_BIN_DIR "${g2o_DIR}/bin")
-
-    foreach (lib ${g2o_LINK_LIBS})
-        add_library(${lib} SHARED IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-                IMPORTED_IMPLIB "${g2o_LIB_DIR}/${lib}.lib"
-                IMPORTED_LOCATION "${g2o_BIN_DIR}/${lib}.dll"
-                IMPORTED_IMPLIB_DEBUG "${g2o_LIB_DIR}/${lib}_d.lib"
-                IMPORTED_LOCATION_DEBUG "${g2o_BIN_DIR}/${lib}_d.dll"
-                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-                )
-        set(g2o_LIBS ${g2o_LIBS} ${lib})
-    endforeach (lib)
-
-    download_lib("${g2o_PREBUILT_DIR}")
-    copy_dlls("${g2o_LIBS}")
+    if (SL_BUILD_WAI)
+        set(g2o_PREBUILT_DIR "win64_g2o")
+        set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+        set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
+        set(g2o_LIB_DIR "${g2o_DIR}/lib")
+        set(g2o_BIN_DIR "${g2o_DIR}/bin")
+    
+        foreach (lib ${g2o_LINK_LIBS})
+            add_library(${lib} SHARED IMPORTED)
+            set_target_properties(${lib} PROPERTIES
+                    IMPORTED_IMPLIB "${g2o_LIB_DIR}/${lib}.lib"
+                    IMPORTED_LOCATION "${g2o_BIN_DIR}/${lib}.dll"
+                    IMPORTED_IMPLIB_DEBUG "${g2o_LIB_DIR}/${lib}_d.lib"
+                    IMPORTED_LOCATION_DEBUG "${g2o_BIN_DIR}/${lib}_d.dll"
+                    INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
+                    )
+            set(g2o_LIBS ${g2o_LIBS} ${lib})
+        endforeach (lib)
+    
+        download_lib("${g2o_PREBUILT_DIR}")
+        copy_dlls("${g2o_LIBS}")
+    endif ()
 
     ######################
     # Assimp for Windows #
     ######################
 
-    set(assimp_VERSION "5.0")
-    set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
-    set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
-    set(assimp_LIB_DIR "${assimp_DIR}/lib")
-    set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-
-    add_library(assimp SHARED IMPORTED)
-    set_target_properties(assimp PROPERTIES
-            IMPORTED_IMPLIB "${assimp_LIB_DIR}/assimp-mt.lib"
-            IMPORTED_LOCATION "${assimp_LIB_DIR}/assimp-mt.dll"
-            IMPORTED_IMPLIB_DEBUG "${assimp_LIB_DIR}/assimp-mtd.lib"
-            IMPORTED_LOCATION_DEBUG "${assimp_LIB_DIR}/assimp-mtd.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
-            )
-    set(assimp_LIBS assimp)
-
-    download_lib("${assimp_PREBUILT_DIR}")
-    copy_dlls("${assimp_LIBS}")
+    if (SL_BUILD_WITH_ASSIMP)
+        set(assimp_VERSION "5.0")
+        set(assimp_PREBUILT_DIR "win64_assimp_${assimp_VERSION}")
+        set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
+        set(assimp_LIB_DIR "${assimp_DIR}/lib")
+        set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
+    
+        add_library(assimp SHARED IMPORTED)
+        set_target_properties(assimp PROPERTIES
+                IMPORTED_IMPLIB "${assimp_LIB_DIR}/assimp-mt.lib"
+                IMPORTED_LOCATION "${assimp_LIB_DIR}/assimp-mt.dll"
+                IMPORTED_IMPLIB_DEBUG "${assimp_LIB_DIR}/assimp-mtd.lib"
+                IMPORTED_LOCATION_DEBUG "${assimp_LIB_DIR}/assimp-mtd.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+                )
+        set(assimp_LIBS assimp)
+    
+        download_lib("${assimp_PREBUILT_DIR}")
+        copy_dlls("${assimp_LIBS}")
+    endif ()
 
     #######################
     # OpenSSL for Windows #
     #######################
 
-    set(openssl_VERSION "1.1.1h")
-    set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
-    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
-    set(openssl_LIB_DIR "${openssl_DIR}/lib")
-    set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
-
-    add_library(crypto STATIC IMPORTED)
-    set_target_properties(crypto PROPERTIES
-            IMPORTED_LOCATION "${openssl_LIB_DIR}/libcrypto_static.lib"
-            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-            )
-    add_library(ssl STATIC IMPORTED)
-    set_target_properties(ssl PROPERTIES
-            IMPORTED_LOCATION "${openssl_LIB_DIR}/libssl_static.lib"
-            INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-            )
-    set(openssl_LIBS crypto ssl)
-
-    download_lib("${openssl_PREBUILT_DIR}")
+    if (SL_BUILD_WITH_OPENSSL)
+        set(openssl_VERSION "1.1.1h")
+        set(openssl_PREBUILT_DIR "win64_openssl_${openssl_VERSION}")
+        set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
+        set(openssl_LIB_DIR "${openssl_DIR}/lib")
+        set(openssl_INCLUDE_DIR "${openssl_DIR}/include")
+    
+        add_library(crypto STATIC IMPORTED)
+        set_target_properties(crypto PROPERTIES
+                IMPORTED_LOCATION "${openssl_LIB_DIR}/libcrypto_static.lib"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+        add_library(ssl STATIC IMPORTED)
+        set_target_properties(ssl PROPERTIES
+                IMPORTED_LOCATION "${openssl_LIB_DIR}/libssl_static.lib"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+        set(openssl_LIBS crypto ssl)
+    
+        download_lib("${openssl_PREBUILT_DIR}")
+    endif ()
 
     ######################
     # Vulkan for Windows #
     ######################
 
-    set(vk_VERSION "1.2.162.1")
-    set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
-    set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
-    set(vk_INCLUDE_DIR "${vk_DIR}/Include")
-    set(vk_LIB_DIR "${vk_DIR}/Lib")
-
-    foreach (lib ${vk_LINK_LIBS})
-        add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib} PROPERTIES
-                IMPORTED_LOCATION "${vk_LIB_DIR}/${lib}.lib"
-                INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
-                )
-        set(vk_LIBS ${vk_LIBS} ${lib})
-    endforeach (lib)
-
-    download_lib("${vk_PREBUILT_DIR}")
-    copy_dlls("${vk_LIBS}")
+    if (SL_BUILD_VULKAN_APPS)
+        set(vk_VERSION "1.2.162.1")
+        set(vk_PREBUILT_DIR "win64_vulkan_${vk_VERSION}")
+        set(vk_DIR "${PREBUILT_PATH}/${vk_PREBUILT_DIR}")
+        set(vk_INCLUDE_DIR "${vk_DIR}/Include")
+        set(vk_LIB_DIR "${vk_DIR}/Lib")
+    
+        foreach (lib ${vk_LINK_LIBS})
+            add_library(${lib} STATIC IMPORTED)
+            set_target_properties(${lib} PROPERTIES
+                    IMPORTED_LOCATION "${vk_LIB_DIR}/${lib}.lib"
+                    INTERFACE_INCLUDE_DIRECTORIES "${vk_INCLUDE_DIR}"
+                    )
+            set(vk_LIBS ${vk_LIBS} ${lib})
+        endforeach (lib)
+    
+        download_lib("${vk_PREBUILT_DIR}")
+        copy_dlls("${vk_LIBS}")
+    endif ()
 
     ####################
     # GLFW for Windows #
@@ -404,40 +466,44 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # KTX for Windows #
     ###################
 
-    set(ktx_VERSION "v4.0.0-beta7")
-    set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
-    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
-
-    add_library(KTX::ktx SHARED IMPORTED)
-    set_target_properties(KTX::ktx
-            PROPERTIES
-            IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
-            IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
-    set(ktx_LIBS KTX::ktx)
-
-    download_lib("${ktx_PREBUILT_DIR}")
-    copy_dlls("${ktx_LIBS}")
+    if (SL_BUILD_WITH_KTX)
+        set(ktx_VERSION "v4.0.0-beta7")
+        set(ktx_PREBUILT_DIR "win64_ktx_${ktx_VERSION}")
+        set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    
+        add_library(KTX::ktx SHARED IMPORTED)
+        set_target_properties(KTX::ktx
+                PROPERTIES
+                IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
+                IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+                )
+        set(ktx_LIBS KTX::ktx)
+    
+        download_lib("${ktx_PREBUILT_DIR}")
+        copy_dlls("${ktx_LIBS}")
+    endif ()
 
     #########################
     # MediaPipe for Windows #
     #########################
 
-    set(MediaPipe_VERSION "v0.8.11")
-    set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
-    set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
-
-    add_library(MediaPipe::MediaPipe SHARED IMPORTED)
-    set_target_properties(MediaPipe::MediaPipe
-            PROPERTIES
-            IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
-            IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
-            INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
-    set(MediaPipe_LIBS MediaPipe::MediaPipe)
-
-    download_lib("${MediaPipe_PREBUILT_DIR}")
-    copy_dlls("${MediaPipe_LIBS}")
+    if (SL_BUILD_WITH_MEDIAPIPE)
+        set(MediaPipe_VERSION "v0.8.11")
+        set(MediaPipe_PREBUILT_DIR "win64_mediapipe_${MediaPipe_VERSION}")
+        set(MediaPipe_DIR "${PREBUILT_PATH}/${MediaPipe_PREBUILT_DIR}")
+    
+        add_library(MediaPipe::MediaPipe SHARED IMPORTED)
+        set_target_properties(MediaPipe::MediaPipe
+                PROPERTIES
+                IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
+                IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
+                INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
+        set(MediaPipe_LIBS MediaPipe::MediaPipe)
+    
+        download_lib("${MediaPipe_PREBUILT_DIR}")
+        copy_dlls("${MediaPipe_LIBS}")
+    endif ()
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
@@ -815,40 +881,21 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #--------------------------------
     # OpenCV for iOS #
     ##################
 
-    # Download first for iOS
-    set(OpenCV_VERSION "4.5.0")
+    set(OpenCV_VERSION "4.7.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include/opencv4")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-    endif ()
-
+    
     foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
+                IMPORTED_LOCATION "${OpenCV_DIR}/release/lib${lib}.a"
                 IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
                 INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
                 )
-
-        #ATTENTION: debug and optimized seams to mess things up in ios
-        #set(OpenCV_LIBS
-        #        ${OpenCV_LIBS}
-        #        optimized ${lib}
-        #        debug ${lib})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                ${lib})
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
 
     #add special libs
@@ -864,158 +911,98 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #--------------------------------
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
+                IMPORTED_LOCATION "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
                 IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
                 )
-
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                ${lib})
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib(${OpenCV_PREBUILT_DIR})
 
     ###############
     # g2o for iOS #
     ###############
 
-    set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
-    set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
-    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-
-    if (NOT EXISTS "${g2o_DIR}")
-        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
+    set(g2o_PREBUILT_DIR "iosV8_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
 
     foreach (lib ${g2o_LINK_LIBS})
-        add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
-                #we use Release libs for both configurations
-                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-                )
-
-        set(g2o_LIBS
-                ${g2o_LIBS}
-                ${lib}
-                )
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${g2o_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib(${g2o_PREBUILT_DIR})
 
     ##################
     # Assimp for iOS #
     ##################
 
-    # Download first for iOS
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${assimp_DIR}")
-        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-
-        if (NOT EXISTS "${assimp_DIR}")
-            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
-        endif ()
-    endif ()
 
     foreach (lib ${assimp_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
-                IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
-                IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include"
-                )
-
-        set(assimp_LIBS
-                ${assimp_LIBS}
-                ${lib})
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION ${assimp_DIR}/Release/lib${lib}.a
+                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.a
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+        set(assimp_LIBS ${assimp_LIBS} ${lib})
     endforeach ()
+
+    download_lib("${assimp_PREBUILT_DIR}")
 
     ###################
     # openssl for iOS #
     ###################
 
     set(openssl_VERSION "1.1.1g")
-    set(openssl_DIR ${PREBUILT_PATH}/iosV8_openssl_${openssl_VERSION})
-    set(openssl_PREBUILT_ZIP "iosV8_openssl_${openssl_VERSION}.zip")
-    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${openssl_DIR}")
-        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
-        file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
-
+    set(openssl_PREBUILT_DIR "iosV8_openssl_${openssl_VERSION}")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
-    link_directories(${openssl_LINK_DIR})
 
     foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
-                #we use Release libs for both configurations
-                IMPORTED_LOCATION_DEBUG "${openssl_DIR}/Release/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${openssl_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-                )
-
-        set(openssl_LIBS
-                ${openssl_LIBS}
-                ${lib}
-                )
+                IMPORTED_LOCATION "${openssl_DIR}/release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+        set(openssl_LIBS ${openssl_LIBS} ${lib})
     endforeach (lib)
 
-    ###################
-    # ktx for iOS     #
-    ###################
-    set(ktx_VERSION "v4.0.0-beta7-cpvr")
-    set(ktx_DIR ${PREBUILT_PATH}/iosV8_ktx_${ktx_VERSION})
-    set(ktx_PREBUILT_ZIP "iosV8_ktx_${ktx_VERSION}.zip")
-    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+    download_lib("${openssl_PREBUILT_DIR}")
 
-    if (NOT EXISTS "${ktx_DIR}")
-        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
-        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif ()
+    ###############
+    # KTX for iOS #
+    ###############
+
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_PREBUILT_DIR "iosV8_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    set(ktx_INCLUDE_DIR "${ktx_DIR}/include")
 
     add_library(KTX::ktx STATIC IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.a"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}")
 
     add_library(KTX::zstd STATIC IMPORTED)
     set_target_properties(KTX::zstd
             PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libzstd.a"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
             )
 
     set(ktx_LIBS KTX::ktx KTX::zstd)
+
+    download_lib("${ktx_PREBUILT_DIR}")
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
@@ -1253,9 +1240,3 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "EMSCRIPTEN")
     download_lib(${ktx_PREBUILT_DIR})
 endif ()
 #==============================================================================
-
-link_directories(${OpenCV_LINK_DIR})
-link_directories(${g2o_LINK_DIR})
-link_directories(${assimp_LINK_DIR})
-link_directories(${vk_LINK_DIR})
-link_directories(${glfw_LINK_DIR})
