@@ -881,40 +881,21 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #--------------------------------
     # OpenCV for iOS #
     ##################
 
-    # Download first for iOS
-    set(OpenCV_VERSION "4.5.0")
+    set(OpenCV_VERSION "4.7.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
-    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")   # don't forget to add the this link dir down at the bottom
+    set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include/opencv4")
-    set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
-    endif ()
-
+    
     foreach (lib ${OpenCV_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
+                IMPORTED_LOCATION "${OpenCV_DIR}/release/lib${lib}.a"
                 IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/lib${lib}.a"
                 INTERFACE_INCLUDE_DIRECTORIES "${OpenCV_DIR}/include/opencv4"
                 )
-
-        #ATTENTION: debug and optimized seams to mess things up in ios
-        #set(OpenCV_LIBS
-        #        ${OpenCV_LIBS}
-        #        optimized ${lib}
-        #        debug ${lib})
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                ${lib})
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
 
     #add special libs
@@ -930,158 +911,98 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #--------------------------------
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
+                IMPORTED_LOCATION "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
                 IMPORTED_LOCATION_DEBUG "${OpenCV_DIR}/debug/opencv4/3rdparty/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${OpenCV_DIR}/release/opencv4/3rdparty/lib${lib}.a"
                 )
-
-        set(OpenCV_LIBS
-                ${OpenCV_LIBS}
-                ${lib})
+        set(OpenCV_LIBS ${OpenCV_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib(${OpenCV_PREBUILT_DIR})
 
     ###############
     # g2o for iOS #
     ###############
 
-    set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
-    set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
-    set(g2o_URL ${PREBUILT_URL}/${g2o_PREBUILT_ZIP})
-    set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
-
-    if (NOT EXISTS "${g2o_DIR}")
-        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
-    endif ()
+    set(g2o_PREBUILT_DIR "iosV8_g2o")
+    set(g2o_DIR "${PREBUILT_PATH}/${g2o_PREBUILT_DIR}")
+    set(g2o_INCLUDE_DIR "${g2o_DIR}/include")
 
     foreach (lib ${g2o_LINK_LIBS})
-        add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
-                #we use Release libs for both configurations
-                IMPORTED_LOCATION_DEBUG "${g2o_DIR}/Release/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${g2o_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}"
-                )
-
-        set(g2o_LIBS
-                ${g2o_LIBS}
-                ${lib}
-                )
+        add_library(${lib} SHARED IMPORTED)
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION "${g2o_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${g2o_INCLUDE_DIR}")
+        set(g2o_LIBS ${g2o_LIBS} ${lib})
     endforeach (lib)
+
+    download_lib(${g2o_PREBUILT_DIR})
 
     ##################
     # Assimp for iOS #
     ##################
 
-    # Download first for iOS
     set(assimp_VERSION "5.0")
     set(assimp_PREBUILT_DIR "iosV8_assimp_${assimp_VERSION}")
     set(assimp_DIR "${PREBUILT_PATH}/${assimp_PREBUILT_DIR}")
     set(assimp_INCLUDE_DIR "${assimp_DIR}/include")
-    set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${assimp_DIR}")
-        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
-        file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
-
-        if (NOT EXISTS "${assimp_DIR}")
-            message(SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!")
-        endif ()
-    endif ()
 
     foreach (lib ${assimp_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
-        set_target_properties(${lib}
-                PROPERTIES
-                IMPORTED_LOCATION_DEBUG "${assimp_DIR}/Debug/lib${lib}d.a"
-                IMPORTED_LOCATION_RELEASE "${assimp_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${assimp_DIR}/include"
-                )
-
-        set(assimp_LIBS
-                ${assimp_LIBS}
-                ${lib})
+        set_target_properties(${lib} PROPERTIES
+                IMPORTED_LOCATION ${assimp_DIR}/Release/lib${lib}.a
+                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.a
+                INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}")
+        set(assimp_LIBS ${assimp_LIBS} ${lib})
     endforeach ()
+
+    download_lib("${assimp_PREBUILT_DIR}")
 
     ###################
     # openssl for iOS #
     ###################
 
     set(openssl_VERSION "1.1.1g")
-    set(openssl_DIR ${PREBUILT_PATH}/iosV8_openssl_${openssl_VERSION})
-    set(openssl_PREBUILT_ZIP "iosV8_openssl_${openssl_VERSION}.zip")
-    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
-
-    if (NOT EXISTS "${openssl_DIR}")
-        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
-        file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
-
+    set(openssl_PREBUILT_DIR "iosV8_openssl_${openssl_VERSION}")
+    set(openssl_DIR "${PREBUILT_PATH}/${openssl_PREBUILT_DIR}")
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
-    link_directories(${openssl_LINK_DIR})
 
     foreach (lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
-                #we use Release libs for both configurations
-                IMPORTED_LOCATION_DEBUG "${openssl_DIR}/Release/lib${lib}.a"
-                IMPORTED_LOCATION_RELEASE "${openssl_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
-                )
-
-        set(openssl_LIBS
-                ${openssl_LIBS}
-                ${lib}
-                )
+                IMPORTED_LOCATION "${openssl_DIR}/release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+        set(openssl_LIBS ${openssl_LIBS} ${lib})
     endforeach (lib)
 
-    ###################
-    # ktx for iOS     #
-    ###################
-    set(ktx_VERSION "v4.0.0-beta7-cpvr")
-    set(ktx_DIR ${PREBUILT_PATH}/iosV8_ktx_${ktx_VERSION})
-    set(ktx_PREBUILT_ZIP "iosV8_ktx_${ktx_VERSION}.zip")
-    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+    download_lib("${openssl_PREBUILT_DIR}")
 
-    if (NOT EXISTS "${ktx_DIR}")
-        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
-        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
-                WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
-    endif ()
+    ###############
+    # KTX for iOS #
+    ###############
+
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_PREBUILT_DIR "iosV8_ktx_${ktx_VERSION}")
+    set(ktx_DIR "${PREBUILT_PATH}/${ktx_PREBUILT_DIR}")
+    set(ktx_INCLUDE_DIR "${ktx_DIR}/include")
 
     add_library(KTX::ktx STATIC IMPORTED)
     set_target_properties(KTX::ktx
             PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libktx.a"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
-            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
-            )
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}")
 
     add_library(KTX::zstd STATIC IMPORTED)
     set_target_properties(KTX::zstd
             PROPERTIES
+            IMPORTED_LOCATION "${ktx_DIR}/release/libzstd.a"
             IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
-            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
             )
 
     set(ktx_LIBS KTX::ktx KTX::zstd)
+
+    download_lib("${ktx_PREBUILT_DIR}")
 
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
