@@ -137,6 +137,7 @@ endif ()
 # GCC and Clang compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
+			-std=c++14
 
             -Werror=return-type
             -Wno-c++98-compat
@@ -179,11 +180,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 
             $<$<PLATFORM_ID:Darwin>:
                 -pthread
-            >
-
-            # Required for CMake < 3.1; should be removed if minimum required CMake version is raised.
-            $<$<VERSION_LESS:${CMAKE_VERSION},3.1>:
-                -std=c++14
             >
     )
 
