@@ -8,7 +8,7 @@ function (sl_add_exercise EXERCISE_NAME)
     add_executable(${EXERCISE_NAME} ${HEADERS} ${SOURCES} ${SHADERS})
 
     set_target_properties(${EXERCISE_NAME} PROPERTIES ${DEFAULT_PROJECT_OPTIONS} FOLDER "apps/exercises")
-    target_include_directories(${EXERCISE_NAME} PRIVATE ${SL_PROJECT_ROOT}/apps/exercises)
+    target_include_directories(${EXERCISE_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${SL_PROJECT_ROOT}/apps/exercises)
     include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
     target_link_libraries(${EXERCISE_NAME} PRIVATE ${PlatformLinkLibs} ${EXERCISE_LIBRARIES})
     target_compile_definitions(${EXERCISE_NAME} PUBLIC ${DEFAULT_COMPILE_DEFINITIONS})

@@ -27,9 +27,15 @@ set(META_PROJECT_NAME "SLProject")
 project(${META_PROJECT_NAME} C CXX)
 
 # Set output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+if (WIN32)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+else ()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+endif ()
 
 option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded" ON)
 option(SL_BUILD_WAI "Specifies if the WAI library should be built" ON)
@@ -57,8 +63,6 @@ message(STATUS "LIBIGL_USE_STATIC_LIBRARY: ${LIBIGL_USE_STATIC_LIBRARY}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
-include(cmake/ConfigureMSVCCLion.cmake)
-include(cmake/ConfigureClangCl.cmake)
 include(cmake/DownloadData.cmake)
 
 if (SL_DOWNLOAD_PREBUILTS)
@@ -70,42 +74,6 @@ if ("${CMAKE_SYSTEM_NAME}" MATCHES "Android")
     option(SL_APP
             "Specifies which sample app should be built (used for android)"
             SL_APP_ALL)
-endif ()
-
-if ("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
-    add_compile_options(
-            "-sUSE_PTHREADS"
-            #"-fsanitize=address"
-    )
-    add_link_options(
-            # The Wasm heap has a limited size.
-            # Enable growing the heap when allocating more than the initial heap size.
-            "-sALLOW_MEMORY_GROWTH=1"
-
-            # Enable assertions that provide information about errors.
-            "-sASSERTIONS"
-
-            # Enable support for pthreads, which are implemented using a pool of web workers.
-            "-sUSE_PTHREADS"
-
-            # Run the entire application in a web worker, so we can block while fetching.
-            # Functions that have to run on the main thread are proxied to it using messages.
-            "-sPROXY_TO_PTHREAD"
-
-            # The canvas that WebGL renders to has to be on the same thread as the WebGL context.
-            # This flags enables support for transferring canvases to a worker.
-            "-sOFFSCREENCANVAS_SUPPORT=1"
-
-            # Transfer the app canvas to the worker.
-            "-sOFFSCREENCANVASES_TO_PTHREAD='#canvas'"
-
-            # Strings are always decoded on the main thread, which accesses it using a SharedArrayBuffer.
-            # Chrome doesn't support decoding from SharedArrayBuffers, so we disable the JavaScript TextDecoder API.
-            # See https://github.com/emscripten-core/emscripten/issues/18034
-            "-sTEXTDECODER=0"
-
-            "-sEXIT_RUNTIME=0"
-    )
 endif ()
 
 add_subdirectory(modules/sens)

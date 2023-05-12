@@ -80,6 +80,21 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS}" )
 endif ()
 
+# Compile options for compiling using clang-cl on Windows
+# clang-cl is a drop-in replacement for cl (the MSVC compiler)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang" AND "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
+	add_compile_definitions(_WINDOWS)
+
+	# NOMINMAX disables the macros "min" and "max" from a Windows header that clang-cl for some reason includes
+	# These macros override std::min and std::max from the C++ standard library, which blows everything up
+	add_compile_definitions(NOMINMAX)
+
+	# Set additional flags
+	# /EHs              Enable Exception handling (https://docs.microsoft.com/en-us/cpp/build/reference/eh-exception-handling-model?view=msvc-170)
+	# -march=native     Enable AVX intrinsics for fbow (won't compile on machines without AVX support)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc -march=native")
+endif ()
+
 set(DEFAULT_COMPILE_OPTIONS)
 
 # MSVC compiler options
@@ -232,3 +247,44 @@ endif()
 #			)
 #	endif ()
 #endif ()
+
+#
+# Options for Emscripten
+#
+
+if ("${SYSTEM_NAME_UPPER}" MATCHES "EMSCRIPTEN")
+	add_compile_options(
+			"-sUSE_PTHREADS"
+			#"-fsanitize=address"
+	)
+	add_link_options(
+			# The Wasm heap has a limited size.
+			# Enable growing the heap when allocating more than the initial heap size.
+			"-sALLOW_MEMORY_GROWTH=1"
+
+			# Enable assertions that provide information about errors.
+			"-sASSERTIONS"
+
+			# Enable support for pthreads, which are implemented using a pool of web workers.
+			"-sUSE_PTHREADS"
+
+			# Run the entire application in a web worker, so we can block while fetching.
+			# Functions that have to run on the main thread are proxied to it using messages.
+			"-sPROXY_TO_PTHREAD"
+
+			# The canvas that WebGL renders to has to be on the same thread as the WebGL context.
+			# This flags enables support for transferring canvases to a worker.
+			"-sOFFSCREENCANVAS_SUPPORT=1"
+
+			# Transfer the app canvas to the worker.
+			"-sOFFSCREENCANVASES_TO_PTHREAD='#canvas'"
+
+			# Strings are always decoded on the main thread, which accesses it using a SharedArrayBuffer.
+			# Chrome doesn't support decoding from SharedArrayBuffers, so we disable the JavaScript TextDecoder API.
+			# See https://github.com/emscripten-core/emscripten/issues/18034
+			"-sTEXTDECODER=0"
+
+			# Enable running global object destructors, calling atexit, flushing stdio streams, etc. when exiting.
+			"-sEXIT_RUNTIME=0"
+	)
+endif ()

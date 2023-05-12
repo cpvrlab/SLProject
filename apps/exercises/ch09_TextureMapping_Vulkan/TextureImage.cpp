@@ -12,8 +12,11 @@ void TextureImage::destroy()
         vkFreeMemory(_device.handle(), _imageMemory, nullptr);
     }
 
-    _sampler->destroy();
-    free(_sampler);
+    if (_sampler)
+    {
+        _sampler->destroy();
+        free(_sampler);
+    }
 }
 void TextureImage::createTextureImage(void* pixels, unsigned int texWidth, unsigned int texHeight)
 {
