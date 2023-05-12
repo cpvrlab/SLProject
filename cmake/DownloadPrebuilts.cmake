@@ -881,7 +881,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #--------------------------------
     # OpenCV for iOS #
     ##################
 
-    set(OpenCV_VERSION "4.7.0")
+    set(OpenCV_VERSION "4.5.0")
     set(OpenCV_PREBUILT_DIR "iosV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")

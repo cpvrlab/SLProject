@@ -17,12 +17,12 @@
 #-open a terminal, navigate to this directory and run the following commands
 #   chmod +x generate_xcode_project_ios_personal.sh
 #   ./generate_xcode_project_ios_personal.sh
-#-open the xcode project file from directory BUILD_IOS
+#-open the xcode project file from directory build_ios
 #-Build and install the app. You will get a prompt saying: Could not launch “<app name>"
 #-On your device: go to Settings/General/Device Management and select "Apple Development: <your email user>". Select "Trust "Apple Development: <your email user>""
 #-Back in xcode, build and install the app.
 
 cd ..
-mkdir BUILD_IOS
-cd BUILD_IOS
+mkdir build_ios
+cd build_ios
 cmake .. -GXcode -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_SYSTEM_PROCESSOR=arm64 -DXCODE_DEVELOPMENTTEAM="MZ552MQBH5"
