@@ -810,7 +810,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         set_target_properties(${lib}
                 PROPERTIES
                 IMPORTED_LOCATION "${openssl_DIR}/Release/lib${lib}.a"
-                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}")
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_DIR}/include")
         set(openssl_LIBS ${openssl_LIBS} ${lib})
     endforeach (lib)
 
