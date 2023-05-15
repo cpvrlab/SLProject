@@ -496,8 +496,10 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
         add_library(MediaPipe::MediaPipe SHARED IMPORTED)
         set_target_properties(MediaPipe::MediaPipe
                 PROPERTIES
-                IMPORTED_IMPLIB "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/lib/mediapipe.lib"
-                IMPORTED_LOCATION "${MediaPipe_DIR}/${CMAKE_BUILD_TYPE}/bin/mediapipe.dll"
+                IMPORTED_IMPLIB "${MediaPipe_DIR}/Release/lib/mediapipe.lib"
+                IMPORTED_LOCATION "${MediaPipe_DIR}/Release/bin/mediapipe.dll"
+                IMPORTED_IMPLIB_DEBUG "${MediaPipe_DIR}/Debug/lib/mediapipe.lib"
+                IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/Debug/bin/mediapipe.dll"
                 INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include")
         set(MediaPipe_LIBS MediaPipe::MediaPipe)
     
@@ -706,7 +708,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
-            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
+            IMPORTED_LOCATION "${MediaPipe_DIR}/release/lib/libmediapipe.dylib"
+            IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/lib/libmediapipe.dylib"
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DIR}")
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
 

@@ -18,15 +18,23 @@ clear
 
 if [ ! -d "$OPENCV_DIR" ]; then ./build_opencv_w_contrib_for_mac64.sh "$OPENCV_VERSION"; fi
 
+if [ -d "$PREBUILT_DIR" ]; then rm -rf "$PREBUILT_DIR"; fi
+if [ -d "$DATA_DIR" ]; then rm -rf "$DATA_DIR"; fi
+mkdir -p "$PREBUILT_DIR"
+
 if [ ! -d libmediapipe ]; then git clone https://github.com/cpvrlab/libmediapipe.git; fi
 cd libmediapipe
 ./build-x86_64-macos.sh --version $VERSION --config debug --opencv_dir "../$OPENCV_DIR"
 cd ..
 
-mkdir -p ../prebuilt
-
-if [ -d "$PREBUILT_DIR" ]; then rm -rf "$PREBUILT_DIR"; fi
-cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos" "$PREBUILT_DIR"
-
-if [ -d "$DATA_DIR" ]; then rm -rf "$DATA_DIR"; fi
+mkdir "$PREBUILT_DIR/debug"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/include" "$PREBUILT_DIR/include"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib" "$PREBUILT_DIR/debug/lib"
 cp -r "libmediapipe/output/data/mediapipe" "$DATA_DIR"
+
+cd libmediapipe
+./build-x86_64-macos.sh --version $VERSION --config release --opencv_dir "../$OPENCV_DIR"
+cd ..
+
+mkdir "$PREBUILT_DIR/release"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib" "$PREBUILT_DIR/release/lib"
