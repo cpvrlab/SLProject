@@ -30,11 +30,11 @@ cd libmediapipe
 cd ..
 
 cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/include" "$PREBUILT_DIR/include"
-cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib" "$PREBUILT_DIR/debug"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib/"* "$PREBUILT_DIR/debug"
 cp -r "libmediapipe/output/data/mediapipe" "$DATA_DIR"
 
 cd libmediapipe
 ./build-x86_64-macos.sh --version $VERSION --config release --opencv_dir "../$OPENCV_DIR"
 cd ..
 
-cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib" "$PREBUILT_DIR/release"
+cp -r "libmediapipe/output/libmediapipe-$VERSION-x86_64-macos/lib/"* "$PREBUILT_DIR/release"
