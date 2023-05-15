@@ -869,7 +869,8 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
-            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.dylib"
+            IMPORTED_LOCATION "${MediaPipe_DIR}/release/lib/libmediapipe.dylib"
+            IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/lib/libmediapipe.dylib"
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_INCLUDE_DIR}")
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
 
