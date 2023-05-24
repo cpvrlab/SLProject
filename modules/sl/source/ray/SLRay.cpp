@@ -223,7 +223,7 @@ void SLRay::refract(SLRay* refracted)
     { // Case 2: From inside the same mesh
         if (hitMesh == srcMesh)
         {
-            if (hitMatOut) // Case 2a: into another material
+            if (hitMatOut)          // Case 2a: into another material
                 eta = hitMat->kn() / hitMatOut->kn();
             else                    // Case 2b: into air
                 eta = hitMat->kn(); // = hitMat / 1.0
@@ -240,9 +240,9 @@ void SLRay::refract(SLRay* refracted)
                     eta = srcMat->kn() / hitMat->kn();
                 }
             }
-            else // Case 4: We hit inside another material from behind
+            else                        // Case 4: We hit inside another material from behind
             {
-                if (hitMatOut) // Case 4a: into another material
+                if (hitMatOut)          // Case 4a: into another material
                     eta = hitMat->kn() / hitMatOut->kn();
                 else                    // Case 4b: into air
                     eta = hitMat->kn(); // = hitMat / 1.0

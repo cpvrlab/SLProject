@@ -37,7 +37,7 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     _renderSec  = 0.0f;   // reset time
     _progressPC = 0;      // % rendered
 
-    initStats(0); // init statistics
+    initStats(0);         // init statistics
     prepareImage();
 
     // Set second image for render update to the same size

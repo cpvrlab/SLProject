@@ -26,8 +26,8 @@ class WAIFrame;
 class WAIMap;
 //-----------------------------------------------------------------------------
 //!
-/*! 
-*/
+/*!
+ */
 
 #define TRACK_REF_FRAME 0
 #define FUSE_TARGET_KF 1

@@ -23,7 +23,7 @@ class SENSAndroidARCoreJava : public SENSARBaseCamera
 {
 public:
     SENSAndroidARCoreJava(JavaVM* vm, jobject* activityContext);
-    ~SENSAndroidARCoreJava(){;}
+    ~SENSAndroidARCoreJava() { ; }
 
     bool init(int  targetWidth,
               int  targetHeight,

@@ -73,7 +73,7 @@ public:
     SLGLProgramGenerated(SLAssetManager* am,
                          const string&   programName,
                          SLMaterial*     mat,
-                         bool isDrawProg,
+                         bool            isDrawProg,
                          SLstring        geomShader = "")
       : SLGLProgram(am,
                     "",

@@ -5,7 +5,7 @@
 
 class SENSAndroidPermissions : public SENSPermissions
 {
-    public:
+public:
     SENSAndroidPermissions(JavaVM* jvm);
     void askPermissions();
 
@@ -22,9 +22,8 @@ class SENSAndroidPermissions : public SENSPermissions
     bool isLocationEnabled();
     void askEnabledLocation();
 
-    private:
+private:
     JavaVM* _jvm;
 };
 
 #endif
-

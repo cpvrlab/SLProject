@@ -212,7 +212,7 @@ void SLRay::refract(SLRay* refracted)
     {
         if (originMat == 0) // from air (outside) into a material
             eta = 1 / hitMat->kn();
-        else // from another material into another one
+        else                // from another material into another one
             eta = originMat->kn() / hitMat->kn();
     }
     else

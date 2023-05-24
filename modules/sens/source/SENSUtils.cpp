@@ -91,8 +91,8 @@ void extendWithBars(cv::Mat& img, float targetWdivH)
     int addT = 0, addB = 0, addL = 0, addR = 0;
     if (Utils::abs(inWdivH - outWdivH) > 0.01f)
     {
-        int width  = 0; // width in pixels of the destination image
-        int height = 0; // height in pixels of the destination image
+        int width  = 0;         // width in pixels of the destination image
+        int height = 0;         // height in pixels of the destination image
 
         if (inWdivH > outWdivH) // add bar bottom and top (old: crop input image left & right)
         {

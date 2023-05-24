@@ -44,7 +44,7 @@ void SLPlane::setNormalAndPoint(const SLVec3f& normal, const SLVec3f& P)
     d = -N.dot(P);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLPlane::setByCoefficients defines the plane by the coefficient A,B,C & D
 */
 void SLPlane::setCoefficients(const SLfloat A,
@@ -71,9 +71,9 @@ SLPlane::print prints the normal and the coefficent d
 void SLPlane::print(const char* name)
 {
     SLMATH_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)",
-           name,
-           N.x,
-           N.y,
-           N.z);
+               name,
+               N.x,
+               N.y,
+               N.z);
 }
 //-----------------------------------------------------------------------------

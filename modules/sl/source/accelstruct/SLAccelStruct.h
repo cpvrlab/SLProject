@@ -32,9 +32,9 @@ public:
     virtual void   disposeBuffers()                    = 0;
 
 protected:
-    SLMesh* _m;    //!< Pointer to the mesh
-    SLVec3f _minV; //!< min. point of AABB
-    SLVec3f _maxV; //!< max. point of AABB
+    SLMesh* _m;             //!< Pointer to the mesh
+    SLVec3f _minV;          //!< min. point of AABB
+    SLVec3f _maxV;          //!< max. point of AABB
 
     SLuint  _voxelCnt;      //!< NO. of voxels in accelerator
     SLuint  _voxelCntEmpty; //!< NO. of empty voxels

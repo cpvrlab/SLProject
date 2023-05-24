@@ -185,21 +185,21 @@ public:
 
 protected:
     // projection parameters
-    SLProjType   _projType;      //!< Projection type
-    SLfloat      _fovV;          //!< Current vertical field of view (view angle) in degrees
-    SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
-    SLfloat      _clipNear;      //!< Dist. to the near clipping plane
-    SLfloat      _clipFar;       //!< Dist. to the far clipping plane
-    SLPlane      _plane[6];      //!< 6 frustum planes (l, r, t, b, n, f)
-    SLRecti      _viewport;      //!< framebuffer rectangle
-    SLfloat      _viewportRatio; //!< viewport.width / viewport.height = screen ratio
-    SLfloat      _fx;            //!< horizontal focal length
-    SLfloat      _fy;            //!< vertical focal length
-    SLfloat      _cx;            //!< sensor center in x direction
-    SLfloat      _cy;            //!< sensor center in y direction
-    SLBackground _background;    //!< Colors or texture displayed in the background
+    SLProjType   _projType;       //!< Projection type
+    SLfloat      _fovV;           //!< Current vertical field of view (view angle) in degrees
+    SLfloat      _fovInit;        //!< Initial vertical field of view (view angle) in degrees
+    SLfloat      _clipNear;       //!< Dist. to the near clipping plane
+    SLfloat      _clipFar;        //!< Dist. to the far clipping plane
+    SLPlane      _plane[6];       //!< 6 frustum planes (l, r, t, b, n, f)
+    SLRecti      _viewport;       //!< framebuffer rectangle
+    SLfloat      _viewportRatio;  //!< viewport.width / viewport.height = screen ratio
+    SLfloat      _fx;             //!< horizontal focal length
+    SLfloat      _fy;             //!< vertical focal length
+    SLfloat      _cx;             //!< sensor center in x direction
+    SLfloat      _cy;             //!< sensor center in y direction
+    SLBackground _background;     //!< Colors or texture displayed in the background
 
-    SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
+    SLGLVertexArrayExt _vao;      //!< OpenGL Vertex array for rendering
 
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
@@ -208,13 +208,13 @@ protected:
     SLVec3f   _trackballStartVec; //!< Trackball vector at mouse down
     SLfloat   _trackballSize;     //!< Size of trackball (0.8 = 80% of window size)
 
-    SLVec3f _moveDir;      //!< accumulated movement directions based on pressed buttons
-    SLfloat _drag;         //!< simple constant drag that affects velocity
-    SLfloat _maxSpeed;     //!< maximum speed in m/s, with high drag values this speed might not be achievable at all
-    SLVec3f _velocity;     //!< current velocity vector
-    SLVec3f _acceleration; //!< current acceleration vector
-    SLfloat _brakeAccel;   //!< brake acceleration
-    SLfloat _moveAccel;    //!< move acceleration
+    SLVec3f _moveDir;             //!< accumulated movement directions based on pressed buttons
+    SLfloat _drag;                //!< simple constant drag that affects velocity
+    SLfloat _maxSpeed;            //!< maximum speed in m/s, with high drag values this speed might not be achievable at all
+    SLVec3f _velocity;            //!< current velocity vector
+    SLVec3f _acceleration;        //!< current acceleration vector
+    SLfloat _brakeAccel;          //!< brake acceleration
+    SLfloat _moveAccel;           //!< move acceleration
 
     // ray tracing parameters
     SLfloat        _focalDist;    //!< distance to lookAt point on the focal plane from lens

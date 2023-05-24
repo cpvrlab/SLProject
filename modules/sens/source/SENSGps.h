@@ -38,23 +38,23 @@ public:
 
     void registerPermissionListener(std::function<void(void)> listener);
     void updatePermission(bool granted);
-    
+
 protected:
     void setLocation(SENSGps::Location location);
     void informPermissionListeners();
-    
-    bool _running = false;
+
+    bool             _running = false;
     std::atomic_bool _permissionGranted{false};
 
 private:
-    SENSTimePt _timePt;
-    Location   _location;
+    SENSTimePt         _timePt;
+    Location           _location;
     mutable std::mutex _llaMutex;
 
     std::vector<SENSGpsListener*> _listeners;
     std::mutex                    _listenerMutex;
-    
-    mutable std::mutex _permissionListenerMutex;
+
+    mutable std::mutex                     _permissionListenerMutex;
     std::vector<std::function<void(void)>> _permissionListeners;
 };
 

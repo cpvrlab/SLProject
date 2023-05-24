@@ -157,25 +157,25 @@ public:
     SLstring getSLVersionNO();
 
 private:
-    SLGLState();  //!< private onetime constructor
-    ~SLGLState(); //!< destruction in ~SLScene
+    SLGLState();                 //!< private onetime constructor
+    ~SLGLState();                //!< destruction in ~SLScene
 
     static SLGLState* _instance; //!< global singleton object
 
-    SLbool _isInitialized; //!< flag for first init
+    SLbool _isInitialized;       //!< flag for first init
 
-    SLstring _glVersion;     //!< OpenGL Version string
-    SLstring _glVersionNO;   //!< OpenGL Version number string
-    SLfloat  _glVersionNOf;  //!< OpenGL Version number as float
-    SLstring _glVendor;      //!< OpenGL Vendor string
-    SLstring _glRenderer;    //!< OpenGL Renderer string
-    SLstring _glSLVersion;   //!< GLSL Version string
-    SLstring _glSLVersionNO; //!< GLSL Version number string
-    SLstring _glExtensions;  //!< OpenGL extensions string
-    SLbool   _glIsES2;       //!< Flag if OpenGL ES2
-    SLbool   _glIsES3;       //!< Flag if OpenGL ES3
-    SLint    _glMaxTexUnits; //!< glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_glMaxTexUnits);
-    SLint    _glMaxTexSize;  //!< glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_glMaxTexSize);
+    SLstring _glVersion;         //!< OpenGL Version string
+    SLstring _glVersionNO;       //!< OpenGL Version number string
+    SLfloat  _glVersionNOf;      //!< OpenGL Version number as float
+    SLstring _glVendor;          //!< OpenGL Vendor string
+    SLstring _glRenderer;        //!< OpenGL Renderer string
+    SLstring _glSLVersion;       //!< GLSL Version string
+    SLstring _glSLVersionNO;     //!< GLSL Version number string
+    SLstring _glExtensions;      //!< OpenGL extensions string
+    SLbool   _glIsES2;           //!< Flag if OpenGL ES2
+    SLbool   _glIsES3;           //!< Flag if OpenGL ES3
+    SLint    _glMaxTexUnits;     //!< glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_glMaxTexUnits);
+    SLint    _glMaxTexSize;      //!< glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_glMaxTexSize);
 
     // read/write states
     SLbool  _blend;                     //!< blending default false;
@@ -204,7 +204,7 @@ private:
     GLboolean _colorMaskB;    //!< current color mask for B
     GLboolean _colorMaskA;    //!< current color mask for A
 
-    SLVstring errors; //!< vector for errors collected in getGLError
+    SLVstring errors;         //!< vector for errors collected in getGLError
 
     SLMaterial* _currentMaterial;
 };

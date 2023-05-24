@@ -310,7 +310,7 @@ public:
     SLfloat               minLodCoverage() { return _minLodCoverage; }
     SLubyte               levelForSM() { return _levelForSM; }
 
-    static SLuint numWMUpdates; //!< NO. of calls to updateWMRec per frame
+    static SLuint numWMUpdates;        //!< NO. of calls to updateWMRec per frame
 
     static unsigned int instanceIndex; //!< ???
 
@@ -335,9 +335,9 @@ private:
                             SLbool          findRecursive);
 
 protected:
-    SLNode* _parent;   //!< pointer to the parent node
-    SLVNode _children; //!< vector of children nodes
-    SLMesh* _mesh;     //!< pointer to a single mesh
+    SLNode* _parent;                  //!< pointer to the parent node
+    SLVNode _children;                //!< vector of children nodes
+    SLMesh* _mesh;                    //!< pointer to a single mesh
 
     SLint            _depth;          //!< depth of the node in a scene tree
     SLint            _entityID;       //!< ID in the SLVEntity graph for Data Oriented Design

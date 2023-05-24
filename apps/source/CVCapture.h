@@ -133,13 +133,13 @@ public: //! Public static instance getter for singleton pattern
     CVVSize camSizes;           //!< All possible camera sizes
     int     activeCamSizeIndex; //!< Currently active camera size index
 
-    CVCamera* activeCamera; //!< Pointer to the active camera
-    CVCamera  mainCam;      //!< camera representation for main video camera
-    CVCamera  scndCam;      //!< camera representation for secondary video camera
-    CVCamera  videoFileCam; //!< camera representation for simulation using a video file
+    CVCamera* activeCamera;     //!< Pointer to the active camera
+    CVCamera  mainCam;          //!< camera representation for main video camera
+    CVCamera  scndCam;          //!< camera representation for secondary video camera
+    CVCamera  videoFileCam;     //!< camera representation for simulation using a video file
 
 private:
-    CVCapture(); //!< private onetime constructor
+    CVCapture();                 //!< private onetime constructor
     ~CVCapture();
     static CVCapture* _instance; //!< global singleton object
 

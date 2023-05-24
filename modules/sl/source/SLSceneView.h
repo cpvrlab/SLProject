@@ -216,66 +216,66 @@ public:
 #endif
 
 protected:
-    SLScene*       _s;               //!< Pointer to the scene observed by this scene view
-    SLCamera*      _camera;          //!< Pointer to the _active camera
-    SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
-    SLUiInterface* _gui = nullptr;   //!< ImGui instance
-    SLNodeStats    _stats2D;         //!< Statistic numbers for 2D nodes
-    SLNodeStats    _stats3D;         //!< Statistic numbers for 3D nodes
-    SLbool         _gotPainted;      //!< flag if this sceneview got painted
-    SLRenderType   _renderType;      //!< rendering type (GL,RT,PT)
+    SLScene*       _s;                                   //!< Pointer to the scene observed by this scene view
+    SLCamera*      _camera;                              //!< Pointer to the _active camera
+    SLCamera       _sceneViewCamera;                     //!< Default camera for this SceneView (default cam not in scenegraph)
+    SLUiInterface* _gui = nullptr;                       //!< ImGui instance
+    SLNodeStats    _stats2D;                             //!< Statistic numbers for 2D nodes
+    SLNodeStats    _stats3D;                             //!< Statistic numbers for 3D nodes
+    SLbool         _gotPainted;                          //!< flag if this sceneview got painted
+    SLRenderType   _renderType;                          //!< rendering type (GL,RT,PT)
 
-    SLbool     _doDepthTest;      //!< Flag if depth test is turned on
-    SLbool     _doMultiSampling;  //!< Flag if multisampling is on
-    SLbool     _doFrustumCulling; //!< Flag if view frustum culling is on
-    SLbool     _doAlphaSorting;   //!< Flag if alpha sorting in blending is on
-    SLbool     _doWaitOnIdle;     //!< Flag for Event waiting
-    SLbool     _isFirstFrame;     //!< Flag if it is the first frame rendering
-    SLDrawBits _drawBits;         //!< Sceneview level drawing flags
+    SLbool     _doDepthTest;                             //!< Flag if depth test is turned on
+    SLbool     _doMultiSampling;                         //!< Flag if multisampling is on
+    SLbool     _doFrustumCulling;                        //!< Flag if view frustum culling is on
+    SLbool     _doAlphaSorting;                          //!< Flag if alpha sorting in blending is on
+    SLbool     _doWaitOnIdle;                            //!< Flag for Event waiting
+    SLbool     _isFirstFrame;                            //!< Flag if it is the first frame rendering
+    SLDrawBits _drawBits;                                //!< Sceneview level drawing flags
 
-    SLfloat _shadowMapTimeMS; //!< time for drawing the shadow maps in ms
-    SLfloat _cullTimeMS;      //!< time for culling in ms
-    SLfloat _draw3DTimeMS;    //!< time for 3D drawing in ms
-    SLfloat _draw2DTimeMS;    //!< time for 2D drawing in ms
+    SLfloat _shadowMapTimeMS;                            //!< time for drawing the shadow maps in ms
+    SLfloat _cullTimeMS;                                 //!< time for culling in ms
+    SLfloat _draw3DTimeMS;                               //!< time for 3D drawing in ms
+    SLfloat _draw2DTimeMS;                               //!< time for 2D drawing in ms
 
-    SLbool  _mouseDownL; //!< Flag if left mouse button is pressed
-    SLbool  _mouseDownR; //!< Flag if right mouse button is pressed
-    SLbool  _mouseDownM; //!< Flag if middle mouse button is pressed
-    SLKey   _mouseMod;   //!< mouse modifier key on key down
-    SLint   _touchDowns; //!< finger touch down count
-    SLVec2i _touch[3];   //!< up to 3 finger touch coordinates
+    SLbool  _mouseDownL;                                 //!< Flag if left mouse button is pressed
+    SLbool  _mouseDownR;                                 //!< Flag if right mouse button is pressed
+    SLbool  _mouseDownM;                                 //!< Flag if middle mouse button is pressed
+    SLKey   _mouseMod;                                   //!< mouse modifier key on key down
+    SLint   _touchDowns;                                 //!< finger touch down count
+    SLVec2i _touch[3];                                   //!< up to 3 finger touch coordinates
 
-    SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
-    SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
+    SLGLVertexArrayExt _vaoTouch;                        //!< Buffer for touch pos. rendering
+    SLGLVertexArrayExt _vaoCursor;                       //!< Virtual cursor for stereo rendering
 
-    SLint           _scrW;                     //!< Screen width in pixels
-    SLint           _scrH;                     //!< Screen height in pixels
-    SLint           _scrWdiv2;                 //!< Screen half width in pixels
-    SLint           _scrHdiv2;                 //!< Screen half height in pixels
-    SLfloat         _scrWdivH;                 //!< Screen side aspect ratio
-    int             _dpi;                      //!< dots per inch of screen
-    SLVec2i         _viewportRatio;            //!< ratio of viewport
-    SLViewportAlign _viewportAlign;            //!< alignment of viewport
-    SLRecti         _viewportRect;             //!< rectangle of viewport
-    SLbool          _viewportSameAsVideo;      //!< Adapt viewport aspect to the input video
-    SLbool          _screenCaptureIsRequested; //!< Flag if screen capture is requested
-    SLint           _screenCaptureWaitFrames;  //!< Frames to delay the screen capture
+    SLint           _scrW;                               //!< Screen width in pixels
+    SLint           _scrH;                               //!< Screen height in pixels
+    SLint           _scrWdiv2;                           //!< Screen half width in pixels
+    SLint           _scrHdiv2;                           //!< Screen half height in pixels
+    SLfloat         _scrWdivH;                           //!< Screen side aspect ratio
+    int             _dpi;                                //!< dots per inch of screen
+    SLVec2i         _viewportRatio;                      //!< ratio of viewport
+    SLViewportAlign _viewportAlign;                      //!< alignment of viewport
+    SLRecti         _viewportRect;                       //!< rectangle of viewport
+    SLbool          _viewportSameAsVideo;                //!< Adapt viewport aspect to the input video
+    SLbool          _screenCaptureIsRequested;           //!< Flag if screen capture is requested
+    SLint           _screenCaptureWaitFrames;            //!< Frames to delay the screen capture
 
-    SLGLOculusFB _oculusFB; //!< Oculus framebuffer
+    SLGLOculusFB _oculusFB;                              //!< Oculus framebuffer
 
     std::unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
     std::unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
 
-    SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes not in _visibleMaterials2D rendered in 2D
-    SLVNode _nodesBlended2D; //!< Vector of visible blended nodes not in _visibleMaterials2D rendered in 2D
-    SLVNode _nodesOpaque3D;  //!< Vector of visible opaque nodes not in _visibleMaterials3D rendered in 3D
-    SLVNode _nodesBlended3D; //!< Vector of visible blended nodes not in _visibleMaterials3D rendered in 3D
-    SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
+    SLVNode _nodesOpaque2D;                              //!< Vector of visible opaque nodes not in _visibleMaterials2D rendered in 2D
+    SLVNode _nodesBlended2D;                             //!< Vector of visible blended nodes not in _visibleMaterials2D rendered in 2D
+    SLVNode _nodesOpaque3D;                              //!< Vector of visible opaque nodes not in _visibleMaterials3D rendered in 3D
+    SLVNode _nodesBlended3D;                             //!< Vector of visible blended nodes not in _visibleMaterials3D rendered in 3D
+    SLVNode _nodesOverdrawn;                             //!< Vector of helper nodes drawn over all others
 
-    SLRaytracer                     _raytracer;  //!< Whitted style raytracer
-    SLbool                          _stopRT;     //!< Flag to stop the RT
-    SLPathtracer                    _pathtracer; //!< Pathtracer
-    SLbool                          _stopPT;     //!< Flag to stop the PT
+    SLRaytracer  _raytracer;                             //!< Whitted style raytracer
+    SLbool       _stopRT;                                //!< Flag to stop the RT
+    SLPathtracer _pathtracer;                            //!< Pathtracer
+    SLbool       _stopPT;                                //!< Flag to stop the PT
 
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer  _optixRaytracer;  //!< Whitted style raytracer with Optix

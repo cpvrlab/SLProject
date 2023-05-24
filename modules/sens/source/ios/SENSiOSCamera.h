@@ -17,7 +17,7 @@ public:
                                   const SENSCameraStreamConfig& streamConfig,
                                   bool                          provideIntrinsics = true) override;
 
-    void                         stop() override;
+    void                    stop() override;
     const SENSCaptureProps& captureProperties() override;
 
 private:

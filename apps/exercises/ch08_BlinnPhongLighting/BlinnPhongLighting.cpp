@@ -30,22 +30,22 @@ struct VertexPN
 };
 //-----------------------------------------------------------------------------
 // Global application variables
-static GLFWwindow* window;       //!< The global GLFW window handle
-static SLstring    _projectRoot; //!< Directory of executable
-static SLint       _scrWidth;    //!< Window width at start up
-static SLint       _scrHeight;   //!< Window height at start up
+static GLFWwindow* window;                   //!< The global GLFW window handle
+static SLstring    _projectRoot;             //!< Directory of executable
+static SLint       _scrWidth;                //!< Window width at start up
+static SLint       _scrHeight;               //!< Window height at start up
 
-static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
-static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
-static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
-static SLMat4f _lightMatrix;      //!< 4x4 matrix for light to world transform
-static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
+static SLMat4f _cameraMatrix;                //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;                  //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;                 //!< 4x4 matrix for model to world transform
+static SLMat4f _lightMatrix;                 //!< 4x4 matrix for light to world transform
+static SLMat4f _projectionMatrix;            //!< Projection from view space to normalized device coordinates
 
-static GLuint _vao  = 0; //!< ID of the vertex array object
-static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-static GLuint _numV = 0; //!< NO. of vertices
-static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
+static GLuint _vao  = 0;                     //!< ID of the vertex array object
+static GLuint _vboV = 0;                     //!< ID of the VBO for vertex attributes
+static GLuint _vboI = 0;                     //!< ID of the VBO for vertex index array
+static GLuint _numV = 0;                     //!< NO. of vertices
+static GLuint _numI = 0;                     //!< NO. of vertex indexes for triangles
 
 static float        _camZ;                   //!< z-distance of camera
 static float        _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -59,29 +59,29 @@ static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifie
 static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
 static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-static SLVec4f _globalAmbi;   //!< global ambient intensity
-static SLVec4f _lightAmbi;    //!< Light ambient intensity
-static SLVec4f _lightDiff;    //!< Light diffuse intensity
-static SLVec4f _lightSpec;    //!< Light specular intensity
-static float   _lightSpotDeg; //!< Light spot cutoff angle in degrees
-static float   _lightSpotExp; //!< Light spot exponent
-static SLVec3f _lightAtt;     //!< Light attenuation factors
-static SLVec4f _matAmbi;      //!< Material ambient reflection coeff.
-static SLVec4f _matDiff;      //!< Material diffuse reflection coeff.
-static SLVec4f _matSpec;      //!< Material specular reflection coeff.
-static SLVec4f _matEmis;      //!< Material emissive coeff.
-static float   _matShin;      //!< Material shininess
+static SLVec4f _globalAmbi;                  //!< global ambient intensity
+static SLVec4f _lightAmbi;                   //!< Light ambient intensity
+static SLVec4f _lightDiff;                   //!< Light diffuse intensity
+static SLVec4f _lightSpec;                   //!< Light specular intensity
+static float   _lightSpotDeg;                //!< Light spot cutoff angle in degrees
+static float   _lightSpotExp;                //!< Light spot exponent
+static SLVec3f _lightAtt;                    //!< Light attenuation factors
+static SLVec4f _matAmbi;                     //!< Material ambient reflection coeff.
+static SLVec4f _matDiff;                     //!< Material diffuse reflection coeff.
+static SLVec4f _matSpec;                     //!< Material specular reflection coeff.
+static SLVec4f _matEmis;                     //!< Material emissive coeff.
+static float   _matShin;                     //!< Material shininess
 
-static GLuint _shaderVertID = 0; //! vertex shader id
-static GLuint _shaderFragID = 0; //! fragment shader id
-static GLuint _shaderProgID = 0; //! shader program id
+static GLuint _shaderVertID = 0;             //! vertex shader id
+static GLuint _shaderFragID = 0;             //! fragment shader id
+static GLuint _shaderProgID = 0;             //! shader program id
 
 // Attribute & uniform variable location indexes
-static GLint _pLoc;  //!< attribute location for vertex position
-static GLint _nLoc;  //!< attribute location for vertex normal
-static GLint _pmLoc; //!< uniform location for projection matrix
-static GLint _vmLoc; //!< uniform location for view matrix
-static GLint _mmLoc; //!< uniform location for model matrix
+static GLint _pLoc;            //!< attribute location for vertex position
+static GLint _nLoc;            //!< attribute location for vertex normal
+static GLint _pmLoc;           //!< uniform location for projection matrix
+static GLint _vmLoc;           //!< uniform location for view matrix
+static GLint _mmLoc;           //!< uniform location for model matrix
 
 static GLint _globalAmbiLoc;   //!< uniform location for global ambient intensity
 static GLint _lightPosVSLoc;   //!< uniform location for light position in VS
@@ -215,7 +215,7 @@ void onInit()
     _lightDiff.set(1.0f, 1.0f, 1.0f);
     _lightSpec.set(1.0f, 1.0f, 1.0f);
     _lightMatrix.translate(0, 0, 3);
-    _lightSpotDeg = 10.0f; // 180.0f; // point light
+    _lightSpotDeg = 10.0f;            // 180.0f; // point light
     _lightSpotExp = 1.0f;
     _lightAtt     = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbi.set(1.0f, 0.0f, 0.0f);

@@ -1397,7 +1397,7 @@ std::string ComputerInfos::get()
     // model = model;
 #    endif
 
-#elif defined(ANDROID) //................................................
+#elif defined(ANDROID)                                         //................................................
 
     os = "Android";
 

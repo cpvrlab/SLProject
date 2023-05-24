@@ -90,7 +90,8 @@ public:
         return std::find_if(
                  _streamConfigs.begin(),
                  _streamConfigs.end(),
-                 [&](const SENSCameraStreamConfig& cmp) -> bool { return cmp.widthPix == toFind.width && cmp.heightPix == toFind.height; }) != _streamConfigs.end();
+                 [&](const SENSCameraStreamConfig& cmp) -> bool
+                 { return cmp.widthPix == toFind.width && cmp.heightPix == toFind.height; }) != _streamConfigs.end();
     }
 
     void add(int widthPix, int heightPix, float focalLengthPix)
@@ -186,9 +187,9 @@ public:
 
     virtual void registerListener(SENSCameraListener* listener)   = 0;
     virtual void unregisterListener(SENSCameraListener* listener) = 0;
-    virtual bool started() const = 0;
-    virtual bool permissionGranted() const = 0;
-    virtual void setPermissionGranted()    = 0;
+    virtual bool started() const                                  = 0;
+    virtual bool permissionGranted() const                        = 0;
+    virtual void setPermissionGranted()                           = 0;
 };
 //-----------------------------------------------------------------------------
 //! Implementation of common functionality and members

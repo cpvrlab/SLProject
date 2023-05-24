@@ -627,11 +627,11 @@ in      vec4        v_particleColor;        // interpolated color from the geome
 const string fragInput_PS_v_tC = R"(
 in      vec2        v_texCoord;             // interpolated texture coordinate)";
 //-----------------------------------------------------------------------------
-const string fragInput_PS_u_overG = R"(
+const string fragInput_PS_u_overG     = R"(
 uniform float       u_oneOverGamma;         // 1.0f / Gamma correction value)";
 const string fragInput_PS_u_wireFrame = R"(
 uniform bool        u_doWireFrame;          // Boolean for wireFrame)";
-  //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 const string fragMain_PS_TF = R"(
 
 out     vec4     o_fragColor;               // output fragment color
@@ -672,7 +672,7 @@ void main()
         discard;
 
 )";
-const string fragMain_PS_endAll = R"(
+const string fragMain_PS_endAll       = R"(
     //Same color for each wireframe
     if(u_doWireFrame)
         o_fragColor =  vec4(0,0,0,1.0);
@@ -1582,7 +1582,7 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
             if (light->doCascadedShadows())
                 programName += "C" + std::to_string(light->shadowMap()->numCascades()); // Directional light with cascaded shadowmap
             else
-                programName += "D"; // Directional light
+                programName += "D";                                                     // Directional light
         }
         else if (light->spotCutOffDEG() < 180.0f)
             programName += "S"; // Spot light
@@ -1630,16 +1630,16 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     {
         programName += "-Draw";
         programName += mat->texturesString();
-        GLint billboardType = mat->ps()->billboardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
+        GLint billboardType = mat->ps()->billboardType();      // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
         bool  AlOvLi        = mat->ps()->doAlphaOverLT();      // Alpha over life
         bool  AlOvLiCu      = mat->ps()->doAlphaOverLTCurve(); // Alpha over life curve
-        bool  SiOvLi        = mat->ps()->doSizeOverLT();      // Size over life
-        bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve(); // Size over life curve
-        bool  Co            = mat->ps()->doColor();           // Color over life
-        bool  CoOvLi        = mat->ps()->doColorOverLT();     // Color over life
-        bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
-        bool  WS            = mat->ps()->doWorldSpace();      // World space or local space
-        bool  rot           = mat->ps()->doRotation();        // Rotation
+        bool  SiOvLi        = mat->ps()->doSizeOverLT();       // Size over life
+        bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve();  // Size over life curve
+        bool  Co            = mat->ps()->doColor();            // Color over life
+        bool  CoOvLi        = mat->ps()->doColorOverLT();      // Color over life
+        bool  FlBoTex       = mat->ps()->doFlipBookTexture();  // Flipbook texture
+        bool  WS            = mat->ps()->doWorldSpace();       // World space or local space
+        bool  rot           = mat->ps()->doRotation();         // Rotation
         programName += "-B" + std::to_string(billboardType);
         if (rot) programName += "-RT";
 
@@ -1652,7 +1652,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (FlBoTex) programName += "-FB";
         if (WS) programName += "-WS";
     }
-    else // Updating program
+    else                                                  // Updating program
     {
         bool counterGap = mat->ps()->doCounterGap();      // Counter gap/lag
         bool acc        = mat->ps()->doAcc();             // Acceleration
@@ -1981,15 +1981,15 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Check what textures the material has
     bool  Dm            = mat->hasTextureType(TT_diffuse);
-    GLint billboardType = mat->ps()->billboardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
-    bool  rot           = mat->ps()->doRotation();        // Rotation
+    GLint billboardType = mat->ps()->billboardType();      // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
+    bool  rot           = mat->ps()->doRotation();         // Rotation
     bool  AlOvLi        = mat->ps()->doAlphaOverLT();      // Alpha over life
-    bool  Co            = mat->ps()->doColor();           // Color over life
-    bool  CoOvLi        = mat->ps()->doColorOverLT();     // Color over life
+    bool  Co            = mat->ps()->doColor();            // Color over life
+    bool  CoOvLi        = mat->ps()->doColorOverLT();      // Color over life
     bool  AlOvLiCu      = mat->ps()->doAlphaOverLTCurve(); // Alpha over life curve
-    bool  SiOvLi        = mat->ps()->doSizeOverLT();      // Size over life
-    bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve(); // Size over life curve
-    bool  FlBoTex       = mat->ps()->doFlipBookTexture(); // Flipbook texture
+    bool  SiOvLi        = mat->ps()->doSizeOverLT();       // Size over life
+    bool  SiOvLiCu      = mat->ps()->doSizeOverLTCurve();  // Size over life curve
+    bool  FlBoTex       = mat->ps()->doFlipBookTexture();  // Flipbook texture
 
     //////////////////////////////
     // Assemble vertex shader code
@@ -2414,7 +2414,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         }
         else if (u_lightUsesCubemap[i])
         {)";
-        for (SLuint i = 0; i < lights->size(); ++i) 
+        for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && shadowMap->useCubemap())

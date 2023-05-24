@@ -195,8 +195,8 @@ private:
     ///////////////////////////////////////////////////////////////////////////////////
 
     // original data used for adaption:
-    CVMat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
-    CVSize _imageSizeOrig; //!< original image size (original from loading or calibration estimation)
+    CVMat  _cameraMatOrig;                         //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
+    CVSize _imageSizeOrig;                         //!< original image size (original from loading or calibration estimation)
 
     CVCalibState _state         = CS_uncalibrated; //!< calibration state enumeration
     float        _cameraFovVDeg = 0.0f;            //!< Vertical field of view in degrees
@@ -206,17 +206,17 @@ private:
     bool         _isMirroredH = false;             //!< Flag if image must be horizontally mirrored
     bool         _isMirroredV = false;             //!< Flag if image must be vertically mirrored
 
-    int    _numCaptured = 0;           //!< NO. of images captured
-    CVSize _boardSize;                 //!< NO. of inner chessboard corners.
-    float  _boardSquareMM     = 20.f;  //!< Size of chessboard square in mm
-    float  _reprojectionError = -1.0f; //!< Reprojection error after calibration
-    CVSize _imageSize;                 //!< Input image size in pixels (after cropping)
-    int    _camSizeIndex = -1;         //!< The requested camera size index
+    int    _numCaptured = 0;                       //!< NO. of images captured
+    CVSize _boardSize;                             //!< NO. of inner chessboard corners.
+    float  _boardSquareMM     = 20.f;              //!< Size of chessboard square in mm
+    float  _reprojectionError = -1.0f;             //!< Reprojection error after calibration
+    CVSize _imageSize;                             //!< Input image size in pixels (after cropping)
+    int    _camSizeIndex = -1;                     //!< The requested camera size index
 
-    CVMat        _undistortMapX;         //!< Undistortion float map in x-direction
-    CVMat        _undistortMapY;         //!< Undistortion float map in y-direction
-    CVMat        _cameraMatUndistorted;  //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
-    string       _calibrationTime = "-"; //!< Time stamp string of calibration
+    CVMat        _undistortMapX;                   //!< Undistortion float map in x-direction
+    CVMat        _undistortMapY;                   //!< Undistortion float map in y-direction
+    CVMat        _cameraMatUndistorted;            //!< Camera matrix that defines scene camera and may also be used for reprojection of undistorted image
+    string       _calibrationTime = "-";           //!< Time stamp string of calibration
     string       _computerInfos;
     CVCameraType _camType = CVCameraType::FRONTFACING;
 

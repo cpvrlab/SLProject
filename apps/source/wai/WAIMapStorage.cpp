@@ -95,8 +95,8 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         if (kf->mBowVec.data.empty())
             continue;
 
-        fs << "{"; // new map keyFrame
-                   // add id
+        fs << "{";         // new map keyFrame
+                           // add id
         fs << "id" << (int)kf->mnId;
         if (kf->mnId != 0) // kf with id 0 has no parent
             fs << "parentId" << (int)kf->GetParent()->mnId;

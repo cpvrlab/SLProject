@@ -143,14 +143,14 @@ protected:
     SLfloat      _renderSec;        //!< Rendering time in seconds
     AvgFloat     _raysPerMS;        //!< Averaged rays per ms
 
-    SLfloat  _pxSize;       //!< Pixel size
-    SLVec3f  _EYE;          //!< Camera position
-    SLVec3f  _LA, _LU, _LR; //!< Camera lookat, lookup, lookright
-    SLVec3f  _BL;           //!< Bottom left vector
-    SLint    _nextLine;     //!< next line index to render RT in a thread
-    SLVPixel _aaPixels;     //!< Vector for antialiasing pixels
-    SLfloat  _gamma;        //!< gamma correction value
-    SLfloat  _oneOverGamma; //!< one over gamma correction value
+    SLfloat  _pxSize;               //!< Pixel size
+    SLVec3f  _EYE;                  //!< Camera position
+    SLVec3f  _LA, _LU, _LR;         //!< Camera lookat, lookup, lookright
+    SLVec3f  _BL;                   //!< Bottom left vector
+    SLint    _nextLine;             //!< next line index to render RT in a thread
+    SLVPixel _aaPixels;             //!< Vector for antialiasing pixels
+    SLfloat  _gamma;                //!< gamma correction value
+    SLfloat  _oneOverGamma;         //!< one over gamma correction value
 
     // variables for distributed ray tracing
     SLfloat _aaThreshold; //!< threshold for anti aliasing

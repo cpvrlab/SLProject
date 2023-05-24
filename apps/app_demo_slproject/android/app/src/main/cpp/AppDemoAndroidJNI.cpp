@@ -110,10 +110,10 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onInit(JNIEnv* en
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(), 0);
 
-    AppDemo::calibFilePath = devicePath + "/data/config/";                //that's where calibrations are stored an loaded from
+    AppDemo::calibFilePath = devicePath + "/data/config/";               //that's where calibrations are stored an loaded from
     AppDemo::calibIniPath  = devicePath + "/data/calibrations/";
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),        // deviceInfo string
-                                            AppDemo::calibFilePath);      // for calibrations made
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
+                                            AppDemo::calibFilePath);     // for calibrations made
 
     ////////////////////////////////////////////////////
     slCreateAppAndScene(*cmdLineArgs,
@@ -306,11 +306,11 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_copyVideoYUVPlane
 //-----------------------------------------------------------------------------
 //! Copies the GPS information to the SLApplicaiton class
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onLocationLatLonAlt(JNIEnv* env,
-                                                                                  jclass  obj,
-                                                                                  jdouble latitudeDEG,
-                                                                                  jdouble longitudeDEG,
-                                                                                  jdouble altitudeM,
-                                                                                  jfloat  accuracyM)
+                                                                                   jclass  obj,
+                                                                                   jdouble latitudeDEG,
+                                                                                   jdouble longitudeDEG,
+                                                                                   jdouble altitudeM,
+                                                                                   jfloat  accuracyM)
 {
     slLocationLatLonAlt(latitudeDEG, longitudeDEG, altitudeM, accuracyM);
 }
@@ -322,27 +322,27 @@ extern "C" JNIEXPORT bool JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_usesLocation(JNIE
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onSetupExternalDir(JNIEnv* env,
-                                                                                 jclass  obj,
-                                                                                 jstring externalDirPath)
+                                                                                  jclass  obj,
+                                                                                  jstring externalDirPath)
 {
     std::string externalDirPathNative = jstring2stdstring(env, externalDirPath);
     slSetupExternalDir(externalDirPathNative);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setCameraSize(JNIEnv* env,
-                                                                            jclass  obj,
-                                                                            jint    sizeIndex,
-                                                                            jint    sizeIndexMax,
-                                                                            jint    width,
-                                                                            jint    height)
+                                                                             jclass  obj,
+                                                                             jint    sizeIndex,
+                                                                             jint    sizeIndexMax,
+                                                                             jint    width,
+                                                                             jint    height)
 {
     CVCapture::instance()->setCameraSize(sizeIndex, sizeIndexMax, width, height);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setDeviceParameter(JNIEnv* env,
-                                                                                 jclass  obj,
-                                                                                 jstring parameter,
-                                                                                 jstring value)
+                                                                                  jclass  obj,
+                                                                                  jstring parameter,
+                                                                                  jstring value)
 {
     std::string par = jstring2stdstring(env, parameter);
     std::string val = jstring2stdstring(env, value);
@@ -352,6 +352,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setDeviceParamete
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_initMediaPipeAssetManager(JNIEnv* env,
                                                                                          jclass  obj,
                                                                                          jobject assetManager,
-                                                                                         jstring cacheDirPath) {
+                                                                                         jstring cacheDirPath)
+{
     mp_init_asset_manager(env, assetManager, cacheDirPath);
 }

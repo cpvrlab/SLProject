@@ -29,7 +29,7 @@ bool SENSiOSARKit::resume()
 
     if (success)
     {
-        _pause = false;
+        _pause   = false;
         _started = true; //for SENSBaseCamera
     }
 
@@ -46,8 +46,8 @@ void SENSiOSARKit::pause()
 {
     if (_arcoreDelegate)
         [_arcoreDelegate pause];
-    
-    _pause = true;
+
+    _pause   = true;
     _started = false; //for SENSBaseCamera
 }
 
@@ -57,12 +57,12 @@ bool SENSiOSARKit::update(cv::Mat& pose)
     cv::Mat intrinsic;
     cv::Mat imgBGR;
     bool    isTracking;
- 
-    if(_fetchPointCloud)
+
+    if (_fetchPointCloud)
         [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:&_pointCloud];
     else
         [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:nullptr];
-    
+
     if (!imgBGR.empty())
     {
         updateFrame(imgBGR, intrinsic, true, imgBGR.cols, imgBGR.rows);
@@ -75,26 +75,25 @@ bool SENSiOSARKit::update(cv::Mat& pose)
 void SENSiOSARKit::retrieveCaptureProperties()
 {
     //the SENSBaseCamera needs to have a valid frame, otherwise we cannot estimate the fov correctly
-    if(!_frame)
+    if (!_frame)
     {
         resume();
         HighResTimer t;
-        cv::Mat pose;
+        cv::Mat      pose;
         do {
             update(pose);
-        }
-        while(!_frame && t.elapsedTimeInSec() < 5.f);
-        
+        } while (!_frame && t.elapsedTimeInSec() < 5.f);
+
         pause();
     }
-    
-    if(_frame)
+
+    if (_frame)
     {
         std::string      deviceId = "ARKit";
-        SENSCameraFacing facing = SENSCameraFacing::BACK;
+        SENSCameraFacing facing   = SENSCameraFacing::BACK;
 
         float focalLengthPix = -1.f;
-        if(!_frame->intrinsics.empty())
+        if (!_frame->intrinsics.empty())
         {
             focalLengthPix = 0.5 * (_frame->intrinsics.at<double>(0, 0) + _frame->intrinsics.at<double>(1, 1));
         }
@@ -108,29 +107,29 @@ void SENSiOSARKit::retrieveCaptureProperties()
 
 const SENSCaptureProps& SENSiOSARKit::captureProperties()
 {
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
-    
+
     return _captureProperties;
 }
 
 //This function does not really start the camera as for the arcore iplementation, the frame gets only updated with a call to arcore::update.
 //This function is needed to correctly use arcore as a camera in SENSCVCamera
-const SENSCameraConfig& SENSiOSARKit::start(std::string    deviceId,
-                              const SENSCameraStreamConfig& streamConfig,
-                              bool                          provideIntrinsics)
+const SENSCameraConfig& SENSiOSARKit::start(std::string                   deviceId,
+                                            const SENSCameraStreamConfig& streamConfig,
+                                            bool                          provideIntrinsics)
 {
     //define capture properties
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
-    
+
     if (_captureProperties.size() == 0)
         throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
 
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
-    
-    SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
+
+    SENSCameraFacing             facing = SENSCameraFacing::UNKNOWN;
     const SENSCameraDeviceProps* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();

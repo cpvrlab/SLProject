@@ -8,17 +8,17 @@
 //#############################################################################
 
 #ifdef SL_BUILD_WITH_MEDIAPIPE
-#include <CVTrackedMediaPipeHands.h>
+#    include <CVTrackedMediaPipeHands.h>
 
 //-----------------------------------------------------------------------------
-#define CHECK_MP_RESULT(result) \
-    if (!result) \
-    { \
-        const char* error = mp_get_last_error(); \
-        std::cerr << error << std::endl; \
-        mp_free_error(error); \
-        SL_EXIT_MSG("Exiting due to MediaPipe error"); \
-    }
+#    define CHECK_MP_RESULT(result) \
+        if (!result) \
+        { \
+            const char* error = mp_get_last_error(); \
+            std::cerr << error << std::endl; \
+            mp_free_error(error); \
+            SL_EXIT_MSG("Exiting due to MediaPipe error"); \
+        }
 //-----------------------------------------------------------------------------
 typedef std::vector<std::pair<mp_hand_landmark, mp_hand_landmark>> ConnectionList;
 //-----------------------------------------------------------------------------

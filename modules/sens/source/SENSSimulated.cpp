@@ -131,7 +131,8 @@ void SENSSimulated<T>::feedSensor()
 
         //HighResTimer t;
         std::unique_lock<std::mutex> lock(_mutex);
-        _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
+        _condVar.wait_for(lock, reducedWaitTimeUs, [&]
+                          { return _stop == true; });
         //SENS_DEBUG("wait time %d us", waitTimeUs.count());
         //SENS_DEBUG("woke after %d us", t.elapsedTimeInMicroSec());
 #endif

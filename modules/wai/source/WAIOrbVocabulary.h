@@ -55,7 +55,7 @@ public:
     WAIOrbVocabulary(int layer = 2);
     ~WAIOrbVocabulary();
     void loadFromFile(std::string strVocFile);
-    void create(std::vector<cv::Mat> &features, int k, int l);
+    void create(std::vector<cv::Mat>& features, int k, int l);
 
 #if USE_FBOW
     fbow::Vocabulary* _vocabulary = nullptr;

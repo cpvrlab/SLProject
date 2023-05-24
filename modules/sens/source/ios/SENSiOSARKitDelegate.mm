@@ -4,7 +4,7 @@
 @interface SENSiOSARCoreDelegate () {
 
 @private
-    
+
     ARSession*       _arSession;
     ARConfiguration* _arConfig;
 }
@@ -34,13 +34,13 @@
     if (ARWorldTrackingConfiguration.isSupported)
     {
         // Create an ARSession
-        if(_arSession == nil)
+        if (_arSession == nil)
         {
             _arSession          = [ARSession new];
             _arSession.delegate = self;
         }
 
-        if(_arConfig == nil)
+        if (_arConfig == nil)
             _arConfig = [ARWorldTrackingConfiguration new];
 
         //for (int i = 0; i < ARWorldTrackingConfiguration.supportedVideoFormats.count; ++i)
@@ -98,8 +98,8 @@
      WithPointClout:(cv::Mat*)pc
 {
     //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
-    ARFrame*  frame  = _arSession.currentFrame;
-    if(!frame)
+    ARFrame* frame = _arSession.currentFrame;
+    if (!frame)
     {
         Utils::log("SENSiOSARCoreDelegate", "frame is invalid");
         *isTracking = NO;
@@ -136,12 +136,12 @@
     //copy the image as in camera
     CVImageBufferRef pixelBuffer = frame.capturedImage;
 
-    CVReturn ret         = CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    CVReturn ret = CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
     //This is NV12, so the order is U/V (NV12: YYYYUV NV21: YYYYVU)
     if (ret == kCVReturnSuccess)
     {
-        OSType   pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
+        OSType pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
         if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
         {
             size_t imgWidth  = CVPixelBufferGetWidth(pixelBuffer);
@@ -155,17 +155,17 @@
             cv::cvtColor(yuvImg, *imgBGR, cv::COLOR_YUV2BGR_NV12, 3);
         }
     }
-    if(ret != kCVReturnSuccess)
+    if (ret != kCVReturnSuccess)
     {
         Utils::log("SENSiOSARCoreDelegate", "pixelbuffer not locked");
     }
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-    
+
     //extract 3D points
-    if(pc)
+    if (pc)
     {
         ARPointCloud* rawFPts = [frame rawFeaturePoints];
-        if(pc != nil)
+        if (pc != nil)
         {
             //(simd_float3 is an array of four floats)
             *pc = cv::Mat((int)rawFPts.count, 4, CV_32F);

@@ -177,4 +177,3 @@ SLQuat4f CVTracked::averageQuaternion(vector<SLQuat4f> quaternions,
     return total.normalized();
 }
 //-----------------------------------------------------------------------------
-

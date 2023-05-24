@@ -75,11 +75,11 @@ void WAISlamTools::drawInitInfo(WAIInitializerData& iniData, WAIFrame& newFrame,
     }
 }
 
-bool WAISlamTools::initialize(WAIInitializerData&  iniData,
-                              WAIFrame&         frame,
-                              WAIOrbVocabulary* voc,
-                              LocalMap&         localMap,
-                              int               mapPointsNeeded)
+bool WAISlamTools::initialize(WAIInitializerData& iniData,
+                              WAIFrame&           frame,
+                              WAIOrbVocabulary*   voc,
+                              LocalMap&           localMap,
+                              int                 mapPointsNeeded)
 {
     int matchesNeeded = mapPointsNeeded;
 
@@ -266,14 +266,14 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
     return true;
 }
 
-bool WAISlamTools::oldInitialize(WAIFrame&         frame,
-                                 WAIInitializerData&  iniData,
-                                 WAIMap*           map,
-                                 LocalMap&         localMap,
-                                 LocalMapping*     localMapper,
-                                 LoopClosing*      loopCloser,
-                                 WAIOrbVocabulary* voc,
-                                 int               mapPointsNeeded)
+bool WAISlamTools::oldInitialize(WAIFrame&           frame,
+                                 WAIInitializerData& iniData,
+                                 WAIMap*             map,
+                                 LocalMap&           localMap,
+                                 LocalMapping*       localMapper,
+                                 LoopClosing*        loopCloser,
+                                 WAIOrbVocabulary*   voc,
+                                 int                 mapPointsNeeded)
 {
     int matchesNeeded = mapPointsNeeded;
 
@@ -737,7 +737,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     //DUtils::Random::SeedRandOnce(42);
     //for(int i= 0; i < 10; ++ i)
     //    std::cout << "rand: " << DUtils::Random::RandomInt(0, 10) << std::endl;
-    
+
     // We perform first an ORB matching with each candidate
     // If enough matches are found we setup a PnP solver
     // Best match < 0.75 * second best match (default is 0.6)
@@ -895,14 +895,14 @@ bool WAISlamTools::relocalizationGPS(WAIFrame& currentFrame,
     vector<WAIKeyFrame*> allKf = waiMap->GetAllKeyFrames();
 
     float minDist;
-    for (WAIKeyFrame * kf : allKf)
+    for (WAIKeyFrame* kf : allKf)
     {
-        cv::Mat tcw = kf->GetPose();
+        cv::Mat          tcw = kf->GetPose();
         cv::Mat_<double> front(3, 1);
 
         front(0, 0) = 0;
         front(1, 0) = 0;
-        front(2, 0) =-1.0;
+        front(2, 0) = -1.0;
 
         front = tcw * front;
         if (dirENU.dot(front) < 0)
@@ -1765,8 +1765,7 @@ bool WAISlamTools::doMarkerMapPreprocessing(std::string       markerFile,
     return true;
 }
 
-
-bool WAISlamTools::detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visitedNode)
+bool WAISlamTools::detectCycle(WAIKeyFrame* kf, std::set<WAIKeyFrame*>& visitedNode)
 {
     std::stack<WAIKeyFrame*> nodeStack;
 
@@ -1774,13 +1773,13 @@ bool WAISlamTools::detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visited
 
     while (!nodeStack.empty())
     {
-        WAIKeyFrame * k = nodeStack.top();
+        WAIKeyFrame* k = nodeStack.top();
         nodeStack.pop();
 
         if (visitedNode.count(k) == 0)
         {
             visitedNode.insert(k);
-            for (WAIKeyFrame * c : k->GetChilds())
+            for (WAIKeyFrame* c : k->GetChilds())
             {
                 if (!c->isBad())
                     nodeStack.push(c);
@@ -1792,14 +1791,14 @@ bool WAISlamTools::detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visited
     return false;
 }
 
-bool WAISlamTools::checkKFConnectionsTree(WAIMap * map)
+bool WAISlamTools::checkKFConnectionsTree(WAIMap* map)
 {
-    std::vector<WAIKeyFrame*> allKfs = map->GetAllKeyFrames();
-    unsigned int countGood = 0;
-    WAIKeyFrame * root = nullptr;
-    bool b = true;
+    std::vector<WAIKeyFrame*> allKfs    = map->GetAllKeyFrames();
+    unsigned int              countGood = 0;
+    WAIKeyFrame*              root      = nullptr;
+    bool                      b         = true;
 
-    for (WAIKeyFrame *kf : allKfs)
+    for (WAIKeyFrame* kf : allKfs)
     {
         if (kf->isBad())
             continue;

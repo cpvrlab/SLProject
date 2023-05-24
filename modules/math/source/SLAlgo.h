@@ -26,9 +26,7 @@ T geoDegMinSec2Decimal(int degrees, int minutes, T seconds);
 
 //! Latitude Longitude Altitude (LatLonAlt), defined in Degrees, Minutes, Secondes format to decimal
 template<typename T>
-SLVec3<T> geoDegMinSec2Decimal(int degreesLat, int minutesLat, T secondsLat,
-                               int degreesLon, int minutesLon, T secondsLon,
-                               T alt);
+SLVec3<T> geoDegMinSec2Decimal(int degreesLat, int minutesLat, T secondsLat, int degreesLon, int minutesLon, T secondsLon, T alt);
 
 };
 //-----------------------------------------------------------------------------

@@ -181,9 +181,9 @@ SLbool SLOptixPathtracer::render()
     double tStart = t1;
     _state        = rtBusy; // From here we state the RT as busy
 
-    // Todo: Bugfix needed for Optix needs some work for newer shader models
+                            // Todo: Bugfix needed for Optix needs some work for newer shader models
     //OPTIX_CHECK(
-      optixLaunch(
+    optixLaunch(
       _pipeline,
       SLOptix::stream,
       _paramsBuffer.devicePointer(),
@@ -192,7 +192,7 @@ SLbool SLOptixPathtracer::render()
       _sv->scrW(),
       _sv->scrH(),
       /*depth=*/1);
-      //);
+    //);
     CUDA_SYNC_CHECK(SLOptix::stream);
 
     _renderSec = (SLfloat)(GlobalTimer::timeMS() - tStart) / 1000;

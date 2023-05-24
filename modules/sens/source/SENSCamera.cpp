@@ -60,17 +60,20 @@ int SENSCameraDeviceProps::findBestMatchingConfig(cv::Size requiredSize) const
 //-----------------------------------------------------------------------------
 bool SENSCaptureProps::containsDeviceId(const std::string& deviceId) const
 {
-    return std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp) { return comp.deviceId() == deviceId; }) != end();
+    return std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp)
+                        { return comp.deviceId() == deviceId; }) != end();
 }
 //-----------------------------------------------------------------------------
 bool SENSCaptureProps::supportsCameraFacing(const SENSCameraFacing& facing) const
 {
-    return std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp) { return comp.facing() == facing; }) != end();
+    return std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp)
+                        { return comp.facing() == facing; }) != end();
 }
 //-----------------------------------------------------------------------------
 const SENSCameraDeviceProps* SENSCaptureProps::camPropsForDeviceId(const std::string& deviceId) const
 {
-    auto camPropsIt = std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp) { return comp.deviceId() == deviceId; });
+    auto camPropsIt = std::find_if(begin(), end(), [&](const SENSCameraDeviceProps& comp)
+                                   { return comp.deviceId() == deviceId; });
     if (camPropsIt != end())
         return &*camPropsIt;
     else
@@ -127,7 +130,8 @@ SENSCaptureProps::findBestMatchingConfig(SENSCameraFacing facing,
             Utils::log("SENSCaptureProps", ss.str().c_str());
         }
     };
-    auto printSortElems = [](const std::vector<SortElem>& sortElems, std::string id) {
+    auto printSortElems = [](const std::vector<SortElem>& sortElems, std::string id)
+    {
         std::cout << id << std::endl;
         for (int i = 0; i < sortElems.size(); ++i)
             sortElems.at(i).print(i);
@@ -186,7 +190,8 @@ SENSCaptureProps::findBestMatchingConfig(SENSCameraFacing facing,
     if (sortElems.size())
     {
         // sort by difference to target fovV
-        std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.fovScore < rhs.fovScore; });
+        std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool
+                  { return lhs.fovScore < rhs.fovScore; });
         // printSortElems(sortElems, "sortElems");
 
         // extract all in a range of +-3 degree compared to the closest to target fovV
@@ -199,7 +204,8 @@ SENSCaptureProps::findBestMatchingConfig(SENSCameraFacing facing,
         }
 
         // now extract the one with the best scale score from the remaining
-        std::sort(closeFovSortElems.begin(), closeFovSortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.scale > rhs.scale; });
+        std::sort(closeFovSortElems.begin(), closeFovSortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool
+                  { return lhs.scale > rhs.scale; });
         // printSortElems(closeFovSortElems, "closeFovSortElems");
 
         const SortElem& bestSortElem = closeFovSortElems.front();

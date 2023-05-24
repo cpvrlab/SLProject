@@ -150,7 +150,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    program) : SLObject(name)
 {
     _assetManager = am;
-    _ambient.set(0, 0, 0); // not used in Cook-Torrance
+    _ambient.set(0, 0, 0);                          // not used in Cook-Torrance
     _diffuse = diffuse;
     _specular.set(1, 1, 1);                         // not used in Cook-Torrance
     _emissive.set(0, 0, 0, 0);                      // not used in Cook-Torrance

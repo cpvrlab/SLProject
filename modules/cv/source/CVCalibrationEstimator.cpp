@@ -333,7 +333,7 @@ bool CVCalibrationEstimator::loadCalibParams()
 {
     cv::FileStorage fs;
     string          fullCalibIniFile = Utils::findFile(_calibParamsFileName,
-                                              {_calibDataPath, _exePath});
+                                                       {_calibDataPath, _exePath});
     fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
     {

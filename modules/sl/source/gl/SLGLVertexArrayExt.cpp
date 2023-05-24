@@ -55,7 +55,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLProgram* sp      = SLGLProgramManager::get(SP_colorUniform);
     SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
@@ -102,7 +102,7 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
         SL_EXIT_MSG("No VBO generated for VAO in drawArrayAsColored.");
 
     // Prepare shader
-    SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
+    SLGLProgram* sp      = SLGLProgramManager::get(SP_colorUniform);
     SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);

@@ -23,7 +23,7 @@ is used to define the 6 planes of the view frustum.
 */
 class SLPlane
 {
-    public:
+public:
     SLPlane(const SLVec3f& v1,
             const SLVec3f& v2,
             const SLVec3f& v3);

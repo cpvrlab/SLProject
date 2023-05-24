@@ -54,32 +54,32 @@ enum SLGLAttributeType
     SLVVfloat Jw;   //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 7)
     */
 
-    AT_position = 0, //!< Vertex position as a 2, 3 or 4 component vectors
-    AT_normal,       //!< Vertex normal as a 3 component vector
-    AT_uv1,          //!< Vertex 1st texture coordinate as 2 component vector
-    AT_uv2,          //!< Vertex 2nd texture coordinate as 2 component vector
-    AT_color,        //!< Vertex color as 3 or 4 component vector
-    AT_tangent,      //!< Vertex tangent as a 4 component vector (see SLMesh)
-    AT_jointIndex,   //!< Vertex joint id for vertex skinning
-    AT_jointWeight,  //!< Vertex joint weight for vertex skinning
+    AT_position = 0,        //!< Vertex position as a 2, 3 or 4 component vectors
+    AT_normal,              //!< Vertex normal as a 3 component vector
+    AT_uv1,                 //!< Vertex 1st texture coordinate as 2 component vector
+    AT_uv2,                 //!< Vertex 2nd texture coordinate as 2 component vector
+    AT_color,               //!< Vertex color as 3 or 4 component vector
+    AT_tangent,             //!< Vertex tangent as a 4 component vector (see SLMesh)
+    AT_jointIndex,          //!< Vertex joint id for vertex skinning
+    AT_jointWeight,         //!< Vertex joint weight for vertex skinning
 
-    AT_custom0, //!< Custom vertex attribute 0
-    AT_custom1, //!< Custom vertex attribute 1
-    AT_custom2, //!< Custom vertex attribute 2
-    AT_custom3, //!< Custom vertex attribute 3
-    AT_custom4, //!< Custom vertex attribute 4
-    AT_custom5, //!< Custom vertex attribute 5
-    AT_custom6, //!< Custom vertex attribute 6
-    AT_custom7, //!< Custom vertex attribute 7
-    AT_custom8, //!< Custom vertex attribute 8
-    AT_custom9,  //!< Custom vertex attribute 9
+    AT_custom0,             //!< Custom vertex attribute 0
+    AT_custom1,             //!< Custom vertex attribute 1
+    AT_custom2,             //!< Custom vertex attribute 2
+    AT_custom3,             //!< Custom vertex attribute 3
+    AT_custom4,             //!< Custom vertex attribute 4
+    AT_custom5,             //!< Custom vertex attribute 5
+    AT_custom6,             //!< Custom vertex attribute 6
+    AT_custom7,             //!< Custom vertex attribute 7
+    AT_custom8,             //!< Custom vertex attribute 8
+    AT_custom9,             //!< Custom vertex attribute 9
 
-    AT_velocity = 1,        //!< Vertex velocity 3 component vectors
-    AT_startTime = 2,       //!< Vertex start time float
+    AT_velocity        = 1, //!< Vertex velocity 3 component vectors
+    AT_startTime       = 2, //!< Vertex start time float
     AT_initialVelocity = 3, //!< Vertex initial velocity 3 component vectors
-    AT_rotation = 4,       //!< Vertex rotation float
-    AT_angularVelo = 5, //!< Vertex angulare velocity for rotation float
-    AT_texNum = 6,         //!< Vertex texture number int
+    AT_rotation        = 4, //!< Vertex rotation float
+    AT_angularVelo     = 5, //!< Vertex angulare velocity for rotation float
+    AT_texNum          = 6, //!< Vertex texture number int
     AT_initialPosition = 7  //!< Vertex initial position 3 component vectors
 };
 //-----------------------------------------------------------------------------

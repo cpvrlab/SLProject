@@ -382,7 +382,7 @@ enum SLFogMode
 //! Billboard type for its orientation used in SLParticleSystem
 enum SLBillboardType
 {
-    BT_Camera= 0,
+    BT_Camera = 0,
     BT_Vertical,
     BT_Horizontal
 };

@@ -252,7 +252,7 @@ SLfloat SLLightSpot::shadowTest(SLRay*         ray,       // ray of hit point
         else
             return 1.0f;
     }
-    else // do light sampling for soft shadows
+    else                                           // do light sampling for soft shadows
     {
         SLVec3f C(updateAndGetWM().translation()); // Center of light
         SLVec3f LightX, LightY;                    // main axis of sample plane
@@ -345,7 +345,7 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray,       // ray of hit point
         else
             return 1.0f;
     }
-    else // do light sampling for soft shadows
+    else                                           // do light sampling for soft shadows
     {
         SLVec3f C(updateAndGetWM().translation()); // Center of light
         SLVec3f LightX, LightY;                    // main axis of sample plane

@@ -31,21 +31,21 @@ struct VertexPN
 
 //-----------------------------------------------------------------------------
 // Global application variables
-static GLFWwindow* window;       //!< The global GLFW window handle
-static SLstring    _projectRoot; //!< Directory of executable
-static SLint       _scrWidth;    //!< Window width at start up
-static SLint       _scrHeight;   //!< Window height at start up
+static GLFWwindow* window;                   //!< The global GLFW window handle
+static SLstring    _projectRoot;             //!< Directory of executable
+static SLint       _scrWidth;                //!< Window width at start up
+static SLint       _scrHeight;               //!< Window height at start up
 
-static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
-static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
-static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
-static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
+static SLMat4f _cameraMatrix;                //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;                  //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;                 //!< 4x4 matrix for model to world transform
+static SLMat4f _projectionMatrix;            //!< Projection from view space to normalized device coordinates
 
-static GLuint _vao  = 0; //!< ID of the vertex array object
-static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-static GLuint _numV = 0; //!< NO. of vertices
-static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
+static GLuint _vao  = 0;                     //!< ID of the vertex array object
+static GLuint _vboV = 0;                     //!< ID of the VBO for vertex attributes
+static GLuint _vboI = 0;                     //!< ID of the VBO for vertex index array
+static GLuint _numV = 0;                     //!< NO. of vertices
+static GLuint _numI = 0;                     //!< NO. of vertex indexes for triangles
 
 static float        _camZ;                   //!< z-distance of camera
 static float        _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -59,9 +59,9 @@ static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifie
 static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
 static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-static GLuint _shaderVertID = 0; //! vertex shader id
-static GLuint _shaderFragID = 0; //! fragment shader id
-static GLuint _shaderProgID = 0; //! shader program id
+static GLuint _shaderVertID = 0;             //! vertex shader id
+static GLuint _shaderFragID = 0;             //! fragment shader id
+static GLuint _shaderProgID = 0;             //! shader program id
 
 // Attribute & uniform variable location indexes
 static GLint _pLoc;              //!< attribute location for vertex position

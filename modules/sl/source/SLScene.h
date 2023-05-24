@@ -132,26 +132,26 @@ protected:
     SLAnimManager   _animManager;   //!< Animation manager instance
     SLAssetManager* _assetManager;  //!< Pointer to the external assetManager
 
-    SLNode*   _root3D;         //!< Root node for 3D scene
-    SLNode*   _root2D;         //!< Root node for 2D scene displayed in ortho projection
-    SLSkybox* _skybox;         //!< pointer to skybox
-    SLstring  _info;           //!< scene info string
-    SLVNode   _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
-    SLVMesh   _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
+    SLNode*   _root3D;              //!< Root node for 3D scene
+    SLNode*   _root2D;              //!< Root node for 2D scene displayed in ortho projection
+    SLSkybox* _skybox;              //!< pointer to skybox
+    SLstring  _info;                //!< scene info string
+    SLVNode   _selectedNodes;       //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
+    SLVMesh   _selectedMeshes;      //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
 
-    SLfloat _loadTimeMS;       //!< time to load scene in ms
-    SLfloat _frameTimeMS;      //!< Last frame time in ms
-    SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
-    SLfloat _fps;              //!< Averaged no. of frames per second
+    SLfloat _loadTimeMS;            //!< time to load scene in ms
+    SLfloat _frameTimeMS;           //!< Last frame time in ms
+    SLfloat _lastUpdateTimeMS;      //!< Last time after update in ms
+    SLfloat _fps;                   //!< Averaged no. of frames per second
 
     // major part times
-    AvgFloat _frameTimesMS;      //!< Averaged total time per frame in ms
-    AvgFloat _updateTimesMS;     //!< Averaged time for update in ms
-    AvgFloat _updateAABBTimesMS; //!< Averaged time for update the nodes AABB in ms
-    AvgFloat _updateAnimTimesMS; //!< Averaged time for update the animations in ms
-    AvgFloat _updateDODTimesMS;  //!< Averaged time for update the SLEntities graph
+    AvgFloat _frameTimesMS;              //!< Averaged total time per frame in ms
+    AvgFloat _updateTimesMS;             //!< Averaged time for update in ms
+    AvgFloat _updateAABBTimesMS;         //!< Averaged time for update the nodes AABB in ms
+    AvgFloat _updateAnimTimesMS;         //!< Averaged time for update the animations in ms
+    AvgFloat _updateDODTimesMS;          //!< Averaged time for update the SLEntities graph
 
-    SLbool _stopAnimations; //!< Global flag for stopping all animations
+    SLbool _stopAnimations;              //!< Global flag for stopping all animations
 
     std::unique_ptr<SLGLOculus> _oculus; //!< Oculus Rift interface
 };

@@ -487,10 +487,10 @@ void CVImage::load(const string& filename,
             for (int x = 0; x < rgbaImg.cols; ++x)
             {
                 uchar value = *src++;
-                *dst++ = value;
-                *dst++ = value;
-                *dst++ = value;
-                *dst++ = value;
+                *dst++      = value;
+                *dst++      = value;
+                *dst++      = value;
+                *dst++      = value;
             }
         }
 

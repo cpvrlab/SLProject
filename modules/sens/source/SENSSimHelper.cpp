@@ -14,9 +14,9 @@ SENSSimHelper::SENSSimHelper(SENSGps*&                 gps,
     _simDataDir(Utils::unifySlashes(simDataDir)),
     _cameraParametersChangedCB(cameraParametersChangedCB)
 {
-    if(!Utils::dirExists(simDataDir))
+    if (!Utils::dirExists(simDataDir))
         Utils::makeDir(simDataDir);
-    if(!Utils::dirExists(simDataDir))
+    if (!Utils::dirExists(simDataDir))
         Utils::log("SENSSimHelper", "Could not create simDataDir!");
 }
 
@@ -292,7 +292,7 @@ void SENSSimHelper::startSim()
         if (capProps.size())
         {
             const SENSCameraDeviceProps* currCamProps = &capProps.front();
-            auto                              streamConfig = currCamProps->streamConfigs().front();
+            auto                         streamConfig = currCamProps->streamConfigs().front();
             //first start the camera, the intrinsic is valid afterwards
             _cameraRef->start(currCamProps->deviceId(),
                               streamConfig,

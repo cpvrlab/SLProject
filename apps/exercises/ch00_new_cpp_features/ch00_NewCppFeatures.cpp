@@ -844,7 +844,7 @@ void new_smart_pointers()
                 cout << "Count after 3rd shared pointer: " << pA1.use_count() << endl;
             } // count is 2
             cout << "Count after 3rd share pointer is gone: " << pA1.use_count() << endl;
-        } // count is 1
+        }     // count is 1
         cout << "Count after 2nd share pointer is gone: " << pA1.use_count() << endl;
     }
     cout << "No, memory leak." << endl;

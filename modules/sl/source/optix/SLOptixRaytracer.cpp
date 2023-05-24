@@ -196,7 +196,7 @@ OptixPipeline SLOptixRaytracer::createPipeline(OptixProgramGroup* program_groups
 
     // Todo: Bugfix needed for Optix needs some work for newer shader models
     //OPTIX_CHECK_LOG(
-      optixPipelineCreate(
+    optixPipelineCreate(
       SLOptix::context,
       &_pipeline_compile_options,
       &pipeline_link_options,
@@ -205,7 +205,7 @@ OptixPipeline SLOptixRaytracer::createPipeline(OptixProgramGroup* program_groups
       log,
       &sizeof_log,
       &pipeline);
-      //);
+    //);
 
     return pipeline;
 }

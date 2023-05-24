@@ -576,9 +576,9 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             // calculate local illumination only if point is not shaded
             if (lighted > 0.0f)
             {
-                H.sub(L, ray->dir); // half vector between light & eye
+                H.sub(L, ray->dir);                            // half vector between light & eye
                 H.normalize();
-                df    = std::max(LdotN, 0.0f); // diffuse factor
+                df    = std::max(LdotN, 0.0f);                 // diffuse factor
                 NdotH = std::max(N.dot(H), 0.0f);
                 sf    = pow(NdotH, (SLfloat)mat->shininess()); // specular factor
 
@@ -612,7 +612,7 @@ because the contrast to its left and/or above neighbor is above a threshold.
 */
 void SLRaytracer::getAAPixels()
 {
-    SLCol4f color, colorLeft, colorUp; // pixel colors to be compared
+    SLCol4f color, colorLeft, colorUp;      // pixel colors to be compared
     SLVbool gotSampled;
     gotSampled.resize(_images[0]->width()); // Flags if above pixel got sampled
     SLbool isSubsampled;                    // Flag if pixel got sub-sampled

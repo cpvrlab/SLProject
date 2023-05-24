@@ -345,7 +345,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
         generateVAO(_vao);
 
     // Now use the depth material
-    SLGLProgram* sp    = depthMat->program();
+    SLGLProgram* sp = depthMat->program();
     sp->useProgram();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
     sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
@@ -597,7 +597,7 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
                    (SLfloat)vp.width,
                    (SLfloat)vp.height);
         SLMat4f     v_mvp = v * mvp;
-        set<SLuint> tempIselected; // Temp. vector for selected vertex indices
+        set<SLuint> tempIselected;        // Temp. vector for selected vertex indices
 
         if (!cam->selectRect().isEmpty()) // Do rectangle Selection
         {

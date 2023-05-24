@@ -9,24 +9,24 @@
 //#############################################################################
 
 /**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of ORB-SLAM2.
+ *
+ * Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+ * For more information see <https://github.com/raulmur/ORB_SLAM2>
+ *
+ * ORB-SLAM2 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ORB-SLAM2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <WAIMap.h>
 #include <Utils.h>
@@ -135,24 +135,24 @@ long unsigned int WAIMap::GetMaxKFid()
 float WAIMap::GetSize()
 {
     std::vector<WAIMapPoint*> mpv = GetAllMapPoints();
-    WAI::V3 a = mpv[0]->worldPosVec();
-    WAI::V3 b = a;
+    WAI::V3                   a   = mpv[0]->worldPosVec();
+    WAI::V3                   b   = a;
 
-    for (WAIMapPoint * mp : mpv)
+    for (WAIMapPoint* mp : mpv)
     {
         WAI::V3 v = mp->worldPosVec();
-        a.x = fmax(v.x, a.x);
-        a.y = fmax(v.y, a.y);
-        a.z = fmax(v.z, a.z);
+        a.x       = fmax(v.x, a.x);
+        a.y       = fmax(v.y, a.y);
+        a.z       = fmax(v.z, a.z);
 
         b.x = fmin(v.x, b.x);
         b.y = fmin(v.y, b.y);
         b.z = fmin(v.z, b.z);
     }
 
-    a = WAI::v3(a.x-b.x, a.y-b.y, a.z-b.z);
+    a = WAI::v3(a.x - b.x, a.y - b.y, a.z - b.z);
 
-    return sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
+    return sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
 }
 
 //-----------------------------------------------------------------------------
@@ -195,15 +195,15 @@ void WAIMap::transform(cv::Mat transform)
     cv::Mat t;
     cv::transpose(transform, t);
     cv::Mat s2 = t * transform;
-    float sx, sy, sz;
-    sx = sqrt(s2.at<float>(0,0));
-    sy = sqrt(s2.at<float>(1,1));
-    sz = sqrt(s2.at<float>(2,2));
+    float   sx, sy, sz;
+    sx = sqrt(s2.at<float>(0, 0));
+    sy = sqrt(s2.at<float>(1, 1));
+    sz = sqrt(s2.at<float>(2, 2));
 
     t = transform.clone();
-    t.rowRange(0,3).col(0) *= 1.0f/sx;
-    t.rowRange(0,3).col(1) *= 1.0f/sy;
-    t.rowRange(0,3).col(2) *= 1.0f/sz;
+    t.rowRange(0, 3).col(0) *= 1.0f / sx;
+    t.rowRange(0, 3).col(1) *= 1.0f / sy;
+    t.rowRange(0, 3).col(2) *= 1.0f / sz;
 
     Mat Twc;
     Mat Tcw;
@@ -224,11 +224,11 @@ void WAIMap::transform(cv::Mat transform)
     //transform keypoints
     for (auto& pt : mspMapPoints)
     {
-        cv::Mat p = (cv::Mat_<float>(4, 1) << 0, 0, 0, 1.0f);
+        cv::Mat p  = (cv::Mat_<float>(4, 1) << 0, 0, 0, 1.0f);
         cv::Mat wp = pt->GetWorldPos();
         wp.copyTo(p.rowRange(0, 3));
         p = transform * p;
-        p.rowRange(0,3).copyTo(wp);
+        p.rowRange(0, 3).copyTo(wp);
         pt->SetWorldPos(wp);
     }
 

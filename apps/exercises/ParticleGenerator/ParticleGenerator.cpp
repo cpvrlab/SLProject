@@ -47,18 +47,18 @@ struct VertexPC
 };
 //-----------------------------------------------------------------------------
 // Global application variables
-static GLFWwindow* window;       //!< The global GLFW window handle
-static SLstring    _projectRoot; //!< Directory of executable
-static SLint       _scrWidth;    //!< Window width at start up
-static SLint       _scrHeight;   //!< Window height at start up
+static GLFWwindow* window;        //!< The global GLFW window handle
+static SLstring    _projectRoot;  //!< Directory of executable
+static SLint       _scrWidth;     //!< Window width at start up
+static SLint       _scrHeight;    //!< Window height at start up
 
 static SLMat4f _viewMatrix;       //!< 4x4 view matrix
 static SLMat4f _modelMatrix;      //!< 4x4 model matrix
 static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
-static GLuint _vao[2]; //!< IDs of the vertex array objects
-static GLuint _tfo[2]; //!< IDs of the transform feedback objects
-static GLuint _vbo[2]; //!< IDs of the vertex buffer objects
+static GLuint _vao[2];            //!< IDs of the vertex array objects
+static GLuint _tfo[2];            //!< IDs of the transform feedback objects
+static GLuint _vbo[2];            //!< IDs of the vertex buffer objects
 
 // For cube rendering
 static GLuint _vaoC  = 0; //!< ID of the vertex array object for the Cube
@@ -68,13 +68,13 @@ static GLuint _numV  = 0; //!< NO. of vertices
 static GLuint _numI  = 0; //!< NO. of vertex indexes for triangles
 
 // Constant and variables for particles init/update
-static int   _amount      = 50;   //!< Amount of particles
-static int   _drawBuf     = 0;    // Boolean to switch buffer
-static float _ttl         = 5.0f; // Time to life of a particle
-static float _currentTime = 0.0f; // Elapsed time since start of application
-static float _lastTime    = 0.0f; // Last obtained elapsed time
+static int   _amount      = 50;        //!< Amount of particles
+static int   _drawBuf     = 0;         // Boolean to switch buffer
+static float _ttl         = 5.0f;      // Time to life of a particle
+static float _currentTime = 0.0f;      // Elapsed time since start of application
+static float _lastTime    = 0.0f;      // Last obtained elapsed time
 
-static SLVec3f pGPos; // Position of particle generator
+static SLVec3f pGPos;                  // Position of particle generator
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -88,19 +88,19 @@ const GLuint  SHIFT      = 0x00200000; //!< constant for shift key modifier
 const GLuint  CTRL       = 0x00400000; //!< constant for control key modifier
 const GLuint  ALT        = 0x00800000; //!< constant for alt key modifier
 
-static GLuint _shaderVertID = 0; //! vertex shader id
-static GLuint _shaderFragID = 0; //! fragment shader id
-static GLuint _shaderGeomID = 0; //! geometry shader id
-static GLuint _shaderProgID = 0; //! shader program id
-static GLuint _textureID    = 0; //!< texture id
+static GLuint _shaderVertID = 0;       //! vertex shader id
+static GLuint _shaderFragID = 0;       //! fragment shader id
+static GLuint _shaderGeomID = 0;       //! geometry shader id
+static GLuint _shaderProgID = 0;       //! shader program id
+static GLuint _textureID    = 0;       //!< texture id
 
-static GLuint _cShaderVertID = 0; //! vertex cube shader id
-static GLuint _cShaderFragID = 0; //! fragment cube shader id
-static GLuint _cShaderProgID = 0; //! shader cube program id
+static GLuint _cShaderVertID = 0;      //! vertex cube shader id
+static GLuint _cShaderFragID = 0;      //! fragment cube shader id
+static GLuint _cShaderProgID = 0;      //! shader cube program id
 
-static GLuint _tFShaderVertID = 0; //! transform feedback vertex shader id
-static GLuint _tFShaderFragID = 0; //! transform feedback fragment shader id
-static GLuint _tFShaderProgID = 0; //! transform feedback shader program id
+static GLuint _tFShaderVertID = 0;     //! transform feedback vertex shader id
+static GLuint _tFShaderFragID = 0;     //! transform feedback fragment shader id
+static GLuint _tFShaderProgID = 0;     //! transform feedback shader program id
 
 // Uniform variable location indexes
 static GLint _cLoc;        //!< uniform location for vertex color
@@ -110,7 +110,7 @@ static GLint _tTLLoc;      //!< uniform location for particle life time
 static GLint _timeLoc;     //!< uniform location for time
 static GLint _gLoc;        //!< uniform location for gamma value
 static GLint _pGPLoc;      //!< uniform location for particle generator position
-static GLint _vMatLoc;       //!< uniform location for modelview matrix
+static GLint _vMatLoc;     //!< uniform location for modelview matrix
 static GLint _pMatLoc;     //!< uniform location for projection matrix
 static GLint _texture0Loc; //!< uniform location for texture 0
 
@@ -336,7 +336,7 @@ void onInit()
     _timeLoc     = glGetUniformLocation(_shaderProgID, "u_time");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
-    buildBox(); // Init the Cube
+    buildBox();                           // Init the Cube
 
     _amount = 50;                         // Set the number of particles (must set before initParticles(...))
     pGPos   = SLVec3f(0.0f, -0.5f, 0.0f); // Init the particle emitter position  World space (comment for local space)
@@ -350,8 +350,8 @@ void onInit()
      */
     initParticles(4.0f, pGPos, SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f)); // World space (comment for local space)
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
-    glEnable(GL_CULL_FACE);            // Enables the culling of back faces
+    glClearColor(0.0f, 0.0f, 0.0f, 1);                                                    // Set the background color
+    glEnable(GL_CULL_FACE);                                                               // Enables the culling of back faces
     GETGLERROR;
 }
 //-----------------------------------------------------------------------------

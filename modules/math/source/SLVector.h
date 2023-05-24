@@ -30,26 +30,26 @@ template<class T, class U>
 class SLVector
 {
 public:
-    SLVector();                  //!< creates empty array
-    SLVector(SLuint size);       //!< creates array w. size
-    SLVector(const SLVector& a); //!< creates a copy of array a
-    virtual ~SLVector();         //!< standard destructor
+    SLVector();                                   //!< creates empty array
+    SLVector(SLuint size);                        //!< creates array w. size
+    SLVector(const SLVector& a);                  //!< creates a copy of array a
+    virtual ~SLVector();                          //!< standard destructor
 
     SLVector<T, U>& operator=(const SLVector& a); //!< assignment operator
     SLVector<T, U>& operator=(const SLVector* a); //!< assignment operator
     inline T&       operator[](SLuint i);         //!< access operator
 
-    void      set(const SLVector& a);          //!< set array with another
-    U         size() { return _size; }         //!< returns size
-    U         capacity() { return _capacity; } //!< returns internal size
-    void      push_back(const T element);      //!< appends element at end
-    void      pop_back();                      //!< deletes element at end
-    void      erase(U i);                      //!< delete element at pos i
-    inline T& at(SLuint i);                    //!< returns element at pos i
-    void      reverse();                       //!< reverses the order
-    void      clear() { resize(0); }           //!< deletes all
-    void      resize(SLuint64 size = 0);       //!< deletes all, sets _size=size
-    void      reserve(SLuint64 newSize);       //!< set capacity = newSize
+    void      set(const SLVector& a);             //!< set array with another
+    U         size() { return _size; }            //!< returns size
+    U         capacity() { return _capacity; }    //!< returns internal size
+    void      push_back(const T element);         //!< appends element at end
+    void      pop_back();                         //!< deletes element at end
+    void      erase(U i);                         //!< delete element at pos i
+    inline T& at(SLuint i);                       //!< returns element at pos i
+    void      reverse();                          //!< reverses the order
+    void      clear() { resize(0); }              //!< deletes all
+    void      resize(SLuint64 size = 0);          //!< deletes all, sets _size=size
+    void      reserve(SLuint64 newSize);          //!< set capacity = newSize
 
 private:
     U  _size;     //!< real size of array of type U

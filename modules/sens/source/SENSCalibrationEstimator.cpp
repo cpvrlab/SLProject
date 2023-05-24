@@ -337,7 +337,7 @@ bool SENSCalibrationEstimator::loadCalibParams()
 {
     FileStorage fs;
     string      fullCalibIniFile = Utils::findFile(_calibParamsFileName,
-                                              {_calibDataPath, _exePath});
+                                                   {_calibDataPath, _exePath});
     fs.open(fullCalibIniFile, FileStorage::READ);
     if (!fs.isOpened())
     {
@@ -365,7 +365,8 @@ void SENSCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, 
 {
     switch (_state)
     {
-        case State::Streaming: {
+        case State::Streaming:
+        {
             if (grabFrame && found)
             {
                 _currentImgToExtract = imageGray.clone();
@@ -379,7 +380,8 @@ void SENSCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, 
             }
             break;
         }
-        case State::BusyExtracting: {
+        case State::BusyExtracting:
+        {
             //check if async task is ready
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
@@ -403,7 +405,8 @@ void SENSCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, 
             }
             break;
         }
-        case State::Calculating: {
+        case State::Calculating:
+        {
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
                 _calibrationSuccessful = _calibrationTask.get();
@@ -436,7 +439,8 @@ void SENSCalibrationEstimator::updateOnlyCapture(bool found, bool grabFrame, cv:
 {
     switch (_state)
     {
-        case State::Streaming: {
+        case State::Streaming:
+        {
             if (grabFrame && found)
             {
                 saveImage(imageGray);

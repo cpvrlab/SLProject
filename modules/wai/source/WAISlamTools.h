@@ -20,7 +20,7 @@ struct WAIInitializerData
     WAIFrame                 initialFrame;
     std::vector<cv::Point2f> prevMatched; // all keypoints in initialFrame
     std::vector<cv::Point3f> iniPoint3D;
-    std::vector<int>         iniMatches; // has length of keypoints of initial frame and contains matched keypoint index in current frame
+    std::vector<int>         iniMatches;  // has length of keypoints of initial frame and contains matched keypoint index in current frame
 };
 //-----------------------------------------------------------------------------
 enum WAITrackingState

@@ -41,9 +41,9 @@ void SLTriangle::buildMesh(SLMaterial* material)
     deleteData();
 
     P.clear();
-    P.resize(3); // Vector for positions
+    P.resize(3);            // Vector for positions
     N.clear();
-    N.resize(P.size()); // Vector for vertex normals (opt.)
+    N.resize(P.size());     // Vector for vertex normals (opt.)
     UV[0].clear();
     UV[0].resize(P.size()); // Vector for vertex tex. coords. (opt.)
     UV[1].clear();

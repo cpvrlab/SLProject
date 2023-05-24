@@ -1084,8 +1084,8 @@ void SLSceneView::draw2DGL()
             stateGL->depthMask(false); // Freeze depth buffer for blending
             stateGL->depthTest(false); // Disable depth testing
             _camera->selectRect().drawGL(SLCol4f::WHITE);
-            stateGL->depthMask(true); // enable depth buffer writing
-            stateGL->depthTest(true); // enable depth testing
+            stateGL->depthMask(true);  // enable depth buffer writing
+            stateGL->depthTest(true);  // enable depth testing
             stateGL->viewMatrix = prevViewMat;
         }
 
@@ -1099,8 +1099,8 @@ void SLSceneView::draw2DGL()
             stateGL->depthMask(false); // Freeze depth buffer for blending
             stateGL->depthTest(false); // Disable depth testing
             _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
-            stateGL->depthMask(true); // enable depth buffer writing
-            stateGL->depthTest(true); // enable depth testing
+            stateGL->depthMask(true);  // enable depth buffer writing
+            stateGL->depthTest(true);  // enable depth testing
             stateGL->viewMatrix = prevViewMat;
         }
     }

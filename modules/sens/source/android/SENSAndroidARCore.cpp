@@ -137,7 +137,8 @@ void SENSAndroidARCore::reset()
 //-----------------------------------------------------------------------------
 // NOTE(dgj1): targetHeight is automatically calculated based on reported aspect ratio of GPU texture
 bool SENSAndroidARCore::init(unsigned int textureId,
-                             bool retrieveCpuImg, int targetWidth)
+                             bool         retrieveCpuImg,
+                             int          targetWidth)
 {
     if (textureId > 0)
         _cameraTextureId = textureId;

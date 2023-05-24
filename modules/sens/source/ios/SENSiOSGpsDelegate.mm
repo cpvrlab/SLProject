@@ -34,7 +34,7 @@
     _locationManager                 = [[CLLocationManager alloc] init];
     _locationManager.delegate        = self;
     _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-    
+
     [self askPermission];
 }
 

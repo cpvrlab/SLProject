@@ -256,7 +256,7 @@ void SLEntities::deleteEntity(SLint id)
     {
         // Find the next child with the same parentID
         SLint toID;
-        SLint  myParentID = _graph[id].parentID;
+        SLint myParentID = _graph[id].parentID;
         for (toID = id + 1; toID < _graph.size(); toID++)
             if (_graph[toID].parentID == myParentID)
                 break;

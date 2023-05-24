@@ -75,7 +75,7 @@ private:
     void calculateHmdValues(); //!< recalculate HMD settings changed
 
     // SL variables that can be accessed via getters
-    SLVec2i _outputRes; //!< output resolution used for ortho projection
+    SLVec2i _outputRes;                    //!< output resolution used for ortho projection
 
     SLQuat4f        _orientation[2];       //!< eye orientation
     SLVec3f         _position[2];          //!< eye position
@@ -84,7 +84,7 @@ private:
     SLVec3f         _viewAdjust[2];        //!< view adjust vector
     SLGLVertexArray _distortionMeshVAO[2]; //!< distortion meshes for left and right eye
 
-    SLfloat _resolutionScale; //!< required resolution scale for a 1.0 min pixel density
+    SLfloat _resolutionScale;              //!< required resolution scale for a 1.0 min pixel density
 
     // distortion
     SLbool _usingDebugHmd;           //!< we're using a debug HMD
@@ -93,14 +93,14 @@ private:
     SLbool _timeWarpEnabled;         //!< time warp correction enabled
     SLbool _displaySleep;            //!< is the display of the rift currently off
 
-    SLbool _isConnected;       //!< is HMD connected
-    SLbool _isCameraConnected; //!< is position tracker camera connected
-    SLbool _isPositionTracked; //!< is the position tracked (false if out of range)
+    SLbool _isConnected;             //!< is HMD connected
+    SLbool _isCameraConnected;       //!< is position tracker camera connected
+    SLbool _isPositionTracked;       //!< is the position tracked (false if out of range)
 
-    SLVec2i _resolution; //!< Resolution of the HMD
-    SLVec2i _rtSize;     //!< Required resolution for the render target
+    SLVec2i _resolution;             //!< Resolution of the HMD
+    SLVec2i _rtSize;                 //!< Required resolution for the render target
 
-    SLbool _hmdSettingsChanged; //!< settings need to be updated flag
+    SLbool _hmdSettingsChanged;      //!< settings need to be updated flag
 
     SLGLProgram* _stereoOculusDistProgram = nullptr;
 

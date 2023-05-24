@@ -117,10 +117,10 @@ size_t WAIOrbVocabulary::size()
 #endif
 }
 
-void WAIOrbVocabulary::create(std::vector<cv::Mat> &features, int k, int l)
+void WAIOrbVocabulary::create(std::vector<cv::Mat>& features, int k, int l)
 {
 #if USE_FBOW
-    fbow::VocabularyCreator vc;
+    fbow::VocabularyCreator         vc;
     fbow::VocabularyCreator::Params p;
     p.k        = k;
     p.L        = l;

@@ -42,7 +42,7 @@ public:
 
     bool loadFromFile(string calibIniPath)
     {
-        string        path = calibIniPath + filename;
+        string path = calibIniPath + filename;
 
         SLstring      paramString = SLFileStorage::readIntoString(path, IOK_config);
         CVFileStorage fs(paramString, CVFileStorage::READ | CVFileStorage::MEMORY);

@@ -55,7 +55,8 @@ void SENSRecorderDataHandler<T>::store()
         {
             std::unique_lock<std::mutex> lock(_mutex);
 
-            _condVar.wait(lock, [&] { return (_stop == true || _queue.size() != 0); });
+            _condVar.wait(lock, [&]
+                          { return (_stop == true || _queue.size() != 0); });
             if (_stop)
                 break;
 

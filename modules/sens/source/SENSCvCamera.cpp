@@ -71,7 +71,7 @@ void SENSCvCamera::guessAndSetCalibration(float fovDegFallbackGuess)
         _calibration->adaptForNewResolution({_config->targetWidth, _config->targetHeight}, false);
 
     //update second calibration
-    if(_config->manipWidth > 0 && _config->manipHeight > 0)
+    if (_config->manipWidth > 0 && _config->manipHeight > 0)
     {
         _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
         _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
@@ -135,7 +135,7 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     float searchWdivH;
     if (manipWidth > 0 && manipHeight > 0 &&
         ((float)targetWidth / (float)targetHeight) >
-        ((float)manipWidth / (float)manipHeight))
+          ((float)manipWidth / (float)manipHeight))
         searchWdivH = (float)manipWidth / (float)manipHeight;
     else
         searchWdivH = (float)targetWidth / (float)targetHeight;
@@ -172,9 +172,9 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     if (!_calibrationOverwrite)
         guessAndSetCalibration(65.f);
 
-    if(cameraWasStarted)
+    if (cameraWasStarted)
         _camera->start(bestConfig.first->deviceId(), *bestConfig.second);
-        
+
     return returnCode;
 }
 
@@ -236,7 +236,7 @@ SENSFramePtr SENSCvCamera::latestFrame()
             _calibration->adaptForNewResolution({_config->targetWidth, _config->targetHeight}, false);
 
         //update second calibration
-        if(_config->manipWidth > 0 && _config->manipHeight > 0)
+        if (_config->manipWidth > 0 && _config->manipHeight > 0)
         {
             _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
             _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
@@ -266,7 +266,7 @@ void SENSCvCamera::setCalibration(const SENSCalibration& calibration, bool build
     _calibration->adaptForNewResolution(cv::Size(_config->targetWidth, _config->targetHeight), buildUndistortionMaps);
 
     //update second calibration
-    if(_config->manipWidth > 0 && _config->manipHeight > 0)
+    if (_config->manipWidth > 0 && _config->manipHeight > 0)
     {
         _calibrationManip = std::make_unique<SENSCalibration>(*_calibrationOverwrite);
         _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), buildUndistortionMaps);

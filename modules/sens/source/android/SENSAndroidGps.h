@@ -7,7 +7,7 @@
 class SENSAndroidGps : public SENSGps
 {
 public:
-    SENSAndroidGps() {};
+    SENSAndroidGps(){};
 
     bool start() override;
     void stop() override;

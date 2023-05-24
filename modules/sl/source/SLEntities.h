@@ -74,7 +74,7 @@ public:
     void dump(SLbool doTreeDump);
 
     //! Returns the size of the entity vector
-    SLuint size() { return (SLuint) _graph.size(); }
+    SLuint size() { return (SLuint)_graph.size(); }
 
     //! Clears the the entities vector
     void clear() { _graph.clear(); }

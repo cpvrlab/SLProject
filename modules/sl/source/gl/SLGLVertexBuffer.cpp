@@ -205,7 +205,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
                                            a.elementSize,
                                            a.dataType,
                                            (SLint)_strideBytes,
-                                           (void*)(size_t)a.offsetBytes);                
+                                           (void*)(size_t)a.offsetBytes);
                 }
                 else
                 {
@@ -225,7 +225,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
         // generate the interleaved VBO buffer on the GPU
         glBufferData(GL_ARRAY_BUFFER, _sizeBytes, _attribs[0].dataPointer, _usage);
     }
-    else // input is in separate attribute data block
+    else                        // input is in separate attribute data block
     {
         if (_outputInterleaved) // Copy attribute data interleaved
         {

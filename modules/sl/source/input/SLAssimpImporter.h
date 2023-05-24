@@ -101,8 +101,8 @@ protected:
     MeshList _skinnedMeshes; //!< list containing all of the skinned meshes, used to assign the skinned materials
 
     // loading helper
-    aiNode* getNodeByName(const SLstring& name); // return an aiNode ptr if name exists, or null if it doesn't
-    SLMat4f getOffsetMat(const SLstring& name);  // return an aiJoint ptr if name exists, or null if it doesn't
+    aiNode* getNodeByName(const SLstring& name);   // return an aiNode ptr if name exists, or null if it doesn't
+    SLMat4f getOffsetMat(const SLstring& name);    // return an aiJoint ptr if name exists, or null if it doesn't
 
     void performInitialScan(const aiScene* scene); // populates nameToNode, nameToJoint, jointGroups, skinnedMeshes,
     void findNodes(aiNode*  node,

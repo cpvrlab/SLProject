@@ -12,7 +12,7 @@
 class SENSOrientationListener;
 
 /*
- 
+
  Android sensor coordinate system:
  (https://developer.android.com/guide/topics/sensors/sensors_overview)
 
@@ -28,7 +28,7 @@ class SENSOrientationListener;
   / +-----+ /
  /    0    /
 +---------+
- 
+
  iOS sensor coordinate system:
  (https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)
  In iOS we configure CMMotionManager with xMagneticNorthZVertical which means its a frame, where x points north, y points west and z points up (NWU).
@@ -46,7 +46,7 @@ class SENSOrientationListener;
   / +-----+ /
  /    0    /
 +---------+
- 
+
  */
 
 class SENSOrientation
@@ -86,8 +86,8 @@ protected:
     bool _running = false;
 
 private:
-    SENSTimePt _timePt;
-    Quat       _orientation;
+    SENSTimePt         _timePt;
+    Quat               _orientation;
     mutable std::mutex _orientationMutex;
 
     std::vector<SENSOrientationListener*> _listeners;
@@ -109,13 +109,13 @@ public:
     {
         setOrientation(quat);
     }
-    
+
     bool start() override
     {
         _running = true;
         return _running;
     }
-    
+
     void stop() override
     {
     }

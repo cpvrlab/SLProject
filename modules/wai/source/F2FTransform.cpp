@@ -1,22 +1,22 @@
 /**
-* This file is part of ORB-SLAM2.
-*
-* Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
-* For more information see <https://github.com/raulmur/ORB_SLAM2>
-*
-* ORB-SLAM2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* ORB-SLAM2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of ORB-SLAM2.
+ *
+ * Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
+ * For more information see <https://github.com/raulmur/ORB_SLAM2>
+ *
+ * ORB-SLAM2 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ORB-SLAM2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with ORB-SLAM2. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <F2FTransform.h>
 #include <Random.h>
@@ -27,16 +27,16 @@
 #include <thread>
 #include <Utils.h>
 
-void F2FTransform::opticalFlowMatch(const cv::Mat&             f1Gray,
-                                    const cv::Mat&             f2Gray,
-                                    std::vector<cv::Point2f>&  p1, //last
-                                    std::vector<cv::Point2f>&  p2, //curr
-                                    std::vector<uchar>&        inliers,
-                                    std::vector<float>&        err)
+void F2FTransform::opticalFlowMatch(const cv::Mat&            f1Gray,
+                                    const cv::Mat&            f2Gray,
+                                    std::vector<cv::Point2f>& p1, //last
+                                    std::vector<cv::Point2f>& p2, //curr
+                                    std::vector<uchar>&       inliers,
+                                    std::vector<float>&       err)
 {
-    if(p1.size() < 10)
+    if (p1.size() < 10)
         return;
-    
+
     cv::TermCriteria criteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 0.03);
 
     p2.clear();
@@ -52,23 +52,23 @@ void F2FTransform::opticalFlowMatch(const cv::Mat&             f1Gray,
     cv::calcOpticalFlowPyrLK(
       f1Gray,
       f2Gray,
-      p1,                        // Previous and current keypoints coordinates.The latter will be
-      p2,                        // expanded if more good coordinates are detected during OptFlow
-      inliers,                   // Output vector for keypoint correspondences (1 = match found)
-      err,                       // Error size for each flow
-      winSize,                   // Search window for each pyramid level
-      1,                         // Max levels of pyramid creation
-      criteria,                  // Configuration from above
-      0,                         // Additional flags
-      0.001);                    // Minimal Eigen threshold
+      p1,       // Previous and current keypoints coordinates.The latter will be
+      p2,       // expanded if more good coordinates are detected during OptFlow
+      inliers,  // Output vector for keypoint correspondences (1 = match found)
+      err,      // Error size for each flow
+      winSize,  // Search window for each pyramid level
+      1,        // Max levels of pyramid creation
+      criteria, // Configuration from above
+      0,        // Additional flags
+      0.001);   // Minimal Eigen threshold
 }
 
 float F2FTransform::filterPoints(const std::vector<cv::Point2f>& p1,
                                  const std::vector<cv::Point2f>& p2,
-                                 std::vector<cv::Point2f>& goodP1,
-                                 std::vector<cv::Point2f>& goodP2,
-                                 std::vector<uchar>&       inliers,
-                                 std::vector<float>&       err)
+                                 std::vector<cv::Point2f>&       goodP1,
+                                 std::vector<cv::Point2f>&       goodP2,
+                                 std::vector<uchar>&             inliers,
+                                 std::vector<float>&             err)
 {
     if (p1.size() == 0)
         return 0;
@@ -100,10 +100,10 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     if (p1.size() < 10)
         return false;
 
-    cv::Mat H = estimateAffinePartial2D(p1, p2);
-    float zrot = (float)atan2(H.at<double>(1, 0), H.at<double>(0, 0));
-    float dx = 0;//H.at<double>(0, 2);
-    float dy = 0;//H.at<double>(1, 2);
+    cv::Mat H    = estimateAffinePartial2D(p1, p2);
+    float   zrot = (float)atan2(H.at<double>(1, 0), H.at<double>(0, 0));
+    float   dx   = 0; //H.at<double>(0, 2);
+    float   dy   = 0; //H.at<double>(1, 2);
     //Compute dx dy (estimageAffinePartial doesn't give right result when rotating on z axis)
     for (int i = 0; i < p1.size(); i++)
     {
@@ -134,18 +134,16 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     else
         yaw = -yrot;
 
-
     return true;
 }
 
-
-bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
+bool F2FTransform::estimateRotXYZ(const cv::Mat&                  K,
                                   const std::vector<cv::Point2f>& p1,
                                   const std::vector<cv::Point2f>& p2,
-                                  float&                    xAngRAD,
-                                  float&                    yAngRAD,
-                                  float&                    zAngRAD,
-                                  std::vector<uchar>&       inliers)
+                                  float&                          xAngRAD,
+                                  float&                          yAngRAD,
+                                  float&                          zAngRAD,
+                                  std::vector<uchar>&             inliers)
 {
     if (p1.size() < 10)
         return false;
@@ -154,8 +152,8 @@ bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
     //HINT: void at(int row, int column)
     double cx = K.at<double>(0, 2);
     double cy = K.at<double>(1, 2);
-    
-    cv::Point2f c((float)cx, (float)cy); //optical center
+
+    cv::Point2f              c((float)cx, (float)cy); //optical center
     std::vector<cv::Point2f> p1C = p1;
     std::vector<cv::Point2f> p2C = p2;
     for (int i = 0; i < p1.size(); i++)
@@ -167,33 +165,32 @@ bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
     inliers.clear();
     //estimate homography (gives us frame b w.r.t frame a)
     cv::Mat aHb = cv::estimateAffinePartial2D(p1C, p2C, inliers);
-    if(aHb.empty())
+    if (aHb.empty())
         return false;
     //std::cout << "aHb: " << aHb << std::endl;
-    
+
     //express translational part in aHb relative to a coordinate frame b' that was rotated with rotational part
     cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t(); //extract and express rotation from rotated frame
     cv::Mat aTR = aHb.col(2);
     cv::Mat bTR = bRa * aTR;
-    
-    
+
     //rotation about z-axis: It points into the image plane, so we have to invert the sign
     zAngRAD = (float)atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
     //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
     yAngRAD = (float)atan(bTR.at<double>(0) / K.at<double>(0, 0));
     //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
     xAngRAD = (float)atan(bTR.at<double>(1) / K.at<double>(1, 1));
-        
+
     return true;
 }
 
-bool F2FTransform::estimateRotXY(const cv::Mat&             K,
+bool F2FTransform::estimateRotXY(const cv::Mat&                  K,
                                  const std::vector<cv::Point2f>& p1,
                                  const std::vector<cv::Point2f>& p2,
-                                 float&                    xAngRAD,
-                                 float&                    yAngRAD,
-                                 const float               zAngRAD,
-                                 std::vector<uchar>&       inliers)
+                                 float&                          xAngRAD,
+                                 float&                          yAngRAD,
+                                 const float                     zAngRAD,
+                                 std::vector<uchar>&             inliers)
 {
     if (p1.size() < 10)
         return false;
@@ -203,9 +200,8 @@ bool F2FTransform::estimateRotXY(const cv::Mat&             K,
     double cx = K.at<double>(0, 2);
     double cy = K.at<double>(1, 2);
     //rotation matrix
-    
-    
-    cv::Point2f c((float)cx, (float)cy); //optical center
+
+    cv::Point2f              c((float)cx, (float)cy); //optical center
     std::vector<cv::Point2f> p1C = p1;
     std::vector<cv::Point2f> p2C = p2;
     for (int i = 0; i < p1.size(); i++)
@@ -213,35 +209,32 @@ bool F2FTransform::estimateRotXY(const cv::Mat&             K,
         p1C[i] -= c;
         p2C[i] -= c;
         //rotate points about center
-        
     }
-    
+
     //estimate median shift
-    
 
     inliers.clear();
     //estimate homography (gives us frame b w.r.t frame a)
     cv::Mat aHb = cv::estimateAffinePartial2D(p1C, p2C, inliers);
-    if(aHb.empty())
+    if (aHb.empty())
         return false;
     //std::cout << "aHb: " << aHb << std::endl;
-    
+
     //express translational part in aHb relative to a coordinate frame b' that was rotated with rotational part
     //cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t(); //extract and express rotation from rotated frame
     //cv::Mat aTR = aHb.col(2);
     //cv::Mat bTR = bRa * aTR;
-    
-    
+
     //rotation about z-axis: It points into the image plane, so we have to invert the sign
     //zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
     //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
     yAngRAD = (float)atan(aHb.at<double>(0, 2) / K.at<double>(0, 0));
     //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
     xAngRAD = (float)atan(aHb.at<double>(1, 2) / K.at<double>(1, 1));
-    
+
     //std::cout << "xoff: "<< bTR.at<double>(0) << std::endl;
     //std::cout << "yoff: "<< bTR.at<double>(1) << std::endl;
-    
+
     //std::cout << "zAngDEG: "<< zAngDEG << std::endl;
     //std::cout << "yAngDEG: "<< yAngDEG << std::endl;
     //std::cout << "xAngDEG: "<< xAngDEG << std::endl;

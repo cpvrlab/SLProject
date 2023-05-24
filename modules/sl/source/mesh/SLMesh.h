@@ -208,8 +208,8 @@ public:
     SLVushort IE16; //!< Vector of hard edges vertex indices 16 bit (see computeHardEdgesIndices)
     SLVuint   IE32; //!< Vector of hard edges vertex indices 32 bit (see computeHardEdgesIndices)
 
-    SLVec3f minP; //!< min. vertex in OS
-    SLVec3f maxP; //!< max. vertex in OS
+    SLVec3f minP;   //!< min. vertex in OS
+    SLVec3f maxP;   //!< max. vertex in OS
 
 private:
     void calcTangents();

@@ -20,7 +20,7 @@
 #include <math/SLVec3.h>
 #include <chrono>
 #include <Utils.h>
-#include <SL.h>         // Basic SL type definitions
+#include <SL.h>      // Basic SL type definitions
 #include <CVImage.h> // Image class for image loading
 
 #define IS_DEBUGMODE_ON true
@@ -92,7 +92,7 @@ public:
     const int                 MAX_FRAMES_IN_FLIGHT = 2;
     const vector<const char*> validationLayers     = {"VK_LAYER_KHRONOS_validation"};
     const vector<const char*> deviceExtensions     = {VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                                  VK_KHR_MAINTENANCE1_EXTENSION_NAME};
+                                                      VK_KHR_MAINTENANCE1_EXTENSION_NAME};
 
 private:
     GLFWwindow*              window;
@@ -136,9 +136,9 @@ private:
     size_t                   currentFrame       = 0;
     bool                     framebufferResized = false;
     const vector<Vertex>     vertices           = {{{-1.0f, -1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}},
-                                     {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
-                                     {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-                                     {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
+                                                   {{1.0f, -1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},
+                                                   {{1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
+                                                   {{-1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}}};
 
     const vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 

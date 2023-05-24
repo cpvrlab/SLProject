@@ -31,9 +31,9 @@
 
 // Forward declaration of C functions in other files
 extern void appDemoLoadScene(SLAssetManager* am,
-                             SLScene* s,
-                             SLSceneView* sv,
-                             SLSceneID sceneID);
+                             SLScene*        s,
+                             SLSceneView*    sv,
+                             SLSceneID       sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -91,8 +91,8 @@ float GetSeconds()
     CGPoint m_touchDownPos1;    //!< Pos. of touch down for finger 1
 
     // Video stuff
-    AVCaptureSession* m_avSession;       //!< Audio video session
-    NSString*         m_avSessionPreset; //!< Session name
+    AVCaptureSession* m_avSession;          //!< Audio video session
+    NSString*         m_avSessionPreset;    //!< Session name
     bool              m_lastVideoImageIsConsumed;
     int               m_lastVideoType;      //! VT_NONE=0,VT_MAIN=1,VT_SCND=2
     int               m_lastVideoSizeIndex; //! 0=1920x1080, 1=1280x720 else 640x480
@@ -166,9 +166,9 @@ float GetSeconds()
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
 
-    AppDemo::calibIniPath = AppDemo::exePath + "data/calibrations/"; // for calibInitPath
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),         // deviceInfo string
-                                            AppDemo::configPath);          // for stored calibrations
+    AppDemo::calibIniPath = AppDemo::exePath + "data/calibrations/";     // for calibInitPath
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), // deviceInfo string
+                                            AppDemo::configPath);        // for stored calibrations
 
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -340,9 +340,9 @@ float GetSeconds()
     pos1.x *= screenScale;
     pos1.y *= screenScale;
     float touchUpNowSec = GetSeconds();
-    int dX = std::abs(m_touchDownPos1.x - pos1.x);
-    int dY = std::abs(m_touchDownPos1.y - pos1.y);
-    float dSec = touchUpNowSec - m_lastTouchDownSec;
+    int   dX            = std::abs(m_touchDownPos1.x - pos1.x);
+    int   dY            = std::abs(m_touchDownPos1.y - pos1.y);
+    float dSec          = touchUpNowSec - m_lastTouchDownSec;
 
     if (m_touchDowns == 1 || [touches count] == 1)
     {
@@ -807,11 +807,11 @@ float GetSeconds()
 std::string getAppsDocumentsDir()
 {
     // Get the documents director
-    NSArray*  paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
-                                                          NSUserDomainMask,
-                                                          YES);
+    NSArray*  paths              = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                         NSUserDomainMask,
+                                                         YES);
     NSString* documentsDirectory = [paths objectAtIndex:0];
-    string    documentsDir        = [documentsDirectory UTF8String];
+    string    documentsDir       = [documentsDirectory UTF8String];
     documentsDir += "/SLProject";
     NSString* documentsPath = [NSString stringWithUTF8String:documentsDir.c_str()];
 

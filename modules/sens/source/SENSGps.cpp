@@ -64,7 +64,7 @@ void SENSGps::registerPermissionListener(std::function<void(void)> listener)
 void SENSGps::informPermissionListeners()
 {
     std::lock_guard<std::mutex> lock(_permissionListenerMutex);
-    for(auto listener : _permissionListeners)
+    for (auto listener : _permissionListeners)
         listener();
 }
 

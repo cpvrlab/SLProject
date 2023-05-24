@@ -34,6 +34,7 @@ void SENSiOSGps::updateLocation(double latitudeDEG,
     setLocation({latitudeDEG, longitudeDEG, altitudeM, (float)accuracyM});
 }
 
-void SENSiOSGps::askPermission() {
+void SENSiOSGps::askPermission()
+{
     [_gpsDelegate askPermission];
 }

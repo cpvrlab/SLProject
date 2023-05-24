@@ -96,7 +96,7 @@
     //test w.r.t. to NWU-frame
     if(_updateCB)
         _updateCB(q.x, q.y, q.z, q.w);
-    
+
     printf("Rotation: xRot %f yRot %f zRot %f\n", attitude.pitch * SENS_RAD2DEG, attitude.roll * SENS_RAD2DEG, attitude.yaw * SENS_RAD2DEG);
     */
 

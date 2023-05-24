@@ -146,7 +146,7 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,       // ray of hit point
 
         return (shadowRay.length < lightDist) ? 0.0f : 1.0f;
     }
-    else // do light sampling for soft shadows
+    else                                                     // do light sampling for soft shadows
     {
         SLfloat dw = (SLfloat)_width / (SLfloat)_samples.x;  // width of a sample cell
         SLfloat dl = (SLfloat)_height / (SLfloat)_samples.y; // length of a sample cell
@@ -156,7 +156,7 @@ SLfloat SLLightRect::shadowTest(SLRay*         ray,       // ray of hit point
         SLbool  importantPointsAreLighting = true;
         SLfloat lighted                    = 0.0f; // return value
         SLfloat invSamples                 = 1.0f / (SLfloat)(samples);
-        SLVec3f SP; // vector hit point to sample point in world coords
+        SLVec3f SP;                                // vector hit point to sample point in world coords
 
         isSampled.resize((SLuint)samples);
 

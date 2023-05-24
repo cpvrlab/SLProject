@@ -51,16 +51,16 @@ public:
     void updateCurOrigin();
     void updateInfoText();
 
-    SLMat4f _curOrigin; //!< current origin of relative space (orientation and position of axes)
+    SLMat4f _curOrigin;          //!< current origin of relative space (orientation and position of axes)
 
-    SLNode* _moveBox;      //!< big parent cube
-    SLNode* _moveBoxChild; //!< little child cube
-    SLVec3f _pivotPos;     //!< position of the pivot point
-    SLNode* _axesNode;     //!< node for axis mesh
+    SLNode* _moveBox;            //!< big parent cube
+    SLNode* _moveBoxChild;       //!< little child cube
+    SLVec3f _pivotPos;           //!< position of the pivot point
+    SLNode* _axesNode;           //!< node for axis mesh
 
-    bool  _keyStates[65536]; //!< key press states of all keys
-    SLKey _modifiers;        //!< pressed modifier keys
-    bool  _continuousInput;  //!< flag for continuous input processing
+    bool  _keyStates[65536];     //!< key press states of all keys
+    SLKey _modifiers;            //!< pressed modifier keys
+    bool  _continuousInput;      //!< flag for continuous input processing
 
     SLfloat          _deltaTime; //!< delta time of a frame
     TransformMode    _curMode;   //!< current transform mode

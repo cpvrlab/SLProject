@@ -20,7 +20,7 @@
 #include <Profiler.h>
 
 #ifndef SL_EMSCRIPTEN
-#include <FtpUtils.h>
+#    include <FtpUtils.h>
 #endif
 
 //-----------------------------------------------------------------------------

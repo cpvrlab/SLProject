@@ -193,20 +193,20 @@ GLuint glUtils::buildProgram(GLuint vertShaderID,
     return programHandle;
 }
 /*!
-buildProgramTD creates a program object, attaches the shaders, establish a 
+buildProgramTD creates a program object, attaches the shaders, establish a
 connection beetwen the output variable and the output buffers, links them and
 returns the OpenGL handle of the program. If the linking fails the linker log
 is sent to the stdout before the app exits with code 1.
 */
 GLuint glUtils::buildProgramTF(GLuint vertShaderID,
-                             GLuint fragShaderID)
+                               GLuint fragShaderID)
 {
     // Create program, attach shaders and link them
     GLuint programHandle = glCreateProgram();
     glAttachShader(programHandle, vertShaderID);
     glAttachShader(programHandle, fragShaderID);
     //Connection beetwen the output variable and the output buffers
-    const char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime","tf_initialVelocity", "tf_rotation"};
+    const char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
     glTransformFeedbackVaryings(programHandle, 5, outputNames, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(programHandle);
 
@@ -566,7 +566,7 @@ void glUtils::getGLError(const char* file,
 
         // Build error string as a concatenation of file, line & error
         char sLine[32];
-        snprintf(sLine, sizeof(sLine),"%d", line);
+        snprintf(sLine, sizeof(sLine), "%d", line);
 
         string newErr(file);
         newErr += ": line:";

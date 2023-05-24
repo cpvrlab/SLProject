@@ -252,15 +252,15 @@ protected:
     SLSkybox*         _skybox;          //!< pointer to the skybox
 
     // For particle system
-    SLParticleSystem* _ps; //!< pointer to a particle system
+    SLParticleSystem* _ps;                     //!< pointer to a particle system
 
     SLVGLTexture _textures[TT_numTextureType]; //!< array of texture vectors one for each type
     SLVGLTexture _textures3d;                  //!< texture vector for diffuse 3D textures
     SLGLTexture* _errorTexture = nullptr;      //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;     //!< path to the error texture
 
-    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes of with this material
-    SLVNode _nodesVisible3D; //!< Vector of all visible 3D nodes of with this material
+    SLVNode _nodesVisible2D;                   //!< Vector of all visible 2D nodes of with this material
+    SLVNode _nodesVisible3D;                   //!< Vector of all visible 3D nodes of with this material
 };
 //-----------------------------------------------------------------------------
 //! STL vector of material pointers

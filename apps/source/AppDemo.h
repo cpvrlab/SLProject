@@ -79,7 +79,7 @@ public:
     static int    jobProgressNum() { return _jobProgressNum; }
     static int    jobProgressMax() { return _jobProgressMax; }
 
-    static SLSceneID sceneID; //!< ID of last loaded scene
+    static SLSceneID sceneID;                              //!< ID of last loaded scene
 
     static map<string, string>         deviceParameter;    //!< Generic device parameter
     static deque<function<void(void)>> jobsToBeThreaded;   //!< Queue of functions to be executed in a thread
@@ -91,11 +91,11 @@ public:
     static SLstring                     calibIniPath;  //!< That's where data/calibrations folder is located
     static SLstring                     calibFilePath; //!< That's where calibrations are stored and loaded from
 
-    static const string CALIB_FTP_HOST;  //!< ftp host for calibration up and download
-    static const string CALIB_FTP_USER;  //!< ftp login user for calibration up and download
-    static const string CALIB_FTP_PWD;   //!< ftp login pwd for calibration up and download
-    static const string CALIB_FTP_DIR;   //!< ftp directory for calibration up and download
-    static const string PROFILE_FTP_DIR; //!< ftp directory for profiles upload
+    static const string CALIB_FTP_HOST;                //!< ftp host for calibration up and download
+    static const string CALIB_FTP_USER;                //!< ftp login user for calibration up and download
+    static const string CALIB_FTP_PWD;                 //!< ftp login pwd for calibration up and download
+    static const string CALIB_FTP_DIR;                 //!< ftp directory for calibration up and download
+    static const string PROFILE_FTP_DIR;               //!< ftp directory for profiles upload
 
 private:
     static string      _jobProgressMsg; //!< Text message to show during progress

@@ -214,8 +214,7 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
         case WAITrackingState::TrackingLost:
         {
             int inliers;
-            if (relocalization(frame, _globalMap.get(),
-                               _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
             {
                 _relocFrameCounter = 0;
                 _lastRelocFrameId  = frame.mnId;

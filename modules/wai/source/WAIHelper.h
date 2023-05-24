@@ -32,7 +32,7 @@
 #        define WAI_API WAI_HELPER_DLL_IMPORT
 #    endif // WAI_DLL_EXPORTS
 #    define WAI_LOCAL WAI_HELPER_DLL_LOCAL
-#else // WAI_DLL is not defined: this means WAI is a static lib.
+#else      // WAI_DLL is not defined: this means WAI is a static lib.
 #    define WAI_API
 #    define WAI_LOCAL
 #endif // WAI_DLL

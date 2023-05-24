@@ -8,11 +8,11 @@
 //#############################################################################
 
 #ifdef SL_BUILD_WITH_MEDIAPIPE
-#ifndef CVTRACKEDMEDIAPIPEHANDS_H
-#define CVTRACKEDMEDIAPIPEHANDS_H
+#    ifndef CVTRACKEDMEDIAPIPEHANDS_H
+#        define CVTRACKEDMEDIAPIPEHANDS_H
 
-#include <CVTracked.h>
-#include <mediapipe.h>
+#        include <CVTracked.h>
+#        include <mediapipe.h>
 
 //-----------------------------------------------------------------------------
 class CVTrackedMediaPipeHands : public CVTracked
@@ -35,5 +35,5 @@ private:
 };
 //-----------------------------------------------------------------------------
 
-#endif // CVTRACKEDMEDIAPIPEHANDS_H
-#endif // SL_BUILD_WITH_MEDIAPIPE
+#    endif // CVTRACKEDMEDIAPIPEHANDS_H
+#endif     // SL_BUILD_WITH_MEDIAPIPE

@@ -140,7 +140,8 @@ void SENSAndroidCamera::openCamera()
     if (!_cameraDeviceOpened)
     {
         LOG_NDKCAM_DEBUG("openCamera: Camera device not open");
-        auto condition = [&] {
+        auto condition = [&]
+        {
             LOG_NDKCAM_DEBUG("openCamera: checking condition");
             return (_cameraAvailability[camProps->deviceId()]);
         };
@@ -200,7 +201,8 @@ void SENSAndroidCamera::openCamera()
             //{
             ACameraCaptureSession_stopRepeating(_captureSession);
 
-            auto condition = [&] {
+            auto condition = [&]
+            {
                 return (_captureSessionState != CaptureSessionState::ACTIVE);
             };
             std::unique_lock<std::mutex> lock(_captureSessionStateMutex);
@@ -282,8 +284,8 @@ void SENSAndroidCamera::openCamera()
 }
 
 const SENSCameraConfig& SENSAndroidCamera::start(std::string                   deviceId,
-                                             const SENSCameraStreamConfig& streamConfig,
-                                             bool                          provideIntrinsics)
+                                                 const SENSCameraStreamConfig& streamConfig,
+                                                 bool                          provideIntrinsics)
 {
     if (_started)
     {
@@ -301,7 +303,7 @@ const SENSCameraConfig& SENSAndroidCamera::start(std::string                   d
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
-    SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
+    SENSCameraFacing             facing = SENSCameraFacing::UNKNOWN;
     const SENSCameraDeviceProps* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();
@@ -619,7 +621,7 @@ std::string getPrintableState(CaptureSessionState state)
  *   Update into internal session state.
  */
 void SENSAndroidCamera::onSessionState(ACameraCaptureSession* ses,
-                                   CaptureSessionState    state)
+                                       CaptureSessionState    state)
 {
     if (!_captureSession)
         LOG_NDKCAM_WARN("onSessionState: CaptureSession is NULL");

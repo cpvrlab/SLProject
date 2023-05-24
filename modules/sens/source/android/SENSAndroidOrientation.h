@@ -8,7 +8,7 @@ class SENSAndroidOrientation : public SENSOrientation
 {
 public:
     SENSAndroidOrientation(){};
-    void init(bool granted) {};
+    void init(bool granted){};
 
     bool start() override;
     void stop() override;

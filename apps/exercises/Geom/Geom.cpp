@@ -17,17 +17,17 @@
 //----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 // Global application variables
-static GLFWwindow* window;       //!< The global GLFW window handle
-static SLstring    _projectRoot; //!< Directory of executable
-static SLint       _scrWidth;    //!< Window width at start up
-static SLint       _scrHeight;   //!< Window height at start up
+static GLFWwindow* window;             //!< The global GLFW window handle
+static SLstring    _projectRoot;       //!< Directory of executable
+static SLint       _scrWidth;          //!< Window width at start up
+static SLint       _scrHeight;         //!< Window height at start up
 
-static GLuint _vao  = 0; //!< ID of the vertex array object
-static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
+static GLuint _vao  = 0;               //!< ID of the vertex array object
+static GLuint _vboV = 0;               //!< ID of the VBO for vertex attributes
 
-static SLMat4f _viewMatrix;       //!< 4x4 view matrix
-static SLMat4f _modelMatrix;      //!< 4x4 model matrix
-static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+static SLMat4f _viewMatrix;            //!< 4x4 view matrix
+static SLMat4f _modelMatrix;           //!< 4x4 model matrix
+static SLMat4f _projectionMatrix;      //!< 4x4 projection matrix
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -41,20 +41,20 @@ const GLuint  SHIFT      = 0x00200000; //!< constant for shift key modifier
 const GLuint  CTRL       = 0x00400000; //!< constant for control key modifier
 const GLuint  ALT        = 0x00800000; //!< constant for alt key modifier
 
-static GLuint _shaderVertID = 0; //! vertex shader id
-static GLuint _shaderFragID = 0; //! fragment shader id
-static GLuint _shaderGeomID = 0; //! geometry shader id
-static GLuint _shaderProgID = 0; //! shader program id
-static GLuint _textureID    = 0; //!< texture id
+static GLuint _shaderVertID = 0;       //! vertex shader id
+static GLuint _shaderFragID = 0;       //! fragment shader id
+static GLuint _shaderGeomID = 0;       //! geometry shader id
+static GLuint _shaderProgID = 0;       //! shader program id
+static GLuint _textureID    = 0;       //!< texture id
 
-static GLint _pLoc; //!< attribute location for vertex position
-static GLint _cLoc;    //!< uniform location for object color
-static GLint _oLoc;    //!< uniform location for object offset
-static GLint _sLoc;    //!< uniform location for object scale
-static GLint _pMatLoc; //!< uniform location for projection matrix
-static GLint _mvLoc; //!< uniform location for modelview matrix
+static GLint _pLoc;                    //!< attribute location for vertex position
+static GLint _cLoc;                    //!< uniform location for object color
+static GLint _oLoc;                    //!< uniform location for object offset
+static GLint _sLoc;                    //!< uniform location for object scale
+static GLint _pMatLoc;                 //!< uniform location for projection matrix
+static GLint _mvLoc;                   //!< uniform location for modelview matrix
 
-static GLint _texture0Loc; //!< uniform location for texture 0
+static GLint _texture0Loc;             //!< uniform location for texture 0
 
 //-----------------------------------------------------------------------------
 void initParticles()
@@ -70,7 +70,6 @@ void initParticles()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(_pLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
     glBindVertexArray(0);
-
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -94,20 +93,19 @@ void onInit()
     _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Geom.vert", GL_VERTEX_SHADER);
     _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Geom.frag", GL_FRAGMENT_SHADER);
     _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Geom.geom", GL_GEOMETRY_SHADER);
-    _shaderProgID = glUtils::buildProgram(_shaderVertID,_shaderGeomID, _shaderFragID);
+    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderGeomID, _shaderFragID);
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc = glGetAttribLocation(_shaderProgID, "aPos");
+    _pLoc        = glGetAttribLocation(_shaderProgID, "aPos");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
     _oLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
     _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
-    _pMatLoc  = glGetUniformLocation(_shaderProgID, "u_pMatrix");
-    _mvLoc  = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
+    _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _mvLoc       = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
-
 
     initParticles();
 
@@ -164,7 +162,6 @@ bool onPaint()
     glUniform1f(_sLoc, 0.5f);
     glUniform4f(_cLoc, 1.0, 1.0, 1.0, 1.0);
     glUniform3f(_oLoc, 0.0, 0.5, 0.0);
-
 
     //) Activate the vertex array
     glBindVertexArray(_vao);

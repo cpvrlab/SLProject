@@ -68,7 +68,7 @@ public:
     //! Adds a vertex attribute with vector of SLuint
     void setAttrib(SLGLAttributeType type,
                    SLint             location,
-                   SLVuint*         data) { setAttrib(type, 1, location, &data->operator[](0), BT_uint);}
+                   SLVuint*          data) { setAttrib(type, 1, location, &data->operator[](0), BT_uint); }
 
     //! Adds a vertex attribute with vector of SLfloat
     void setAttrib(SLGLAttributeType type,
@@ -137,7 +137,7 @@ public:
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,
-                      SLVuint*         data) { updateAttrib(type, 1, (void*)&data->operator[](0));}
+                      SLVuint*          data) { updateAttrib(type, 1, (void*)&data->operator[](0)); }
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,
@@ -162,8 +162,8 @@ public:
 
     //! Generates the VA & VB & TF objects
     void generateTF(SLuint          numVertices,
-                  SLGLBufferUsage usage             = BU_static,
-                  SLbool          outputInterleaved = true);
+                    SLGLBufferUsage usage             = BU_static,
+                    SLbool          outputInterleaved = true);
 
     //! Begin transform feedback
     void beginTF(SLuint tfoID);

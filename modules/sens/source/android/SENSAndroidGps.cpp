@@ -27,9 +27,9 @@ void SENSAndroidGps::stop()
 }
 
 void SENSAndroidGps::updateLocation(double latitudeDEG,
-                                double longitudeDEG,
-                                double altitudeM,
-                                float  accuracyM)
+                                    double longitudeDEG,
+                                    double altitudeM,
+                                    float  accuracyM)
 {
     Utils::log("SENSGps", "updateLocation");
     setLocation({latitudeDEG, longitudeDEG, altitudeM, accuracyM});

@@ -31,19 +31,19 @@ static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
 
 // Global application variables
-static SLMat4f _cameraMatrix;     //!< 4x4 matrix for camera to world transform
-static SLMat4f _viewMatrix;       //!< 4x4 matrix for world to camera transform
-static SLMat4f _modelMatrix;      //!< 4x4 matrix for model to world transform
-static SLMat4f _lightMatrix;      //!< 4x4 matrix for light to world transform
-static SLMat4f _projectionMatrix; //!< Projection from view space to normalized device coordinates
+static SLMat4f _cameraMatrix;                //!< 4x4 matrix for camera to world transform
+static SLMat4f _viewMatrix;                  //!< 4x4 matrix for world to camera transform
+static SLMat4f _modelMatrix;                 //!< 4x4 matrix for model to world transform
+static SLMat4f _lightMatrix;                 //!< 4x4 matrix for light to world transform
+static SLMat4f _projectionMatrix;            //!< Projection from view space to normalized device coordinates
 
-static GLuint _vao  = 0; //!< ID of the vertex array object
-static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
-static GLuint _numV = 0; //!< NO. of vertices
-static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
+static GLuint _vao  = 0;                     //!< ID of the vertex array object
+static GLuint _vboV = 0;                     //!< ID of the VBO for vertex attributes
+static GLuint _vboI = 0;                     //!< ID of the VBO for vertex index array
+static GLuint _numV = 0;                     //!< NO. of vertices
+static GLuint _numI = 0;                     //!< NO. of vertex indexes for triangles
 
-static GLint _resolution; //!< resolution of sphere stack & slices
+static GLint _resolution;                    //!< resolution of sphere stack & slices
 
 static float        _camZ;                   //!< z-distance of camera
 static float        _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -57,43 +57,43 @@ static const GLuint SHIFT      = 0x00200000; //!< constant for shift key modifie
 static const GLuint CTRL       = 0x00400000; //!< constant for control key modifier
 static const GLuint ALT        = 0x00800000; //!< constant for alt key modifier
 
-static SLVec4f _globalAmbi;    //!< global ambient intensity
-static SLVec4f _lightAmbient;  //!< Light ambient intensity
-static SLVec4f _lightDiffuse;  //!< Light diffuse intensity
-static SLVec4f _lightSpecular; //!< Light specular intensity
-static float   _lightSpotDeg;  //!< Light spot cutoff angle in degrees
-static float   _lightSpotExp;  //!< Light spot exponent
-static SLVec3f _lightAtt;      //!< Light attenuation factors
-static SLVec4f _matAmbient;    //!< Material ambient reflection coeff.
-static SLVec4f _matDiffuse;    //!< Material diffuse reflection coeff.
-static SLVec4f _matSpecular;   //!< Material specular reflection coeff.
-static SLVec4f _matEmissive;   //!< Material emissive coeff.
-static float   _matShininess;  //!< Material shininess exponent
+static SLVec4f _globalAmbi;                  //!< global ambient intensity
+static SLVec4f _lightAmbient;                //!< Light ambient intensity
+static SLVec4f _lightDiffuse;                //!< Light diffuse intensity
+static SLVec4f _lightSpecular;               //!< Light specular intensity
+static float   _lightSpotDeg;                //!< Light spot cutoff angle in degrees
+static float   _lightSpotExp;                //!< Light spot exponent
+static SLVec3f _lightAtt;                    //!< Light attenuation factors
+static SLVec4f _matAmbient;                  //!< Material ambient reflection coeff.
+static SLVec4f _matDiffuse;                  //!< Material diffuse reflection coeff.
+static SLVec4f _matSpecular;                 //!< Material specular reflection coeff.
+static SLVec4f _matEmissive;                 //!< Material emissive coeff.
+static float   _matShininess;                //!< Material shininess exponent
 
-static GLuint _shaderVertID = 0; //!< vertex shader id
-static GLuint _shaderFragID = 0; //!< fragment shader id
-static GLuint _shaderProgID = 0; //!< shader program id
-static GLuint _textureID    = 0; //!< texture id
+static GLuint _shaderVertID = 0;             //!< vertex shader id
+static GLuint _shaderFragID = 0;             //!< fragment shader id
+static GLuint _shaderProgID = 0;             //!< shader program id
+static GLuint _textureID    = 0;             //!< texture id
 
-static GLint _pLoc;              //!< attribute location for vertex position
-static GLint _nLoc;              //!< attribute location for vertex normal
-static GLint _uvLoc;             //!< attribute location for vertex texcoords
-static GLint _pmLoc;             //!< uniform location for projection matrix
-static GLint _vmLoc;             //!< uniform location for view matrix
-static GLint _mmLoc;             //!< uniform location for model matrix
-static GLint _globalAmbiLoc;     //!< uniform location for global ambient intensity
-static GLint _lightPosVSLoc;     //!< uniform location for light position in VS
-static GLint _lightSpotDirVSLoc; //!< uniform location for light direction in VS
-static GLint _lightAmbientLoc;   //!< uniform location for ambient light intensity
-static GLint _lightDiffuseLoc;   //!< uniform location for diffuse light intensity
-static GLint _lightSpecularLoc;  //!< uniform location for specular light intensity
-static GLint _lightAttLoc;       //!< uniform location fpr light attenuation factors
-static GLint _matAmbientLoc;     //!< uniform location for ambient light reflection
-static GLint _matDiffuseLoc;     //!< uniform location for diffuse light reflection
-static GLint _matSpecularLoc;    //!< uniform location for specular light reflection
-static GLint _matEmissiveLoc;    //!< uniform location for light emission
-static GLint _matShininessLoc;   //!< uniform location for shininess
-static GLint _matTexDiffLoc;     //!< uniform location for texture 0
+static GLint _pLoc;                          //!< attribute location for vertex position
+static GLint _nLoc;                          //!< attribute location for vertex normal
+static GLint _uvLoc;                         //!< attribute location for vertex texcoords
+static GLint _pmLoc;                         //!< uniform location for projection matrix
+static GLint _vmLoc;                         //!< uniform location for view matrix
+static GLint _mmLoc;                         //!< uniform location for model matrix
+static GLint _globalAmbiLoc;                 //!< uniform location for global ambient intensity
+static GLint _lightPosVSLoc;                 //!< uniform location for light position in VS
+static GLint _lightSpotDirVSLoc;             //!< uniform location for light direction in VS
+static GLint _lightAmbientLoc;               //!< uniform location for ambient light intensity
+static GLint _lightDiffuseLoc;               //!< uniform location for diffuse light intensity
+static GLint _lightSpecularLoc;              //!< uniform location for specular light intensity
+static GLint _lightAttLoc;                   //!< uniform location fpr light attenuation factors
+static GLint _matAmbientLoc;                 //!< uniform location for ambient light reflection
+static GLint _matDiffuseLoc;                 //!< uniform location for diffuse light reflection
+static GLint _matSpecularLoc;                //!< uniform location for specular light reflection
+static GLint _matEmissiveLoc;                //!< uniform location for light emission
+static GLint _matShininessLoc;               //!< uniform location for shininess
+static GLint _matTexDiffLoc;                 //!< uniform location for texture 0
 
 //-----------------------------------------------------------------------------
 /*!
@@ -275,7 +275,7 @@ void onInit()
     _lightDiffuse.set(1.0f, 1.0f, 1.0f);
     _lightSpecular.set(1.0f, 1.0f, 1.0f);
     _lightMatrix.translate(0, 0, 3);
-    _lightSpotDeg = 180.0f; // point light
+    _lightSpotDeg = 180.0f;           // point light
     _lightSpotExp = 1.0f;
     _lightAtt     = SLVec3f(1, 0, 0); // constant light attenuation = no attenuation
     _matAmbient.set(1.0f, 1.0f, 1.0f);

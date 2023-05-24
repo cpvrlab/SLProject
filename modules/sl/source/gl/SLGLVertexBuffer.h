@@ -22,7 +22,7 @@ struct SLGLAttribute
 {
     SLGLAttributeType type;            //!< type of vertex attribute
     SLint             elementSize;     //!< size of attribute element (SLVec3f has 3)
-    SLGLBufferType    dataType;       //! Data Type (BT_float, BT_ubyte,...)
+    SLGLBufferType    dataType;        //! Data Type (BT_float, BT_ubyte,...)
     SLuint            offsetBytes;     //!< offset of the attribute data in the buffer
     SLuint            bufferSizeBytes; //!< size of the attribute part in the buffer
     void*             dataPointer;     //!< pointer to the attributes source data
@@ -63,7 +63,7 @@ public:
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,
-                      SLVuint&         data) { updateAttrib(type, 1, (void*)&data[0]);}
+                      SLVuint&          data) { updateAttrib(type, 1, (void*)&data[0]); }
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,

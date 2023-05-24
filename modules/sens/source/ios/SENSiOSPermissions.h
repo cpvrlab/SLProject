@@ -8,12 +8,13 @@
 
 #include "SENSiOSGps.h"
 
-class SENSiOSPermissions : public SENSPermissions {
+class SENSiOSPermissions : public SENSPermissions
+{
 public:
     SENSiOSPermissions(SENSiOSGps* gps);
-    
+
     void askPermissions();
-    
+
     bool hasCameraPermission();
     bool hasGPSPermission();
     bool hasInternetPermission();
@@ -22,10 +23,10 @@ public:
     bool canShowGPSPermissionDialog();
     bool canShowInternetPermissionDialog();
     bool canShowStoragePermissionDialog();
-    
+
     bool isLocationEnabled();
     void askEnabledLocation();
-    
+
 private:
     SENSiOSGps* _gps;
 };

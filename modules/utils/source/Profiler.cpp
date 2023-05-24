@@ -114,7 +114,7 @@ void Profiler::endSession()
         {
             if (result.threadId != threadId) continue;
 
-            auto nameIndex = (uint32_t) (std::find(scopeNames.begin(), scopeNames.end(), result.name) - scopeNames.begin());
+            auto nameIndex = (uint32_t)(std::find(scopeNames.begin(), scopeNames.end(), result.name) - scopeNames.begin());
             auto depth     = result.depth;
             auto start     = result.start - _sessionStart;
             auto end       = result.end - _sessionStart;

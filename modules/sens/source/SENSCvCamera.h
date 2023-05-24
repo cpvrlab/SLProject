@@ -19,15 +19,15 @@
 struct SENSCvCameraConfig
 {
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
-    SENSCvCameraConfig(const SENSCameraDeviceProps* deviceProps,
-                       const SENSCameraStreamConfig*     streamConfig,
-                       int                               targetWidth,
-                       int                               targetHeight,
-                       int                               manipWidth,
-                       int                               manipHeight,
-                       bool                              mirrorH,
-                       bool                              mirrorV,
-                       bool                              convertManipToGray)
+    SENSCvCameraConfig(const SENSCameraDeviceProps*  deviceProps,
+                       const SENSCameraStreamConfig* streamConfig,
+                       int                           targetWidth,
+                       int                           targetHeight,
+                       int                           manipWidth,
+                       int                           manipHeight,
+                       bool                          mirrorH,
+                       bool                          mirrorV,
+                       bool                          convertManipToGray)
       : deviceProps(deviceProps),
         streamConfig(streamConfig),
         targetWidth(targetWidth),
@@ -40,8 +40,8 @@ struct SENSCvCameraConfig
     {
     }
 
-    const SENSCameraDeviceProps* deviceProps;
-    const SENSCameraStreamConfig*     streamConfig;
+    const SENSCameraDeviceProps*  deviceProps;
+    const SENSCameraStreamConfig* streamConfig;
     //! largest target image width (only BGR)
     const int targetWidth;
     //! largest target image width (only BGR)
