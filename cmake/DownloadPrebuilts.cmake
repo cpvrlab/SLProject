@@ -295,7 +295,8 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     add_library(MediaPipe::MediaPipe SHARED IMPORTED)
     set_target_properties(MediaPipe::MediaPipe
             PROPERTIES
-            IMPORTED_LOCATION "${MediaPipe_DIR}/lib/libmediapipe.so"
+            IMPORTED_LOCATION "${MediaPipe_DIR}/release/libmediapipe.so"
+            IMPORTED_LOCATION_DEBUG "${MediaPipe_DIR}/debug/libmediapipe.so"
             INTERFACE_INCLUDE_DIRECTORIES "${MediaPipe_DIR}/include"
             )
     set(MediaPipe_LIBS MediaPipe::MediaPipe)
