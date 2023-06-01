@@ -35,6 +35,7 @@ data/images/*
 data/models/*
 data/mediapipe/*
 data/opencv/*
+data/traceviewer/*
 data/videos/*
 data/screenshots/*
 data/slam-maps/*
