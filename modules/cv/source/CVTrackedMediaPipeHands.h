@@ -15,6 +15,12 @@
 #        include <mediapipe.h>
 
 //-----------------------------------------------------------------------------
+//! ???
+/*!
+ * ??? With references to MediaPipe intro pages
+ * https://developers.google.com/mediapipe/solutions/vision/hand_landmarker
+ * Online examples: https://mediapipe-studio.webapps.google.com/demo/hand_landmarker
+ */
 class CVTrackedMediaPipeHands : public CVTracked
 {
 public:
@@ -26,7 +32,7 @@ public:
                CVCalibration* calib) final;
 
 private:
-    void processImage(CVMat imageRgb);
+    void processImageInMediaPipe(CVMat imageRgb);
     void drawResults(mp_multi_face_landmark_list* landmarks,
                      CVMat                        imageRgb);
 
