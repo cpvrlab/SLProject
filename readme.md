@@ -1,4 +1,6 @@
 ### Welcome to the SLProject 
+*THIS IS THE OLD DEPRECATED REPOSITORY OF SLPROJECT. PLEASE USE THE CURRENT REPOSITORY [SLProject4](https://github.com/cpvrlab/SLProject4)*.
+
 SL stands for Scene Library. It is developed at the Berne University of Applied Sciences (BFH) in Switzerland and is used for student projects in the cpvrLab. The various applications show what you can learn in three semesters about 3D computer graphics in real time rendering and ray tracing. The framework is built in C++ and OpenGL ES and can be built on Windows, Linux, MacOS (Intel & arm64), Android and Apple iOS. The framework can render alternatively with Ray Tracing and Path Tracing which provides in addition high quality transparencies, reflections and soft shadows. For a complete feature list see the [SLProject wiki](https://github.com/cpvrlab/SLProject/wiki).
 
 ### How to get the SLProject
